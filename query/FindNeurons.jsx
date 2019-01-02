@@ -140,40 +140,53 @@ class FindNeurons extends React.Component {
   processResults = (query, apiResponse) => {
     const { actions, classes } = this.props;
 
+    // assigns data properties to column indices for convenient access/modification
+    const indexOf = {
+      bodyId: 0,
+      name: 1,
+      status: 2,
+      post: 3,
+      pre: 4,
+      size: 5,
+      roiHeatMap: 6,
+      roiBarGraph: 7
+    };
+
     const data = apiResponse.data.map(row => {
       const hasSkeleton = row[8];
-      const converted = [
-        {
-          value: hasSkeleton ? (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row'
-              }}
+      const converted = [];
+      /* eslint-disable prefer-destructuring */
+      converted[indexOf.bodyId] = {
+        value: hasSkeleton ? (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row'
+            }}
+          >
+            {row[0]}
+            <div style={{ margin: '3px' }} />
+            <Icon
+              className={classes.clickable}
+              onClick={this.handleShowSkeleton(row[0], query.dataSet)}
+              fontSize="inherit"
             >
-              {row[0]}
-              <div style={{ margin: '3px' }} />
-              <Icon
-                className={classes.clickable}
-                onClick={this.handleShowSkeleton(row[0], query.dataSet)}
-                fontSize="inherit"
-              >
-                visibility
-              </Icon>
-            </div>
-          ) : (
-            row[0]
-          ),
-          sortBy: row[0]
-        },
-        row[1],
-        row[2],
-        '-', // empty unless roiInfoObject present
-        '-',
-        row[4],
-        '',
-        ''
-      ];
+              visibility
+            </Icon>
+          </div>
+        ) : (
+          row[0]
+        ),
+        sortBy: row[0]
+      };
+      converted[indexOf.name] = row[1];
+      converted[indexOf.status] = row[2];
+      converted[indexOf.post] = '-'; // empty unless roiInfoObject present
+      converted[indexOf.pre] = '-';
+      converted[indexOf.size] = row[4];
+      converted[indexOf.roiHeatMap] = '';
+      converted[indexOf.roiBarGraph] = '';
+      /* eslint-enable prefer-destructuring */
 
       // make sure none is added to the rois list.
       row[7].push('none');
@@ -210,7 +223,7 @@ class FindNeurons extends React.Component {
             postTotal={totalPost}
           />
         );
-        converted[6] = heatMap;
+        converted[indexOf.roiHeatMap] = heatMap;
 
         const barGraph = (
           <RoiBarGraph
@@ -220,7 +233,7 @@ class FindNeurons extends React.Component {
             postTotal={totalPost}
           />
         );
-        converted[7] = barGraph;
+        converted[indexOf.roiBarGraph] = barGraph;
 
         const postQuery = {
           dataSet: query.dataSet, // <string> for the data set selected
@@ -237,7 +250,7 @@ class FindNeurons extends React.Component {
           menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
           processResults: this.processSimpleConnections
         };
-        converted[3] = {
+        converted[indexOf.post] = {
           value: totalPost,
           action: () => actions.submit(postQuery)
         };
@@ -257,7 +270,7 @@ class FindNeurons extends React.Component {
           menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
           processResults: this.processSimpleConnections
         };
-        converted[4] = {
+        converted[indexOf.pre] = {
           value: totalPre,
           action: () => actions.submit(preQuery)
         };
@@ -265,19 +278,22 @@ class FindNeurons extends React.Component {
 
       return converted;
     });
+    const columns = [];
+    columns[indexOf.bodyId] = 'id';
+    columns[indexOf.name] = 'neuron';
+    columns[indexOf.status] = 'status';
+    columns[indexOf.post] = '#post (inputs)';
+    columns[indexOf.pre] = '#pre (outputs)';
+    columns[indexOf.size] = '#voxels';
+    columns[indexOf.roiHeatMap] = (
+      <div>
+        roi heatmap <ColorLegend />
+      </div>
+    );
+    columns[indexOf.roiBarGraph] = 'roi breakdown';
+
     return {
-      columns: [
-        'id',
-        'neuron',
-        'status',
-        '#post (inputs)',
-        '#pre (outputs)',
-        '#voxels',
-        <div>
-          roi heatmap <ColorLegend />
-        </div>,
-        'roi breakdown'
-      ],
+      columns,
       data,
       debug: apiResponse.debug
     };
