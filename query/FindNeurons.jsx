@@ -22,6 +22,7 @@ import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
 import RoiBarGraph from '../visualization/MiniRoiBarGraph';
 import NeuronHelp from '../NeuronHelp';
 import NeuronFilter from '../NeuronFilter';
+import { setColumnIndices } from './pluginHelpers';
 
 const styles = theme => ({
   select: {
@@ -139,18 +140,20 @@ class FindNeurons extends React.Component {
   // visualization plugin.
   processResults = (query, apiResponse) => {
     const { actions, classes } = this.props;
+    // eslint-disable-next-line camelcase
+    const { input_ROIs, output_ROIs } = query.parameters;
+    const rois = [...new Set(input_ROIs.concat(output_ROIs))];
 
     // assigns data properties to column indices for convenient access/modification
-    const indexOf = {
-      bodyId: 0,
-      name: 1,
-      status: 2,
-      post: 3,
-      pre: 4,
-      size: 5,
-      roiHeatMap: 6,
-      roiBarGraph: 7
-    };
+    const columnIds = ['bodyId', 'name', 'status', 'post', 'pre'];
+    if (rois.length > 0) {
+      rois.forEach(roi => {
+        columnIds.push(`${roi}Post`);
+        columnIds.push(`${roi}Pre`);
+      });
+    }
+    columnIds.push('size', 'roiHeatMap', 'roiBarGraph');
+    const indexOf = setColumnIndices(columnIds);
 
     const data = apiResponse.data.map(row => {
       const hasSkeleton = row[8];
@@ -274,6 +277,13 @@ class FindNeurons extends React.Component {
           value: totalPre,
           action: () => actions.submit(preQuery)
         };
+
+        if (rois.length > 0) {
+          rois.forEach(roi => {
+            converted[indexOf[`${roi}Post`]] = roiInfoObject[roi].post;
+            converted[indexOf[`${roi}Pre`]] = roiInfoObject[roi].pre;
+          });
+        }
       }
 
       return converted;
@@ -291,6 +301,12 @@ class FindNeurons extends React.Component {
       </div>
     );
     columns[indexOf.roiBarGraph] = 'roi breakdown';
+    if (rois.length > 0) {
+      rois.forEach(roi => {
+        columns[indexOf[`${roi}Post`]] = `${roi} #post`;
+        columns[indexOf[`${roi}Pre`]] = `${roi} #pre`;
+      });
+    }
 
     return {
       columns,
