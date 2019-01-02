@@ -140,9 +140,10 @@ class FindNeurons extends React.Component {
   // visualization plugin.
   processResults = (query, apiResponse) => {
     const { actions, classes } = this.props;
-    // eslint-disable-next-line camelcase
+    /* eslint-disable camelcase */
     const { input_ROIs, output_ROIs } = query.parameters;
-    const rois = [...new Set(input_ROIs.concat(output_ROIs))];
+    const rois = input_ROIs && output_ROIs ? [...new Set(input_ROIs.concat(output_ROIs))] : [];
+    /* eslint-enable camelcase */
 
     // assigns data properties to column indices for convenient access/modification
     const columnIds = ['bodyId', 'name', 'status', 'post', 'pre'];
