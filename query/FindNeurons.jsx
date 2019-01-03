@@ -11,7 +11,6 @@ import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
-import Icon from '@material-ui/core/Icon';
 
 import { submit } from 'actions/plugins';
 import { setUrlQS } from 'actions/app';
@@ -25,7 +24,8 @@ import NeuronFilter from '../NeuronFilter';
 import {
   setColumnIndices,
   createSimpleConnectionQueryObject,
-  generateRoiHeatMapAndBarGraph
+  generateRoiHeatMapAndBarGraph,
+  getBodyIdForTable
 } from './helpers/pluginhelpers';
 
 const styles = theme => ({
@@ -103,7 +103,7 @@ class FindNeurons extends React.Component {
   };
 
   processSimpleConnections = (query, apiResponse) => {
-    const { actions, classes } = this.props;
+    const { actions } = this.props;
 
     const indexOf = setColumnIndices([
       'bodyId',
@@ -129,29 +129,12 @@ class FindNeurons extends React.Component {
       roiList.push('none');
 
       const converted = [];
-      converted[indexOf.bodyId] = {
-        value: hasSkeleton ? (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row'
-            }}
-          >
-            {bodyId}
-            <div style={{ margin: '3px' }} />
-            <Icon
-              className={classes.clickable}
-              onClick={this.handleShowSkeleton(row[2], query.dataSet)}
-              fontSize="inherit"
-            >
-              visibility
-            </Icon>
-          </div>
-        ) : (
-          bodyId
-        ),
-        sortBy: bodyId
-      };
+      converted[indexOf.bodyId] = getBodyIdForTable(
+        query.dataSet,
+        bodyId,
+        hasSkeleton,
+        this.handleShowSkeleton
+      );
       converted[indexOf.name] = row[1];
       converted[indexOf.status] = row[6];
       converted[indexOf.connectionWeight] = row[3];
@@ -219,7 +202,7 @@ class FindNeurons extends React.Component {
   // Neo4j server and place them in the correct format for the
   // visualization plugin.
   processResults = (query, apiResponse) => {
-    const { actions, classes } = this.props;
+    const { actions } = this.props;
     /* eslint-disable camelcase */
     const { input_ROIs, output_ROIs } = query.parameters;
     const rois = input_ROIs && output_ROIs ? [...new Set(input_ROIs.concat(output_ROIs))] : [];
@@ -245,29 +228,12 @@ class FindNeurons extends React.Component {
       const roiInfoObject = JSON.parse(row[3]);
 
       const converted = [];
-      converted[indexOf.bodyId] = {
-        value: hasSkeleton ? (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row'
-            }}
-          >
-            {bodyId}
-            <div style={{ margin: '3px' }} />
-            <Icon
-              className={classes.clickable}
-              onClick={this.handleShowSkeleton(row[0], query.dataSet)}
-              fontSize="inherit"
-            >
-              visibility
-            </Icon>
-          </div>
-        ) : (
-          bodyId
-        ),
-        sortBy: bodyId
-      };
+      converted[indexOf.bodyId] = getBodyIdForTable(
+        query.dataSet,
+        bodyId,
+        hasSkeleton,
+        this.handleShowSkeleton
+      );
       converted[indexOf.name] = row[1];
       converted[indexOf.status] = row[2];
       converted[indexOf.post] = '-'; // empty unless roiInfoObject present

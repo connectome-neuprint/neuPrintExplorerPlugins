@@ -1,5 +1,6 @@
 import React from 'react';
 import randomColor from 'randomcolor';
+import Icon from '@material-ui/core/Icon';
 import RoiHeatMap from '../../visualization/MiniRoiHeatMap';
 import RoiBarGraph from '../../visualization/MiniRoiBarGraph';
 
@@ -124,6 +125,45 @@ export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, 
   );
 
   return { heatMap, barGraph };
+}
+
+/**
+ * Returns body id in preferred format for table view. Incorporates a view skeleton link.
+ *
+ * @export
+ * @param {string} dataset
+ * @param {number} bodyId
+ * @param {boolean} hasSkeleton
+ * @param {Object} clickableClass
+ * @param {function} skeletonHandler
+ * @returns
+ */
+export function getBodyIdForTable(dataset, bodyId, hasSkeleton, skeletonHandler) {
+  return {
+    value: hasSkeleton ? (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row'
+        }}
+      >
+        {bodyId}
+        <div style={{ margin: '3px' }} />
+        <Icon
+          style={{
+            cursor: 'pointer'
+          }}
+          onClick={skeletonHandler(bodyId, dataset)}
+          fontSize="inherit"
+        >
+          visibility
+        </Icon>
+      </div>
+    ) : (
+      bodyId
+    ),
+    sortBy: bodyId
+  };
 }
 
 export default {
