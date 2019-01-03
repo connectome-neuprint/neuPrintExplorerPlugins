@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -18,11 +19,14 @@ import { skeletonAddandOpen } from 'actions/skeleton';
 import { neuroglancerAddandOpen } from 'actions/neuroglancer';
 import { getQueryString } from 'helpers/queryString';
 import { LoadQueryString, SaveQueryString } from '../../helpers/qsparser';
-import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
-import RoiBarGraph from '../visualization/MiniRoiBarGraph';
+import { ColorLegend } from '../visualization/MiniRoiHeatMap';
 import NeuronHelp from '../NeuronHelp';
 import NeuronFilter from '../NeuronFilter';
-import { setColumnIndices } from './pluginHelpers';
+import {
+  setColumnIndices,
+  createSimpleConnectionQueryObject,
+  generateRoiHeatMapAndBarGraph
+} from './helpers/pluginhelpers';
 
 const styles = theme => ({
   select: {
@@ -99,37 +103,113 @@ class FindNeurons extends React.Component {
   };
 
   processSimpleConnections = (query, apiResponse) => {
-    const { dataSet, actions } = this.props;
+    const { actions, classes } = this.props;
 
-    const findNeuronQuery = bodyId => {
-      const parameters = {
-        dataset: dataSet,
-        neuron_id: bodyId
-      };
-      return {
-        dataSet, // <string> for the data set selected
-        queryString: '/npexplorer/findneurons', // <neo4jquery string>
-        // cypherQuery: <string> if this is passed then use generic /api/custom/custom endpoint
-        visType: 'SimpleTable', // <string> which visualization plugin to use. Default is 'table'
-        plugin: pluginName, // <string> the name of this plugin.
-        parameters, // <object>
-        title: `Neuron with id ${bodyId}`,
-        menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-        processResults: this.processResults
-      };
-    };
-
-    const data = apiResponse.data.map(row => [
-      {
-        value: row[2],
-        action: () => actions.submit(findNeuronQuery(row[2]))
-      },
-      row[1],
-      row[3]
+    const indexOf = setColumnIndices([
+      'bodyId',
+      'name',
+      'status',
+      'connectionWeight',
+      'post',
+      'pre',
+      'size',
+      'roiHeatMap',
+      'roiBarGraph'
     ]);
 
+    const data = apiResponse.data.map(row => {
+      const hasSkeleton = row[5];
+      const roiInfoObject = JSON.parse(row[7]);
+      const roiList = row[11];
+      const postTotal = row[10];
+      const preTotal = row[9];
+      const bodyId = row[2];
+
+      // make sure none is added to the rois list.
+      roiList.push('none');
+
+      const converted = [];
+      converted[indexOf.bodyId] = {
+        value: hasSkeleton ? (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row'
+            }}
+          >
+            {bodyId}
+            <div style={{ margin: '3px' }} />
+            <Icon
+              className={classes.clickable}
+              onClick={this.handleShowSkeleton(row[2], query.dataSet)}
+              fontSize="inherit"
+            >
+              visibility
+            </Icon>
+          </div>
+        ) : (
+          bodyId
+        ),
+        sortBy: bodyId
+      };
+      converted[indexOf.name] = row[1];
+      converted[indexOf.status] = row[6];
+      converted[indexOf.connectionWeight] = row[3];
+      converted[indexOf.size] = row[8];
+
+      const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
+        roiInfoObject,
+        roiList,
+        preTotal,
+        postTotal
+      );
+      converted[indexOf.roiHeatMap] = heatMap;
+      converted[indexOf.roiBarGraph] = barGraph;
+
+      const postQuery = createSimpleConnectionQueryObject(
+        query.dataSet,
+        true,
+        bodyId,
+        this.processSimpleConnections,
+        pluginName
+      );
+      converted[indexOf.post] = {
+        value: postTotal,
+        action: () => actions.submit(postQuery)
+      };
+
+      const preQuery = createSimpleConnectionQueryObject(
+        query.dataSet,
+        false,
+        bodyId,
+        this.processSimpleConnections,
+        pluginName
+      );
+      converted[indexOf.pre] = {
+        value: preTotal,
+        action: () => actions.submit(preQuery)
+      };
+
+      return converted;
+    });
+
+    const columns = [];
+    columns[indexOf.bodyId] = 'id';
+    columns[indexOf.name] = 'neuron';
+    columns[indexOf.status] = 'status';
+    columns[indexOf.connectionWeight] = '#connections';
+    columns[indexOf.post] = '#post (inputs)';
+    columns[indexOf.pre] = '#pre (outputs)';
+    columns[indexOf.size] = '#voxels';
+    columns[indexOf.roiHeatMap] = (
+      <div>
+        roi heatmap <ColorLegend />
+      </div>
+    );
+    columns[indexOf.roiBarGraph] = 'roi breakdown';
+
     return {
-      columns: ['Neuron ID', 'Neuron', '#connections'],
+      columns,
       data,
       debug: apiResponse.debug
     };
@@ -158,8 +238,13 @@ class FindNeurons extends React.Component {
 
     const data = apiResponse.data.map(row => {
       const hasSkeleton = row[8];
+      const bodyId = row[0];
+      const roiList = row[7];
+      const totalPre = row[5];
+      const totalPost = row[6];
+      const roiInfoObject = JSON.parse(row[3]);
+
       const converted = [];
-      /* eslint-disable prefer-destructuring */
       converted[indexOf.bodyId] = {
         value: hasSkeleton ? (
           <div
@@ -168,7 +253,7 @@ class FindNeurons extends React.Component {
               flexDirection: 'row'
             }}
           >
-            {row[0]}
+            {bodyId}
             <div style={{ margin: '3px' }} />
             <Icon
               className={classes.clickable}
@@ -179,9 +264,9 @@ class FindNeurons extends React.Component {
             </Icon>
           </div>
         ) : (
-          row[0]
+          bodyId
         ),
-        sortBy: row[0]
+        sortBy: bodyId
       };
       converted[indexOf.name] = row[1];
       converted[indexOf.status] = row[2];
@@ -190,90 +275,39 @@ class FindNeurons extends React.Component {
       converted[indexOf.size] = row[4];
       converted[indexOf.roiHeatMap] = '';
       converted[indexOf.roiBarGraph] = '';
-      /* eslint-enable prefer-destructuring */
 
       // make sure none is added to the rois list.
-      row[7].push('none');
-      const roiList = row[7];
-      const totalPre = row[5];
-      const totalPost = row[6];
-
-      const roiInfoObject = JSON.parse(row[3]);
+      roiList.push('none');
 
       if (roiInfoObject) {
-        // calculate # pre and post in super rois (which are disjoint) to get total
-        // number of synapses assigned to an roi
-        let postInSuperRois = 0;
-        let preInSuperRois = 0;
-        Object.keys(roiInfoObject).forEach(roi => {
-          if (roiList.includes(roi)) {
-            preInSuperRois += roiInfoObject[roi].pre;
-            postInSuperRois += roiInfoObject[roi].post;
-          }
-        });
-
-        // add this after the other rois have been summed.
-        // records # pre and post that are not in rois
-        roiInfoObject.none = {
-          pre: row[5] - preInSuperRois,
-          post: row[6] - postInSuperRois
-        };
-
-        const heatMap = (
-          <RoiHeatMap
-            roiList={roiList}
-            roiInfoObject={roiInfoObject}
-            preTotal={totalPre}
-            postTotal={totalPost}
-          />
+        const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
+          roiInfoObject,
+          roiList,
+          totalPre,
+          totalPost
         );
         converted[indexOf.roiHeatMap] = heatMap;
-
-        const barGraph = (
-          <RoiBarGraph
-            roiList={roiList}
-            roiInfoObject={roiInfoObject}
-            preTotal={totalPre}
-            postTotal={totalPost}
-          />
-        );
         converted[indexOf.roiBarGraph] = barGraph;
 
-        const postQuery = {
-          dataSet: query.dataSet, // <string> for the data set selected
-          queryString: '/npexplorer/simpleconnections', // <neo4jquery string>
-          // cypherQuery: <string> if this is passed then use generic /api/custom/custom endpoint
-          visType: 'SimpleTable', // <string> which visualization plugin to use. Default is 'table'
-          plugin: pluginName, // <string> the name of this plugin.
-          parameters: {
-            dataset: query.dataSet,
-            find_inputs: true,
-            neuron_id: row[0]
-          },
-          title: `Connections to bodyID=${row[0]}`,
-          menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-          processResults: this.processSimpleConnections
-        };
+        const postQuery = createSimpleConnectionQueryObject(
+          query.dataSet,
+          true,
+          bodyId,
+          this.processSimpleConnections,
+          pluginName
+        );
         converted[indexOf.post] = {
           value: totalPost,
           action: () => actions.submit(postQuery)
         };
 
-        const preQuery = {
-          dataSet: query.dataSet, // <string> for the data set selected
-          queryString: '/npexplorer/simpleconnections', // <neo4jquery string>
-          // cypherQuery: <string> if this is passed then use generic /api/custom/custom endpoint
-          visType: 'SimpleTable', // <string> which visualization plugin to use. Default is 'table'
-          plugin: pluginName, // <string> the name of this plugin.
-          parameters: {
-            dataset: query.dataSet,
-            find_inputs: false,
-            neuron_id: row[0]
-          },
-          title: `Connections from bodyID=${row[0]}`,
-          menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-          processResults: this.processSimpleConnections
-        };
+        const preQuery = createSimpleConnectionQueryObject(
+          query.dataSet,
+          false,
+          bodyId,
+          this.processSimpleConnections,
+          pluginName
+        );
         converted[indexOf.pre] = {
           value: totalPre,
           action: () => actions.submit(preQuery)
