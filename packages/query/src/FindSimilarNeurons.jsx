@@ -23,10 +23,10 @@ import { skeletonAddandOpen } from 'actions/skeleton';
 import { neuroglancerAddandOpen } from 'actions/neuroglancer';
 import { getQueryString } from 'helpers/queryString';
 import * as math from 'mathjs';
-import { setUrlQS } from '../../actions/app';
-import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
-import RoiBarGraph from '../visualization/MiniRoiBarGraph';
-import { LoadQueryString, SaveQueryString } from '../../helpers/qsparser';
+import { setUrlQS } from 'actions/app';
+import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
+import RoiBarGraph from './visualization/MiniRoiBarGraph';
+import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
 
 const styles = theme => ({
   textField: {

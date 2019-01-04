@@ -21,8 +21,8 @@ import Typography from '@material-ui/core/Typography';
 
 import { submit, formError } from 'actions/plugins';
 import { getQueryString } from 'helpers/queryString';
-import ColorBox from '../visualization/ColorBox';
-import NeuronHelp from '../NeuronHelp';
+import ColorBox from './visualization/ColorBox';
+import NeuronHelp from './NeuronHelp';
 
 const styles = () => ({
   textField: {},

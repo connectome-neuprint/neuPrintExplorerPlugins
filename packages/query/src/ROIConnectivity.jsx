@@ -14,16 +14,17 @@ import InputLabel from '@material-ui/core/InputLabel';
 import { withStyles } from '@material-ui/core/styles';
 import Icon from '@material-ui/core/Icon';
 
+import { sortRois } from '@neuprint/support';
+
 import { submit } from 'actions/plugins';
 import { skeletonAddandOpen } from 'actions/skeleton';
 import { setUrlQS } from 'actions/app';
 import { neuroglancerAddandOpen } from 'actions/neuroglancer';
 import { getQueryString } from 'helpers/queryString';
-import { LoadQueryString, SaveQueryString } from '../../helpers/qsparser';
-import ColorBox from '../visualization/ColorBox';
-import { sortRois } from '../MetaInfo';
-import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
-import RoiBarGraph from '../visualization/MiniRoiBarGraph';
+import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
+import ColorBox from './visualization/ColorBox';
+import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
+import RoiBarGraph from './visualization/MiniRoiBarGraph';
 
 const pluginName = 'ROIConnectivity';
 

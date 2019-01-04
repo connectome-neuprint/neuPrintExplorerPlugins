@@ -8,7 +8,7 @@ import thunk from 'redux-thunk';
 import { createMemoryHistory } from 'history';
 import FindNeurons from './FindNeurons';
 import AppReducers from '../../reducers';
-import { ColorLegend } from '../visualization/MiniRoiHeatMap';
+import { ColorLegend } from './visualization/MiniRoiHeatMap';
 
 const composeEnhancers = compose;
 

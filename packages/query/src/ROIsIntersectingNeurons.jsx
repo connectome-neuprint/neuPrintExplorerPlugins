@@ -16,7 +16,7 @@ import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
 import { setUrlQS } from 'actions/app';
 import { getQueryString } from 'helpers/queryString';
 import { submit, formError } from 'actions/plugins';
-import NeuronHelp from '../NeuronHelp';
+import NeuronHelp from './NeuronHelp';
 
 const styles = () => ({
   textField: {},

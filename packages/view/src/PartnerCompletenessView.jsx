@@ -8,8 +8,9 @@ import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 
+import { metaInfoError } from '@neuprint/support';
+
 import SimpleTable from './SimpleTable';
-import { metaInfoError } from '../../actions/app';
 
 const styles = theme => ({
   root: {},

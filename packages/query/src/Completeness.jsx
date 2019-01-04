@@ -11,7 +11,7 @@ import Button from '@material-ui/core/Button';
 
 import { submit } from 'actions/plugins';
 import { getQueryString } from 'helpers/queryString';
-import NeuronFilter from '../NeuronFilter';
+import NeuronFilter from './NeuronFilter';
 
 const pluginName = 'Completeness';
 

@@ -17,11 +17,11 @@ import { setUrlQS } from 'actions/app';
 import { skeletonAddandOpen } from 'actions/skeleton';
 import { neuroglancerAddandOpen } from 'actions/neuroglancer';
 import { getQueryString } from 'helpers/queryString';
-import { LoadQueryString, SaveQueryString } from '../../helpers/qsparser';
-import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
-import RoiBarGraph from '../visualization/MiniRoiBarGraph';
-import NeuronHelp from '../NeuronHelp';
-import NeuronFilter from '../NeuronFilter';
+import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
+import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
+import RoiBarGraph from './visualization/MiniRoiBarGraph';
+import NeuronHelp from './NeuronHelp';
+import NeuronFilter from './NeuronFilter';
 import { setColumnIndices } from './pluginHelpers';
 
 const styles = theme => ({

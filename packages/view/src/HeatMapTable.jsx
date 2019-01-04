@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 
 import { withStyles } from '@material-ui/core/styles';
-import ColorBox from '../visualization/ColorBox';
+import ColorBox from './visualization/ColorBox';
 
 const styles = theme => ({
   root: {},

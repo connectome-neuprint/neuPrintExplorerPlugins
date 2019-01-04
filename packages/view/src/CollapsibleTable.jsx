@@ -13,8 +13,8 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import TablePaginationActions from 'helpers/TablePaginationActions';
-import SimpleTable from 'views/SimpleTable';
+import TablePaginationActions from '@neuprint/support';
+import SimpleTable from './SimpleTable';
 
 const styles = theme => ({
   root: {},

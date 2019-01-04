@@ -18,8 +18,8 @@ import TextField from '@material-ui/core/TextField';
 import { submit } from 'actions/plugins';
 import { setUrlQS } from 'actions/app';
 import { getQueryString } from 'helpers/queryString';
-import NeuronFilter from '../NeuronFilter';
-import { LoadQueryString, SaveQueryString } from '../../helpers/qsparser';
+import NeuronFilter from './NeuronFilter';
+import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
 
 const styles = theme => ({
   formControl: {

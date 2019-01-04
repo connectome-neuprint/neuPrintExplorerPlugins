@@ -14,8 +14,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { submit } from 'actions/plugins';
 import { getQueryString } from 'helpers/queryString';
-import { LoadQueryString, SaveQueryString } from '../../helpers/qsparser';
-import { setUrlQS } from '../../actions/app';
+import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
+import { setUrlQS } from 'actions/app';
 
 const pluginName = 'ShortestPath';
 

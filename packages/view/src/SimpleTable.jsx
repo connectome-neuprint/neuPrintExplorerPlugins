@@ -10,7 +10,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { withStyles } from '@material-ui/core/styles';
 
-import TablePaginationActions from 'helpers/TablePaginationActions';
+import TablePaginationActions from '@neuprint/support';
 
 function desc(a, b, orderBy) {
   let aVal = a[orderBy];
