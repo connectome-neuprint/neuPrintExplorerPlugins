@@ -83,7 +83,17 @@ class SimpleTable extends React.Component {
   constructor(props) {
     super(props);
     const { properties } = this.props;
-    const { paginate, rowsPerPage } = properties;
+    // default values
+    let { paginate, rowsPerPage } = properties;
+
+    // set defaults if not specified by user
+    if (!rowsPerPage) {
+      rowsPerPage = 5;
+    }
+
+    if (!paginate) {
+      paginate = true;
+    }
 
     this.state = {
       order: 'asc',
@@ -122,13 +132,18 @@ class SimpleTable extends React.Component {
     const { query, classes } = this.props;
     const { page, orderBy, order } = this.state;
     let { rowsPerPage } = this.state;
-    const { paginate } = this.state;
+    let { paginate } = this.state;
     // fit table to data
-    if (query.result.data.length < rowsPerPage || paginate === false) {
+    if (query.result.data.length < rowsPerPage) {
       rowsPerPage = query.result.data.length;
     }
     const emptyRows =
       rowsPerPage - Math.min(rowsPerPage, query.result.data.length - page * rowsPerPage);
+
+    // TODO: use visProps when roi connectivity plugin has been refactored.
+    if ('paginate' in query.result && query.result.paginate === 0) {
+      paginate = false;
+    }
 
     const { highlightIndex } = query.result;
 
@@ -223,10 +238,7 @@ SimpleTable.propTypes = {
 };
 
 SimpleTable.defaultProps = {
-  properties: {
-    rowsPerPage: 5,
-    paginate: true
-  }
+  properties: {}
 };
 
 export default withStyles(styles)(SimpleTable);
