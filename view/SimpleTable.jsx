@@ -133,7 +133,7 @@ class SimpleTable extends React.Component {
     let { rowsPerPage } = this.state;
     const { paginate } = this.state;
     // fit table to data
-    if (query.result.data.length < rowsPerPage) {
+    if (query.result.data.length < rowsPerPage || paginate === false) {
       rowsPerPage = query.result.data.length;
     }
     const emptyRows =
