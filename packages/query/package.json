@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/queries",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Query plugins used by the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
@@ -21,8 +21,8 @@
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
-    "@babel/polyfill": "^7.2.5",
     "@babel/plugin-proposal-class-properties": "^7.2.3",
+    "@babel/polyfill": "^7.2.5",
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0",
     "@material-ui/core": "^3.2.0",
@@ -54,7 +54,7 @@
     "redux": "^3.7.2"
   },
   "dependencies": {
-    "@neuprint/support": "^0.0.1",
+    "@neuprint/support": "^0.0.2",
     "colormap": "^2.3.0",
     "randomcolor": "^0.5.3"
   }
