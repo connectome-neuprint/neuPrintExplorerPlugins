@@ -150,7 +150,7 @@ class SimpleTable extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.scroll}>
-          <Table>
+          <Table padding="dense">
             <TableHead>
               <TableRow>
                 {query.result.columns.map((header, index) => {
