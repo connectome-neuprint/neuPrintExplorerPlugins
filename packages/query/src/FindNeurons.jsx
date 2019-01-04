@@ -22,10 +22,12 @@ import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
 import { ColorLegend } from './visualization/MiniRoiHeatMap';
 import NeuronHelp from './NeuronHelp';
 import NeuronFilter from './NeuronFilter';
-import { setColumnIndices, 
+import {
+  setColumnIndices,
   createSimpleConnectionQueryObject,
   generateRoiHeatMapAndBarGraph,
-  getBodyIdForTable } from './pluginHelpers';
+  getBodyIdForTable
+} from './shared/pluginhelpers';
 
 const styles = theme => ({
   select: {

@@ -1,8 +1,8 @@
 import React from 'react';
 import randomColor from 'randomcolor';
 import Icon from '@material-ui/core/Icon';
-import RoiHeatMap from './visualization/MiniRoiHeatMap';
-import RoiBarGraph from './visualization/MiniRoiBarGraph';
+import RoiHeatMap from '../visualization/MiniRoiHeatMap';
+import RoiBarGraph from '../visualization/MiniRoiBarGraph';
 
 /**
  * Creates a map of column identifier to column index. Column indices
