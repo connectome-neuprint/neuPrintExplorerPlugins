@@ -132,18 +132,13 @@ class SimpleTable extends React.Component {
     const { query, classes } = this.props;
     const { page, orderBy, order } = this.state;
     let { rowsPerPage } = this.state;
-    let { paginate } = this.state;
+    const { paginate } = this.state;
     // fit table to data
     if (query.result.data.length < rowsPerPage) {
       rowsPerPage = query.result.data.length;
     }
     const emptyRows =
       rowsPerPage - Math.min(rowsPerPage, query.result.data.length - page * rowsPerPage);
-
-    // TODO: use visProps when roi connectivity plugin has been refactored.
-    if ('paginate' in query.result && query.result.paginate === 0) {
-      paginate = false;
-    }
 
     const { highlightIndex } = query.result;
 
