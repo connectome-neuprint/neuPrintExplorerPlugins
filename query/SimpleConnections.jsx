@@ -132,6 +132,7 @@ class SimpleConnections extends React.Component {
         dataSet,
         queryString: '/npexplorer/simpleconnections',
         visType: 'CollapsibleTable',
+        visProps: { paginateExpansion: true },
         plugin: pluginName,
         parameters,
         title: `${preOrPost}-synaptic connections to ${neuronName}`,
