@@ -40,11 +40,12 @@ class CollapsibleTable extends React.Component {
   constructor(props) {
     super(props);
     const { properties } = this.props;
-    const { rowsPerPage } = properties;
+    const { rowsPerPage, paginate } = properties;
 
     this.state = {
       page: 0,
-      rowsPerPage
+      rowsPerPage,
+      paginate
     };
   }
 
@@ -62,13 +63,15 @@ class CollapsibleTable extends React.Component {
 
   render() {
     const { query, classes } = this.props;
-    const { page, rowsPerPage } = this.state;
+    const { page, paginate } = this.state;
+    let { rowsPerPage } = this.state;
+
     const emptyRows =
       rowsPerPage - Math.min(rowsPerPage, query.result.data.length - page * rowsPerPage);
 
-    let paginate = true;
-    if ('paginate' in query.result && query.result.paginate === 0) {
-      paginate = false;
+    // fit table to data
+    if (query.result.data.length < rowsPerPage || paginate === false) {
+      rowsPerPage = query.result.data.length;
     }
 
     const { highlightIndex } = query.result;
@@ -95,10 +98,10 @@ class CollapsibleTable extends React.Component {
                             <Typography>{row.name}</Typography>
                           </ExpansionPanelSummary>
                           <ExpansionPanelDetails className={classes.nopad}>
-                            <SimpleTable query={{result: row}} />
+                            <SimpleTable query={{ result: row }} properties={{ paginate: false }} />
                           </ExpansionPanelDetails>
                         </ExpansionPanel>
-                     </TableCell>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -135,7 +138,8 @@ CollapsibleTable.propTypes = {
 
 CollapsibleTable.defaultProps = {
   properties: {
-    rowsPerPage: 5
+    rowsPerPage: 5,
+    paginate: true
   }
 };
 
