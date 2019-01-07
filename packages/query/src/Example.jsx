@@ -463,7 +463,7 @@ class Example extends React.Component {
 
 // data that will be provided to your form. Use it to build
 // inputs, selections and for validation.
-FindNeurons.propTypes = {
+Example.propTypes = {
   actions: PropTypes.object.isRequired,
   availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
   dataSet: PropTypes.string.isRequired,
@@ -473,14 +473,14 @@ FindNeurons.propTypes = {
   urlQueryString: PropTypes.string.isRequired
 };
 
-const FindNeuronsState = state => ({
+const ExampleState = state => ({
   isQuerying: state.query.isQuerying,
   urlQueryString: state.app.get('urlQueryString')
 });
 
 // The submit action which will accept your query, execute it and
 // store the results for view plugins to display.
-const FindNeuronsDispatch = dispatch => ({
+const ExampleDispatch = dispatch => ({
   actions: {
     submit: query => {
       dispatch(submit(query));
@@ -501,8 +501,8 @@ const FindNeuronsDispatch = dispatch => ({
 export default withRouter(
   withStyles(styles)(
     connect(
-      FindNeuronsState,
-      FindNeuronsDispatch
-    )(FindNeurons)
+      ExampleState,
+      ExampleDispatch
+    )(Example)
   )
 );
