@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild": "rimraf build",
-    "build": "NODE_ENV=production npx babel ./src --out-dir ./build --ignore *.test.js"
+    "build": "NODE_ENV=production npx babel ./src --out-dir ./build --ignore *.test.js",
+    "dev": "NODE_ENV=development npx babel ./src --out-dir ./build --ignore *.test.js --source-map inline --watch --verbose"
   },
   "repository": {
     "type": "git",
