@@ -1,13 +1,14 @@
 {
   "name": "@neuprint/views",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "View plugins used by the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild": "rimraf build",
     "build": "NODE_ENV=production npx babel ./src --out-dir ./build --ignore *.test.js",
-    "dev": "NODE_ENV=development npx babel ./src --out-dir ./build --ignore *.test.js --source-map inline --watch --verbose"
+    "dev": "NODE_ENV=development npx babel ./src --out-dir ./build --ignore *.test.js --source-map inline --watch --verbose",
+    "prepublishOnly": "npm run-script build"
   },
   "repository": {
     "type": "git",
@@ -55,5 +56,6 @@
   "dependencies": {
     "@neuprint/support": "^0.1.0",
     "react-select": "^2.1.0"
-  }
+  },
+  "gitHead": "7e8a8d98fc5f55d001b8cc2707aee629396f7654"
 }
