@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/views",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "View plugins used by the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
@@ -53,7 +53,7 @@
     "redux": "^3.7.2"
   },
   "dependencies": {
-    "@neuprint/support": "^0.0.2",
+    "@neuprint/support": "^0.1.0",
     "react-select": "^2.1.0"
   }
 }

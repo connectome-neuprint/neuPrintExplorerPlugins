@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/queries",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Query plugins used by the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
@@ -59,7 +59,7 @@
     "redux": "^3.7.2"
   },
   "dependencies": {
-    "@neuprint/support": "^0.0.2",
+    "@neuprint/support": "^0.1.0",
     "colormap": "^2.3.0",
     "deepmerge": "^2.2.1",
     "mathjs": "^5.2.3",
