@@ -2,7 +2,6 @@
  * Query to find partners for a given body and the completeness of those tracings.
  */
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import randomColor from 'randomcolor';
@@ -11,9 +10,6 @@ import Immutable from 'immutable';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-
-import { submit } from 'actions/plugins';
-import { getSiteParams, getQueryString, setQueryString } from 'helpers/queryString';
 
 const pluginName = 'Partner Completeness';
 
@@ -70,7 +66,7 @@ class PartnerCompleteness extends React.Component {
   // creates query object and sends to callback
   processRequest = () => {
     const { dataSet, actions, history, location } = this.props;
-    const qsParams = getSiteParams(location);
+    const qsParams = actions.getSiteParams(location);
     const { bodyId } = qsParams.getIn(['input', 'pc'], Immutable.Map({})).toJS();
     const cypher = `MATCH (n :\`${dataSet}-Segment\` {bodyId: ${bodyId}})-[x:ConnectsTo]-(m) RETURN m.bodyId, m.name, CASE WHEN startnode(x).bodyId = ${bodyId} THEN false ELSE true END, x.weight, m.status, m.pre, m.post, n.name, n.pre, n.post, n.status ORDER BY x.weight DESC`;
 
@@ -88,15 +84,16 @@ class PartnerCompleteness extends React.Component {
     actions.submit(query);
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
     return query;
   };
 
   addNeuron = event => {
+    const { actions } = this.props;
     const bodyId = event.target.value;
-    setQueryString({
-      'input': {
+    actions.setQueryString({
+      input: {
         pc: {
           bodyId
         }
@@ -105,8 +102,8 @@ class PartnerCompleteness extends React.Component {
   };
 
   render() {
-    const { classes, isQuerying, location } = this.props;
-    const qsParams = getSiteParams(location);
+    const { classes, isQuerying, location, actions } = this.props;
+    const qsParams = actions.getSiteParams(location);
     const { bodyId } = qsParams.getIn(['input', 'pc'], Immutable.Map({})).toJS();
     return (
       <div>
@@ -140,25 +137,4 @@ PartnerCompleteness.propTypes = {
   location: PropTypes.object.isRequired
 };
 
-const PartnerCompletenessState = state => ({
-  isQuerying: state.query.isQuerying
-});
-
-// The submit action which will accept your query, execute it and
-// store the results for view plugins to display.
-const PartnerCompletenessDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    }
-  }
-});
-
-export default withRouter(
-  withStyles(styles)(
-    connect(
-      PartnerCompletenessState,
-      PartnerCompletenessDispatch
-    )(PartnerCompleteness)
-  )
-);
+export default withRouter(withStyles(styles)(PartnerCompleteness));

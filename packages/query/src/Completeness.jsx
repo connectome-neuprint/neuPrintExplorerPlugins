@@ -2,16 +2,13 @@
  * Queries completeness of reconstruction with respect to neuron filters.
  */
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import randomColor from 'randomcolor';
 import { withRouter } from 'react-router';
 
 import Button from '@material-ui/core/Button';
 
-import { submit } from 'actions/plugins';
-import { getQueryString } from 'helpers/queryString';
-import NeuronFilter from './NeuronFilter';
+import NeuronFilter from './shared/NeuronFilter';
 
 const pluginName = 'Completeness';
 
@@ -99,16 +96,21 @@ class Completeness extends React.Component {
     actions.submit(query);
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
     return query;
   };
 
   render() {
-    const { isQuerying, dataSet } = this.props;
+    const { isQuerying, dataSet, actions, neoServerSettings } = this.props;
     return (
       <div>
-        <NeuronFilter callback={this.loadNeuronFilters} datasetstr={dataSet} />
+        <NeuronFilter
+          callback={this.loadNeuronFilters}
+          datasetstr={dataSet}
+          actions={actions}
+          neoServerSettings={neoServerSettings}
+        />
         <Button
           disabled={isQuerying}
           color="primary"
@@ -124,26 +126,10 @@ class Completeness extends React.Component {
 
 Completeness.propTypes = {
   isQuerying: PropTypes.bool.isRequired,
+  neoServerSettings: PropTypes.object.isRequired,
   dataSet: PropTypes.string.isRequired,
   actions: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired
 };
 
-const CompletenessState = state => ({
-  isQuerying: state.query.isQuerying
-});
-
-const CompletenessDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    }
-  }
-});
-
-export default withRouter(
-  connect(
-    CompletenessState,
-    CompletenessDispatch
-  )(Completeness)
-);
+export default withRouter(Completeness);

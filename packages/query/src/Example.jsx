@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import Select from 'react-select';
 import { withRouter } from 'react-router';
 import randomColor from 'randomcolor';
@@ -12,14 +11,11 @@ import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import Icon from '@material-ui/core/Icon';
 
-import { submit } from 'actions/plugins';
-import { setUrlQS } from 'actions/app';
-import { getQueryString } from 'helpers/queryString';
-import { LoadQueryString, SaveQueryString } from '../../helpers/qsparser';
-import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
-import RoiBarGraph from '../visualization/MiniRoiBarGraph';
-import NeuronHelp from '../NeuronHelp';
-import NeuronFilter from '../NeuronFilter';
+import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
+import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
+import RoiBarGraph from './visualization/MiniRoiBarGraph';
+import NeuronHelp from './shared/NeuronHelp';
+import NeuronFilter from './shared/NeuronFilter';
 
 const styles = theme => ({
   select: {
@@ -328,7 +324,7 @@ class Example extends React.Component {
     // redirect to the results page.
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
     return query;
   };
@@ -473,36 +469,4 @@ Example.propTypes = {
   urlQueryString: PropTypes.string.isRequired
 };
 
-const ExampleState = state => ({
-  isQuerying: state.query.isQuerying,
-  urlQueryString: state.app.get('urlQueryString')
-});
-
-// The submit action which will accept your query, execute it and
-// store the results for view plugins to display.
-const ExampleDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    },
-    skeletonAddandOpen: (id, dataSet) => {
-      dispatch(skeletonAddandOpen(id, dataSet));
-    },
-    neuroglancerAddandOpen: (id, dataSet) => {
-      dispatch(neuroglancerAddandOpen(id, dataSet));
-    },
-    setURLQs(querystring) {
-      dispatch(setUrlQS(querystring));
-    }
-  }
-});
-
-// boiler plate for redux.
-export default withRouter(
-  withStyles(styles)(
-    connect(
-      ExampleState,
-      ExampleDispatch
-    )(Example)
-  )
-);
+export default withRouter(withStyles(styles)(Example));

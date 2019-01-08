@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild": "rimraf build",
-    "build": "NODE_ENV=production npx babel ./src --out-dir ./build --ignore *.test.js",
-    "dev": "NODE_ENV=development npx babel ./src --out-dir ./build --ignore *.test.js --source-map inline --watch --verbose"
+    "build": "NODE_ENV=production npx babel ./src --out-dir ./build --ignore **/*.test.jsx",
+    "dev": "NODE_ENV=development npx babel ./src --out-dir ./build --ignore **/*.test.jsx --source-map inline --watch --verbose"
   },
   "repository": {
     "type": "git",
@@ -36,27 +36,33 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.2",
     "eslint-plugin-react": "^7.12.2",
+    "immutable": "^3.8.2",
     "prettier": "^1.15.3",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
     "react-dom": "^16.3.3",
     "react-redux": "^5.0.7",
     "react-router": "^4.2.0",
+    "react-select": "^2.1.0",
     "redux": "^3.7.2"
   },
   "peerDependencies": {
     "@material-ui/core": "^3.2.0",
     "@material-ui/icons": "^3.0.1",
+    "immutable": "^3.8.2",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
     "react-dom": "^16.3.3",
     "react-redux": "^5.0.7",
     "react-router": "^4.2.0",
+    "react-select": "^2.1.0",
     "redux": "^3.7.2"
   },
   "dependencies": {
     "@neuprint/support": "^0.0.2",
     "colormap": "^2.3.0",
+    "deepmerge": "^2.2.1",
+    "mathjs": "^5.2.3",
     "randomcolor": "^0.5.3"
   }
 }

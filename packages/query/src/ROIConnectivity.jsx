@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import Select from 'react-select';
 import randomColor from 'randomcolor';
-import { connect } from 'react-redux';
 
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -16,12 +15,6 @@ import Icon from '@material-ui/core/Icon';
 
 import { sortRois } from '@neuprint/support';
 
-import { submit } from 'actions/plugins';
-import { skeletonAddandOpen } from 'actions/skeleton';
-import { setUrlQS } from 'actions/app';
-import { neuroglancerAddandOpen } from 'actions/neuroglancer';
-import { getQueryString } from 'helpers/queryString';
-import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
 import ColorBox from './visualization/ColorBox';
 import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
 import RoiBarGraph from './visualization/MiniRoiBarGraph';
@@ -53,7 +46,7 @@ class ROIConnectivity extends React.Component {
     const initqsParams = {
       rois: []
     };
-    const qsParams = LoadQueryString(
+    const qsParams = props.actions.LoadQueryString(
       `Query:${this.constructor.queryName}`,
       initqsParams,
       urlQueryString
@@ -82,7 +75,7 @@ class ROIConnectivity extends React.Component {
     if (props.dataSet !== state.dataSet) {
       const oldParams = state.qsParams;
       oldParams.rois = [];
-      props.actions.setURLQs(SaveQueryString(`Query:${state.queryName}`, oldParams));
+      props.actions.setURLQs(props.actions.SaveQueryString(`Query:${state.queryName}`, oldParams));
       state.dataSet = props.dataSet; // eslint-disable-line no-param-reassign
       return state;
     }
@@ -463,7 +456,7 @@ class ROIConnectivity extends React.Component {
     actions.submit(query);
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
     return query;
   };
@@ -474,7 +467,7 @@ class ROIConnectivity extends React.Component {
     const oldParams = qsParams;
     const rois = selected.map(item => item.value);
     oldParams.rois = rois;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -540,33 +533,4 @@ ROIConnectivity.propTypes = {
   urlQueryString: PropTypes.string.isRequired
 };
 
-const ROIConnectivityState = state => ({
-  isQuerying: state.query.isQuerying,
-  urlQueryString: state.app.get('urlQueryString')
-});
-
-const ROIConnectivityDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    },
-    skeletonAddandOpen: (id, dataSet) => {
-      dispatch(skeletonAddandOpen(id, dataSet));
-    },
-    neuroglancerAddandOpen: (id, dataSet) => {
-      dispatch(neuroglancerAddandOpen(id, dataSet));
-    },
-    setURLQs(querystring) {
-      dispatch(setUrlQS(querystring));
-    }
-  }
-});
-
-export default withRouter(
-  withStyles(styles)(
-    connect(
-      ROIConnectivityState,
-      ROIConnectivityDispatch
-    )(ROIConnectivity)
-  )
-);
+export default withRouter(withStyles(styles)(ROIConnectivity));

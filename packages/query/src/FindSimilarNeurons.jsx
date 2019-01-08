@@ -6,7 +6,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import randomColor from 'randomcolor';
 import Select from 'react-select';
@@ -18,15 +17,9 @@ import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import Icon from '@material-ui/core/Icon';
 
-import { submit, pluginResponseError } from 'actions/plugins';
-import { skeletonAddandOpen } from 'actions/skeleton';
-import { neuroglancerAddandOpen } from 'actions/neuroglancer';
-import { getQueryString } from 'helpers/queryString';
 import * as math from 'mathjs';
-import { setUrlQS } from 'actions/app';
 import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
 import RoiBarGraph from './visualization/MiniRoiBarGraph';
-import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
 
 const styles = theme => ({
   textField: {
@@ -36,7 +29,7 @@ const styles = theme => ({
     marginRight: 'auto'
   },
   formControl: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing.unit
   },
   select: {
     fontFamily: theme.typography.fontFamily,
@@ -61,7 +54,7 @@ class FindSimilarNeurons extends React.Component {
       name: '',
       rois: []
     };
-    const qsParams = LoadQueryString(
+    const qsParams = props.actions.LoadQueryString(
       `Query:${this.constructor.queryName}`,
       initqsParams,
       urlQueryString
@@ -93,7 +86,7 @@ class FindSimilarNeurons extends React.Component {
     if (props.dataSet !== state.dataSet) {
       const oldParams = state.qsParams;
       oldParams.rois = [];
-      props.actions.setURLQs(SaveQueryString(`Query:${state.queryName}`, oldParams));
+      props.actions.setURLQs(props.actions.SaveQueryString(`Query:${state.queryName}`, oldParams));
       state.dataSet = props.dataSet; // eslint-disable-line no-param-reassign
       return state;
     }
@@ -632,7 +625,7 @@ class FindSimilarNeurons extends React.Component {
 
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
   };
 
@@ -663,7 +656,7 @@ class FindSimilarNeurons extends React.Component {
 
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
   };
 
@@ -706,7 +699,7 @@ class FindSimilarNeurons extends React.Component {
 
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
   };
 
@@ -715,7 +708,7 @@ class FindSimilarNeurons extends React.Component {
     const { qsParams } = this.state;
     const oldParams = qsParams;
     oldParams.bodyId = event.target.value;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -726,7 +719,7 @@ class FindSimilarNeurons extends React.Component {
     const { qsParams } = this.state;
     const oldParams = qsParams;
     oldParams.name = event.target.value;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -738,7 +731,7 @@ class FindSimilarNeurons extends React.Component {
     const oldParams = qsParams;
     const rois = selected.map(item => item.value);
     oldParams.rois = rois;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -834,36 +827,4 @@ FindSimilarNeurons.propTypes = {
   isQuerying: PropTypes.bool.isRequired
 };
 
-const FindSimilarNeuronsState = state => ({
-  urlQueryString: state.app.get('urlQueryString'),
-  isQuerying: state.query.isQuerying
-});
-
-const FindSimilarNeuronsDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    },
-    setURLQs(querystring) {
-      dispatch(setUrlQS(querystring));
-    },
-    pluginResponseError: error => {
-      dispatch(pluginResponseError(error));
-    },
-    skeletonAddandOpen: (id, dataSet) => {
-      dispatch(skeletonAddandOpen(id, dataSet));
-    },
-    neuroglancerAddandOpen: (id, dataSet) => {
-      dispatch(neuroglancerAddandOpen(id, dataSet));
-    }
-  }
-});
-
-export default withRouter(
-  withStyles(styles, { withTheme: true })(
-    connect(
-      FindSimilarNeuronsState,
-      FindSimilarNeuronsDispatch
-    )(FindSimilarNeurons)
-  )
-);
+export default withRouter(withStyles(styles, { withTheme: true })(FindSimilarNeurons));

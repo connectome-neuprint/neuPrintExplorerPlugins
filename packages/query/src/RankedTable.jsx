@@ -5,7 +5,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import randomColor from 'randomcolor';
 
@@ -19,10 +18,8 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 
-import { submit, formError } from 'actions/plugins';
-import { getQueryString } from 'helpers/queryString';
 import ColorBox from './visualization/ColorBox';
-import NeuronHelp from './NeuronHelp';
+import NeuronHelp from './shared/NeuronHelp';
 
 const styles = () => ({
   textField: {},
@@ -205,7 +202,7 @@ class RankedTable extends React.Component {
       actions.submit(query);
       history.push({
         pathname: '/results',
-        search: getQueryString()
+        search: actions.getQueryString()
       });
     } else {
       actions.formError('Please enter a neuron name.');
@@ -290,27 +287,4 @@ RankedTable.propTypes = {
   dataSet: PropTypes.string.isRequired
 };
 
-const RankedTableState = state => ({
-  isQuerying: state.query.isQuerying,
-  urlQueryString: state.app.get('urlQueryString')
-});
-
-const RankedTableDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    },
-    formError: query => {
-      dispatch(formError(query));
-    }
-  }
-});
-
-export default withRouter(
-  withStyles(styles)(
-    connect(
-      RankedTableState,
-      RankedTableDispatch
-    )(RankedTable)
-  )
-);
+export default withRouter(withStyles(styles)(RankedTable));

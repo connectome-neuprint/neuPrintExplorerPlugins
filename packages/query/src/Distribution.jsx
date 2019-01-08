@@ -2,7 +2,6 @@
  * Plugin for body size distribution.
  */
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import randomColor from 'randomcolor';
 import { withRouter } from 'react-router';
@@ -14,9 +13,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import { withStyles } from '@material-ui/core/styles';
-
-import { submit } from 'actions/plugins';
-import {getQueryString, getSiteParams, setQueryString } from 'helpers/queryString';
 
 const styles = theme => ({
   selects: {
@@ -88,8 +84,8 @@ class Distribution extends React.Component {
   // creates query object and sends to callback
   processRequest = () => {
     const { dataSet, actions, history, location } = this.props;
-    const qsParams = getSiteParams(location);
-    const { roi, isPre } = qsParams.getIn(['input','distribution'], Immutable.Map({})).toJS();
+    const qsParams = actions.getSiteParams(location);
+    const { roi, isPre } = qsParams.getIn(['input', 'distribution'], Immutable.Map({})).toJS();
     const query = {
       dataSet,
       queryString: '/npexplorer/distribution',
@@ -107,15 +103,16 @@ class Distribution extends React.Component {
     actions.submit(query);
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
     return query;
   };
 
   setROI = event => {
+    const { actions } = this.props;
     const roiname = event.target.value;
-    setQueryString({
-      'input': {
+    actions.setQueryString({
+      input: {
         distribution: {
           roi: roiname
         }
@@ -124,9 +121,10 @@ class Distribution extends React.Component {
   };
 
   setType = event => {
+    const { actions } = this.props;
     const type = event.target.value;
-     setQueryString({
-      'input': {
+    actions.setQueryString({
+      input: {
         distribution: {
           isPre: type
         }
@@ -135,15 +133,15 @@ class Distribution extends React.Component {
   };
 
   render() {
-    const { isQuerying, classes, availableROIs, location } = this.props;
-    const qsParams = getSiteParams(location);
+    const { isQuerying, classes, availableROIs, location, actions } = this.props;
+    const qsParams = actions.getSiteParams(location);
     // oh boy, this is ugly. There needs to be a better way to set defaults.
     // I think we should be able to change getSiteParams to accept defaults
     // and merge the values from the url with the defaults.
     // eg:
     //    const qsParams = getSiteParams(location, defaults);
     //    const { roi, isPre } = qsParams.getIn(['input','distribution']).toJS();
-    let { roi, isPre } = qsParams.getIn(['input','distribution'], Immutable.Map({})).toJS();
+    let { roi, isPre } = qsParams.getIn(['input', 'distribution'], Immutable.Map({})).toJS();
 
     if (roi === undefined) {
       roi = '';
@@ -214,25 +212,4 @@ Distribution.propTypes = {
   location: PropTypes.object.isRequired
 };
 
-const DistributionState = state => ({
-  isQuerying: state.query.isQuerying
-});
-
-// The submit action which will accept your query, execute it and
-// store the results for view plugins to display.
-const DistributionDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    }
-  }
-});
-
-export default withRouter(
-  withStyles(styles)(
-    connect(
-      DistributionState,
-      DistributionDispatch
-    )(Distribution)
-  )
-);
+export default withRouter(withStyles(styles)(Distribution));

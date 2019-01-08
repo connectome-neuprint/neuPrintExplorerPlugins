@@ -6,7 +6,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import merge from 'deepmerge';
 import { withStyles } from '@material-ui/core/styles';
-import { connect } from 'react-redux';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -19,8 +18,6 @@ import Typography from '@material-ui/core/Typography';
 import Select from 'react-select';
 import Tooltip from '@material-ui/core/Tooltip';
 import TextField from '@material-ui/core/TextField';
-import { setUrlQS, metaInfoError } from 'actions/app';
-import { getQueryObject, setQueryString } from 'helpers/queryString';
 
 const styles = theme => ({
   formControl: {
@@ -63,7 +60,7 @@ class NeuronFilter extends React.Component {
       postThreshold: ''
     };
 
-    const qsParams = getQueryObject().NFilter || {};
+    const qsParams = props.actions.getQueryObject().NFilter || {};
 
     const combinedParams = merge(initParams, qsParams);
     this.state = {
@@ -80,14 +77,14 @@ class NeuronFilter extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { neoServer, datasetstr } = this.props;
+    const { neoServer, datasetstr, actions } = this.props;
     if (nextProps.neoServer !== neoServer || nextProps.datasetstr !== datasetstr) {
       this.queryStatuses(nextProps.neoServer, nextProps.datasetstr);
       this.queryStatusDefinitions(nextProps.neoServer, nextProps.datasetstr);
       const { qsParams } = this.state;
       const statusFilters = [];
       const newParams = Object.assign({}, qsParams, { statusFilters });
-      setQueryString({ NFilter: { statusFilters } });
+      actions.setQueryString({ NFilter: { statusFilters } });
       this.setState({ qsParams: newParams });
     }
   }
@@ -169,44 +166,44 @@ class NeuronFilter extends React.Component {
 
   toggleNeuron = () => {
     const { qsParams } = this.state;
-    const { callback } = this.props;
+    const { callback, actions } = this.props;
     const val = !qsParams.limitNeurons;
 
     const newparams = Object.assign({}, qsParams, { limitNeurons: val });
 
     callback(newparams);
-    setQueryString({ NFilter: { limitNeurons: val } });
+    actions.setQueryString({ NFilter: { limitNeurons: val } });
     this.setState({ qsParams: newparams });
   };
 
   handleStatus = selected => {
     const { qsParams } = this.state;
-    const { callback } = this.props;
+    const { callback, actions } = this.props;
     const statusFilters = selected.map(item => item.value);
     const newParams = Object.assign({}, qsParams, { statusFilters });
     // save back status selections
     callback(newParams);
-    setQueryString({ NFilter: { statusFilters } });
+    actions.setQueryString({ NFilter: { statusFilters } });
     this.setState({ qsParams: newParams });
   };
 
   handlePreChange = event => {
     const { qsParams } = this.state;
-    const { callback } = this.props;
+    const { callback, actions } = this.props;
     const preThreshold = event.target.value;
     const newParams = Object.assign({}, qsParams, { preThreshold });
     callback(newParams);
-    setQueryString({ NFilter: { preThreshold } });
+    actions.setQueryString({ NFilter: { preThreshold } });
     this.setState({ qsParams: newParams });
   };
 
   handlePostChange = event => {
     const { qsParams } = this.state;
-    const { callback } = this.props;
+    const { callback, actions } = this.props;
     const postThreshold = event.target.value;
     const newParams = Object.assign({}, qsParams, { postThreshold });
     callback(newParams);
-    setQueryString({ NFilter: { postThreshold } });
+    actions.setQueryString({ NFilter: { postThreshold } });
     this.setState({ qsParams: newParams });
   };
 
@@ -306,25 +303,4 @@ NeuronFilter.propTypes = {
   neoServer: PropTypes.string.isRequired
 };
 
-const NeuronFilterState = state => ({
-  urlQueryString: state.app.get('urlQueryString'),
-  neoServer: state.neo4jsettings.get('neoServer')
-});
-
-const NeuronFilterDispatch = dispatch => ({
-  actions: {
-    setURLQs(querystring) {
-      dispatch(setUrlQS(querystring));
-    },
-    metaInfoError(error) {
-      dispatch(metaInfoError(error));
-    }
-  }
-});
-
-export default withStyles(styles, { withTheme: true })(
-  connect(
-    NeuronFilterState,
-    NeuronFilterDispatch
-  )(NeuronFilter)
-);
+export default withStyles(styles, { withTheme: true })(NeuronFilter);

@@ -1,17 +1,13 @@
 /*
  * Supports simple, custom neo4j query.
-*/
+ */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import randomColor from 'randomcolor';
 
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
-
-import { submit } from 'actions/plugins';
-import { getQueryString } from 'helpers/queryString';
 
 const styles = () => ({});
 
@@ -34,7 +30,7 @@ class NeuronMeta extends React.Component {
       data,
       debug: apiResponse.debug
     };
-  }
+  };
 
   processResults = (query, apiResponse) => {
     const { actions, dataSet } = this.props;
@@ -86,7 +82,7 @@ class NeuronMeta extends React.Component {
     // redirect to the results page.
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
   };
 
@@ -112,26 +108,5 @@ NeuronMeta.propTypes = {
   isQuerying: PropTypes.bool.isRequired
 };
 
-const NeuronMetaState = state => ({
-  isQuerying: state.query.isQuerying
-});
-
-// The submit action which will accept your query, execute it and
-// store the results for view plugins to display.
-const NeuronMetaDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    }
-  }
-});
-
 // boiler plate for redux.
-export default withRouter(
-  withStyles(styles)(
-    connect(
-      NeuronMetaState,
-      NeuronMetaDispatch
-    )(NeuronMeta)
-  )
-);
+export default withRouter(withStyles(styles)(NeuronMeta));

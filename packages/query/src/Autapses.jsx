@@ -2,15 +2,11 @@
  * Query to find autapses in the volume.
 */
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import randomColor from 'randomcolor';
 import { withRouter } from 'react-router';
 
 import Button from '@material-ui/core/Button';
-
-import { submit } from 'actions/plugins';
-import { getQueryString } from 'helpers/queryString';
 
 const pluginName = 'Autapses';
 
@@ -57,7 +53,7 @@ class Autapses extends React.Component {
     actions.submit(query);
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
     return query;
   };
@@ -84,23 +80,4 @@ Autapses.propTypes = {
   history: PropTypes.object.isRequired
 };
 
-const AutapsesState = state => ({
-  isQuerying: state.query.isQuerying
-});
-
-// The submit action which will accept your query, execute it and
-// store the results for view plugins to display.
-const AutapsesDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    }
-  }
-});
-
-export default withRouter(
-  connect(
-    AutapsesState,
-    AutapsesDispatch
-  )(Autapses)
-);
+export default withRouter(Autapses);

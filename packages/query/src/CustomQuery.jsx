@@ -2,7 +2,6 @@
  * Supports simple, custom neo4j query.
  */
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import randomColor from 'randomcolor';
 import { withRouter } from 'react-router';
@@ -11,11 +10,6 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import { withStyles } from '@material-ui/core/styles';
-
-import { submit } from 'actions/plugins';
-import { getQueryString } from 'helpers/queryString';
-import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
-import { setUrlQS } from 'actions/app';
 
 const styles = () => ({
   textField: {
@@ -45,7 +39,7 @@ class CustomQuery extends React.Component {
     const initqsParams = {
       textValue: ''
     };
-    const qsParams = LoadQueryString(
+    const qsParams = props.actions.LoadQueryString(
       `Query:${this.constructor.queryName}`,
       initqsParams,
       props.urlQueryString
@@ -91,7 +85,7 @@ class CustomQuery extends React.Component {
     actions.submit(query);
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
     return query;
   };
@@ -101,7 +95,7 @@ class CustomQuery extends React.Component {
     const { qsParams } = this.state;
     const oldParams = qsParams;
     oldParams.textValue = event.target.value;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -153,27 +147,4 @@ CustomQuery.propTypes = {
   isQuerying: PropTypes.bool.isRequired
 };
 
-const CustomQueryState = state => ({
-  urlQueryString: state.app.get('urlQueryString'),
-  isQuerying: state.query.isQuerying
-});
-
-const CustomQueryDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    },
-    setURLQs(querystring) {
-      dispatch(setUrlQS(querystring));
-    }
-  }
-});
-
-export default withStyles(styles)(
-  withRouter(
-    connect(
-      CustomQueryState,
-      CustomQueryDispatch
-    )(CustomQuery)
-  )
-);
+export default withStyles(styles)(withRouter(CustomQuery));

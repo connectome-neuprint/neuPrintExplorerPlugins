@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import randomColor from 'randomcolor';
 import { withRouter } from 'react-router';
 
@@ -16,9 +15,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { withStyles } from '@material-ui/core/styles';
 
-import { submit, formError } from 'actions/plugins';
-import { getQueryString } from 'helpers/queryString';
-import NeuronHelp from './NeuronHelp';
+import NeuronHelp from './shared/NeuronHelp';
 
 const styles = () => ({
   textField: {},
@@ -143,7 +140,7 @@ class SimpleConnections extends React.Component {
       actions.submit(query);
       history.push({
         pathname: '/results',
-        search: getQueryString()
+        search: actions.getQueryString()
       });
     } else {
       actions.formError('Please enter a neuron name.');
@@ -228,26 +225,4 @@ SimpleConnections.propTypes = {
   dataSet: PropTypes.string.isRequired
 };
 
-const SimpleConnectionsState = state => ({
-  isQuerying: state.query.isQuerying
-});
-
-const SimpleConnectionsDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    },
-    formError: query => {
-      dispatch(formError(query));
-    }
-  }
-});
-
-export default withRouter(
-  withStyles(styles)(
-    connect(
-      SimpleConnectionsState,
-      SimpleConnectionsDispatch
-    )(SimpleConnections)
-  )
-);
+export default withRouter(withStyles(styles)(SimpleConnections));

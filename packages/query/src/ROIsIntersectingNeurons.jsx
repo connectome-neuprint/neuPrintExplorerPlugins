@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import randomColor from 'randomcolor';
 import { withRouter } from 'react-router';
 
@@ -12,11 +11,7 @@ import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import { withStyles } from '@material-ui/core/styles';
 
-import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
-import { setUrlQS } from 'actions/app';
-import { getQueryString } from 'helpers/queryString';
-import { submit, formError } from 'actions/plugins';
-import NeuronHelp from './NeuronHelp';
+import NeuronHelp from './shared/NeuronHelp';
 
 const styles = () => ({
   textField: {},
@@ -38,7 +33,7 @@ class ROIsIntersectingNeurons extends React.Component {
     const initqsParams = {
       neuronsrc: ''
     };
-    const qsParams = LoadQueryString(
+    const qsParams = props.actions.LoadQueryString(
       `Query:${this.constructor.queryName}`,
       initqsParams,
       props.urlQueryString
@@ -142,7 +137,7 @@ class ROIsIntersectingNeurons extends React.Component {
       // redirect to the results page.
       history.push({
         pathname: '/results',
-        search: getQueryString()
+        search: actions.getQueryString()
       });
     } else {
       actions.formError('Please enter a neuron name.');
@@ -152,7 +147,7 @@ class ROIsIntersectingNeurons extends React.Component {
   handleClick = event => {
     const { actions } = this.props;
     actions.setURLQs(
-      SaveQueryString(`Query:${this.constructor.queryName}`, { neuronsrc: event.target.value })
+      actions.SaveQueryString(`Query:${this.constructor.queryName}`, { neuronsrc: event.target.value })
     );
     this.setState({ qsParams: { neuronsrc: event.target.value } });
   };
@@ -207,30 +202,4 @@ ROIsIntersectingNeurons.propTypes = {
   actions: PropTypes.object.isRequired
 };
 
-const ROIsIntersectingNeuronsState = state => ({
-  isQuerying: state.query.isQuerying,
-  urlQueryString: state.app.get('urlQueryString')
-});
-
-const ROIsIntersectingNeuronsDispatch = dispatch => ({
-  actions: {
-    setURLQs(querystring) {
-      dispatch(setUrlQS(querystring));
-    },
-    submit: query => {
-      dispatch(submit(query));
-    },
-    formError: query => {
-      dispatch(formError(query));
-    }
-  }
-});
-
-export default withRouter(
-  withStyles(styles)(
-    connect(
-      ROIsIntersectingNeuronsState,
-      ROIsIntersectingNeuronsDispatch
-    )(ROIsIntersectingNeurons)
-  )
-);
+export default withRouter(withStyles(styles)(ROIsIntersectingNeurons));

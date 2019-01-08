@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import randomColor from 'randomcolor';
 
@@ -15,15 +14,11 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import TextField from '@material-ui/core/TextField';
 
-import { submit } from 'actions/plugins';
-import { setUrlQS } from 'actions/app';
-import { getQueryString } from 'helpers/queryString';
-import NeuronFilter from './NeuronFilter';
-import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
+import NeuronFilter from './shared/NeuronFilter';
 
 const styles = theme => ({
   formControl: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing.unit
   },
   chips: {
     display: 'flex',
@@ -52,7 +47,7 @@ class CommonConnectivity extends React.Component {
       bodyIds: '',
       names: ''
     };
-    const qsParams = LoadQueryString(
+    const qsParams = props.actions.LoadQueryString(
       `Query:${this.constructor.queryName}`,
       initqsParams,
       props.urlQueryString
@@ -171,7 +166,7 @@ class CommonConnectivity extends React.Component {
     // redirect to the results page.
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
   };
 
@@ -189,7 +184,7 @@ class CommonConnectivity extends React.Component {
     const { actions } = this.props;
     const oldParams = qsParams;
     oldParams.bodyIds = event.target.value;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -200,7 +195,7 @@ class CommonConnectivity extends React.Component {
     const { actions } = this.props;
     const oldParams = qsParams;
     oldParams.names = event.target.value;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -211,7 +206,7 @@ class CommonConnectivity extends React.Component {
     const { actions } = this.props;
     const oldParams = qsParams;
     oldParams.typeValue = event.target.value;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -226,7 +221,7 @@ class CommonConnectivity extends React.Component {
   };
 
   render() {
-    const { classes, dataSet } = this.props;
+    const { classes, dataSet, actions, neoServerSettings } = this.props;
     const { qsParams } = this.state;
     return (
       <div>
@@ -244,8 +239,8 @@ class CommonConnectivity extends React.Component {
             onKeyDown={this.catchReturn}
           />
         </FormControl>
-          {/* // removing for now  */}
-          {/* <TextField
+        {/* // removing for now  */}
+        {/* <TextField
             label="Neuron names"
             multiline
             fullWidth
@@ -258,16 +253,21 @@ class CommonConnectivity extends React.Component {
             onChange={this.addNeuronNames}
             onKeyDown={this.catchReturn}
           /> */}
-          <RadioGroup
-            aria-label="Type Of Connections"
-            name="type"
-            value={qsParams.typeValue}
-            onChange={this.setInputOrOutput}
-          >
-            <FormControlLabel value="input" control={<Radio color="primary" />} label="Inputs" />
-            <FormControlLabel value="output" control={<Radio color="primary" />} label="Outputs" />
-          </RadioGroup>
-        <NeuronFilter callback={this.loadNeuronFilters} datasetstr={dataSet} />
+        <RadioGroup
+          aria-label="Type Of Connections"
+          name="type"
+          value={qsParams.typeValue}
+          onChange={this.setInputOrOutput}
+        >
+          <FormControlLabel value="input" control={<Radio color="primary" />} label="Inputs" />
+          <FormControlLabel value="output" control={<Radio color="primary" />} label="Outputs" />
+        </RadioGroup>
+        <NeuronFilter
+          callback={this.loadNeuronFilters}
+          datasetstr={dataSet}
+          actions={actions}
+          neoServerSettings={neoServerSettings}
+        />
         <Button variant="contained" color="primary" onClick={this.processRequest}>
           Submit
         </Button>
@@ -280,30 +280,9 @@ CommonConnectivity.propTypes = {
   dataSet: PropTypes.string.isRequired,
   actions: PropTypes.object.isRequired,
   urlQueryString: PropTypes.string.isRequired,
+  neoServerSettings: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired
 };
 
-const CommonConnectivityState = state => ({
-  urlQueryString: state.app.get('urlQueryString')
-});
-
-const CommonConnectivityDispatch = dispatch => ({
-  actions: {
-    setURLQs(querystring) {
-      dispatch(setUrlQS(querystring));
-    },
-    submit: query => {
-      dispatch(submit(query));
-    }
-  }
-});
-
-export default withRouter(
-  withStyles(styles, { withTheme: true })(
-    connect(
-      CommonConnectivityState,
-      CommonConnectivityDispatch
-    )(CommonConnectivity)
-  )
-);
+export default withRouter(withStyles(styles, { withTheme: true })(CommonConnectivity));

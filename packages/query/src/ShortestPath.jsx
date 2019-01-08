@@ -2,7 +2,6 @@
  * Query to find shortest path between two neurons.
  */
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import randomColor from 'randomcolor';
 import { withRouter } from 'react-router';
@@ -11,11 +10,6 @@ import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/core/styles';
-
-import { submit } from 'actions/plugins';
-import { getQueryString } from 'helpers/queryString';
-import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
-import { setUrlQS } from 'actions/app';
 
 const pluginName = 'ShortestPath';
 
@@ -27,7 +21,7 @@ const styles = theme => ({
     marginRight: 'auto'
   },
   formControl: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing.unit
   },
   button: {
     margin: 4,
@@ -47,7 +41,7 @@ class ShortestPath extends React.Component {
       bodyId2: '',
       minWeight: 0
     };
-    const qsParams = LoadQueryString(
+    const qsParams = props.actions.LoadQueryString(
       `Query:${this.constructor.queryName}`,
       initqsParams,
       urlQueryString
@@ -104,7 +98,7 @@ class ShortestPath extends React.Component {
     actions.submit(query);
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
     return query;
   };
@@ -114,7 +108,7 @@ class ShortestPath extends React.Component {
     const { qsParams } = this.state;
     const oldParams = qsParams;
     oldParams.bodyId1 = event.target.value;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -125,7 +119,7 @@ class ShortestPath extends React.Component {
     const { qsParams } = this.state;
     const oldParams = qsParams;
     oldParams.bodyId2 = event.target.value;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -136,7 +130,7 @@ class ShortestPath extends React.Component {
     const { qsParams } = this.state;
     const oldParams = qsParams;
     oldParams.minWeight = event.target.value;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -203,29 +197,4 @@ ShortestPath.propTypes = {
   urlQueryString: PropTypes.string.isRequired
 };
 
-const ShortestPathState = state => ({
-  urlQueryString: state.app.get('urlQueryString'),
-  isQuerying: state.query.isQuerying
-});
-
-// The submit action which will accept your query, execute it and
-// store the results for view plugins to display.
-const ShortestPathDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    },
-    setURLQs(querystring) {
-      dispatch(setUrlQS(querystring));
-    }
-  }
-});
-
-export default withRouter(
-  withStyles(styles, { withTheme: true })(
-    connect(
-      ShortestPathState,
-      ShortestPathDispatch
-    )(ShortestPath)
-  )
-);
+export default withRouter(withStyles(styles, { withTheme: true })(ShortestPath));

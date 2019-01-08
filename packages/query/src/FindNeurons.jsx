@@ -1,7 +1,6 @@
 /* eslint-disable prefer-destructuring */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import Select from 'react-select';
 import { withRouter } from 'react-router';
 import randomColor from 'randomcolor';
@@ -12,16 +11,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 
-import { submit } from 'actions/plugins';
-import { setUrlQS } from 'actions/app';
-import { skeletonAddandOpen } from 'actions/skeleton';
-import { neuroglancerAddandOpen } from 'actions/neuroglancer';
-import { getQueryString } from 'helpers/queryString';
-
-import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
 import { ColorLegend } from './visualization/MiniRoiHeatMap';
-import NeuronHelp from './NeuronHelp';
-import NeuronFilter from './NeuronFilter';
+import NeuronHelp from './shared/NeuronHelp';
+import NeuronFilter from './shared/NeuronFilter';
 import {
   setColumnIndices,
   createSimpleConnectionQueryObject,
@@ -51,7 +43,7 @@ class FindNeurons extends React.Component {
       outputROIs: [],
       neuronName: ''
     };
-    const qsParams = LoadQueryString(
+    const qsParams = props.actions.LoadQueryString(
       `Query:${this.constructor.queryName}`,
       initqsParams,
       urlQueryString
@@ -90,7 +82,7 @@ class FindNeurons extends React.Component {
       oldParams.inputROIs = [];
       oldParams.outputROIs = [];
       state.statusFilters = []; // eslint-disable-line no-param-reassign
-      props.actions.setURLQs(SaveQueryString(`Query:${state.queryName}`, oldParams));
+      props.actions.setURLQs(props.actions.SaveQueryString(`Query:${state.queryName}`, oldParams));
       state.dataSet = props.dataSet; // eslint-disable-line no-param-reassign
       return state;
     }
@@ -364,7 +356,7 @@ class FindNeurons extends React.Component {
     // redirect to the results page.
     history.push({
       pathname: '/results',
-      search: getQueryString()
+      search: actions.getQueryString()
     });
     return query;
   };
@@ -375,7 +367,7 @@ class FindNeurons extends React.Component {
     const oldParams = qsParams;
     const rois = selected.map(item => item.value);
     oldParams.inputROIs = rois;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -387,7 +379,7 @@ class FindNeurons extends React.Component {
     const oldParams = qsParams;
     const rois = selected.map(item => item.value);
     oldParams.outputROIs = rois;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -399,7 +391,7 @@ class FindNeurons extends React.Component {
     const oldParams = qsParams;
     const neuronName = event.target.value;
     oldParams.neuronName = neuronName;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -425,7 +417,7 @@ class FindNeurons extends React.Component {
   // use this function to generate the form that will accept and
   // validate the variables for your Neo4j query.
   render() {
-    const { classes, isQuerying, availableROIs, dataSet } = this.props;
+    const { classes, isQuerying, availableROIs, dataSet, actions, neoServerSettings } = this.props;
     const { qsParams } = this.state;
 
     const inputOptions = availableROIs.map(name => ({
@@ -483,7 +475,12 @@ class FindNeurons extends React.Component {
             />
           </NeuronHelp>
         </FormControl>
-        <NeuronFilter callback={this.loadNeuronFilters} datasetstr={dataSet} />
+        <NeuronFilter
+          callback={this.loadNeuronFilters}
+          datasetstr={dataSet}
+          actions={actions}
+          neoServerSettings={neoServerSettings}
+        />
         <Button
           disabled={isQuerying}
           color="primary"
@@ -506,39 +503,8 @@ FindNeurons.propTypes = {
   classes: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired,
+  neoServerSettings: PropTypes.object.isRequired,
   urlQueryString: PropTypes.string.isRequired
 };
 
-const FindNeuronsState = state => ({
-  isQuerying: state.query.isQuerying,
-  urlQueryString: state.app.get('urlQueryString')
-});
-
-// The submit action which will accept your query, execute it and
-// store the results for view plugins to display.
-const FindNeuronsDispatch = dispatch => ({
-  actions: {
-    submit: query => {
-      dispatch(submit(query));
-    },
-    skeletonAddandOpen: (id, dataSet) => {
-      dispatch(skeletonAddandOpen(id, dataSet));
-    },
-    neuroglancerAddandOpen: (id, dataSet) => {
-      dispatch(neuroglancerAddandOpen(id, dataSet));
-    },
-    setURLQs(querystring) {
-      dispatch(setUrlQS(querystring));
-    }
-  }
-});
-
-// boiler plate for redux.
-export default withRouter(
-  withStyles(styles)(
-    connect(
-      FindNeuronsState,
-      FindNeuronsDispatch
-    )(FindNeurons)
-  )
-);
+export default withRouter(withStyles(styles)(FindNeurons));
