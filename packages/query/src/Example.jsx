@@ -11,7 +11,6 @@ import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import Icon from '@material-ui/core/Icon';
 
-import { LoadQueryString, SaveQueryString } from 'helpers/qsparser';
 import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
 import RoiBarGraph from './visualization/MiniRoiBarGraph';
 import NeuronHelp from './shared/NeuronHelp';
@@ -33,13 +32,13 @@ const pluginName = 'Example';
 class Example extends React.Component {
   constructor(props) {
     super(props);
-    const { urlQueryString, dataSet } = this.props;
+    const { urlQueryString, dataSet, actions } = this.props;
     const initqsParams = {
       inputROIs: [],
       outputROIs: [],
       neuronName: ''
     };
-    const qsParams = LoadQueryString(
+    const qsParams = actions.LoadQueryString(
       `Query:${this.constructor.queryName}`,
       initqsParams,
       urlQueryString
@@ -71,14 +70,14 @@ class Example extends React.Component {
 
   static getDerivedStateFromProps = (props, state) => {
     // if dataset changes, clear the selected rois and statuses
-
+    const { actions } = props;
     // eslint issues: https://github.com/yannickcr/eslint-plugin-react/issues/1751
     if (props.dataSet !== state.dataSet) {
       const oldParams = state.qsParams;
       oldParams.inputROIs = [];
       oldParams.outputROIs = [];
       state.statusFilters = []; // eslint-disable-line no-param-reassign
-      props.actions.setURLQs(SaveQueryString(`Query:${state.queryName}`, oldParams));
+      props.actions.setURLQs(actions.SaveQueryString(`Query:${state.queryName}`, oldParams));
       state.dataSet = props.dataSet; // eslint-disable-line no-param-reassign
       return state;
     }
@@ -335,7 +334,7 @@ class Example extends React.Component {
     const oldParams = qsParams;
     const rois = selected.map(item => item.value);
     oldParams.inputROIs = rois;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -347,7 +346,7 @@ class Example extends React.Component {
     const oldParams = qsParams;
     const rois = selected.map(item => item.value);
     oldParams.outputROIs = rois;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
@@ -359,7 +358,7 @@ class Example extends React.Component {
     const oldParams = qsParams;
     const neuronName = event.target.value;
     oldParams.neuronName = neuronName;
-    actions.setURLQs(SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
+    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
     this.setState({
       qsParams: oldParams
     });
