@@ -417,7 +417,15 @@ class FindNeurons extends React.Component {
   // use this function to generate the form that will accept and
   // validate the variables for your Neo4j query.
   render() {
-    const { classes, isQuerying, availableROIs, dataSet, actions, neoServerSettings } = this.props;
+    const {
+      classes,
+      isQuerying,
+      availableROIs,
+      dataSet,
+      actions,
+      neoServerSettings,
+      neoServer
+    } = this.props;
     const { qsParams } = this.state;
 
     const inputOptions = availableROIs.map(name => ({
@@ -480,6 +488,7 @@ class FindNeurons extends React.Component {
           datasetstr={dataSet}
           actions={actions}
           neoServerSettings={neoServerSettings}
+          neoServer={neoServer}
         />
         <Button
           disabled={isQuerying}
@@ -504,7 +513,8 @@ FindNeurons.propTypes = {
   history: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired,
   neoServerSettings: PropTypes.object.isRequired,
-  urlQueryString: PropTypes.string.isRequired
+  urlQueryString: PropTypes.string.isRequired,
+  neoServer: PropTypes.string.isRequired
 };
 
 export default withRouter(withStyles(styles)(FindNeurons));

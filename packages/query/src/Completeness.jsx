@@ -102,7 +102,7 @@ class Completeness extends React.Component {
   };
 
   render() {
-    const { isQuerying, dataSet, actions, neoServerSettings } = this.props;
+    const { isQuerying, dataSet, actions, neoServerSettings, neoServer } = this.props;
     return (
       <div>
         <NeuronFilter
@@ -110,6 +110,7 @@ class Completeness extends React.Component {
           datasetstr={dataSet}
           actions={actions}
           neoServerSettings={neoServerSettings}
+          neoServer={neoServer}
         />
         <Button
           disabled={isQuerying}
@@ -129,7 +130,8 @@ Completeness.propTypes = {
   neoServerSettings: PropTypes.object.isRequired,
   dataSet: PropTypes.string.isRequired,
   actions: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired
+  history: PropTypes.object.isRequired,
+  neoServer: PropTypes.string.isRequired
 };
 
 export default withRouter(Completeness);

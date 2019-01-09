@@ -221,7 +221,7 @@ class CommonConnectivity extends React.Component {
   };
 
   render() {
-    const { classes, dataSet, actions, neoServerSettings } = this.props;
+    const { classes, dataSet, actions, neoServerSettings, neoServer } = this.props;
     const { qsParams } = this.state;
     return (
       <div>
@@ -267,6 +267,7 @@ class CommonConnectivity extends React.Component {
           datasetstr={dataSet}
           actions={actions}
           neoServerSettings={neoServerSettings}
+          neoServer={neoServer}
         />
         <Button variant="contained" color="primary" onClick={this.processRequest}>
           Submit
@@ -282,7 +283,8 @@ CommonConnectivity.propTypes = {
   urlQueryString: PropTypes.string.isRequired,
   neoServerSettings: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired
+  history: PropTypes.object.isRequired,
+  neoServer: PropTypes.string.isRequired
 };
 
 export default withRouter(withStyles(styles, { withTheme: true })(CommonConnectivity));
