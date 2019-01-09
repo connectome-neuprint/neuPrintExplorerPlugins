@@ -34,7 +34,7 @@ const styles = theme => ({
 // this should match the name of the file this plugin is stored in.
 const pluginName = 'FindNeurons';
 
-class FindNeurons extends React.Component {
+export class FindNeurons extends React.Component {
   constructor(props) {
     super(props);
     const { urlQueryString, dataSet } = this.props;
