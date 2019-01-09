@@ -25,7 +25,7 @@ const styles = () => ({
 
 const pluginName = 'CustomQuery';
 
-class CustomQuery extends React.Component {
+export class CustomQuery extends React.Component {
   static get queryName() {
     return 'Custom';
   }

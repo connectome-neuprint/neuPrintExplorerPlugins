@@ -1,31 +1,37 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 import { mount } from 'enzyme';
-import { createStore, applyMiddleware, compose } from 'redux';
 import renderer from 'react-test-renderer';
-import { Router } from 'react-router-dom';
-import thunk from 'redux-thunk';
-import { createMemoryHistory } from 'history';
-
-import CustomQuery from './CustomQuery';
-import AppReducers from '../../reducers';
-
-const composeEnhancers = compose;
-
-const store = createStore(AppReducers, {}, composeEnhancers(applyMiddleware(thunk)));
-const history = createMemoryHistory('/');
+import { CustomQuery } from './CustomQuery';
 
 let wrapper;
 let button;
 let textField;
 let submit;
 
+const actions = {
+  submit: jest.fn(),
+  LoadQueryString: jest.fn((_, initqsParams) => initqsParams),
+  setURLQs: jest.fn(),
+  SaveQueryString: jest.fn(),
+  skeletonAddandOpen: jest.fn(),
+  neuroglancerAddandOpen: jest.fn(),
+  getQueryString: jest.fn(),
+  getQueryObject: jest.fn(() => ({})),
+  setQueryString: jest.fn(),
+  metaInfoError: jest.fn()
+};
+
+const styles = { textField: '', button: '', formControl: '' };
+
 const component = (
-  <Provider store={store}>
-    <Router history={history}>
-      <CustomQuery dataSet="test" />
-    </Router>
-  </Provider>
+  <CustomQuery
+    dataSet="test"
+    history={{ push: jest.fn() }}
+    classes={styles}
+    actions={actions}
+    urlQueryString=""
+    isQuerying={false}
+  />
 );
 
 describe('custom query Plugin', () => {
@@ -44,90 +50,7 @@ describe('custom query Plugin', () => {
   });
   it('renders correctly', () => {
     const pluginView = renderer.create(component).toJSON();
-    expect(pluginView).toMatchInlineSnapshot(`
-<div
-  className="MuiFormControl-root-4 withRouter-Connect-CustomQuery---formControl-3"
->
-  <div
-    className="MuiFormControl-root-4 withRouter-Connect-CustomQuery---textField-1"
-    onKeyDown={[Function]}
-  >
-    <label
-      className="MuiFormLabel-root-19 MuiInputLabel-root-8 MuiInputLabel-formControl-13 MuiInputLabel-animated-16"
-      data-shrink={false}
-    >
-      Custom Cypher Query
-    </label>
-    <div
-      className="MuiInputBase-root-39 MuiInput-root-26 MuiInput-underline-30 MuiInputBase-formControl-40 MuiInput-formControl-27 MuiInputBase-multiline-47 MuiInput-multiline-32"
-      onClick={[Function]}
-    >
-      <div
-        className="MuiPrivateTextarea-root-56"
-      >
-        <textarea
-          aria-hidden="true"
-          className="MuiPrivateTextarea-textarea-57 MuiPrivateTextarea-shadow-58"
-          readOnly={true}
-          rows="1"
-          tabIndex={-1}
-          value=""
-        />
-        <textarea
-          aria-hidden="true"
-          className="MuiPrivateTextarea-textarea-57 MuiPrivateTextarea-shadow-58"
-          readOnly={true}
-          rows={1}
-          tabIndex={-1}
-          value=""
-        />
-        <textarea
-          aria-invalid={false}
-          className="MuiPrivateTextarea-textarea-57 MuiInputBase-input-49 MuiInput-input-34 MuiInputBase-inputMultiline-51 MuiInput-inputMultiline-36"
-          disabled={false}
-          onBlur={[Function]}
-          onChange={[Function]}
-          onFocus={[Function]}
-          required={false}
-          rows={1}
-          style={
-            Object {
-              "height": 19,
-            }
-          }
-          value=""
-        />
-      </div>
-    </div>
-  </div>
-  <button
-    className="MuiButtonBase-root-85 MuiButton-root-59 MuiButton-contained-70 MuiButton-containedPrimary-71 MuiButton-raised-73 MuiButton-raisedPrimary-74 withRouter-Connect-CustomQuery---button-2"
-    disabled={false}
-    onBlur={[Function]}
-    onClick={[Function]}
-    onFocus={[Function]}
-    onKeyDown={[Function]}
-    onKeyUp={[Function]}
-    onMouseDown={[Function]}
-    onMouseLeave={[Function]}
-    onMouseUp={[Function]}
-    onTouchEnd={[Function]}
-    onTouchMove={[Function]}
-    onTouchStart={[Function]}
-    tabIndex="0"
-    type="button"
-  >
-    <span
-      className="MuiButton-label-60"
-    >
-      Submit
-    </span>
-    <span
-      className="MuiTouchRipple-root-88"
-    />
-  </button>
-</div>
-`);
+    expect(pluginView).toMatchSnapshot();
   });
   describe('when user clicks submit', () => {
     it('should return a query object and submit', () => {
