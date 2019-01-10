@@ -175,7 +175,7 @@ exports[`TablePaginationActions shows alternate icons for rtl theme 1`] = `
 </div>
 `;
 
-exports[`TablePaginationActions shows next link 1`] = `
+exports[`TablePaginationActions shows next link disabled 1`] = `
 <div
   className="TablePaginationActions-root-1"
 >
@@ -265,8 +265,8 @@ exports[`TablePaginationActions shows next link 1`] = `
   </button>
   <button
     aria-label="Next Page"
-    className="MuiButtonBase-root-8 MuiIconButton-root-2"
-    disabled={false}
+    className="MuiButtonBase-root-8 MuiButtonBase-disabled-9 MuiIconButton-root-2 MuiIconButton-disabled-6"
+    disabled={true}
     onBlur={[Function]}
     onClick={[Function]}
     onContextMenu={[Function]}
@@ -279,7 +279,7 @@ exports[`TablePaginationActions shows next link 1`] = `
     onTouchEnd={[Function]}
     onTouchMove={[Function]}
     onTouchStart={[Function]}
-    tabIndex="0"
+    tabIndex="-1"
     type="button"
   >
     <span
@@ -301,14 +301,11 @@ exports[`TablePaginationActions shows next link 1`] = `
         />
       </svg>
     </span>
-    <span
-      className="MuiTouchRipple-root-20"
-    />
   </button>
   <button
     aria-label="Last Page"
-    className="MuiButtonBase-root-8 MuiIconButton-root-2"
-    disabled={false}
+    className="MuiButtonBase-root-8 MuiButtonBase-disabled-9 MuiIconButton-root-2 MuiIconButton-disabled-6"
+    disabled={true}
     onBlur={[Function]}
     onClick={[Function]}
     onContextMenu={[Function]}
@@ -321,7 +318,7 @@ exports[`TablePaginationActions shows next link 1`] = `
     onTouchEnd={[Function]}
     onTouchMove={[Function]}
     onTouchStart={[Function]}
-    tabIndex="0"
+    tabIndex="-1"
     type="button"
   >
     <span
@@ -343,21 +340,18 @@ exports[`TablePaginationActions shows next link 1`] = `
         />
       </svg>
     </span>
-    <span
-      className="MuiTouchRipple-root-20"
-    />
   </button>
 </div>
 `;
 
-exports[`TablePaginationActions shows prev link 1`] = `
+exports[`TablePaginationActions shows prev link disabled 1`] = `
 <div
   className="TablePaginationActions-root-1"
 >
   <button
     aria-label="First Page"
-    className="MuiButtonBase-root-8 MuiIconButton-root-2"
-    disabled={false}
+    className="MuiButtonBase-root-8 MuiButtonBase-disabled-9 MuiIconButton-root-2 MuiIconButton-disabled-6"
+    disabled={true}
     onBlur={[Function]}
     onClick={[Function]}
     onContextMenu={[Function]}
@@ -370,7 +364,7 @@ exports[`TablePaginationActions shows prev link 1`] = `
     onTouchEnd={[Function]}
     onTouchMove={[Function]}
     onTouchStart={[Function]}
-    tabIndex="0"
+    tabIndex="-1"
     type="button"
   >
     <span
@@ -392,14 +386,11 @@ exports[`TablePaginationActions shows prev link 1`] = `
         />
       </svg>
     </span>
-    <span
-      className="MuiTouchRipple-root-20"
-    />
   </button>
   <button
     aria-label="Previous Page"
-    className="MuiButtonBase-root-8 MuiIconButton-root-2"
-    disabled={false}
+    className="MuiButtonBase-root-8 MuiButtonBase-disabled-9 MuiIconButton-root-2 MuiIconButton-disabled-6"
+    disabled={true}
     onBlur={[Function]}
     onClick={[Function]}
     onContextMenu={[Function]}
@@ -412,7 +403,7 @@ exports[`TablePaginationActions shows prev link 1`] = `
     onTouchEnd={[Function]}
     onTouchMove={[Function]}
     onTouchStart={[Function]}
-    tabIndex="0"
+    tabIndex="-1"
     type="button"
   >
     <span
@@ -434,9 +425,6 @@ exports[`TablePaginationActions shows prev link 1`] = `
         />
       </svg>
     </span>
-    <span
-      className="MuiTouchRipple-root-20"
-    />
   </button>
   <button
     aria-label="Next Page"
