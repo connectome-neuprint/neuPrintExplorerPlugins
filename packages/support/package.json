@@ -7,7 +7,7 @@
     "test": "jest --coverage",
     "prebuild": "rimraf build",
     "build": "NODE_ENV=production npx babel ./src --out-dir ./build --ignore '**/*.test.jsx' --ignore '**/*.test.js'",
-    "dev": "NODE_ENV=development npx babel ./src --out-dir ./build --ignore '**/*.test.jsx' --ignore '**/*.test.js' --source-map inline --watch --verbose",
+    "dev": "NODE_ENV=development npx babel ./src --out-dir ./build --ignore '**/*.test.jsx' --ignore '**/*.test.js' --source-maps --watch --verbose",
     "prepublishOnly": "npm run-script build"
   },
   "repository": {
