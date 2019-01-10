@@ -2,7 +2,7 @@ module.exports = function(api) {
   api.cache(true);
   const presets = [
     [
-      "@babel/env",
+      "@babel/preset-env",
       {
         targets: {
           edge: "17",
@@ -10,7 +10,8 @@ module.exports = function(api) {
           chrome: "67",
           safari: "11.1"
         },
-        useBuiltIns: "usage"
+        useBuiltIns: "usage",
+        forceAllTransforms: true
       }
     ],
     "@babel/preset-react"
