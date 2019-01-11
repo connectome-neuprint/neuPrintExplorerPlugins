@@ -42,19 +42,7 @@ class CommonConnectivity extends React.Component {
 
   constructor(props) {
     super(props);
-    const initqsParams = {
-      typeValue: 'input',
-      bodyIds: '',
-      names: ''
-    };
-    const qsParams = props.actions.LoadQueryString(
-      `Query:${this.constructor.queryName}`,
-      initqsParams,
-      props.urlQueryString
-    );
-
     this.state = {
-      qsParams,
       limitNeurons: true,
       statusFilters: [],
       preThreshold: 0,
@@ -128,15 +116,15 @@ class CommonConnectivity extends React.Component {
 
   processRequest = () => {
     const { dataSet, actions, history } = this.props;
-    const { qsParams, limitNeurons, preThreshold, postThreshold, statusFilters } = this.state;
-    const { bodyIds, names, typeValue } = qsParams;
+    const { limitNeurons, preThreshold, postThreshold, statusFilters } = this.state;
+    const queryParams = actions.getQueryObject().CC;
+    const { bodyIds = '', typeValue = 'input' } = queryParams || {};
 
     const parameters = {
       dataset: dataSet,
       statuses: statusFilters,
       find_inputs: typeValue !== 'output',
       neuron_ids: bodyIds === '' ? [] : bodyIds.split(',').map(Number),
-      neuron_names: names === '' ? [] : names.split(','),
       all_segments: !limitNeurons
     };
 
@@ -148,8 +136,7 @@ class CommonConnectivity extends React.Component {
       parameters.post_threshold = postThreshold;
     }
 
-    const selectedNeurons =
-      parameters.neuron_ids.length > 0 ? parameters.neuron_ids : parameters.neuron_names;
+    const selectedNeurons = parameters.neuron_ids;
 
     const query = {
       dataSet,
@@ -157,7 +144,7 @@ class CommonConnectivity extends React.Component {
       visType: 'SimpleTable',
       plugin: pluginName,
       parameters,
-      title: `Common ${qsParams.typeValue}s for ${selectedNeurons} in ${dataSet}`,
+      title: `Common ${typeValue}s for ${selectedNeurons} in ${dataSet}`,
       menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
       processResults: this.processResults
     };
@@ -180,35 +167,20 @@ class CommonConnectivity extends React.Component {
   };
 
   addNeuronBodyIds = event => {
-    const { qsParams } = this.state;
     const { actions } = this.props;
-    const oldParams = qsParams;
-    oldParams.bodyIds = event.target.value;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
-    });
-  };
-
-  addNeuronNames = event => {
-    const { qsParams } = this.state;
-    const { actions } = this.props;
-    const oldParams = qsParams;
-    oldParams.names = event.target.value;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      CC: {
+        bodyIds: event.target.value
+      }
     });
   };
 
   setInputOrOutput = event => {
-    const { qsParams } = this.state;
     const { actions } = this.props;
-    const oldParams = qsParams;
-    oldParams.typeValue = event.target.value;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      CC: {
+        typeValue: event.target.value
+      }
     });
   };
 
@@ -222,7 +194,7 @@ class CommonConnectivity extends React.Component {
 
   render() {
     const { classes, dataSet, actions, neoServerSettings, neoServer } = this.props;
-    const { qsParams } = this.state;
+    const { bodyIds = '', typeValue = 'input' } = actions.getQueryObject().CC || {};
     return (
       <div>
         <FormControl fullWidth className={classes.formControl}>
@@ -231,32 +203,18 @@ class CommonConnectivity extends React.Component {
             multiline
             fullWidth
             rows={1}
-            value={qsParams.bodyIds}
-            disabled={qsParams.names.length > 0}
+            value={bodyIds}
+            name="bodyIds"
             rowsMax={4}
             helperText="Separate ids with commas."
             onChange={this.addNeuronBodyIds}
             onKeyDown={this.catchReturn}
           />
         </FormControl>
-        {/* // removing for now  */}
-        {/* <TextField
-            label="Neuron names"
-            multiline
-            fullWidth
-            rows={1}
-            value={this.state.qsParams.names}
-            disabled={this.state.qsParams.bodyIds.length > 0}
-            rowsMax={4}
-            className={classes.textField}
-            helperText="Separate names with commas."
-            onChange={this.addNeuronNames}
-            onKeyDown={this.catchReturn}
-          /> */}
         <RadioGroup
           aria-label="Type Of Connections"
           name="type"
-          value={qsParams.typeValue}
+          value={typeValue}
           onChange={this.setInputOrOutput}
         >
           <FormControlLabel value="input" control={<Radio color="primary" />} label="Inputs" />
