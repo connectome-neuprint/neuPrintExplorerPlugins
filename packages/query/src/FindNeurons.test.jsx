@@ -29,6 +29,10 @@ const actions = {
 
 const styles = { select: {}, clickable: {} };
 
+const neoServerSettings = {
+  get: () => 'http://example.com'
+};
+
 const component = (
   <FindNeurons
     availableROIs={['roiA', 'roiB', 'roiC']}
@@ -38,7 +42,7 @@ const component = (
     classes={styles}
     history={{ push: jest.fn() }}
     isQuerying={false}
-    neoServerSettings={{}}
+    neoServerSettings={neoServerSettings}
     urlQueryString=""
     neoServer="testServer"
   />
@@ -315,7 +319,7 @@ describe('find neurons Plugin', () => {
       inputSelect.props().onChange([{ value: 'roiA' }, { value: 'roiB' }]);
       outputSelect.props().onChange([{ value: 'roiB' }, { value: 'roiC' }]);
       textField.props().onChange({ target: { value: 'abc' } });
-      
+
       wrapper.setProps({ dataSet: 'new' });
 
       expect(wrapper.props().dataSet).toBe('new');

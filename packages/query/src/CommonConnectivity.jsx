@@ -193,7 +193,7 @@ class CommonConnectivity extends React.Component {
   };
 
   render() {
-    const { classes, dataSet, actions, neoServerSettings, neoServer } = this.props;
+    const { classes, dataSet, actions, neoServerSettings } = this.props;
     const { bodyIds = '', typeValue = 'input' } = actions.getQueryObject().CC || {};
     return (
       <div>
@@ -224,8 +224,7 @@ class CommonConnectivity extends React.Component {
           callback={this.loadNeuronFilters}
           datasetstr={dataSet}
           actions={actions}
-          neoServerSettings={neoServerSettings}
-          neoServer={neoServer}
+          neoServer={neoServerSettings.get('neoServer')}
         />
         <Button variant="contained" color="primary" onClick={this.processRequest}>
           Submit
@@ -238,11 +237,9 @@ class CommonConnectivity extends React.Component {
 CommonConnectivity.propTypes = {
   dataSet: PropTypes.string.isRequired,
   actions: PropTypes.object.isRequired,
-  urlQueryString: PropTypes.string.isRequired,
   neoServerSettings: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
-  neoServer: PropTypes.string.isRequired
+  history: PropTypes.object.isRequired
 };
 
 export default withRouter(withStyles(styles, { withTheme: true })(CommonConnectivity));

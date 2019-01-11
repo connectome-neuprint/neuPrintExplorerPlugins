@@ -423,8 +423,7 @@ export class FindNeurons extends React.Component {
       availableROIs,
       dataSet,
       actions,
-      neoServerSettings,
-      neoServer
+      neoServerSettings
     } = this.props;
     const { qsParams } = this.state;
 
@@ -487,8 +486,7 @@ export class FindNeurons extends React.Component {
           callback={this.loadNeuronFilters}
           datasetstr={dataSet}
           actions={actions}
-          neoServerSettings={neoServerSettings}
-          neoServer={neoServer}
+          neoServer={neoServerSettings.get('neoServer')}
         />
         <Button
           disabled={isQuerying}
@@ -514,7 +512,6 @@ FindNeurons.propTypes = {
   isQuerying: PropTypes.bool.isRequired,
   neoServerSettings: PropTypes.object.isRequired,
   urlQueryString: PropTypes.string.isRequired,
-  neoServer: PropTypes.string.isRequired
 };
 
 export default withRouter(withStyles(styles)(FindNeurons));
