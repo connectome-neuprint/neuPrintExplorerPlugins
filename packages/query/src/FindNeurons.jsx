@@ -37,17 +37,16 @@ const pluginName = 'FindNeurons';
 export class FindNeurons extends React.Component {
   constructor(props) {
     super(props);
-    const { urlQueryString, dataSet } = this.props;
-    const initqsParams = {
-      inputROIs: [],
-      outputROIs: [],
-      neuronName: ''
-    };
-    const qsParams = props.actions.LoadQueryString(
-      `Query:${this.constructor.queryName}`,
-      initqsParams,
-      urlQueryString
-    );
+    const { dataSet, actions } = this.props;
+    actions.setQueryString({
+      input: {
+        fn: {
+          inputROIs: [],
+          outputROIs: [],
+          neuronName: ''
+        }
+      }
+    });
 
     // set the default state for the query input.
     this.state = {
@@ -55,7 +54,6 @@ export class FindNeurons extends React.Component {
       statusFilters: [],
       preThreshold: 0,
       postThreshold: 0,
-      qsParams,
       dataSet, // eslint-disable-line react/no-unused-state
       queryName: this.constructor.queryName // eslint-disable-line react/no-unused-state
     };
@@ -78,11 +76,15 @@ export class FindNeurons extends React.Component {
 
     // eslint issues: https://github.com/yannickcr/eslint-plugin-react/issues/1751
     if (props.dataSet !== state.dataSet) {
-      const oldParams = state.qsParams;
-      oldParams.inputROIs = [];
-      oldParams.outputROIs = [];
       state.statusFilters = []; // eslint-disable-line no-param-reassign
-      props.actions.setURLQs(props.actions.SaveQueryString(`Query:${state.queryName}`, oldParams));
+      props.actions.setQueryString({
+        input: {
+          fn: {
+            inputROIs: [],
+            outputROIs: []
+          }
+        }
+      });
       state.dataSet = props.dataSet; // eslint-disable-line no-param-reassign
       return state;
     }
@@ -313,8 +315,13 @@ export class FindNeurons extends React.Component {
   // and generate the query object.
   processRequest = () => {
     const { dataSet, actions, history } = this.props;
-    const { statusFilters, limitNeurons, preThreshold, postThreshold, qsParams } = this.state;
-    const { inputROIs, outputROIs, neuronName } = qsParams;
+    const { statusFilters, limitNeurons, preThreshold, postThreshold } = this.state;
+    const qsParams = actions.getQueryObject();
+    const { neuronName } = qsParams.input.fn;
+
+    // empty if undefined
+    const inputROIs = qsParams.input.fn.inputROIs ? qsParams.input.fn.inputROIs : [];
+    const outputROIs = qsParams.input.fn.outputROIs ? qsParams.input.fn.outputROIs : [];
 
     const parameters = {
       dataset: dataSet,
@@ -362,38 +369,38 @@ export class FindNeurons extends React.Component {
   };
 
   handleChangeROIsIn = selected => {
-    const { qsParams } = this.state;
     const { actions } = this.props;
-    const oldParams = qsParams;
     const rois = selected.map(item => item.value);
-    oldParams.inputROIs = rois;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      input: {
+        fn: {
+          inputROIs: rois
+        }
+      }
     });
   };
 
   handleChangeROIsOut = selected => {
-    const { qsParams } = this.state;
     const { actions } = this.props;
-    const oldParams = qsParams;
     const rois = selected.map(item => item.value);
-    oldParams.outputROIs = rois;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      input: {
+        fn: {
+          outputROIs: rois
+        }
+      }
     });
   };
 
   addNeuron = event => {
-    const { qsParams } = this.state;
     const { actions } = this.props;
-    const oldParams = qsParams;
     const neuronName = event.target.value;
-    oldParams.neuronName = neuronName;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      input: {
+        fn: {
+          neuronName
+        }
+      }
     });
   };
 
@@ -417,22 +424,20 @@ export class FindNeurons extends React.Component {
   // use this function to generate the form that will accept and
   // validate the variables for your Neo4j query.
   render() {
-    const {
-      classes,
-      isQuerying,
-      availableROIs,
-      dataSet,
-      actions,
-      neoServerSettings
-    } = this.props;
-    const { qsParams } = this.state;
+    const { classes, isQuerying, availableROIs, dataSet, actions, neoServerSettings } = this.props;
+    const qsParams = actions.getQueryObject();
+    const { neuronName } = qsParams.input.fn;
+
+    // empty if undefined
+    const inputROIs = qsParams.input.fn.inputROIs ? qsParams.input.fn.inputROIs : [];
+    const outputROIs = qsParams.input.fn.outputROIs ? qsParams.input.fn.outputROIs : [];
 
     const inputOptions = availableROIs.map(name => ({
       label: name,
       value: name
     }));
 
-    const inputValue = qsParams.inputROIs.map(roi => ({
+    const inputValue = inputROIs.map(roi => ({
       label: roi,
       value: roi
     }));
@@ -442,7 +447,7 @@ export class FindNeurons extends React.Component {
       value: name
     }));
 
-    const outputValue = qsParams.outputROIs.map(roi => ({
+    const outputValue = outputROIs.map(roi => ({
       label: roi,
       value: roi
     }));
@@ -474,7 +479,7 @@ export class FindNeurons extends React.Component {
               multiline
               rows={1}
               fullWidth
-              value={qsParams.neuronName}
+              value={neuronName}
               rowsMax={4}
               className={classes.textField}
               onChange={this.addNeuron}
@@ -510,8 +515,7 @@ FindNeurons.propTypes = {
   classes: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired,
-  neoServerSettings: PropTypes.object.isRequired,
-  urlQueryString: PropTypes.string.isRequired,
+  neoServerSettings: PropTypes.object.isRequired
 };
 
 export default withRouter(withStyles(styles)(FindNeurons));

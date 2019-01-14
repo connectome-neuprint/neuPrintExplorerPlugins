@@ -1,37 +1,25 @@
-import React from 'react';
-import { mount } from 'enzyme';
-import renderer from 'react-test-renderer';
 import { FindNeurons } from './FindNeurons';
 import { ColorLegend } from './visualization/MiniRoiHeatMap';
 
 let wrapper;
 let button;
 let textField;
-let submit;
 let inputSelect;
 let outputSelect;
 let limitNeuronsToggle;
 let preThresholdField;
 let postThresholdField;
 
-const actions = {
-  submit: jest.fn(),
-  LoadQueryString: jest.fn((_, initqsParams) => initqsParams),
-  setURLQs: jest.fn(),
-  SaveQueryString: jest.fn(),
-  skeletonAddandOpen: jest.fn(),
-  neuroglancerAddandOpen: jest.fn(),
-  getQueryString: jest.fn(),
-  getQueryObject: jest.fn(() => ({})),
-  setQueryString: jest.fn(),
-  metaInfoError: jest.fn()
-};
-
 const styles = { select: {}, clickable: {} };
+const { actions, React, enzyme, renderer } = global;
 
 const neoServerSettings = {
   get: () => 'http://example.com'
 };
+
+// gets the global queryStringObject
+// eslint-disable-next-line no-undef
+const getQueryStringObject = () => queryStringObject;
 
 const component = (
   <FindNeurons
@@ -50,7 +38,7 @@ const component = (
 
 describe('find neurons Plugin', () => {
   beforeAll(() => {
-    wrapper = mount(component);
+    wrapper = enzyme.mount(component);
     button = wrapper.find('FindNeurons').find('Button');
     textField = wrapper
       .find('FindNeurons')
@@ -65,12 +53,11 @@ describe('find neurons Plugin', () => {
       .find('FindNeurons')
       .find('TextField')
       .at(2);
-    submit = jest.spyOn(wrapper.find('FindNeurons').props().actions, 'submit');
     inputSelect = wrapper.find('Select').at(0);
     outputSelect = wrapper.find('Select').at(1);
   });
   beforeEach(() => {
-    submit.mockReset();
+    actions.submit.mockClear();
   });
   it('has name and description', () => {
     expect(FindNeurons.queryName).toBeTruthy();
@@ -101,7 +88,7 @@ describe('find neurons Plugin', () => {
           processResults: expect.any(Function)
         })
       );
-      expect(submit).toHaveBeenCalledTimes(1);
+      expect(actions.submit).toHaveBeenCalledTimes(1);
 
       // if neuron name/id is present add to parameters
       textField.props().onChange({ target: { value: 'abc' } });
@@ -287,31 +274,31 @@ describe('find neurons Plugin', () => {
       textField.props().onKeyDown({ keyCode: 13, preventDefault });
       expect(preventDefault).toHaveBeenCalledTimes(1);
       expect(processRequest).toHaveBeenCalledTimes(1);
-      expect(submit).toHaveBeenCalledTimes(1);
+      expect(actions.submit).toHaveBeenCalledTimes(1);
     });
   });
   describe('when user inputs text or selects rois', () => {
     it('should change url query string in state', () => {
-      const setUrlQs = jest.spyOn(wrapper.find('FindNeurons').props().actions, 'setURLQs');
-      setUrlQs.mockReset();
+      actions.setQueryString.mockClear();
+
       // neuron name input
       textField.props().onChange({ target: { value: 'abc' } });
-      expect(wrapper.find('FindNeurons').state('qsParams').neuronName).toBe('abc');
-      expect(setUrlQs).toHaveBeenCalledTimes(1);
+      expect(actions.setQueryString).toHaveBeenCalledTimes(1);
+      expect(getQueryStringObject().input.fn.neuronName).toBe('abc');
 
       // input rois
       inputSelect.props().onChange([{ value: 'roiA' }, { value: 'roiB' }]);
-      expect(wrapper.find('FindNeurons').state('qsParams').inputROIs).toContainEqual('roiA');
-      expect(wrapper.find('FindNeurons').state('qsParams').inputROIs).toContainEqual('roiB');
-      expect(wrapper.find('FindNeurons').state('qsParams').inputROIs.length).toBe(2);
-      expect(setUrlQs).toHaveBeenCalledTimes(2);
+      expect(getQueryStringObject().input.fn.inputROIs).toContainEqual('roiA');
+      expect(getQueryStringObject().input.fn.inputROIs).toContainEqual('roiB');
+      expect(getQueryStringObject().input.fn.inputROIs.length).toBe(2);
+      expect(actions.setQueryString).toHaveBeenCalledTimes(2);
 
       // output rois
       outputSelect.props().onChange([{ value: 'roiB' }, { value: 'roiC' }]);
-      expect(wrapper.find('FindNeurons').state('qsParams').outputROIs).toContainEqual('roiC');
-      expect(wrapper.find('FindNeurons').state('qsParams').outputROIs).toContainEqual('roiB');
-      expect(wrapper.find('FindNeurons').state('qsParams').outputROIs.length).toBe(2);
-      expect(setUrlQs).toHaveBeenCalledTimes(3);
+      expect(getQueryStringObject().input.fn.outputROIs).toContainEqual('roiC');
+      expect(getQueryStringObject().input.fn.outputROIs).toContainEqual('roiB');
+      expect(getQueryStringObject().input.fn.outputROIs.length).toBe(2);
+      expect(actions.setQueryString).toHaveBeenCalledTimes(3);
     });
   });
   describe('when selected dataset changes', () => {
@@ -323,10 +310,10 @@ describe('find neurons Plugin', () => {
       wrapper.setProps({ dataSet: 'new' });
 
       expect(wrapper.props().dataSet).toBe('new');
-      expect(wrapper.state('qsParams').inputROIs.length).toBe(0);
-      expect(wrapper.state('qsParams').outputROIs.length).toBe(0);
+      expect(getQueryStringObject().input.fn.inputROIs.length).toBe(0);
+      expect(getQueryStringObject().input.fn.outputROIs.length).toBe(0);
       // input text does not change
-      expect(wrapper.state('qsParams').neuronName).toBe('abc');
+      expect(getQueryStringObject().input.fn.neuronName).toBe('abc');
     });
   });
 });
