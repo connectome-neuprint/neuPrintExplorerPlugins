@@ -1,25 +1,14 @@
-import React from 'react';
-import { mount } from 'enzyme';
-import renderer from 'react-test-renderer';
 import { CustomQuery } from './CustomQuery';
 
 let wrapper;
 let button;
 let textField;
-let submit;
 
-const actions = {
-  submit: jest.fn(),
-  LoadQueryString: jest.fn((_, initqsParams) => initqsParams),
-  setURLQs: jest.fn(),
-  SaveQueryString: jest.fn(),
-  skeletonAddandOpen: jest.fn(),
-  neuroglancerAddandOpen: jest.fn(),
-  getQueryString: jest.fn(),
-  getQueryObject: jest.fn(() => ({})),
-  setQueryString: jest.fn(),
-  metaInfoError: jest.fn()
-};
+const { actions, React, enzyme, renderer } = global;
+
+// gets the global queryStringObject
+// eslint-disable-next-line no-undef
+const getQueryStringObject = () => queryStringObject;
 
 const styles = { textField: '', button: '', formControl: '' };
 
@@ -36,13 +25,12 @@ const component = (
 
 describe('custom query Plugin', () => {
   beforeAll(() => {
-    wrapper = mount(component);
+    wrapper = enzyme.mount(component);
     button = wrapper.find('CustomQuery').find('Button');
     textField = wrapper.find('CustomQuery').find('TextField');
-    submit = jest.spyOn(wrapper.find('CustomQuery').props().actions, 'submit');
   });
   beforeEach(() => {
-    submit.mockReset();
+    actions.submit.mockClear();
   });
   it('has name and description', () => {
     expect(CustomQuery.queryName).toBeTruthy();
@@ -54,7 +42,6 @@ describe('custom query Plugin', () => {
   });
   describe('when user clicks submit', () => {
     it('should return a query object and submit', () => {
-      submit = jest.spyOn(wrapper.find('CustomQuery').props().actions, 'submit');
       expect(button.props().onClick()).toEqual(
         expect.objectContaining({
           dataSet: 'test',
@@ -67,7 +54,7 @@ describe('custom query Plugin', () => {
           processResults: expect.any(Function)
         })
       );
-      expect(submit).toHaveBeenCalledTimes(1);
+      expect(actions.submit).toHaveBeenCalledTimes(1);
     });
 
     it('should process returned results into data object', () => {
@@ -106,15 +93,15 @@ describe('custom query Plugin', () => {
       textField.props().onKeyDown({ keyCode: 13, preventDefault });
       expect(preventDefault).toHaveBeenCalledTimes(1);
       expect(processRequest).toHaveBeenCalledTimes(1);
-      expect(submit).toHaveBeenCalledTimes(1);
+      expect(actions.submit).toHaveBeenCalledTimes(1);
     });
   });
   describe('when user inputs text', () => {
     it('should change url query string in state', () => {
-      const setUrlQs = jest.spyOn(wrapper.find('CustomQuery').props().actions, 'setURLQs');
+      actions.setQueryString.mockClear();
       textField.props().onChange({ target: { value: 'abc' } });
-      expect(wrapper.find('CustomQuery').state('qsParams').textValue).toBe('abc');
-      expect(setUrlQs).toHaveBeenCalledTimes(1);
+      expect(getQueryStringObject().input.cq.textValue).toBe('abc');
+      expect(actions.setQueryString).toHaveBeenCalledTimes(1);
     });
   });
 });

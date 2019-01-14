@@ -36,17 +36,14 @@ export class CustomQuery extends React.Component {
 
   constructor(props) {
     super(props);
-    const initqsParams = {
-      textValue: ''
-    };
-    const qsParams = props.actions.LoadQueryString(
-      `Query:${this.constructor.queryName}`,
-      initqsParams,
-      props.urlQueryString
-    );
-    this.state = {
-      qsParams
-    };
+    const { actions } = this.props;
+    actions.setQueryString({
+      input: {
+        cq: {
+          textValue: ''
+        }
+      }
+    });
   }
 
   processResults = (query, apiResponse) => {
@@ -69,8 +66,8 @@ export class CustomQuery extends React.Component {
 
   processRequest = () => {
     const { dataSet, actions, history } = this.props;
-    const { qsParams } = this.state;
-    const { textValue } = qsParams;
+    const qsParams = actions.getQueryObject();
+    const { textValue } = qsParams.input.cq;
 
     const query = {
       dataSet,
@@ -92,12 +89,13 @@ export class CustomQuery extends React.Component {
 
   handleChange = event => {
     const { actions } = this.props;
-    const { qsParams } = this.state;
-    const oldParams = qsParams;
-    oldParams.textValue = event.target.value;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    const textValue = event.target.value;
+    actions.setQueryString({
+      input: {
+        cq: {
+          textValue
+        }
+      }
     });
   };
 
@@ -110,14 +108,15 @@ export class CustomQuery extends React.Component {
   };
 
   render() {
-    const { qsParams } = this.state;
-    const { classes, isQuerying } = this.props;
+    const { actions, classes, isQuerying } = this.props;
+    const qsParams = actions.getQueryObject();
+    const { textValue } = qsParams.input.cq;
     return (
       <FormControl className={classes.formControl}>
         <TextField
           label="Custom Cypher Query"
           multiline
-          value={qsParams.textValue}
+          value={textValue}
           rows={1}
           rowsMax={4}
           className={classes.textField}
@@ -139,7 +138,6 @@ export class CustomQuery extends React.Component {
 }
 
 CustomQuery.propTypes = {
-  urlQueryString: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
   dataSet: PropTypes.string.isRequired,
