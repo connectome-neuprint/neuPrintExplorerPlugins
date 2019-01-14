@@ -1,20 +1,8 @@
-import React from 'react';
-import renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
 import { MemoryRouter } from 'react-router-dom';
 import CommonConnectivity from './CommonConnectivity';
 
 const styles = {};
-
-const actions = {
-  getQueryObject: jest.fn(() => ({
-    bodyIds: '',
-    names: []
-  })),
-  getQueryString: jest.fn(),
-  metaInfoError: jest.fn(),
-  submit: jest.fn()
-};
+const { actions, React, enzyme, renderer } = global;
 
 const neoServerSettings = {
   get: () => 'http://example.com'
@@ -33,7 +21,7 @@ const raw = (
 );
 
 function providedRenderedComponent() {
-  const wrapper = mount(raw);
+  const wrapper = enzyme.mount(raw);
   // get through the styles and router components that wrap the plugin.
   const rendered = wrapper.children().children();
   return rendered;
@@ -41,7 +29,7 @@ function providedRenderedComponent() {
 
 describe('Common Connectivity Plugin', () => {
   beforeEach(() => {
-    actions.submit.mockReset();
+    actions.submit.mockClear();
   });
 
   describe('has required functions', () => {
@@ -85,9 +73,7 @@ describe('Common Connectivity Plugin', () => {
   describe('submits correctly', () => {
     const rendered = providedRenderedComponent();
     test('submit button pressed', () => {
-      rendered
-        .find('Button')
-        .simulate('click');
+      rendered.find('Button').simulate('click');
       expect(actions.submit).toHaveBeenCalledTimes(1);
     });
 
