@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
@@ -9,12 +10,16 @@ import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
-import Icon from '@material-ui/core/Icon';
 
-import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
-import RoiBarGraph from './visualization/MiniRoiBarGraph';
+import { ColorLegend } from './visualization/MiniRoiHeatMap';
 import NeuronHelp from './shared/NeuronHelp';
 import NeuronFilter from './shared/NeuronFilter';
+import {
+  setColumnIndices,
+  createSimpleConnectionQueryObject,
+  generateRoiHeatMapAndBarGraph,
+  getBodyIdForTable
+} from './shared/pluginhelpers';
 
 const styles = theme => ({
   select: {
@@ -32,17 +37,16 @@ const pluginName = 'Example';
 class Example extends React.Component {
   constructor(props) {
     super(props);
-    const { urlQueryString, dataSet, actions } = this.props;
-    const initqsParams = {
-      inputROIs: [],
-      outputROIs: [],
-      neuronName: ''
-    };
-    const qsParams = actions.LoadQueryString(
-      `Query:${this.constructor.queryName}`,
-      initqsParams,
-      urlQueryString
-    );
+    const { dataSet, actions } = this.props;
+    actions.setQueryString({
+      input: {
+        example: {
+          inputROIs: [],
+          outputROIs: [],
+          neuronName: ''
+        }
+      }
+    });
 
     // set the default state for the query input.
     this.state = {
@@ -50,7 +54,6 @@ class Example extends React.Component {
       statusFilters: [],
       preThreshold: 0,
       postThreshold: 0,
-      qsParams,
       dataSet, // eslint-disable-line react/no-unused-state
       queryName: this.constructor.queryName // eslint-disable-line react/no-unused-state
     };
@@ -58,26 +61,29 @@ class Example extends React.Component {
 
   static get queryName() {
     // This is the string used in the 'Query Type' select.
-    return 'Find neurons';
+    return 'Example Query';
   }
 
   static get queryDescription() {
     // This is a description of the purpose of the plugin.
     // it will be displayed in the form above the custom
     // inputs for this plugin.
-    return 'Find neurons that have inputs or outputs in ROIs';
+    return 'An example plugin demonstrating neuPrintExplorer plugin structure';
   }
 
   static getDerivedStateFromProps = (props, state) => {
     // if dataset changes, clear the selected rois and statuses
-    const { actions } = props;
     // eslint issues: https://github.com/yannickcr/eslint-plugin-react/issues/1751
     if (props.dataSet !== state.dataSet) {
-      const oldParams = state.qsParams;
-      oldParams.inputROIs = [];
-      oldParams.outputROIs = [];
       state.statusFilters = []; // eslint-disable-line no-param-reassign
-      props.actions.setURLQs(actions.SaveQueryString(`Query:${state.queryName}`, oldParams));
+      props.actions.setQueryString({
+        input: {
+          fn: {
+            inputROIs: [],
+            outputROIs: []
+          }
+        }
+      });
       state.dataSet = props.dataSet; // eslint-disable-line no-param-reassign
       return state;
     }
@@ -91,37 +97,96 @@ class Example extends React.Component {
   };
 
   processSimpleConnections = (query, apiResponse) => {
-    const { dataSet, actions } = this.props;
+    const { actions } = this.props;
 
-    const findNeuronQuery = bodyId => {
-      const parameters = {
-        dataset: dataSet,
-        neuron_id: bodyId
-      };
-      return {
-        dataSet, // <string> for the data set selected
-        queryString: '/npexplorer/findneurons', // <neo4jquery string>
-        // cypherQuery: <string> if this is passed then use generic /api/custom/custom endpoint
-        visType: 'SimpleTable', // <string> which visualization plugin to use. Default is 'table'
-        plugin: pluginName, // <string> the name of this plugin.
-        parameters, // <object>
-        title: `Neuron with id ${bodyId}`,
-        menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-        processResults: this.processResults
-      };
-    };
-
-    const data = apiResponse.data.map(row => [
-      {
-        value: row[2],
-        action: () => actions.submit(findNeuronQuery(row[2]))
-      },
-      row[1],
-      row[3]
+    const indexOf = setColumnIndices([
+      'bodyId',
+      'name',
+      'status',
+      'connectionWeight',
+      'post',
+      'pre',
+      'size',
+      'roiHeatMap',
+      'roiBarGraph'
     ]);
 
+    const data = apiResponse.data.map(row => {
+      const hasSkeleton = row[5];
+      const roiInfoObject = JSON.parse(row[7]);
+      const roiList = row[11];
+      const postTotal = row[10];
+      const preTotal = row[9];
+      const bodyId = row[2];
+
+      // make sure none is added to the rois list.
+      roiList.push('none');
+
+      const converted = [];
+      converted[indexOf.bodyId] = getBodyIdForTable(
+        query.dataSet,
+        bodyId,
+        hasSkeleton,
+        this.handleShowSkeleton
+      );
+      converted[indexOf.name] = row[1];
+      converted[indexOf.status] = row[6];
+      converted[indexOf.connectionWeight] = row[3];
+      converted[indexOf.size] = row[8];
+
+      const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
+        roiInfoObject,
+        roiList,
+        preTotal,
+        postTotal
+      );
+      converted[indexOf.roiHeatMap] = heatMap;
+      converted[indexOf.roiBarGraph] = barGraph;
+
+      const postQuery = createSimpleConnectionQueryObject(
+        query.dataSet,
+        true,
+        bodyId,
+        this.processSimpleConnections,
+        pluginName
+      );
+      converted[indexOf.post] = {
+        value: postTotal,
+        action: () => actions.submit(postQuery)
+      };
+
+      const preQuery = createSimpleConnectionQueryObject(
+        query.dataSet,
+        false,
+        bodyId,
+        this.processSimpleConnections,
+        pluginName
+      );
+      converted[indexOf.pre] = {
+        value: preTotal,
+        action: () => actions.submit(preQuery)
+      };
+
+      return converted;
+    });
+
+    const columns = [];
+    columns[indexOf.bodyId] = 'id';
+    columns[indexOf.name] = 'neuron';
+    columns[indexOf.status] = 'status';
+    columns[indexOf.connectionWeight] = '#connections';
+    columns[indexOf.post] = '#post (inputs)';
+    columns[indexOf.pre] = '#pre (outputs)';
+    columns[indexOf.size] = '#voxels';
+    columns[indexOf.roiHeatMap] = (
+      <div>
+        roi heatmap <ColorLegend />
+      </div>
+    );
+    columns[indexOf.roiBarGraph] = 'roi breakdown';
+
     return {
-      columns: ['Neuron ID', 'Neuron', '#connections'],
+      columns,
       data,
       debug: apiResponse.debug
     };
@@ -131,146 +196,115 @@ class Example extends React.Component {
   // Neo4j server and place them in the correct format for the
   // visualization plugin.
   processResults = (query, apiResponse) => {
-    const { actions, classes } = this.props;
+    const { actions } = this.props;
+    /* eslint-disable camelcase */
+    const { input_ROIs, output_ROIs } = query.parameters;
+    const rois = input_ROIs && output_ROIs ? [...new Set(input_ROIs.concat(output_ROIs))] : [];
+    /* eslint-enable camelcase */
+
+    // assigns data properties to column indices for convenient access/modification
+    const columnIds = ['bodyId', 'name', 'status', 'post', 'pre'];
+    if (rois.length > 0) {
+      rois.forEach(roi => {
+        columnIds.push(`${roi}Post`);
+        columnIds.push(`${roi}Pre`);
+      });
+    }
+    columnIds.push('size', 'roiHeatMap', 'roiBarGraph');
+    const indexOf = setColumnIndices(columnIds);
 
     const data = apiResponse.data.map(row => {
       const hasSkeleton = row[8];
-      const converted = [
-        {
-          value: hasSkeleton ? (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row'
-              }}
-            >
-              {row[0]}
-              <div style={{ margin: '3px' }} />
-              <Icon
-                className={classes.clickable}
-                onClick={this.handleShowSkeleton(row[0], query.dataSet)}
-                fontSize="inherit"
-              >
-                visibility
-              </Icon>
-            </div>
-          ) : (
-            row[0]
-          ),
-          sortBy: row[0]
-        },
-        row[1],
-        row[2],
-        '-', // empty unless roiInfoObject present
-        '-',
-        row[4],
-        '',
-        ''
-      ];
-
-      // make sure none is added to the rois list.
-      row[7].push('none');
+      const bodyId = row[0];
       const roiList = row[7];
       const totalPre = row[5];
       const totalPost = row[6];
-
       const roiInfoObject = JSON.parse(row[3]);
 
+      const converted = [];
+      converted[indexOf.bodyId] = getBodyIdForTable(
+        query.dataSet,
+        bodyId,
+        hasSkeleton,
+        this.handleShowSkeleton
+      );
+      converted[indexOf.name] = row[1];
+      converted[indexOf.status] = row[2];
+      converted[indexOf.post] = '-'; // empty unless roiInfoObject present
+      converted[indexOf.pre] = '-';
+      converted[indexOf.size] = row[4];
+      converted[indexOf.roiHeatMap] = '';
+      converted[indexOf.roiBarGraph] = '';
+
+      // make sure none is added to the rois list.
+      roiList.push('none');
+
       if (roiInfoObject) {
-        // calculate # pre and post in super rois (which are disjoint) to get total
-        // number of synapses assigned to an roi
-        let postInSuperRois = 0;
-        let preInSuperRois = 0;
-        Object.keys(roiInfoObject).forEach(roi => {
-          if (roiList.includes(roi)) {
-            preInSuperRois += roiInfoObject[roi].pre;
-            postInSuperRois += roiInfoObject[roi].post;
-          }
-        });
-
-        // add this after the other rois have been summed.
-        // records # pre and post that are not in rois
-        roiInfoObject.none = {
-          pre: row[5] - preInSuperRois,
-          post: row[6] - postInSuperRois
-        };
-
-        const heatMap = (
-          <RoiHeatMap
-            roiList={roiList}
-            roiInfoObject={roiInfoObject}
-            preTotal={totalPre}
-            postTotal={totalPost}
-          />
+        const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
+          roiInfoObject,
+          roiList,
+          totalPre,
+          totalPost
         );
-        converted[6] = heatMap;
+        converted[indexOf.roiHeatMap] = heatMap;
+        converted[indexOf.roiBarGraph] = barGraph;
 
-        const barGraph = (
-          <RoiBarGraph
-            roiList={roiList}
-            roiInfoObject={roiInfoObject}
-            preTotal={totalPre}
-            postTotal={totalPost}
-          />
+        const postQuery = createSimpleConnectionQueryObject(
+          query.dataSet,
+          true,
+          bodyId,
+          this.processSimpleConnections,
+          pluginName
         );
-        converted[7] = barGraph;
-
-        const postQuery = {
-          dataSet: query.dataSet, // <string> for the data set selected
-          queryString: '/npexplorer/simpleconnections', // <neo4jquery string>
-          // cypherQuery: <string> if this is passed then use generic /api/custom/custom endpoint
-          visType: 'SimpleTable', // <string> which visualization plugin to use. Default is 'table'
-          plugin: pluginName, // <string> the name of this plugin.
-          parameters: {
-            dataset: query.dataSet,
-            find_inputs: true,
-            neuron_id: row[0]
-          },
-          title: `Connections to bodyID=${row[0]}`,
-          menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-          processResults: this.processSimpleConnections
-        };
-        converted[3] = {
+        converted[indexOf.post] = {
           value: totalPost,
           action: () => actions.submit(postQuery)
         };
 
-        const preQuery = {
-          dataSet: query.dataSet, // <string> for the data set selected
-          queryString: '/npexplorer/simpleconnections', // <neo4jquery string>
-          // cypherQuery: <string> if this is passed then use generic /api/custom/custom endpoint
-          visType: 'SimpleTable', // <string> which visualization plugin to use. Default is 'table'
-          plugin: pluginName, // <string> the name of this plugin.
-          parameters: {
-            dataset: query.dataSet,
-            find_inputs: false,
-            neuron_id: row[0]
-          },
-          title: `Connections from bodyID=${row[0]}`,
-          menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-          processResults: this.processSimpleConnections
-        };
-        converted[4] = {
+        const preQuery = createSimpleConnectionQueryObject(
+          query.dataSet,
+          false,
+          bodyId,
+          this.processSimpleConnections,
+          pluginName
+        );
+        converted[indexOf.pre] = {
           value: totalPre,
           action: () => actions.submit(preQuery)
         };
+
+        if (rois.length > 0) {
+          rois.forEach(roi => {
+            converted[indexOf[`${roi}Post`]] = roiInfoObject[roi].post;
+            converted[indexOf[`${roi}Pre`]] = roiInfoObject[roi].pre;
+          });
+        }
       }
 
       return converted;
     });
+    const columns = [];
+    columns[indexOf.bodyId] = 'id';
+    columns[indexOf.name] = 'neuron';
+    columns[indexOf.status] = 'status';
+    columns[indexOf.post] = '#post (inputs)';
+    columns[indexOf.pre] = '#pre (outputs)';
+    columns[indexOf.size] = '#voxels';
+    columns[indexOf.roiHeatMap] = (
+      <div>
+        roi heatmap <ColorLegend />
+      </div>
+    );
+    columns[indexOf.roiBarGraph] = 'roi breakdown';
+    if (rois.length > 0) {
+      rois.forEach(roi => {
+        columns[indexOf[`${roi}Post`]] = `${roi} #post`;
+        columns[indexOf[`${roi}Pre`]] = `${roi} #pre`;
+      });
+    }
+
     return {
-      columns: [
-        'id',
-        'neuron',
-        'status',
-        '#post (inputs)',
-        '#pre (outputs)',
-        '#voxels',
-        <div>
-          roi heatmap <ColorLegend />
-        </div>,
-        'roi breakdown'
-      ],
+      columns,
       data,
       debug: apiResponse.debug
     };
@@ -280,8 +314,13 @@ class Example extends React.Component {
   // and generate the query object.
   processRequest = () => {
     const { dataSet, actions, history } = this.props;
-    const { statusFilters, limitNeurons, preThreshold, postThreshold, qsParams } = this.state;
-    const { inputROIs, outputROIs, neuronName } = qsParams;
+    const { statusFilters, limitNeurons, preThreshold, postThreshold } = this.state;
+    const qsParams = actions.getQueryObject();
+    const { neuronName } = qsParams.input.fn;
+
+    // empty if undefined
+    const inputROIs = qsParams.input.fn.inputROIs ? qsParams.input.fn.inputROIs : [];
+    const outputROIs = qsParams.input.fn.outputROIs ? qsParams.input.fn.outputROIs : [];
 
     const parameters = {
       dataset: dataSet,
@@ -329,38 +368,38 @@ class Example extends React.Component {
   };
 
   handleChangeROIsIn = selected => {
-    const { qsParams } = this.state;
     const { actions } = this.props;
-    const oldParams = qsParams;
     const rois = selected.map(item => item.value);
-    oldParams.inputROIs = rois;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      input: {
+        fn: {
+          inputROIs: rois
+        }
+      }
     });
   };
 
   handleChangeROIsOut = selected => {
-    const { qsParams } = this.state;
     const { actions } = this.props;
-    const oldParams = qsParams;
     const rois = selected.map(item => item.value);
-    oldParams.outputROIs = rois;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      input: {
+        fn: {
+          outputROIs: rois
+        }
+      }
     });
   };
 
   addNeuron = event => {
-    const { qsParams } = this.state;
     const { actions } = this.props;
-    const oldParams = qsParams;
     const neuronName = event.target.value;
-    oldParams.neuronName = neuronName;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      input: {
+        fn: {
+          neuronName
+        }
+      }
     });
   };
 
@@ -384,15 +423,20 @@ class Example extends React.Component {
   // use this function to generate the form that will accept and
   // validate the variables for your Neo4j query.
   render() {
-    const { classes, isQuerying, availableROIs, dataSet } = this.props;
-    const { qsParams } = this.state;
+    const { classes, isQuerying, availableROIs, dataSet, actions } = this.props;
+    const qsParams = actions.getQueryObject();
+    const { neuronName } = qsParams.input.fn;
+
+    // empty if undefined
+    const inputROIs = qsParams.input.fn.inputROIs ? qsParams.input.fn.inputROIs : [];
+    const outputROIs = qsParams.input.fn.outputROIs ? qsParams.input.fn.outputROIs : [];
 
     const inputOptions = availableROIs.map(name => ({
       label: name,
       value: name
     }));
 
-    const inputValue = qsParams.inputROIs.map(roi => ({
+    const inputValue = inputROIs.map(roi => ({
       label: roi,
       value: roi
     }));
@@ -402,7 +446,7 @@ class Example extends React.Component {
       value: name
     }));
 
-    const outputValue = qsParams.outputROIs.map(roi => ({
+    const outputValue = outputROIs.map(roi => ({
       label: roi,
       value: roi
     }));
@@ -434,7 +478,7 @@ class Example extends React.Component {
               multiline
               rows={1}
               fullWidth
-              value={qsParams.neuronName}
+              value={neuronName}
               rowsMax={4}
               className={classes.textField}
               onChange={this.addNeuron}
@@ -464,8 +508,7 @@ Example.propTypes = {
   dataSet: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
-  isQuerying: PropTypes.bool.isRequired,
-  urlQueryString: PropTypes.string.isRequired
+  isQuerying: PropTypes.bool.isRequired
 };
 
 export default withRouter(withStyles(styles)(Example));
