@@ -27,6 +27,8 @@ const styles = theme => ({
 });
 
 const pluginName = 'CommonConnectivity';
+const pluginAbbrev = 'cc';
+
 class CommonConnectivity extends React.Component {
   static get queryName() {
     return 'Common connectivity';
@@ -117,7 +119,7 @@ class CommonConnectivity extends React.Component {
   processRequest = () => {
     const { dataSet, actions, history } = this.props;
     const { limitNeurons, preThreshold, postThreshold, statusFilters } = this.state;
-    const queryParams = actions.getQueryObject().CC;
+    const queryParams = actions.getQueryObject()[pluginAbbrev];
     const { bodyIds = '', typeValue = 'input' } = queryParams || {};
 
     const parameters = {
@@ -169,7 +171,7 @@ class CommonConnectivity extends React.Component {
   addNeuronBodyIds = event => {
     const { actions } = this.props;
     actions.setQueryString({
-      CC: {
+      [pluginAbbrev]: {
         bodyIds: event.target.value
       }
     });
@@ -178,7 +180,7 @@ class CommonConnectivity extends React.Component {
   setInputOrOutput = event => {
     const { actions } = this.props;
     actions.setQueryString({
-      CC: {
+      [pluginAbbrev]: {
         typeValue: event.target.value
       }
     });
@@ -194,7 +196,7 @@ class CommonConnectivity extends React.Component {
 
   render() {
     const { classes, dataSet, actions, neoServerSettings } = this.props;
-    const { bodyIds = '', typeValue = 'input' } = actions.getQueryObject().CC || {};
+    const { bodyIds = '', typeValue = 'input' } = actions.getQueryObject()[pluginAbbrev] || {};
     return (
       <div>
         <FormControl fullWidth className={classes.formControl}>
