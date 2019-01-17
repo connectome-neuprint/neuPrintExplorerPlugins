@@ -119,8 +119,7 @@ class CommonConnectivity extends React.Component {
   processRequest = () => {
     const { dataSet, actions, history } = this.props;
     const { limitNeurons, preThreshold, postThreshold, statusFilters } = this.state;
-    const queryParams = actions.getQueryObject()[pluginAbbrev];
-    const { bodyIds = '', typeValue = 'input' } = queryParams || {};
+    const { bodyIds = '', typeValue = 'input' } = actions.getQueryObject(pluginAbbrev);
 
     const parameters = {
       dataset: dataSet,
@@ -196,7 +195,8 @@ class CommonConnectivity extends React.Component {
 
   render() {
     const { classes, dataSet, actions, neoServerSettings } = this.props;
-    const { bodyIds = '', typeValue = 'input' } = actions.getQueryObject()[pluginAbbrev] || {};
+    const { bodyIds = '', typeValue = 'input' } = actions.getQueryObject(pluginAbbrev);
+
     return (
       <div>
         <FormControl fullWidth className={classes.formControl}>
