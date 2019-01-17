@@ -26,23 +26,9 @@ function byPostValues(a, b) {
 }
 
 const pluginName = 'ROIsIntersectingNeurons';
+const pluginAbbrev = 'rin';
 
 class ROIsIntersectingNeurons extends React.Component {
-  constructor(props) {
-    super(props);
-    const initqsParams = {
-      neuronsrc: ''
-    };
-    const qsParams = props.actions.LoadQueryString(
-      `Query:${this.constructor.queryName}`,
-      initqsParams,
-      props.urlQueryString
-    );
-    this.state = {
-      qsParams
-    };
-  }
-
   static get queryName() {
     return 'ROIs in Neuron';
   }
@@ -115,13 +101,13 @@ class ROIsIntersectingNeurons extends React.Component {
 
   processRequest = () => {
     const { dataSet, history, actions } = this.props;
-    const { qsParams } = this.state;
-    if (qsParams.neuronsrc !== '') {
+    const { neuronsrc = '' } = actions.getQueryObject(pluginAbbrev);
+    if (neuronsrc !== '') {
       const parameters = { dataset: dataSet };
-      if (/^\d+$/.test(qsParams.neuronsrc)) {
-        parameters.neuron_id = parseInt(qsParams.neuronsrc, 10);
+      if (/^\d+$/.test(neuronsrc)) {
+        parameters.neuron_id = parseInt(neuronsrc, 10);
       } else {
-        parameters.neuron_name = qsParams.neuronsrc;
+        parameters.neuron_name = neuronsrc;
       }
       const query = {
         dataSet,
@@ -146,10 +132,11 @@ class ROIsIntersectingNeurons extends React.Component {
 
   handleClick = event => {
     const { actions } = this.props;
-    actions.setURLQs(
-      actions.SaveQueryString(`Query:${this.constructor.queryName}`, { neuronsrc: event.target.value })
-    );
-    this.setState({ qsParams: { neuronsrc: event.target.value } });
+    actions.setQueryString({
+      [pluginAbbrev]: {
+        neuronsrc: event.target.value
+      }
+    });
   };
 
   catchReturn = event => {
@@ -161,8 +148,8 @@ class ROIsIntersectingNeurons extends React.Component {
   };
 
   render() {
-    const { classes, isQuerying } = this.props;
-    const { qsParams } = this.state;
+    const { classes, actions, isQuerying } = this.props;
+    const { neuronsrc = '' } = actions.getQueryObject(pluginAbbrev);
     return (
       <div>
         <FormControl className={classes.formControl}>
@@ -172,7 +159,7 @@ class ROIsIntersectingNeurons extends React.Component {
               multiline
               fullWidth
               rows={1}
-              value={qsParams.neuronsrc}
+              value={neuronsrc}
               rowsMax={4}
               className={classes.textField}
               onChange={this.handleClick}
@@ -195,7 +182,6 @@ class ROIsIntersectingNeurons extends React.Component {
 
 ROIsIntersectingNeurons.propTypes = {
   dataSet: PropTypes.string.isRequired,
-  urlQueryString: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired,
