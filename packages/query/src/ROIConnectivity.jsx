@@ -19,8 +19,6 @@ import ColorBox from './visualization/ColorBox';
 import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
 import RoiBarGraph from './visualization/MiniRoiBarGraph';
 
-const pluginName = 'ROIConnectivity';
-
 const styles = theme => ({
   clickable: {
     cursor: 'pointer'
@@ -36,29 +34,13 @@ const styles = theme => ({
   }
 });
 
+const pluginName = 'ROIConnectivity';
+const pluginAbbrev = 'rc';
+
 // default color for max connection
 const WEIGHTCOLOR = '255,100,100,';
 
 class ROIConnectivity extends React.Component {
-  constructor(props) {
-    super(props);
-    const { urlQueryString, dataSet } = this.props;
-    const initqsParams = {
-      rois: []
-    };
-    const qsParams = props.actions.LoadQueryString(
-      `Query:${this.constructor.queryName}`,
-      initqsParams,
-      urlQueryString
-    );
-
-    // set the default state for the query input.
-    this.state = {
-      qsParams,
-      dataSet, // eslint-disable-line react/no-unused-state
-      queryName: this.constructor.queryName // eslint-disable-line react/no-unused-state
-    };
-  }
 
   static get queryName() {
     return 'ROI Connectivity';
@@ -67,20 +49,6 @@ class ROIConnectivity extends React.Component {
   static get queryDescription() {
     return 'Extract connectivity matrix for a dataset';
   }
-
-  static getDerivedStateFromProps = (props, state) => {
-    // if dataset changes, clear the selected rois and statuses
-
-    // eslint issues: https://github.com/yannickcr/eslint-plugin-react/issues/1751
-    if (props.dataSet !== state.dataSet) {
-      const oldParams = state.qsParams;
-      oldParams.rois = [];
-      props.actions.setURLQs(props.actions.SaveQueryString(`Query:${state.queryName}`, oldParams));
-      state.dataSet = props.dataSet; // eslint-disable-line no-param-reassign
-      return state;
-    }
-    return null;
-  };
 
   processResults = (query, apiResponse) => {
     const { actions, classes, availableROIs } = this.props;
@@ -436,8 +404,7 @@ class ROIConnectivity extends React.Component {
 
   processRequest = () => {
     const { dataSet, actions, history } = this.props;
-    const { qsParams } = this.state;
-    const { rois } = qsParams;
+    const { rois = [] } = actions.getQueryObject(pluginAbbrev);
 
     const query = {
       dataSet,
@@ -462,21 +429,18 @@ class ROIConnectivity extends React.Component {
   };
 
   handleChangeROIs = selected => {
-    const { qsParams } = this.state;
     const { actions } = this.props;
-    const oldParams = qsParams;
     const rois = selected.map(item => item.value);
-    oldParams.rois = rois;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      [pluginAbbrev]: {
+        rois
+      }
     });
   };
 
   render() {
-    const { isQuerying, availableROIs, classes } = this.props;
-    const { qsParams } = this.state;
-    const { rois } = qsParams;
+    const { isQuerying, availableROIs, actions, classes } = this.props;
+    const { rois = [] } = actions.getQueryObject(pluginAbbrev);
 
     const roiOptions = availableROIs.map(name => ({
       label: name,
@@ -529,8 +493,7 @@ ROIConnectivity.propTypes = {
   actions: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired,
-  history: PropTypes.object.isRequired,
-  urlQueryString: PropTypes.string.isRequired
+  history: PropTypes.object.isRequired
 };
 
 export default withRouter(withStyles(styles)(ROIConnectivity));
