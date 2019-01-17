@@ -6,10 +6,6 @@ let textField;
 
 const { actions, React, enzyme, renderer } = global;
 
-// gets the global queryStringObject
-// eslint-disable-next-line no-undef
-const getQueryStringObject = () => queryStringObject;
-
 const styles = { textField: '', button: '', formControl: '' };
 
 const component = (
@@ -100,7 +96,7 @@ describe('custom query Plugin', () => {
     it('should change url query string in state', () => {
       actions.setQueryString.mockClear();
       textField.props().onChange({ target: { value: 'abc' } });
-      expect(getQueryStringObject().input.cq.textValue).toBe('abc');
+      expect(actions.getQueryObject('cq').textValue).toBe('abc');
       expect(actions.setQueryString).toHaveBeenCalledTimes(1);
     });
   });

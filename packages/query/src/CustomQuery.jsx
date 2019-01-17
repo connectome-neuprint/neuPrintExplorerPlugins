@@ -24,6 +24,7 @@ const styles = () => ({
 });
 
 const pluginName = 'CustomQuery';
+const pluginAbbrev = 'cq';
 
 export class CustomQuery extends React.Component {
   static get queryName() {
@@ -32,18 +33,6 @@ export class CustomQuery extends React.Component {
 
   static get queryDescription() {
     return 'Enter custom Neo4j Cypher query';
-  }
-
-  constructor(props) {
-    super(props);
-    const { actions } = this.props;
-    actions.setQueryString({
-      input: {
-        cq: {
-          textValue: ''
-        }
-      }
-    });
   }
 
   processResults = (query, apiResponse) => {
@@ -66,8 +55,7 @@ export class CustomQuery extends React.Component {
 
   processRequest = () => {
     const { dataSet, actions, history } = this.props;
-    const qsParams = actions.getQueryObject();
-    const { textValue } = qsParams.input.cq;
+    const { textValue = '' } = actions.getQueryObject(pluginAbbrev);
 
     const query = {
       dataSet,
@@ -89,12 +77,9 @@ export class CustomQuery extends React.Component {
 
   handleChange = event => {
     const { actions } = this.props;
-    const textValue = event.target.value;
     actions.setQueryString({
-      input: {
-        cq: {
-          textValue
-        }
+      [pluginAbbrev]: {
+        textValue: event.target.value
       }
     });
   };
@@ -109,8 +94,7 @@ export class CustomQuery extends React.Component {
 
   render() {
     const { actions, classes, isQuerying } = this.props;
-    const qsParams = actions.getQueryObject();
-    const { textValue } = qsParams.input.cq;
+    const { textValue = '' } = actions.getQueryObject(pluginAbbrev);
     return (
       <FormControl className={classes.formControl}>
         <TextField

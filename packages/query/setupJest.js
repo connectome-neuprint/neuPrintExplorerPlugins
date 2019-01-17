@@ -31,5 +31,11 @@ global.actions = {
       arrayMerge: overwriteMerge
     });
   }),
-  getQueryObject: jest.fn(() => global.queryStringObject)
+  getQueryObject: jest.fn(plugin => {
+    let queryObject = global.queryStringObject;
+    if (plugin) {
+      queryObject = queryObject[plugin];
+    }
+    return queryObject || {};
+  })
 };
