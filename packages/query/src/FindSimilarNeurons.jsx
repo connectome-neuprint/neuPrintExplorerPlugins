@@ -45,28 +45,9 @@ const styles = theme => ({
 });
 
 const pluginName = 'FindSimilarNeurons';
+const pluginAbbrev = 'fsn';
+
 class FindSimilarNeurons extends React.Component {
-  constructor(props) {
-    super(props);
-    const { urlQueryString, dataSet } = this.props;
-    const initqsParams = {
-      bodyId: '',
-      name: '',
-      rois: []
-    };
-    const qsParams = props.actions.LoadQueryString(
-      `Query:${this.constructor.queryName}`,
-      initqsParams,
-      urlQueryString
-    );
-
-    this.state = {
-      qsParams,
-      dataSet, // eslint-disable-line react/no-unused-state
-      queryName: this.constructor.queryName // eslint-disable-line react/no-unused-state
-    };
-  }
-
   static get queryName() {
     return 'Find similar neurons';
   }
@@ -78,20 +59,6 @@ class FindSimilarNeurons extends React.Component {
   static get isExperimental() {
     return true;
   }
-
-  static getDerivedStateFromProps = (props, state) => {
-    // if dataset changes, clear the selected rois
-
-    // eslint issues: https://github.com/yannickcr/eslint-plugin-react/issues/1751
-    if (props.dataSet !== state.dataSet) {
-      const oldParams = state.qsParams;
-      oldParams.rois = [];
-      props.actions.setURLQs(props.actions.SaveQueryString(`Query:${state.queryName}`, oldParams));
-      state.dataSet = props.dataSet; // eslint-disable-line no-param-reassign
-      return state;
-    }
-    return null;
-  };
 
   handleShowSkeleton = (id, dataSet) => () => {
     const { actions } = this.props;
@@ -595,8 +562,7 @@ class FindSimilarNeurons extends React.Component {
   // processing intital request
   processIDRequest = () => {
     const { dataSet, actions, history } = this.props;
-    const { qsParams } = this.state;
-    const { bodyId } = qsParams;
+    const { bodyId = '' } = actions.getQueryObject(pluginAbbrev);
 
     const parameters = {
       dataset: dataSet,
@@ -662,8 +628,7 @@ class FindSimilarNeurons extends React.Component {
 
   processRoiRequest = () => {
     const { dataSet, actions, history } = this.props;
-    const { qsParams } = this.state;
-    const { rois } = qsParams;
+    const { rois = [] } = actions.getQueryObject(pluginAbbrev);
 
     const parameters = {
       dataset: dataSet,
@@ -705,35 +670,20 @@ class FindSimilarNeurons extends React.Component {
 
   addNeuronBodyId = event => {
     const { actions } = this.props;
-    const { qsParams } = this.state;
-    const oldParams = qsParams;
-    oldParams.bodyId = event.target.value;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
-    });
-  };
-
-  addNeuronName = event => {
-    const { actions } = this.props;
-    const { qsParams } = this.state;
-    const oldParams = qsParams;
-    oldParams.name = event.target.value;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      [pluginAbbrev]: {
+        bodyId: event.target.value
+      }
     });
   };
 
   handleChangeRois = selected => {
     const { actions } = this.props;
-    const { qsParams } = this.state;
-    const oldParams = qsParams;
     const rois = selected.map(item => item.value);
-    oldParams.rois = rois;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      [pluginAbbrev]: {
+        rois
+      }
     });
   };
 
@@ -746,9 +696,8 @@ class FindSimilarNeurons extends React.Component {
   };
 
   render() {
-    const { classes, availableROIs, isQuerying } = this.props;
-    const { qsParams } = this.state;
-    const { rois } = qsParams;
+    const { classes, availableROIs, isQuerying, actions } = this.props;
+    const { bodyId = '', rois = [] } = actions.getQueryObject(pluginAbbrev);
 
     const roiOptions = availableROIs.map(name => ({
       label: name,
@@ -768,7 +717,7 @@ class FindSimilarNeurons extends React.Component {
             multiline
             fullWidth
             rows={1}
-            value={qsParams.bodyId}
+            value={bodyId}
             rowsMax={2}
             className={classes.textField}
             onChange={this.addNeuronBodyId}
@@ -780,7 +729,7 @@ class FindSimilarNeurons extends React.Component {
           color="primary"
           className={classes.button}
           onClick={this.processIDRequest}
-          disabled={!(qsParams.bodyId.length > 0)}
+          disabled={!(bodyId.length > 0)}
         >
           Search By Body ID
         </Button>
@@ -821,7 +770,6 @@ FindSimilarNeurons.propTypes = {
   actions: PropTypes.object.isRequired,
   availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
   dataSet: PropTypes.string.isRequired,
-  urlQueryString: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired
