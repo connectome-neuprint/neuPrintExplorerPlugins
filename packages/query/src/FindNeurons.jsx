@@ -382,7 +382,7 @@ export class FindNeurons extends React.Component {
   // validate the variables for your Neo4j query.
   render() {
     const { classes, isQuerying, availableROIs, dataSet, actions, neoServerSettings } = this.props;
-    const { neuronName, inputROIs = [], outputROIs = [] } = actions.getQueryObject(pluginAbbrev);
+    const { neuronName = '', inputROIs = [], outputROIs = [] } = actions.getQueryObject(pluginAbbrev);
 
     const inputOptions = availableROIs.map(name => ({
       label: name,
