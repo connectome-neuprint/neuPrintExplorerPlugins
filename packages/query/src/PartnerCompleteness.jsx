@@ -5,13 +5,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import randomColor from 'randomcolor';
-import Immutable from 'immutable';
 
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-
-const pluginName = 'Partner Completeness';
 
 const styles = theme => ({
   select: {
@@ -22,6 +19,9 @@ const styles = theme => ({
     marginBottom: '1em'
   }
 });
+
+const pluginName = 'Partner Completeness';
+const pluginAbbrev = 'pc';
 
 class PartnerCompleteness extends React.Component {
   static get queryName() {
@@ -65,9 +65,8 @@ class PartnerCompleteness extends React.Component {
 
   // creates query object and sends to callback
   processRequest = () => {
-    const { dataSet, actions, history, location } = this.props;
-    const qsParams = actions.getSiteParams(location);
-    const { bodyId } = qsParams.getIn(['input', 'pc'], Immutable.Map({})).toJS();
+    const { dataSet, actions, history } = this.props;
+    const { bodyId } = actions.getQueryObject(pluginAbbrev);
     const cypher = `MATCH (n :\`${dataSet}-Segment\` {bodyId: ${bodyId}})-[x:ConnectsTo]-(m) RETURN m.bodyId, m.name, CASE WHEN startnode(x).bodyId = ${bodyId} THEN false ELSE true END, x.weight, m.status, m.pre, m.post, n.name, n.pre, n.post, n.status ORDER BY x.weight DESC`;
 
     const query = {
@@ -91,26 +90,22 @@ class PartnerCompleteness extends React.Component {
 
   addNeuron = event => {
     const { actions } = this.props;
-    const bodyId = event.target.value;
     actions.setQueryString({
-      input: {
-        pc: {
-          bodyId
-        }
+      [pluginAbbrev]: {
+        bodyId: event.target.value
       }
     });
   };
 
   render() {
-    const { classes, isQuerying, location, actions } = this.props;
-    const qsParams = actions.getSiteParams(location);
-    const { bodyId } = qsParams.getIn(['input', 'pc'], Immutable.Map({})).toJS();
+    const { classes, isQuerying, actions } = this.props;
+    const { bodyId = '' } = actions.getQueryObject(pluginAbbrev);
     return (
       <div>
         <TextField
           label="Body Id"
           fullWidth
-          value={bodyId || ''}
+          value={bodyId}
           className={classes.textField}
           onChange={this.addNeuron}
         />
@@ -133,8 +128,7 @@ PartnerCompleteness.propTypes = {
   actions: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired,
-  classes: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired
 };
 
 export default withRouter(withStyles(styles)(PartnerCompleteness));
