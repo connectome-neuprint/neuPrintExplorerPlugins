@@ -11,8 +11,6 @@ import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/core/styles';
 
-const pluginName = 'ShortestPath';
-
 const styles = theme => ({
   textField: {
     margin: 4,
@@ -32,25 +30,10 @@ const styles = theme => ({
   }
 });
 
-class ShortestPath extends React.Component {
-  constructor(props) {
-    super(props);
-    const { urlQueryString } = this.props;
-    const initqsParams = {
-      bodyId1: '',
-      bodyId2: '',
-      minWeight: 0
-    };
-    const qsParams = props.actions.LoadQueryString(
-      `Query:${this.constructor.queryName}`,
-      initqsParams,
-      urlQueryString
-    );
+const pluginName = 'ShortestPath';
+const pluginAbbrev = 'sp';
 
-    this.state = {
-      qsParams
-    };
-  }
+class ShortestPath extends React.Component {
 
   static get queryName() {
     return 'Shortest path';
@@ -81,8 +64,8 @@ class ShortestPath extends React.Component {
   // creates query object and sends to callback
   processRequest = () => {
     const { dataSet, actions, history } = this.props;
-    const { qsParams } = this.state;
-    const { bodyId1, bodyId2, minWeight } = qsParams;
+    const queryParams = actions.getQueryObject()[pluginAbbrev];
+    const { bodyId1 = '', bodyId2 = '', minWeight = 0 } = queryParams || {};
 
     const shortestPathQuery = `MATCH path=shortestPath((a:\`${dataSet}-Neuron\`{bodyId:${bodyId1}})-[r:ConnectsTo*]-(b:\`${dataSet}-Neuron\`{bodyId:${bodyId2}})) WHERE all(rs in r WHERE rs.weight>=${minWeight}) WITH nodes(path) AS ns UNWIND ns AS n RETURN n.bodyId, n.name, n.status, n.pre, n.post`;
     const query = {
@@ -105,40 +88,35 @@ class ShortestPath extends React.Component {
 
   addBodyId1 = event => {
     const { actions } = this.props;
-    const { qsParams } = this.state;
-    const oldParams = qsParams;
-    oldParams.bodyId1 = event.target.value;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      [pluginAbbrev]: {
+        bodyId1: event.target.value
+      }
     });
   };
 
   addBodyId2 = event => {
     const { actions } = this.props;
-    const { qsParams } = this.state;
-    const oldParams = qsParams;
-    oldParams.bodyId2 = event.target.value;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQueryString({
+      [pluginAbbrev]: {
+        bodyId2: event.target.value
+      }
     });
   };
 
   addMinWeight = event => {
     const { actions } = this.props;
-    const { qsParams } = this.state;
-    const oldParams = qsParams;
-    oldParams.minWeight = event.target.value;
-    actions.setURLQs(actions.SaveQueryString(`Query:${this.constructor.queryName}`, oldParams));
-    this.setState({
-      qsParams: oldParams
+    actions.setQuryString({
+      [pluginAbbrev]: {
+        minWeight: event.target.value
+      }
     });
   };
 
   render() {
-    const { isQuerying, classes } = this.props;
-    const { qsParams } = this.state;
+    const { isQuerying, actions, classes } = this.props;
+    const queryParams = actions.getQueryObject()[pluginAbbrev];
+    const { bodyId1 = '', bodyId2 = '', minWeight = 0 } = queryParams || {};
 
     return (
       <div>
@@ -148,7 +126,7 @@ class ShortestPath extends React.Component {
             multiline
             fullWidth
             rows={1}
-            value={qsParams.bodyId1}
+            value={bodyId1}
             rowsMax={1}
             className={classes.textField}
             onChange={this.addBodyId1}
@@ -158,7 +136,7 @@ class ShortestPath extends React.Component {
             multiline
             fullWidth
             rows={1}
-            value={qsParams.bodyId2}
+            value={bodyId2}
             rowsMax={1}
             className={classes.textField}
             onChange={this.addBodyId2}
@@ -169,7 +147,7 @@ class ShortestPath extends React.Component {
             fullWidth
             type="number"
             rows={1}
-            value={qsParams.minWeight}
+            value={minWeight}
             rowsMax={1}
             className={classes.textField}
             onChange={this.addMinWeight}
@@ -193,8 +171,7 @@ ShortestPath.propTypes = {
   isQuerying: PropTypes.bool.isRequired,
   actions: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired,
-  urlQueryString: PropTypes.string.isRequired
+  classes: PropTypes.object.isRequired
 };
 
 export default withRouter(withStyles(styles, { withTheme: true })(ShortestPath));
