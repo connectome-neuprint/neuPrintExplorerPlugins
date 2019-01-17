@@ -33,29 +33,17 @@ const styles = theme => ({
 
 // this should match the name of the file this plugin is stored in.
 const pluginName = 'FindNeurons';
+const pluginAbbrev = 'fn';
 
 export class FindNeurons extends React.Component {
   constructor(props) {
     super(props);
-    const { dataSet, actions } = this.props;
-    actions.setQueryString({
-      input: {
-        fn: {
-          inputROIs: [],
-          outputROIs: [],
-          neuronName: ''
-        }
-      }
-    });
-
     // set the default state for the query input.
     this.state = {
       limitNeurons: true,
       statusFilters: [],
       preThreshold: 0,
       postThreshold: 0,
-      dataSet, // eslint-disable-line react/no-unused-state
-      queryName: this.constructor.queryName // eslint-disable-line react/no-unused-state
     };
   }
 
@@ -70,26 +58,6 @@ export class FindNeurons extends React.Component {
     // inputs for this plugin.
     return 'Find neurons that have inputs or outputs in ROIs';
   }
-
-  static getDerivedStateFromProps = (props, state) => {
-    // if dataset changes, clear the selected rois and statuses
-
-    // eslint issues: https://github.com/yannickcr/eslint-plugin-react/issues/1751
-    if (props.dataSet !== state.dataSet) {
-      state.statusFilters = []; // eslint-disable-line no-param-reassign
-      props.actions.setQueryString({
-        input: {
-          fn: {
-            inputROIs: [],
-            outputROIs: []
-          }
-        }
-      });
-      state.dataSet = props.dataSet; // eslint-disable-line no-param-reassign
-      return state;
-    }
-    return null;
-  };
 
   handleShowSkeleton = (id, dataSet) => () => {
     const { actions } = this.props;
@@ -316,12 +284,7 @@ export class FindNeurons extends React.Component {
   processRequest = () => {
     const { dataSet, actions, history } = this.props;
     const { statusFilters, limitNeurons, preThreshold, postThreshold } = this.state;
-    const qsParams = actions.getQueryObject();
-    const { neuronName } = qsParams.input.fn;
-
-    // empty if undefined
-    const inputROIs = qsParams.input.fn.inputROIs ? qsParams.input.fn.inputROIs : [];
-    const outputROIs = qsParams.input.fn.outputROIs ? qsParams.input.fn.outputROIs : [];
+    const { neuronName, inputROIs = [], outputROIs = [] } = actions.getQueryObject(pluginAbbrev);
 
     const parameters = {
       dataset: dataSet,
@@ -372,10 +335,8 @@ export class FindNeurons extends React.Component {
     const { actions } = this.props;
     const rois = selected.map(item => item.value);
     actions.setQueryString({
-      input: {
-        fn: {
-          inputROIs: rois
-        }
+      [pluginAbbrev]: {
+        inputROIs: rois
       }
     });
   };
@@ -384,10 +345,8 @@ export class FindNeurons extends React.Component {
     const { actions } = this.props;
     const rois = selected.map(item => item.value);
     actions.setQueryString({
-      input: {
-        fn: {
-          outputROIs: rois
-        }
+      [pluginAbbrev]: {
+        outputROIs: rois
       }
     });
   };
@@ -396,10 +355,8 @@ export class FindNeurons extends React.Component {
     const { actions } = this.props;
     const neuronName = event.target.value;
     actions.setQueryString({
-      input: {
-        fn: {
-          neuronName
-        }
+      [pluginAbbrev]: {
+        neuronName
       }
     });
   };
@@ -425,12 +382,7 @@ export class FindNeurons extends React.Component {
   // validate the variables for your Neo4j query.
   render() {
     const { classes, isQuerying, availableROIs, dataSet, actions, neoServerSettings } = this.props;
-    const qsParams = actions.getQueryObject();
-    const { neuronName } = qsParams.input.fn;
-
-    // empty if undefined
-    const inputROIs = qsParams.input.fn.inputROIs ? qsParams.input.fn.inputROIs : [];
-    const outputROIs = qsParams.input.fn.outputROIs ? qsParams.input.fn.outputROIs : [];
+    const { neuronName, inputROIs = [], outputROIs = [] } = actions.getQueryObject(pluginAbbrev);
 
     const inputOptions = availableROIs.map(name => ({
       label: name,
