@@ -5,13 +5,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import randomColor from 'randomcolor';
 import { withRouter } from 'react-router';
-import Immutable from 'immutable';
 
 import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -22,6 +24,7 @@ const styles = theme => ({
 });
 
 const pluginName = 'Distribution';
+const pluginAbbrev = 'dn';
 
 class Distribution extends React.Component {
   static get queryName() {
@@ -83,9 +86,8 @@ class Distribution extends React.Component {
 
   // creates query object and sends to callback
   processRequest = () => {
-    const { dataSet, actions, history, location } = this.props;
-    const qsParams = actions.getSiteParams(location);
-    const { roi, isPre } = qsParams.getIn(['input', 'distribution'], Immutable.Map({})).toJS();
+    const { dataSet, actions, history } = this.props;
+    const { roi = '', isPre = true } = actions.getQueryObject(pluginAbbrev);
     const query = {
       dataSet,
       queryString: '/npexplorer/distribution',
@@ -110,46 +112,28 @@ class Distribution extends React.Component {
 
   setROI = event => {
     const { actions } = this.props;
-    const roiname = event.target.value;
     actions.setQueryString({
-      input: {
-        distribution: {
-          roi: roiname
-        }
+      [pluginAbbrev]: {
+        roi: event.target.value
       }
     });
   };
 
   setType = event => {
     const { actions } = this.props;
-    const type = event.target.value;
     actions.setQueryString({
-      input: {
-        distribution: {
-          isPre: type
-        }
+      [pluginAbbrev]: {
+        isPre: event.target.value
       }
     });
   };
 
   render() {
-    const { isQuerying, classes, availableROIs, location, actions } = this.props;
-    const qsParams = actions.getSiteParams(location);
-    // oh boy, this is ugly. There needs to be a better way to set defaults.
-    // I think we should be able to change getSiteParams to accept defaults
-    // and merge the values from the url with the defaults.
-    // eg:
-    //    const qsParams = getSiteParams(location, defaults);
-    //    const { roi, isPre } = qsParams.getIn(['input','distribution']).toJS();
-    let { roi, isPre } = qsParams.getIn(['input', 'distribution'], Immutable.Map({})).toJS();
+    const { isQuerying, classes, availableROIs, actions } = this.props;
+    const { roi = '', isPre = true } = actions.getQueryObject(pluginAbbrev);
 
-    if (roi === undefined) {
-      roi = '';
-    }
-
-    if (isPre === undefined) {
-      isPre = true;
-    }
+    const preValue = true;
+    const postValue = false;
 
     return (
       <form>
@@ -170,24 +154,15 @@ class Distribution extends React.Component {
             ))}
           </Select>
         </FormControl>
-        <FormControl className={classes.selects}>
-          <InputLabel htmlFor="isPre">Pre or Post Synaptic</InputLabel>
-          <Select
-            value={isPre}
-            onChange={this.setType}
-            inputProps={{
-              name: 'isPre',
-              id: 'isPre'
-            }}
-          >
-            <MenuItem key="presyn" value>
-              Pre-synaptic
-            </MenuItem>
-            <MenuItem key="postsyn" value={false}>
-              Post-synaptic
-            </MenuItem>
-          </Select>
-        </FormControl>
+        <RadioGroup
+          aria-label="Type Of Connections"
+          name="type"
+          value={isPre}
+          onChange={this.setType}
+        >
+          <FormControlLabel value={preValue} control={<Radio color="primary" />} label="Pre-synaptic" />
+          <FormControlLabel value={postValue} control={<Radio color="primary" />} label="Post-synaptic" />
+        </RadioGroup>
 
         <Button
           disabled={isQuerying}
@@ -208,8 +183,7 @@ Distribution.propTypes = {
   availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
   dataSet: PropTypes.string.isRequired,
   actions: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired
+  history: PropTypes.object.isRequired
 };
 
 export default withRouter(withStyles(styles)(Distribution));
