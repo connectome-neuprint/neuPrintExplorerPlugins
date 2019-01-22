@@ -20,8 +20,13 @@ An example template for the plugins can be found at
     packages/view/Example.jsx # view plugin
 
 Copy the example and name it to reflect the purpose of your plugin. Instructions for modifying
-the template to fit your requirements can be found as comments inside it. Once complete,
-you will need to install it...
+the template to fit your requirements can be found as comments inside it.
+
+neuPrint plugins are React [components](https://reactjs.org/docs/components-and-props.html)
+from the [React](https://reactjs.org/) framework. A familiarity with the framework
+would be helpful for authors, but is not required.
+
+Once complete, you will need to install it...
 
 ### Installing the plugin
 
@@ -33,7 +38,7 @@ add a query plugin.
       - cp plugin.jsx <neuPrintExplorerPlugins>/packages/query/plugin.jsx
    2. edit &lt;neuPrintExplorerPlugins&gt;/packages/query/index.js
       - Add the import line that includes your plugin:
-        - export { default as <PluginName> } from './<PluginName>';
+        - export { default as &lt;PluginName&gt; } from './&lt;PluginName&gt;';
    3. build the transpiled code.
       - npm run build
    4. link it in to core node modules
