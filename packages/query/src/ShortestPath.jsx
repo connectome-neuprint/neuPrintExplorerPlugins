@@ -64,8 +64,7 @@ class ShortestPath extends React.Component {
   // creates query object and sends to callback
   processRequest = () => {
     const { dataSet, actions, history } = this.props;
-    const queryParams = actions.getQueryObject()[pluginAbbrev];
-    const { bodyId1 = '', bodyId2 = '', minWeight = 0 } = queryParams || {};
+    const { bodyId1 = '', bodyId2 = '', minWeight = 0 } = actions.getQueryObject(pluginAbbrev);
 
     const shortestPathQuery = `MATCH path=shortestPath((a:\`${dataSet}-Neuron\`{bodyId:${bodyId1}})-[r:ConnectsTo*]-(b:\`${dataSet}-Neuron\`{bodyId:${bodyId2}})) WHERE all(rs in r WHERE rs.weight>=${minWeight}) WITH nodes(path) AS ns UNWIND ns AS n RETURN n.bodyId, n.name, n.status, n.pre, n.post`;
     const query = {
@@ -115,8 +114,7 @@ class ShortestPath extends React.Component {
 
   render() {
     const { isQuerying, actions, classes } = this.props;
-    const queryParams = actions.getQueryObject()[pluginAbbrev];
-    const { bodyId1 = '', bodyId2 = '', minWeight = 0 } = queryParams || {};
+    const { bodyId1 = '', bodyId2 = '', minWeight = 0 } = actions.getQueryObject(pluginAbbrev);
 
     return (
       <div>
