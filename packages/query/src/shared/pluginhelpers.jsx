@@ -174,6 +174,17 @@ export function getBodyIdForTable(dataset, bodyId, hasSkeleton, skeletonHandler)
   };
 }
 
+/**
+ * Returns similarity scores for two vectors, one for each neuron, representing input/output distribution
+ * within ROIs. Distance is defined as sum of absolute differences between the queriedBodyVector and the inputVector.
+ * Output contains inputScore, outputScore, and totalScore, which is the average of the two.
+ *
+ * @export
+ * @param {Array<number>} inputVector
+ * @param {Array<number>} queriedBodyVector
+ * @param {number} totalNumberOfRois
+ * @returns
+ */
 export function computeSimilarity(inputVector, queriedBodyVector, totalNumberOfRois) {
   if (inputVector === undefined) {
     throw new Error('computeSimilarity: inputVector is not defined.');
