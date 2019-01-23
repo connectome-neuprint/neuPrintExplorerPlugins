@@ -58,6 +58,10 @@ class Example extends React.Component {
     return 'Example query plugin';
   }
 
+  static get queryAbbreviation() {
+    return pluginAbbrev;
+  }
+
 
   // processRequest is generally triggered by hitting the submit button and
   // is your opportunity to gather the parameters for your query, format them

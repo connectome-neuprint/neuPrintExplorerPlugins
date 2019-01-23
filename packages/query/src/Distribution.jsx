@@ -39,6 +39,10 @@ class Distribution extends React.Component {
     return 'Shows segment size distribution for segments in a given region.';
   }
 
+  static get queryAbbreviation() {
+    return pluginAbbrev;
+  }
+
   static get isExperimental() {
     return true;
   }

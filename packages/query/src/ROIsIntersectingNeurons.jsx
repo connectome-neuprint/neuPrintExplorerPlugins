@@ -37,6 +37,10 @@ class ROIsIntersectingNeurons extends React.Component {
     return 'Find ROIs that intersect a given neuron(s).  A putative name is given based on top two ROI inputs and outputs';
   }
 
+  static get queryAbbreviation() {
+    return pluginAbbrev;
+  }
+
   static get isExperimental() {
     return true;
   }

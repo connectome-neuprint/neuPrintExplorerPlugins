@@ -1,6 +1,3 @@
-// check that it submits correctly
-// check that the values can be changed.
-//
 import { MemoryRouter } from 'react-router-dom';
 import Example from './Example';
 

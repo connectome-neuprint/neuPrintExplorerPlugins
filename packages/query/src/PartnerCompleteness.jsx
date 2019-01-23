@@ -36,6 +36,10 @@ class PartnerCompleteness extends React.Component {
     return 'Show all connections to and from selected neuron and show reconstruction completeness.';
   }
 
+  static get queryAbbreviation() {
+    return pluginAbbrev;
+  }
+
   static get isExperimental() {
     return true;
   }

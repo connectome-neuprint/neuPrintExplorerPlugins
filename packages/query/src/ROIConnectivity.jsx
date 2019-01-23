@@ -50,6 +50,10 @@ class ROIConnectivity extends React.Component {
     return 'Extract connectivity matrix for a dataset';
   }
 
+  static get queryAbbreviation() {
+    return pluginAbbrev;
+  }
+
   processResults = (query, apiResponse) => {
     const { actions, classes, availableROIs } = this.props;
     const bodyInputCountsPerRoi = {};

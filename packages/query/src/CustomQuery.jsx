@@ -35,6 +35,10 @@ export class CustomQuery extends React.Component {
     return 'Enter custom Neo4j Cypher query';
   }
 
+  static get queryAbbreviation() {
+    return pluginAbbrev;
+  }
+
   processResults = (query, apiResponse) => {
     if (apiResponse.data) {
       const data = apiResponse.data.map(row =>

@@ -59,6 +59,10 @@ export class FindNeurons extends React.Component {
     return 'Find neurons that have inputs or outputs in ROIs';
   }
 
+  static get queryAbbreviation() {
+    return pluginAbbrev;
+  }
+
   handleShowSkeleton = (id, dataSet) => () => {
     const { actions } = this.props;
     actions.skeletonAddandOpen(id, dataSet);

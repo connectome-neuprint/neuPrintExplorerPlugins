@@ -61,6 +61,10 @@ class FindSimilarNeurons extends React.Component {
     return 'Find neurons that are similar to a neuron of interest in terms of their input and output locations (ROIs).';
   }
 
+  static get queryAbbreviation() {
+    return pluginAbbrev;
+  }
+
   static get isExperimental() {
     return true;
   }
