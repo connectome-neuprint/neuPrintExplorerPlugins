@@ -1,0 +1,86 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Example Plugin renders correct defaults should render 1`] = `
+<div
+  className="MuiFormControl-root-4 withRouter-Example--formControl-3"
+>
+  <div
+    className="MuiFormControl-root-4 withRouter-Example--textField-1"
+  >
+    <label
+      className="MuiFormLabel-root-19 MuiInputLabel-root-8 MuiInputLabel-formControl-13 MuiInputLabel-animated-16"
+      data-shrink={false}
+    >
+      Custom Cypher Query
+    </label>
+    <div
+      className="MuiInputBase-root-39 MuiInput-root-26 MuiInput-underline-30 MuiInputBase-formControl-40 MuiInput-formControl-27 MuiInputBase-multiline-47 MuiInput-multiline-32"
+      onClick={[Function]}
+    >
+      <div
+        className="MuiPrivateTextarea-root-56"
+      >
+        <textarea
+          aria-hidden="true"
+          className="MuiPrivateTextarea-textarea-57 MuiPrivateTextarea-shadow-58"
+          readOnly={true}
+          rows="1"
+          tabIndex={-1}
+          value=""
+        />
+        <textarea
+          aria-hidden="true"
+          className="MuiPrivateTextarea-textarea-57 MuiPrivateTextarea-shadow-58"
+          readOnly={true}
+          rows={1}
+          tabIndex={-1}
+          value=""
+        />
+        <textarea
+          aria-invalid={false}
+          className="MuiPrivateTextarea-textarea-57 MuiInputBase-input-49 MuiInput-input-34 MuiInputBase-inputMultiline-51 MuiInput-inputMultiline-36"
+          disabled={false}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onFocus={[Function]}
+          required={false}
+          rows={1}
+          style={
+            Object {
+              "height": 19,
+            }
+          }
+          value=""
+        />
+      </div>
+    </div>
+  </div>
+  <button
+    className="MuiButtonBase-root-85 MuiButton-root-59 MuiButton-contained-70 MuiButton-containedPrimary-71 MuiButton-raised-73 MuiButton-raisedPrimary-74 withRouter-Example--button-2"
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onContextMenu={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseDown={[Function]}
+    onMouseLeave={[Function]}
+    onMouseUp={[Function]}
+    onTouchEnd={[Function]}
+    onTouchMove={[Function]}
+    onTouchStart={[Function]}
+    tabIndex="0"
+    type="button"
+  >
+    <span
+      className="MuiButton-label-60"
+    >
+      Submit
+    </span>
+    <span
+      className="MuiTouchRipple-root-88"
+    />
+  </button>
+</div>
+`;
