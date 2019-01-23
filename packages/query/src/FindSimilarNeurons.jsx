@@ -15,11 +15,16 @@ import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
-import Icon from '@material-ui/core/Icon';
 
 import * as math from 'mathjs';
 import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
-import RoiBarGraph from './visualization/MiniRoiBarGraph';
+import {
+  setColumnIndices,
+  createSimpleConnectionQueryObject,
+  generateRoiHeatMapAndBarGraph,
+  getBodyIdForTable,
+  computeSimilarity
+} from './shared/pluginhelpers';
 
 const styles = theme => ({
   textField: {
@@ -66,77 +71,6 @@ class FindSimilarNeurons extends React.Component {
     actions.neuroglancerAddandOpen(id, dataSet);
   };
 
-  computeSimilarity = (inputVector, queriedBodyVector, totalNumberOfRois) => {
-    // input score (pre)
-    const inputScore = math.round(
-      math.sum(
-        math.abs(
-          math.subtract(
-            queriedBodyVector.slice(totalNumberOfRois),
-            inputVector.slice(totalNumberOfRois)
-          )
-        )
-      ) / 2.0,
-      4
-    );
-    // output score (post)
-    const outputScore = math.round(
-      math.sum(
-        math.abs(
-          math.subtract(
-            queriedBodyVector.slice(0, totalNumberOfRois),
-            inputVector.slice(0, totalNumberOfRois)
-          )
-        )
-      ) / 2.0,
-      4
-    );
-    // total score
-    let totalScore = math.round(
-      math.sum(math.abs(math.subtract(queriedBodyVector, inputVector))) / 4.0,
-      4
-    );
-
-    if (Number.isNaN(inputScore) && !Number.isNaN(outputScore)) {
-      totalScore = outputScore;
-    } else if (Number.isNaN(outputScore) && !Number.isNaN(inputScore)) {
-      totalScore = inputScore;
-    }
-
-    return { inputScore, outputScore, totalScore };
-  };
-
-  // queries for getting neuron connections
-  producePostQueryObject = (bodyId, dataset) => ({
-    dataSet: dataset,
-    queryString: '/npexplorer/simpleconnections',
-    visType: 'SimpleTable',
-    plugin: pluginName,
-    parameters: {
-      dataset,
-      find_inputs: true,
-      neuron_id: bodyId
-    },
-    title: `Connections to bodyID=${bodyId}`,
-    menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-    processResults: this.processConnections
-  });
-
-  producePreQueryObject = (bodyId, dataset) => ({
-    dataSet: dataset,
-    queryString: '/npexplorer/simpleconnections',
-    visType: 'SimpleTable',
-    plugin: pluginName,
-    parameters: {
-      dataset,
-      find_inputs: false,
-      neuron_id: bodyId
-    },
-    title: `Connections from bodyID=${bodyId}`,
-    menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-    processResults: this.processConnections
-  });
-
   // functions for processing results
   processSimilarResults = (query, apiResponse) => {
     const { actions } = this.props;
@@ -150,13 +84,14 @@ class FindSimilarNeurons extends React.Component {
 
     const shouldShowSubLevelRoiSimilarity = () =>
       // produce sub-level roi information if present, there is more than one body id in the group, and a body id was queried
-      subLevelRois.size > 0 && data.length > 1 && parameters.bodyId;
+      subLevelRois.size > 0 && apiResponse.data.length > 1 && parameters.bodyId;
 
-    const shouldShowSubLevelRoiHeatMapOnly = () => data.length === 1 && parameters.bodyId;
+    const shouldShowSubLevelRoiHeatMapOnly = () =>
+      apiResponse.data.length === 1 && parameters.bodyId;
 
-    const shouldShowClusterName = () => !parameters.bodyId;
+    const noBodyIdProvided = () => !parameters.bodyId;
 
-    const shouldShowSimilarityScores = () => data.length > 1 && parameters.bodyId;
+    const shouldShowSimilarityScores = () => apiResponse.data.length > 1 && parameters.bodyId;
 
     if (apiResponse.data.length === 0) {
       // produce appropriate error message depending on which query called the function
@@ -176,62 +111,109 @@ class FindSimilarNeurons extends React.Component {
     roiList.push('none');
     const numberOfRois = roiList.length;
 
-    // produce basic table
+    const basicColumns = ['bodyId', 'name', 'status', 'pre', 'post', 'roiBarGraph', 'roiHeatMap'];
+    // column names
+    const columns = [];
+
+    let indexOf;
+    if (shouldShowSimilarityScores() || noBodyIdProvided()) {
+      indexOf = setColumnIndices([
+        ...basicColumns,
+        'totalSimScore',
+        'inputSimScore',
+        'outputSimScore'
+      ]);
+      columns[indexOf.totalSimScore] = 'total similarity score';
+      columns[indexOf.inputSimScore] = 'input similarity score';
+      columns[indexOf.outputSimScore] = 'output similarity score';
+    } else if (shouldShowSubLevelRoiSimilarity()) {
+      indexOf = setColumnIndices([
+        ...basicColumns,
+        'totalSimScore',
+        'inputSimScore',
+        'outputSimScore',
+        'subLevelRoiHeatMap',
+        'subLevelSimScore'
+      ]);
+      columns[indexOf.totalSimScore] = 'total similarity score';
+      columns[indexOf.inputSimScore] = 'input similarity score';
+      columns[indexOf.outputSimScore] = 'output similarity score';
+      columns[indexOf.subLevelRoiHeatMap] = 'sub-level roi heatmap';
+      columns[indexOf.subLevelSimScore] = 'sub-level roi similarity score';
+    } else if (shouldShowSubLevelRoiHeatMapOnly()) {
+      indexOf = setColumnIndices([
+        'bodyId',
+        'name',
+        'status',
+        'pre',
+        'post',
+        'roiBarGraph',
+        'roiHeatMap',
+        'subLevelRois'
+      ]);
+      columns[indexOf.subLevelRois] = 'sub-level roi heatmap';
+    }
+
+    columns[indexOf.bodyId] = 'bodyId';
+    columns[indexOf.name] = 'name';
+    columns[indexOf.status] = 'status';
+    columns[indexOf.pre] = 'pre';
+    columns[indexOf.post] = 'post';
+    columns[indexOf.roiBarGraph] = 'roi breakdown (mouseover for details)';
+    columns[indexOf.roiHeatMap] = (
+      <div>
+        roi heatmap (mouseover for details) <ColorLegend />
+      </div>
+    );
+
     data = apiResponse.data.map((row, index) => {
       const bodyId = row[0];
       const name = row[1];
       const status = row[2];
       const totalPre = row[3];
       const totalPost = row[4];
-      const roiInfo = row[5];
       const hasSkeleton = row[8];
+      const roiInfoObject = JSON.parse(row[5]);
 
       // get index of queried body id so can move this data to top of table
       if (bodyId === parseInt(parameters.bodyId, 10)) {
         queriedBodyIdIndex = index;
       }
 
-      const converted = [
-        {
-          value: hasSkeleton ? (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row'
-              }}
-            >
-              {bodyId}
-              <div style={{ margin: '3px' }} />
-              <Icon
-                className={styles.clickable}
-                onClick={this.handleShowSkeleton(bodyId, query.dataSet)}
-                fontSize="inherit"
-              >
-                visibility
-              </Icon>
-            </div>
-          ) : (
-            bodyId
-          ),
-          sortBy: bodyId
-        },
-        name,
-        status,
-        {
-          value: totalPre,
-          action: () =>
-            actions.submit(this.producePreQueryObject(bodyId, parameters.dataset, pluginName))
-        },
-        {
-          value: totalPost,
-          action: () =>
-            actions.submit(this.producePostQueryObject(bodyId, parameters.dataset, pluginName))
-        },
-        '', // empty unless roiInfoObject present
-        ''
-      ];
+      const converted = [];
+      converted[indexOf.bodyId] = getBodyIdForTable(
+        query.dataSet,
+        bodyId,
+        hasSkeleton,
+        this.handleShowSkeleton
+      );
+      converted[indexOf.name] = name;
+      converted[indexOf.status] = status;
+      const postQuery = createSimpleConnectionQueryObject(
+        parameters.dataset,
+        true,
+        bodyId,
+        this.processConnections,
+        pluginName
+      );
+      converted[indexOf.post] = {
+        value: totalPost,
+        action: () => actions.submit(postQuery)
+      };
 
-      const roiInfoObject = JSON.parse(roiInfo);
+      const preQuery = createSimpleConnectionQueryObject(
+        parameters.dataset,
+        false,
+        bodyId,
+        this.processConnections,
+        pluginName
+      );
+      converted[indexOf.pre] = {
+        value: totalPre,
+        action: () => actions.submit(preQuery)
+      };
+      converted[indexOf.roiBarGraph] = ''; // empty unless roiInfoObject present
+      converted[indexOf.roiHeatMap] = '';
 
       if (roiInfoObject) {
         // calculate # pre and post in super rois (which are disjoint) to get total
@@ -262,49 +244,21 @@ class FindSimilarNeurons extends React.Component {
         vector[noneIndex] = (roiInfoObject.none.pre * 1.0) / totalPre;
         vector[noneIndex + numberOfRois] = (roiInfoObject.none.post * 1.0) / totalPost;
 
-        const barGraph = (
-          <RoiBarGraph
-            roiList={roiList}
-            roiInfoObject={roiInfoObject}
-            preTotal={totalPre}
-            postTotal={totalPost}
-          />
+        const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
+          roiInfoObject,
+          roiList,
+          totalPre,
+          totalPost
         );
-        converted[5] = barGraph;
-
-        const heatMap = (
-          <RoiHeatMap
-            roiList={roiList}
-            roiInfoObject={roiInfoObject}
-            preTotal={totalPre}
-            postTotal={totalPost}
-          />
-        );
-        converted[6] = heatMap;
+        converted[indexOf.roiHeatMap] = heatMap;
+        converted[indexOf.roiBarGraph] = barGraph;
 
         // store vector
-        if (shouldShowClusterName()) {
-          converted[9] = vector;
-        } else {
-          converted[7] = vector;
-        }
+        converted[indexOf.totalSimScore] = vector;
       }
 
       return converted;
     });
-
-    // basic columns
-    const columns = [
-      'bodyId',
-      'name',
-      'status',
-      'pre',
-      'post',
-      'roi breakdown (mouseover for details)',
-      <div>
-        roi heatmap (mouseover for details) <ColorLegend />
-      </div>
-    ];
 
     if (shouldShowSubLevelRoiSimilarity()) {
       apiResponse.data.forEach((row, index) => {
@@ -324,10 +278,10 @@ class FindSimilarNeurons extends React.Component {
               (roiInfoObject[roi].post * 1.0) / totalPost;
           }
         });
-        data[index][11] = subLevelRoiVector;
+        data[index][indexOf.subLevelSimScore] = subLevelRoiVector;
 
         // sub-level ROI heatmap
-        data[index][10] = (
+        data[index][indexOf.subLevelRoiHeatMap] = (
           <RoiHeatMap
             roiList={subLevelRoiList}
             roiInfoObject={roiInfoObject}
@@ -335,9 +289,6 @@ class FindSimilarNeurons extends React.Component {
             postTotal={totalPost}
           />
         );
-
-        // update column info
-        columns[10] = 'sub-level rois';
       });
     } else if (shouldShowSubLevelRoiHeatMapOnly()) {
       // only add the sub-level heat-map (if appropriate) and include cluster name as a column
@@ -350,7 +301,7 @@ class FindSimilarNeurons extends React.Component {
 
         if (subLevelRois.size > 0) {
           // sub-level ROI heatmap
-          data[index][7] = (
+          data[index][indexOf.subLevelRoiHeatMap] = (
             <RoiHeatMap
               roiList={subLevelRoiList}
               roiInfoObject={roiInfoObject}
@@ -358,86 +309,64 @@ class FindSimilarNeurons extends React.Component {
               postTotal={totalPost}
             />
           );
-
-          columns[7] = 'sub-level rois';
-
-          if (shouldShowClusterName()) {
-            // add cluster name
-
-            [, , , , , , , data[index][8]] = row;
-            columns[8] = 'cluster name';
-          }
-        } else if (shouldShowClusterName()) {
-          // add cluster name only
-          [, , , , , , , data[index][7]] = row;
-          columns[7] = 'cluster name';
         }
       });
     }
 
-    if (shouldShowClusterName()) {
-      const clusterNameColumn = columns[8] === 'cluster name' ? 8 : 7;
-      const totalScoreColumn = clusterNameColumn + 1;
-      const inputScoreColumn = clusterNameColumn + 2;
-      const outputScoreColumn = clusterNameColumn + 3;
+    if (noBodyIdProvided()) {
       // if no queried body id just use first result similarity to sort
-      const queriedBodyVector = data[0][9];
+      const queriedBodyVector = data[0][indexOf.totalSimScore];
       const processedData = data.map(row => {
         const newRow = row;
-        const { inputScore, outputScore, totalScore } = this.computeSimilarity(
-          newRow[9],
+        const { inputScore, outputScore, totalScore } = computeSimilarity(
+          newRow[indexOf.totalSimScore],
           queriedBodyVector,
           numberOfRois
         );
-        newRow[totalScoreColumn] = totalScore;
-        newRow[inputScoreColumn] = inputScore;
-        newRow[outputScoreColumn] = outputScore;
+        newRow[indexOf.totalSimScore] = totalScore;
+        newRow[indexOf.inputSimScore] = inputScore;
+        newRow[indexOf.outputSimScore] = outputScore;
         return newRow;
       });
       data = processedData;
 
       data.sort((a, b) => {
-        if (a[totalScoreColumn] < b[totalScoreColumn]) return -1;
-        if (a[totalScoreColumn] > b[totalScoreColumn]) return 1;
+        if (a[indexOf.totalSimScore] < b[indexOf.totalSimScore]) return -1;
+        if (a[indexOf.totalSimScore] > b[indexOf.totalSimScore]) return 1;
         return 0;
       });
-
-      // update columns
-      columns[totalScoreColumn] = 'total similiarity score';
-      columns[inputScoreColumn] = 'input similiarity score';
-      columns[outputScoreColumn] = 'output similarity score';
     }
 
     if (shouldShowSimilarityScores()) {
       // sort by similarity
-      const queriedBodyVector = data[queriedBodyIdIndex][7];
-      const queriedBodySubLevelVector = data[queriedBodyIdIndex][11];
+      const queriedBodyVector = data[queriedBodyIdIndex][indexOf.totalSimScore];
+      const queriedBodySubLevelVector = data[queriedBodyIdIndex][indexOf.subLevelSimScore];
       const dataWithSimilarityScores = data.map(row => {
         const newRow = row;
-        const rawVector = row[7];
-        const { inputScore, outputScore, totalScore } = this.computeSimilarity(
+        const rawVector = row[indexOf.totalSimScore];
+        const { inputScore, outputScore, totalScore } = computeSimilarity(
           rawVector,
           queriedBodyVector,
           numberOfRois
         );
         // input score (pre)
-        newRow[8] = inputScore;
+        newRow[indexOf.inputSimScore] = inputScore;
         // output score (post)
-        newRow[9] = outputScore;
+        newRow[indexOf.outputSimScore] = outputScore;
         // total score
-        newRow[7] = totalScore;
+        newRow[indexOf.totalSimScore] = totalScore;
 
         // sub-level rois
         if (queriedBodySubLevelVector) {
-          newRow[11] = math.round(
-            math.sum(math.abs(math.subtract(queriedBodySubLevelVector, row[11]))) / 4.0,
+          newRow[indexOf.subLevelSimScore] = math.round(
+            math.sum(
+              math.abs(math.subtract(queriedBodySubLevelVector, row[indexOf.subLevelSimScore]))
+            ) / 4.0,
             4
           );
           // incorporate sub-level rois into total score
-          newRow[7] = (row[7] + row[11]) / 2.0;
-
-          // update columns
-          columns[11] = 'sub-level roi similarity score';
+          newRow[indexOf.totalSimScore] =
+            (row[indexOf.totalSimScore] + row[indexOf.subLevelSimScore]) / 2.0;
         }
         return newRow;
       });
@@ -445,15 +374,10 @@ class FindSimilarNeurons extends React.Component {
 
       // sort by total similarity score; queried body id will be 0 so should be at top
       data.sort((a, b) => {
-        if (a[7] < b[7]) return -1;
-        if (a[7] > b[7]) return 1;
+        if (a[indexOf.totalSimScore] < b[indexOf.totalSimScore]) return -1;
+        if (a[indexOf.totalSimScore] > b[indexOf.totalSimScore]) return 1;
         return 0;
       });
-
-      // update columns
-      columns[7] = 'total similiarity score';
-      columns[8] = 'input similiarity score';
-      columns[9] = 'output similarity score';
     }
 
     return {

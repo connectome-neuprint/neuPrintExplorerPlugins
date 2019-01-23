@@ -1,6 +1,7 @@
 import React from 'react';
 import randomColor from 'randomcolor';
 import Icon from '@material-ui/core/Icon';
+import * as math from 'mathjs';
 import RoiHeatMap from '../visualization/MiniRoiHeatMap';
 import RoiBarGraph from '../visualization/MiniRoiBarGraph';
 
@@ -99,12 +100,19 @@ export function createSimpleConnectionQueryObject(dataset, isPost, bodyId, callb
  * @returns {Object.<string,JSX.Element>}
  */
 export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, postTotal) {
-  const roiInfoObjectWithNoneCount = getRoiInfoObjectWithNoneCount(
-    roiInfoObject,
-    roiList,
-    preTotal,
-    postTotal
-  );
+  let roiInfoObjectWithNoneCount = roiInfoObject;
+  if (!Object.keys(roiInfoObject).includes('none')) {
+    roiInfoObjectWithNoneCount = getRoiInfoObjectWithNoneCount(
+      roiInfoObject,
+      roiList,
+      preTotal,
+      postTotal
+    );
+  }
+
+  if (!roiList.includes('none')) {
+    roiList.push('none');
+  }
 
   const heatMap = (
     <RoiHeatMap
@@ -166,9 +174,59 @@ export function getBodyIdForTable(dataset, bodyId, hasSkeleton, skeletonHandler)
   };
 }
 
+export function computeSimilarity(inputVector, queriedBodyVector, totalNumberOfRois) {
+  if (inputVector === undefined) {
+    throw new Error('computeSimilarity: inputVector is not defined.');
+  }
+  if (queriedBodyVector === undefined) {
+    throw new Error('computeSimilarity: queriedBodyVector is not defined.');
+  }
+  if (totalNumberOfRois === undefined) {
+    throw new Error('computeSimilarity: totalNumberOfRois is not defined.');
+  }
+  // input score (pre)
+  const inputScore = math.round(
+    math.sum(
+      math.abs(
+        math.subtract(
+          queriedBodyVector.slice(totalNumberOfRois),
+          inputVector.slice(totalNumberOfRois)
+        )
+      )
+    ) / 2.0,
+    4
+  );
+  // output score (post)
+  const outputScore = math.round(
+    math.sum(
+      math.abs(
+        math.subtract(
+          queriedBodyVector.slice(0, totalNumberOfRois),
+          inputVector.slice(0, totalNumberOfRois)
+        )
+      )
+    ) / 2.0,
+    4
+  );
+  // total score
+  let totalScore = math.round(
+    math.sum(math.abs(math.subtract(queriedBodyVector, inputVector))) / 4.0,
+    4
+  );
+
+  if (Number.isNaN(inputScore) && !Number.isNaN(outputScore)) {
+    totalScore = outputScore;
+  } else if (Number.isNaN(outputScore) && !Number.isNaN(inputScore)) {
+    totalScore = inputScore;
+  }
+
+  return { inputScore, outputScore, totalScore };
+}
+
 export default {
   setColumnIndices,
   createSimpleConnectionQueryObject,
   generateRoiHeatMapAndBarGraph,
-  getBodyIdForTable
+  getBodyIdForTable,
+  computeSimilarity
 };
