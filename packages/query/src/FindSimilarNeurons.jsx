@@ -21,6 +21,7 @@ import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
 import {
   setColumnIndices,
   createSimpleConnectionQueryObject,
+  createSimpleConnectionsResult,
   generateRoiHeatMapAndBarGraph,
   getBodyIdForTable,
   computeSimilarity
@@ -433,47 +434,15 @@ class FindSimilarNeurons extends React.Component {
   };
 
   processConnections = (query, apiResponse) => {
-    const { dataSet, actions } = this.props;
+    const { actions } = this.props;
 
-    const findSimilarNeuron = bodyId => {
-      const parameters = {
-        dataset: dataSet,
-        bodyId,
-        emptyDataErrorMessage: 'Body ID not found in dataset.'
-      };
-
-      const similarQuery = `MATCH (m:Meta{dataset:'${dataSet}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataSet}-Neuron\`{bodyId:${bodyId}}) WITH n.clusterName AS cn, rois MATCH (n:\`${dataSet}-Neuron\`{clusterName:cn}) RETURN n.bodyId, n.name, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
-
-      // TODO: change title based on results
-      const title = `Neurons similar to ${bodyId}`;
-
-      return {
-        dataSet,
-        cypherQuery: similarQuery,
-        visType: 'SimpleTable',
-        visProps: { rowsPerPage: 25 },
-        plugin: pluginName,
-        parameters,
-        title,
-        menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-        processResults: this.processSimilarResults
-      };
-    };
-
-    const data = apiResponse.data.map(row => [
-      {
-        value: row[2],
-        action: () => actions.submit(findSimilarNeuron(row[2]))
-      },
-      row[1],
-      row[3]
-    ]);
-
-    return {
-      columns: ['body id (click to find similar neurons)', 'name', '# connections'],
-      data,
-      debug: apiResponse.debug
-    };
+    return createSimpleConnectionsResult(
+      query,
+      apiResponse,
+      actions,
+      pluginName,
+      this.processConnections
+    );
   };
 
   // processing intital request
