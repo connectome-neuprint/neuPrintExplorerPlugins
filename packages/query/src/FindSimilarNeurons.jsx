@@ -69,12 +69,6 @@ class FindSimilarNeurons extends React.Component {
     return true;
   }
 
-  handleShowSkeleton = (id, dataSet) => () => {
-    const { actions } = this.props;
-    actions.skeletonAddandOpen(id, dataSet);
-    actions.neuroglancerAddandOpen(id, dataSet);
-  };
-
   // functions for processing results
   processSimilarResults = (query, apiResponse) => {
     const { actions } = this.props;
