@@ -69,22 +69,46 @@ class Example extends React.Component {
   // need to fetch values from the class properties.
   processRequest = () => {
 
-    //
+    // gather important information from the application:
+    // > dataSet - text string to describe selected data set.
+    // > actions - an object that contains functions for interacting with the
+    //             application. A list of these can be found in the README.
+    // > history - the history object is used to route the application to the
+    //             correct results page.
     const { dataSet, actions, history } = this.props;
+    // fetch all the parameters used by this plugin from the URL query string.
+    // you can also set default values here.
     const { textValue = '' } = actions.getQueryObject(pluginAbbrev);
-    // The query object is expected to include a few important components:
+    // The query object is expected to include a few important components,
+    // please see the comments below for a description of each.:
     const query = {
-      // dataSet
+      // dataSet - text string received from the application properties.
       dataSet,
+      // cypherQuery - in this case it is a text string passed in from the URL
+      // query string, that was set by your form.
       cypherQuery: textValue,
+      // visType - The name of the visualization plugin that will be used to
+      // display the results. A list of these can be found in the view plugins
+      // module
       visType: 'SimpleTable',
+      // plugin - text string so that we know the name of the plugin based
       plugin: pluginName,
+      // parameters - an object of additional parameters to be passed to the
+      // neuPrintHTTP API.
       parameters: {},
+      // title - Text string to be placed at the top of the results tab for
+      // this result.
       title: 'Custom query',
+      // menuColor - Hex code string that will be used to color the results tile
+      // this can be set randomly or as a static color. Up to you.
       menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
+      // processResults - function - this is used to process the results returned
+      // by the API server so that they can be displayed by the view.
       processResults: this.processResults
     };
+    // submit your query for processing by the API.
     actions.submit(query);
+    // redirect to the results page, so that the query can be viewed.
     history.push({
       pathname: '/results',
       search: actions.getQueryString()
@@ -101,9 +125,13 @@ class Example extends React.Component {
   processResults = (query, apiResponse) => {
     // check the response to see if you have any data.
     if (apiResponse.data) {
+      // format the data here. In this case we are converting any objects returned
+      // into their string representations.
       const data = apiResponse.data.map(row =>
         row.map(item => (typeof item === 'object' ? JSON.stringify(item) : item))
       );
+      // make sure that the data structure you return meets the requirements of the
+      // visualisation plugin you have chosen.
       return {
         columns: apiResponse.columns,
         data,
