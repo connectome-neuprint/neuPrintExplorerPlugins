@@ -185,12 +185,7 @@ class FindSimilarNeurons extends React.Component {
       }
 
       const converted = [];
-      converted[indexOf.bodyId] = getBodyIdForTable(
-        query.dataSet,
-        bodyId,
-        hasSkeleton,
-        this.handleShowSkeleton
-      );
+      converted[indexOf.bodyId] = getBodyIdForTable(query.dataSet, bodyId, hasSkeleton, actions);
       converted[indexOf.name] = name;
       converted[indexOf.status] = status;
       const postQuery = createSimpleConnectionQueryObject(
