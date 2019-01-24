@@ -6,16 +6,15 @@ import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
 import RoiBarGraph from '../visualization/MiniRoiBarGraph';
 
 /**
+ * Launches actions for opening the skeleton viewer and neuroglancer.
  *
- *
- * @export
  * @param {string} id
- * @param {string} dataSet
+ * @param {string} dataset
  * @param {Object} actions
  */
-export function showSkeleton(id, dataSet, actions) {
-  actions.skeletonAddandOpen(id, dataSet);
-  actions.neuroglancerAddandOpen(id, dataSet);
+function showSkeleton(id, dataset, actions) {
+  actions.skeletonAddandOpen(id, dataset);
+  actions.neuroglancerAddandOpen(id, dataset);
 }
 
 /**
@@ -83,6 +82,7 @@ function getRoiInfoObjectWithNoneCount(roiInfoObject, roiList, preTotal, postTot
  * @param {boolean} isPost
  * @param {number} bodyId
  * @param {function} callback
+ * @param {string} pluginName
  * @returns {Object}
  */
 export function createSimpleConnectionQueryObject(dataset, isPost, bodyId, callback, pluginName) {
@@ -156,7 +156,7 @@ export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, 
  * @param {number} bodyId
  * @param {boolean} hasSkeleton
  * @param {Object} actions
- * @returns
+ * @returns {Object}
  */
 export function getBodyIdForTable(dataset, bodyId, hasSkeleton, actions) {
   return {
@@ -195,7 +195,7 @@ export function getBodyIdForTable(dataset, bodyId, hasSkeleton, actions) {
  * @param {Array<number>} inputVector
  * @param {Array<number>} queriedBodyVector
  * @param {number} totalNumberOfRois
- * @returns
+ * @returns {Object<string,number>}
  */
 export function computeSimilarity(inputVector, queriedBodyVector, totalNumberOfRois) {
   if (inputVector === undefined) {
@@ -255,7 +255,7 @@ export function computeSimilarity(inputVector, queriedBodyVector, totalNumberOfR
  * @param {Object} actions
  * @param {string} pluginName
  * @param {function} simpleConnectionsCallback
- * @returns
+ * @returns {Object}
  */
 export function createSimpleConnectionsResult(
   query,
@@ -360,6 +360,5 @@ export default {
   generateRoiHeatMapAndBarGraph,
   getBodyIdForTable,
   computeSimilarity,
-  createSimpleConnectionsResult,
-  showSkeleton
+  createSimpleConnectionsResult
 };
