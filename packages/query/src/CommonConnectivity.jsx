@@ -38,6 +38,10 @@ class CommonConnectivity extends React.Component {
     return 'Finds common inputs/outputs for a group of bodies and weights of their connections to these inputs/outputs.';
   }
 
+  static get queryAbbreviation() {
+    return pluginAbbrev;
+  }
+
   static get isExperimental() {
     return true;
   }

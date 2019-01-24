@@ -1,365 +1,90 @@
-/* eslint-disable prefer-destructuring */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
 import { withRouter } from 'react-router';
+
+// This module is used to choose the color for the
 import randomColor from 'randomcolor';
 
-import { withStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
+
+// neuPrintExplorer uses the Material-UI (https://material-ui.com/) for all
+// styles and layout. You will need to study its documentation to figure out
+// which components to import for the form you are trying to create. For this
+// example we will have a single submit button and a text field with a label.
 import TextField from '@material-ui/core/TextField';
-
-import { ColorLegend } from './visualization/MiniRoiHeatMap';
-import NeuronHelp from './shared/NeuronHelp';
-import NeuronFilter from './shared/NeuronFilter';
-import {
-  setColumnIndices,
-  createSimpleConnectionQueryObject,
-  generateRoiHeatMapAndBarGraph,
-  getBodyIdForTable
-} from './shared/pluginhelpers';
-
-const styles = theme => ({
-  select: {
-    fontFamily: theme.typography.fontFamily,
-    margin: '0.5em 0 1em 0'
-  },
-  clickable: {
-    cursor: 'pointer'
-  }
-});
+import Button from '@material-ui/core/Button';
+import FormControl from '@material-ui/core/FormControl';
+import { withStyles } from '@material-ui/core/styles';
 
 // this should match the name of the file this plugin is stored in.
 const pluginName = 'Example';
 
+// The styles object is used by the component to pass style information
+// to the Material-UI components. This can be ignored if you don't plan
+// on setting any custom styles, but will most likely be needed to generate
+// an intuitive form. More information on how styling works can be found at:
+// https://material-ui.com/css-in-js/basics/
+// https://material-ui.com/css-in-js/basics/#higher-order-component-api
+const styles = () => ({
+  textField: {
+    width: 300,
+    margin: '0 0 1em 0'
+  },
+  button: {
+    margin: 4,
+    display: 'block'
+  },
+  formControl: {}
+});
+
+// A plugin abbreviation is required to denote the parameters used by the plugin, in the
+// url. This is how we decide which query parameters belong to a specific plugin. The
+// abbreviation can be longer than 2 characters and should be unique.
+const pluginAbbrev = 'ex';
+
+// The core of the plugin is the class. This will encapsulate the core functions
+// that are required for the plugin to work. The class name should match the plugin
+// name.
 class Example extends React.Component {
-  constructor(props) {
-    super(props);
-    const { dataSet, actions } = this.props;
-    actions.setQueryString({
-      input: {
-        example: {
-          inputROIs: [],
-          outputROIs: [],
-          neuronName: ''
-        }
-      }
-    });
 
-    // set the default state for the query input.
-    this.state = {
-      limitNeurons: true,
-      statusFilters: [],
-      preThreshold: 0,
-      postThreshold: 0,
-      dataSet, // eslint-disable-line react/no-unused-state
-      queryName: this.constructor.queryName // eslint-disable-line react/no-unused-state
-    };
-  }
-
+  // Return a text string that will be displayed in the query type
+  // selection box in neuPrintExplorer.
   static get queryName() {
-    // This is the string used in the 'Query Type' select.
-    return 'Example Query';
+    return 'Example';
   }
 
+  // Return a longer description of the plugin, including its' purpose and expected
+  // results.
   static get queryDescription() {
-    // This is a description of the purpose of the plugin.
-    // it will be displayed in the form above the custom
-    // inputs for this plugin.
-    return 'An example plugin demonstrating neuPrintExplorer plugin structure';
+    return 'Example query plugin';
   }
 
-  static getDerivedStateFromProps = (props, state) => {
-    // if dataset changes, clear the selected rois and statuses
-    // eslint issues: https://github.com/yannickcr/eslint-plugin-react/issues/1751
-    if (props.dataSet !== state.dataSet) {
-      state.statusFilters = []; // eslint-disable-line no-param-reassign
-      props.actions.setQueryString({
-        input: {
-          fn: {
-            inputROIs: [],
-            outputROIs: []
-          }
-        }
-      });
-      state.dataSet = props.dataSet; // eslint-disable-line no-param-reassign
-      return state;
-    }
-    return null;
-  };
+  static get queryAbbreviation() {
+    return pluginAbbrev;
+  }
 
-  handleShowSkeleton = (id, dataSet) => () => {
-    const { actions } = this.props;
-    actions.skeletonAddandOpen(id, dataSet);
-    actions.neuroglancerAddandOpen(id, dataSet);
-  };
 
-  processSimpleConnections = (query, apiResponse) => {
-    const { actions } = this.props;
-
-    const indexOf = setColumnIndices([
-      'bodyId',
-      'name',
-      'status',
-      'connectionWeight',
-      'post',
-      'pre',
-      'size',
-      'roiHeatMap',
-      'roiBarGraph'
-    ]);
-
-    const data = apiResponse.data.map(row => {
-      const hasSkeleton = row[5];
-      const roiInfoObject = JSON.parse(row[7]);
-      const roiList = row[11];
-      const postTotal = row[10];
-      const preTotal = row[9];
-      const bodyId = row[2];
-
-      // make sure none is added to the rois list.
-      roiList.push('none');
-
-      const converted = [];
-      converted[indexOf.bodyId] = getBodyIdForTable(
-        query.dataSet,
-        bodyId,
-        hasSkeleton,
-        this.handleShowSkeleton
-      );
-      converted[indexOf.name] = row[1];
-      converted[indexOf.status] = row[6];
-      converted[indexOf.connectionWeight] = row[3];
-      converted[indexOf.size] = row[8];
-
-      const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
-        roiInfoObject,
-        roiList,
-        preTotal,
-        postTotal
-      );
-      converted[indexOf.roiHeatMap] = heatMap;
-      converted[indexOf.roiBarGraph] = barGraph;
-
-      const postQuery = createSimpleConnectionQueryObject(
-        query.dataSet,
-        true,
-        bodyId,
-        this.processSimpleConnections,
-        pluginName
-      );
-      converted[indexOf.post] = {
-        value: postTotal,
-        action: () => actions.submit(postQuery)
-      };
-
-      const preQuery = createSimpleConnectionQueryObject(
-        query.dataSet,
-        false,
-        bodyId,
-        this.processSimpleConnections,
-        pluginName
-      );
-      converted[indexOf.pre] = {
-        value: preTotal,
-        action: () => actions.submit(preQuery)
-      };
-
-      return converted;
-    });
-
-    const columns = [];
-    columns[indexOf.bodyId] = 'id';
-    columns[indexOf.name] = 'neuron';
-    columns[indexOf.status] = 'status';
-    columns[indexOf.connectionWeight] = '#connections';
-    columns[indexOf.post] = '#post (inputs)';
-    columns[indexOf.pre] = '#pre (outputs)';
-    columns[indexOf.size] = '#voxels';
-    columns[indexOf.roiHeatMap] = (
-      <div>
-        roi heatmap <ColorLegend />
-      </div>
-    );
-    columns[indexOf.roiBarGraph] = 'roi breakdown';
-
-    return {
-      columns,
-      data,
-      debug: apiResponse.debug
-    };
-  };
-
-  // this function will parse the results from the query to the
-  // Neo4j server and place them in the correct format for the
-  // visualization plugin.
-  processResults = (query, apiResponse) => {
-    const { actions } = this.props;
-    /* eslint-disable camelcase */
-    const { input_ROIs, output_ROIs } = query.parameters;
-    const rois = input_ROIs && output_ROIs ? [...new Set(input_ROIs.concat(output_ROIs))] : [];
-    /* eslint-enable camelcase */
-
-    // assigns data properties to column indices for convenient access/modification
-    const columnIds = ['bodyId', 'name', 'status', 'post', 'pre'];
-    if (rois.length > 0) {
-      rois.forEach(roi => {
-        columnIds.push(`${roi}Post`);
-        columnIds.push(`${roi}Pre`);
-      });
-    }
-    columnIds.push('size', 'roiHeatMap', 'roiBarGraph');
-    const indexOf = setColumnIndices(columnIds);
-
-    const data = apiResponse.data.map(row => {
-      const hasSkeleton = row[8];
-      const bodyId = row[0];
-      const roiList = row[7];
-      const totalPre = row[5];
-      const totalPost = row[6];
-      const roiInfoObject = JSON.parse(row[3]);
-
-      const converted = [];
-      converted[indexOf.bodyId] = getBodyIdForTable(
-        query.dataSet,
-        bodyId,
-        hasSkeleton,
-        this.handleShowSkeleton
-      );
-      converted[indexOf.name] = row[1];
-      converted[indexOf.status] = row[2];
-      converted[indexOf.post] = '-'; // empty unless roiInfoObject present
-      converted[indexOf.pre] = '-';
-      converted[indexOf.size] = row[4];
-      converted[indexOf.roiHeatMap] = '';
-      converted[indexOf.roiBarGraph] = '';
-
-      // make sure none is added to the rois list.
-      roiList.push('none');
-
-      if (roiInfoObject) {
-        const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
-          roiInfoObject,
-          roiList,
-          totalPre,
-          totalPost
-        );
-        converted[indexOf.roiHeatMap] = heatMap;
-        converted[indexOf.roiBarGraph] = barGraph;
-
-        const postQuery = createSimpleConnectionQueryObject(
-          query.dataSet,
-          true,
-          bodyId,
-          this.processSimpleConnections,
-          pluginName
-        );
-        converted[indexOf.post] = {
-          value: totalPost,
-          action: () => actions.submit(postQuery)
-        };
-
-        const preQuery = createSimpleConnectionQueryObject(
-          query.dataSet,
-          false,
-          bodyId,
-          this.processSimpleConnections,
-          pluginName
-        );
-        converted[indexOf.pre] = {
-          value: totalPre,
-          action: () => actions.submit(preQuery)
-        };
-
-        if (rois.length > 0) {
-          rois.forEach(roi => {
-            converted[indexOf[`${roi}Post`]] = roiInfoObject[roi].post;
-            converted[indexOf[`${roi}Pre`]] = roiInfoObject[roi].pre;
-          });
-        }
-      }
-
-      return converted;
-    });
-    const columns = [];
-    columns[indexOf.bodyId] = 'id';
-    columns[indexOf.name] = 'neuron';
-    columns[indexOf.status] = 'status';
-    columns[indexOf.post] = '#post (inputs)';
-    columns[indexOf.pre] = '#pre (outputs)';
-    columns[indexOf.size] = '#voxels';
-    columns[indexOf.roiHeatMap] = (
-      <div>
-        roi heatmap <ColorLegend />
-      </div>
-    );
-    columns[indexOf.roiBarGraph] = 'roi breakdown';
-    if (rois.length > 0) {
-      rois.forEach(roi => {
-        columns[indexOf[`${roi}Post`]] = `${roi} #post`;
-        columns[indexOf[`${roi}Pre`]] = `${roi} #pre`;
-      });
-    }
-
-    return {
-      columns,
-      data,
-      debug: apiResponse.debug
-    };
-  };
-
-  // use this method to cleanup your form data, perform validation
-  // and generate the query object.
+  // processRequest is generally triggered by hitting the submit button and
+  // is your opportunity to gather the parameters for your query, format them
+  // and send them off to the api. It does not take any direct arguments, but will
+  // need to fetch values from the class properties.
   processRequest = () => {
+
+    //
     const { dataSet, actions, history } = this.props;
-    const { statusFilters, limitNeurons, preThreshold, postThreshold } = this.state;
-    const qsParams = actions.getQueryObject();
-    const { neuronName } = qsParams.input.fn;
-
-    // empty if undefined
-    const inputROIs = qsParams.input.fn.inputROIs ? qsParams.input.fn.inputROIs : [];
-    const outputROIs = qsParams.input.fn.outputROIs ? qsParams.input.fn.outputROIs : [];
-
-    const parameters = {
-      dataset: dataSet,
-      input_ROIs: inputROIs,
-      output_ROIs: outputROIs,
-      statuses: statusFilters,
-      all_segments: !limitNeurons
-    };
-
-    if (neuronName !== '') {
-      if (/^\d+$/.test(neuronName)) {
-        parameters.neuron_id = parseInt(neuronName, 10);
-      } else {
-        parameters.neuron_name = neuronName;
-      }
-    }
-
-    if (preThreshold > 0) {
-      parameters.pre_threshold = preThreshold;
-    }
-
-    if (postThreshold > 0) {
-      parameters.post_threshold = postThreshold;
-    }
-
+    const { textValue = '' } = actions.getQueryObject(pluginAbbrev);
+    // The query object is expected to include a few important components:
     const query = {
-      dataSet, // <string> for the data set selected
-      queryString: '/npexplorer/findneurons', // <neo4jquery string>
-      // cypherQuery: <string> if this is passed then use generic /api/custom/custom endpoint
-      visType: 'SimpleTable', // <string> which visualization plugin to use. Default is 'table'
-      visProps: { rowsPerPage: 25 },
-      plugin: pluginName, // <string> the name of this plugin.
-      parameters, // <object>
-      title: `Neurons with inputs in [${inputROIs}] and outputs in [${outputROIs}]`,
+      // dataSet
+      dataSet,
+      cypherQuery: textValue,
+      visType: 'SimpleTable',
+      plugin: pluginName,
+      parameters: {},
+      title: 'Custom query',
       menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
       processResults: this.processResults
     };
     actions.submit(query);
-    // redirect to the results page.
     history.push({
       pathname: '/results',
       search: actions.getQueryString()
@@ -367,148 +92,125 @@ class Example extends React.Component {
     return query;
   };
 
-  handleChangeROIsIn = selected => {
-    const { actions } = this.props;
-    const rois = selected.map(item => item.value);
-    actions.setQueryString({
-      input: {
-        fn: {
-          inputROIs: rois
-        }
-      }
-    });
-  };
-
-  handleChangeROIsOut = selected => {
-    const { actions } = this.props;
-    const rois = selected.map(item => item.value);
-    actions.setQueryString({
-      input: {
-        fn: {
-          outputROIs: rois
-        }
-      }
-    });
-  };
-
-  addNeuron = event => {
-    const { actions } = this.props;
-    const neuronName = event.target.value;
-    actions.setQueryString({
-      input: {
-        fn: {
-          neuronName
-        }
-      }
-    });
-  };
-
-  loadNeuronFilters = params => {
-    this.setState({
-      limitNeurons: params.limitNeurons,
-      statusFilters: params.statusFilters,
-      preThreshold: parseInt(params.preThreshold, 10),
-      postThreshold: parseInt(params.postThreshold, 10)
-    });
-  };
-
-  catchReturn = event => {
-    // submit request if user presses enter
-    if (event.keyCode === 13) {
-      event.preventDefault();
-      this.processRequest();
+  // This function always receives two parameters:
+  // query - this is the object that was created in the processRequest
+  // function and passed to the main application.
+  //
+  // apiResponse - the response from the api server. This will contain the
+  // data payload and any error messages that may have occurred.
+  processResults = (query, apiResponse) => {
+    // check the response to see if you have any data.
+    if (apiResponse.data) {
+      const data = apiResponse.data.map(row =>
+        row.map(item => (typeof item === 'object' ? JSON.stringify(item) : item))
+      );
+      return {
+        columns: apiResponse.columns,
+        data,
+        debug: apiResponse.debug
+      };
     }
+
+    // If the plugin has returned nothing, then you need to make sure that the
+    // visualization plugin you selected gets the data in the format that it
+    // requires. For the simple table plugin, it needs to have three elements in
+    // the object it receives.
+    // - columns
+    // - data
+    // - debug
+    return {
+      columns: [],
+      data: [],
+      debug: ''
+    };
   };
 
-  // use this function to generate the form that will accept and
-  // validate the variables for your Neo4j query.
+
+  // Whenever someone changes a value in the form, we need to make sure it is
+  // captured in the url. This serves two purposes.
+  // 1. this is the only place where the selections are stored.
+  // 2. can always return to the form from a link.
+  handleChange = event => {
+    const { actions } = this.props;
+    actions.setQueryString({
+      [pluginAbbrev]: {
+        textValue: event.target.value
+      }
+    });
+  };
+
+  // render() is the main function that handles displaying the form. This requires
+  // a few properties passed in from neuPrintExplorer, but will take no direct
+  // arguments.
   render() {
-    const { classes, isQuerying, availableROIs, dataSet, actions } = this.props;
-    const qsParams = actions.getQueryObject();
-    const { neuronName } = qsParams.input.fn;
+    // Below are the only three properties that you must have to get a working
+    // plugin.
+    //
+    // 1. actions is an object that contains methods to report back to
+    // the core application. The list of actions are:
+    //
+    //   - submit
+    //   -
+    //   -
+    //
+    // 2. classes are the styles that were set in the styles constant at the top
+    // of this file. See the documentation there for uses.
+    //
+    // 3. isQuerying is a simple boolean that will tell you if the site is currently
+    // executing a query. This is useful for disabling form submission once a query
+    // has been submitted.
+    const { actions, classes, isQuerying } = this.props;
 
-    // empty if undefined
-    const inputROIs = qsParams.input.fn.inputROIs ? qsParams.input.fn.inputROIs : [];
-    const outputROIs = qsParams.input.fn.outputROIs ? qsParams.input.fn.outputROIs : [];
+    // Here we can set the default values for the plugin and fetch
+    // any existing ones that have already been selected.
+    const { textValue = '' } = actions.getQueryObject(pluginAbbrev);
 
-    const inputOptions = availableROIs.map(name => ({
-      label: name,
-      value: name
-    }));
-
-    const inputValue = inputROIs.map(roi => ({
-      label: roi,
-      value: roi
-    }));
-
-    const outputOptions = availableROIs.map(name => ({
-      label: name,
-      value: name
-    }));
-
-    const outputValue = outputROIs.map(roi => ({
-      label: roi,
-      value: roi
-    }));
-
+    // Finally we need to return the filled out form. This is pieced together
+    // using the material-UI form components and JSX. Examples can be found
+    // here: https://material-ui.com/demos/text-fields/
+    //
+    // In this example we have a text filed that accepts a text string and
+    // calls the handleChange method to store it, followed by a submit button
+    // that calls the processRequest method when clicked.
+    //
     return (
-      <div>
-        <InputLabel htmlFor="select-multiple-chip">Input ROIs</InputLabel>
-        <Select
-          className={classes.select}
-          isMulti
-          value={inputValue}
-          onChange={this.handleChangeROIsIn}
-          options={inputOptions}
-          closeMenuOnSelect={false}
+      <FormControl className={classes.formControl}>
+        <TextField
+          label="Custom Cypher Query"
+          multiline
+          value={textValue}
+          rows={1}
+          rowsMax={4}
+          className={classes.textField}
+          onChange={this.handleChange}
         />
-        <InputLabel htmlFor="select-multiple-chip">Output ROIs</InputLabel>
-        <Select
-          className={classes.select}
-          isMulti
-          value={outputValue}
-          onChange={this.handleChangeROIsOut}
-          options={outputOptions}
-          closeMenuOnSelect={false}
-        />
-        <FormControl fullWidth className={classes.formControl}>
-          <NeuronHelp>
-            <TextField
-              label="Neuron name (optional)"
-              multiline
-              rows={1}
-              fullWidth
-              value={neuronName}
-              rowsMax={4}
-              className={classes.textField}
-              onChange={this.addNeuron}
-              onKeyDown={this.catchReturn}
-            />
-          </NeuronHelp>
-        </FormControl>
-        <NeuronFilter callback={this.loadNeuronFilters} datasetstr={dataSet} />
         <Button
-          disabled={isQuerying}
-          color="primary"
           variant="contained"
+          className={classes.button}
           onClick={this.processRequest}
+          color="primary"
+          disabled={isQuerying}
         >
           Submit
         </Button>
-      </div>
+      </FormControl>
     );
   }
 }
 
-// data that will be provided to your form. Use it to build
-// inputs, selections and for validation.
+// property Types or propTypes describe the items that will be passed
+// to the plugin and you will be required to add them. It is probably
+// sufficient to copy this data structure into your plugin and change
+// 'Example' to your plugin name.
 Example.propTypes = {
-  actions: PropTypes.object.isRequired,
-  availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
-  dataSet: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
+  dataSet: PropTypes.string.isRequired,
   history: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired
 };
 
-export default withRouter(withStyles(styles)(Example));
+// Finally we need to export the plugin into the main application so that
+// it is registered with the site. This will add it to the Query selection
+// menu and allow users to select it.
+export default withStyles(styles)(withRouter(Example));

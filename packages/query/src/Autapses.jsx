@@ -9,6 +9,7 @@ import { withRouter } from 'react-router';
 import Button from '@material-ui/core/Button';
 
 const pluginName = 'Autapses';
+const pluginAbbrev = 'au';
 
 class Autapses extends React.Component {
   static get queryName() {
@@ -21,6 +22,10 @@ class Autapses extends React.Component {
 
   static get queryDescription() {
     return 'Finds all the self connections (loops) in the dataset.';
+  }
+
+  static get queryAbbreviation() {
+    return pluginAbbrev;
   }
 
   static get isExperimental() {

@@ -11,6 +11,7 @@ import Button from '@material-ui/core/Button';
 import NeuronFilter from './shared/NeuronFilter';
 
 const pluginName = 'Completeness';
+const pluginAbbrev = 'co';
 
 class Completeness extends React.Component {
   static get queryName() {
@@ -23,6 +24,10 @@ class Completeness extends React.Component {
 
   static get queryDescription() {
     return 'Determines the reconstruction completeness of each ROI with respect to the neuron filters';
+  }
+
+  static get queryAbbreviation() {
+    return pluginAbbrev;
   }
 
   static get isExperimental() {

@@ -47,6 +47,10 @@ class ShortestPath extends React.Component {
     return 'Find all neurons along the shortest path between two neurons.';
   }
 
+  static get queryAbbreviation() {
+    return pluginAbbrev;
+  }
+
   static get isExperimental() {
     return true;
   }

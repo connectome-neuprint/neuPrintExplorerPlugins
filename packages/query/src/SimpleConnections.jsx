@@ -32,6 +32,7 @@ const styles = () => ({
 });
 
 const pluginName = 'SimpleConnection';
+const pluginAbbrev = 'sc';
 
 class SimpleConnections extends React.Component {
   constructor(props) {
@@ -48,6 +49,10 @@ class SimpleConnections extends React.Component {
 
   static get queryDescription() {
     return 'List inputs or outputs to selected neuron(s)';
+  }
+
+  static get queryAbbreviation() {
+    return pluginAbbrev;
   }
 
   static get isExperimental() {

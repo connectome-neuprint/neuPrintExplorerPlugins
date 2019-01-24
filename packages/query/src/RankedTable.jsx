@@ -47,6 +47,7 @@ const styles = () => ({
 ]; */
 
 const pluginName = 'RankedTable';
+const pluginAbbrev = 'rt';
 
 class RankedTable extends React.Component {
   constructor(props) {
@@ -63,6 +64,10 @@ class RankedTable extends React.Component {
 
   static get queryDescription() {
     return 'Show connections to neuron(s) ranked in order and colored by neuron class';
+  }
+
+  static get queryAbbreviation() {
+    return pluginAbbrev;
   }
 
   static get isExperimental() {

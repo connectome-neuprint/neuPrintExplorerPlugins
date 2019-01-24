@@ -12,6 +12,7 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = () => ({});
 
 const pluginName = 'NeuronMeta';
+const pluginAbbrev = 'nm';
 
 class NeuronMeta extends React.Component {
   static get queryName() {
@@ -20,6 +21,10 @@ class NeuronMeta extends React.Component {
 
   static get queryDescription() {
     return 'Provides information on the types of meta data stored for neurons.  Clicking on a different property type name in the resulting table provides a list of unique names for that type stored in the database.';
+  }
+
+  static get queryAbbreviation() {
+    return pluginAbbrev;
   }
 
   processMetaValues = (query, apiResponse) => {
