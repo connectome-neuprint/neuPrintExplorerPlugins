@@ -2,8 +2,21 @@ import React from 'react';
 import randomColor from 'randomcolor';
 import Icon from '@material-ui/core/Icon';
 import * as math from 'mathjs';
-import RoiHeatMap from '../visualization/MiniRoiHeatMap';
+import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
 import RoiBarGraph from '../visualization/MiniRoiBarGraph';
+
+/**
+ *
+ *
+ * @export
+ * @param {string} id
+ * @param {string} dataSet
+ * @param {Object} actions
+ */
+export function showSkeleton(id, dataSet, actions) {
+  actions.skeletonAddandOpen(id, dataSet);
+  actions.neuroglancerAddandOpen(id, dataSet);
+}
 
 /**
  * Creates a map of column identifier to column index. Column indices
@@ -142,11 +155,10 @@ export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, 
  * @param {string} dataset
  * @param {number} bodyId
  * @param {boolean} hasSkeleton
- * @param {Object} clickableClass
- * @param {function} skeletonHandler
+ * @param {Object} actions
  * @returns
  */
-export function getBodyIdForTable(dataset, bodyId, hasSkeleton, skeletonHandler) {
+export function getBodyIdForTable(dataset, bodyId, hasSkeleton, actions) {
   return {
     value: hasSkeleton ? (
       <div
@@ -161,7 +173,7 @@ export function getBodyIdForTable(dataset, bodyId, hasSkeleton, skeletonHandler)
           style={{
             cursor: 'pointer'
           }}
-          onClick={skeletonHandler(bodyId, dataset)}
+          onClick={() => showSkeleton(bodyId, dataset, actions)}
           fontSize="inherit"
         >
           visibility
@@ -234,10 +246,120 @@ export function computeSimilarity(inputVector, queriedBodyVector, totalNumberOfR
   return { inputScore, outputScore, totalScore };
 }
 
+/**
+ * Creates a result for a table view of the simpleconnections query.
+ *
+ * @export
+ * @param {Object} query
+ * @param {Object} apiResponse
+ * @param {Object} actions
+ * @param {string} pluginName
+ * @param {function} simpleConnectionsCallback
+ * @returns
+ */
+export function createSimpleConnectionsResult(
+  query,
+  apiResponse,
+  actions,
+  pluginName,
+  simpleConnectionsCallback
+) {
+  const indexOf = setColumnIndices([
+    'bodyId',
+    'name',
+    'status',
+    'connectionWeight',
+    'post',
+    'pre',
+    'size',
+    'roiHeatMap',
+    'roiBarGraph'
+  ]);
+
+  /* eslint-disable prefer-destructuring */
+  const data = apiResponse.data.map(row => {
+    const hasSkeleton = row[5];
+    const roiInfoObject = JSON.parse(row[7]);
+    const roiList = row[11];
+    const postTotal = row[10];
+    const preTotal = row[9];
+    const bodyId = row[2];
+
+    // make sure none is added to the rois list.
+    roiList.push('none');
+
+    const converted = [];
+    converted[indexOf.bodyId] = getBodyIdForTable(query.dataSet, bodyId, hasSkeleton, actions);
+    converted[indexOf.name] = row[1];
+    converted[indexOf.status] = row[6];
+    converted[indexOf.connectionWeight] = row[3];
+    converted[indexOf.size] = row[8];
+
+    const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
+      roiInfoObject,
+      roiList,
+      preTotal,
+      postTotal
+    );
+    converted[indexOf.roiHeatMap] = heatMap;
+    converted[indexOf.roiBarGraph] = barGraph;
+
+    const postQuery = createSimpleConnectionQueryObject(
+      query.dataSet,
+      true,
+      bodyId,
+      simpleConnectionsCallback,
+      pluginName
+    );
+    converted[indexOf.post] = {
+      value: postTotal,
+      action: () => actions.submit(postQuery)
+    };
+
+    const preQuery = createSimpleConnectionQueryObject(
+      query.dataSet,
+      false,
+      bodyId,
+      simpleConnectionsCallback,
+      pluginName
+    );
+    converted[indexOf.pre] = {
+      value: preTotal,
+      action: () => actions.submit(preQuery)
+    };
+
+    return converted;
+  });
+
+  const columns = [];
+  columns[indexOf.bodyId] = 'id';
+  columns[indexOf.name] = 'neuron';
+  columns[indexOf.status] = 'status';
+  columns[indexOf.connectionWeight] = '#connections';
+  columns[indexOf.post] = '#post (inputs)';
+  columns[indexOf.pre] = '#pre (outputs)';
+  columns[indexOf.size] = '#voxels';
+  columns[indexOf.roiHeatMap] = (
+    <div>
+      roi heatmap <ColorLegend />
+    </div>
+  );
+  columns[indexOf.roiBarGraph] = 'roi breakdown';
+  /* eslint-enable prefer-destructuring */
+
+  return {
+    columns,
+    data,
+    debug: apiResponse.debug
+  };
+}
+
 export default {
   setColumnIndices,
   createSimpleConnectionQueryObject,
   generateRoiHeatMapAndBarGraph,
   getBodyIdForTable,
-  computeSimilarity
+  computeSimilarity,
+  createSimpleConnectionsResult,
+  showSkeleton
 };

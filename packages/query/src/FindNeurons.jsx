@@ -18,7 +18,8 @@ import {
   setColumnIndices,
   createSimpleConnectionQueryObject,
   generateRoiHeatMapAndBarGraph,
-  getBodyIdForTable
+  getBodyIdForTable,
+  createSimpleConnectionsResult
 } from './shared/pluginhelpers';
 
 const styles = theme => ({
@@ -43,7 +44,7 @@ export class FindNeurons extends React.Component {
       limitNeurons: true,
       statusFilters: [],
       preThreshold: 0,
-      postThreshold: 0,
+      postThreshold: 0
     };
   }
 
@@ -63,106 +64,16 @@ export class FindNeurons extends React.Component {
     return pluginAbbrev;
   }
 
-  handleShowSkeleton = (id, dataSet) => () => {
-    const { actions } = this.props;
-    actions.skeletonAddandOpen(id, dataSet);
-    actions.neuroglancerAddandOpen(id, dataSet);
-  };
-
   processSimpleConnections = (query, apiResponse) => {
     const { actions } = this.props;
 
-    const indexOf = setColumnIndices([
-      'bodyId',
-      'name',
-      'status',
-      'connectionWeight',
-      'post',
-      'pre',
-      'size',
-      'roiHeatMap',
-      'roiBarGraph'
-    ]);
-
-    const data = apiResponse.data.map(row => {
-      const hasSkeleton = row[5];
-      const roiInfoObject = JSON.parse(row[7]);
-      const roiList = row[11];
-      const postTotal = row[10];
-      const preTotal = row[9];
-      const bodyId = row[2];
-
-      // make sure none is added to the rois list.
-      roiList.push('none');
-
-      const converted = [];
-      converted[indexOf.bodyId] = getBodyIdForTable(
-        query.dataSet,
-        bodyId,
-        hasSkeleton,
-        this.handleShowSkeleton
-      );
-      converted[indexOf.name] = row[1];
-      converted[indexOf.status] = row[6];
-      converted[indexOf.connectionWeight] = row[3];
-      converted[indexOf.size] = row[8];
-
-      const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
-        roiInfoObject,
-        roiList,
-        preTotal,
-        postTotal
-      );
-      converted[indexOf.roiHeatMap] = heatMap;
-      converted[indexOf.roiBarGraph] = barGraph;
-
-      const postQuery = createSimpleConnectionQueryObject(
-        query.dataSet,
-        true,
-        bodyId,
-        this.processSimpleConnections,
-        pluginName
-      );
-      converted[indexOf.post] = {
-        value: postTotal,
-        action: () => actions.submit(postQuery)
-      };
-
-      const preQuery = createSimpleConnectionQueryObject(
-        query.dataSet,
-        false,
-        bodyId,
-        this.processSimpleConnections,
-        pluginName
-      );
-      converted[indexOf.pre] = {
-        value: preTotal,
-        action: () => actions.submit(preQuery)
-      };
-
-      return converted;
-    });
-
-    const columns = [];
-    columns[indexOf.bodyId] = 'id';
-    columns[indexOf.name] = 'neuron';
-    columns[indexOf.status] = 'status';
-    columns[indexOf.connectionWeight] = '#connections';
-    columns[indexOf.post] = '#post (inputs)';
-    columns[indexOf.pre] = '#pre (outputs)';
-    columns[indexOf.size] = '#voxels';
-    columns[indexOf.roiHeatMap] = (
-      <div>
-        roi heatmap <ColorLegend />
-      </div>
+    return createSimpleConnectionsResult(
+      query,
+      apiResponse,
+      actions,
+      pluginName,
+      this.processSimpleConnections
     );
-    columns[indexOf.roiBarGraph] = 'roi breakdown';
-
-    return {
-      columns,
-      data,
-      debug: apiResponse.debug
-    };
   };
 
   // this function will parse the results from the query to the
@@ -195,12 +106,7 @@ export class FindNeurons extends React.Component {
       const roiInfoObject = JSON.parse(row[3]);
 
       const converted = [];
-      converted[indexOf.bodyId] = getBodyIdForTable(
-        query.dataSet,
-        bodyId,
-        hasSkeleton,
-        this.handleShowSkeleton
-      );
+      converted[indexOf.bodyId] = getBodyIdForTable(query.dataSet, bodyId, hasSkeleton, actions);
       converted[indexOf.name] = row[1];
       converted[indexOf.status] = row[2];
       converted[indexOf.post] = '-'; // empty unless roiInfoObject present
@@ -386,7 +292,9 @@ export class FindNeurons extends React.Component {
   // validate the variables for your Neo4j query.
   render() {
     const { classes, isQuerying, availableROIs, dataSet, actions, neoServerSettings } = this.props;
-    const { neuronName = '', inputROIs = [], outputROIs = [] } = actions.getQueryObject(pluginAbbrev);
+    const { neuronName = '', inputROIs = [], outputROIs = [] } = actions.getQueryObject(
+      pluginAbbrev
+    );
 
     const inputOptions = availableROIs.map(name => ({
       label: name,
