@@ -20,7 +20,7 @@ An example template for the plugins can be found at
     packages/view/src/Example.jsx # view plugin
 
 Copy the example and name it to reflect the purpose of your plugin. Instructions for modifying
-the template to fit your requirements can be found as comments inside it.
+the template to fit your requirements can be found as comments in the code.
 
 neuPrint plugins are React [components](https://reactjs.org/docs/components-and-props.html)
 from the [React](https://reactjs.org/) framework. A familiarity with the framework
@@ -30,7 +30,6 @@ neuPrintexplorer uses material-ui components and styles. As such these need to b
 into your plugin. More information can be found at the [Material-UI](https://material-ui.com/)
 documentation site.
 
-
 ### Installing the plugin
 
 Once complete, you will need to install it into the explorer site. Place the plugin in the
@@ -39,21 +38,13 @@ checkout, run the build, and it will be automatically included in the site. For 
 steps to add a query plugin.
 
    1. copy the plugin into the correct location
-      - cp plugin.jsx <neuPrintExplorerPlugins>/packages/query/src/plugin.jsx
-   2. edit &lt;neuPrintExplorerPlugins&gt;/packages/query/src/index.js
-      - Add the import line that includes your plugin:
-        - export { default as &lt;PluginName&gt; } from './&lt;PluginName&gt;';
-   3. build the transpiled code.
+      - cp Plugin.jsx &lt;neuPrintExplorer&gt;/plugins/Plugin.jsx
+   2. build the explorer.
+      - cd &lt;path to your neuPrintExplorer checkout&gt;
       - npm run build
-   4. In order to use it without publishing it to npm first, it has to be linked to the core node
-      modules. A more detialed explanation can be found in the [NPM docs](https://docs.npmjs.com/cli/link.html).
-      - npm link
-   5. move into neuPrintExplorer checkout
-      - cd &lt;neuPrintExplorer&gt;
-   6. link the updated plugins into the explorer
-      - npm link @neuprint/queries
-   7. rebuild neuPrintExplorer
-      - npm run build
+
+The process for installing View plugins is almost identical. Just change the directory
+that the files are placed in to the view-plugins directory in neuPrintExplorer.
 
 
 ###  Testing the plugin.
@@ -71,3 +62,10 @@ the site to see it in action. Additionally, you can leverage the
 An example of this can be seen in the example test file at:
 
       packages/query/src/Example.test.js
+
+
+### Contributing a core plugin.
+
+Once you are happy that your plugin is working as intended, you can issue a
+[pull request](https://help.github.com/articles/about-pull-requests/) to have the plugin included
+in the core @neuprint/plugins package and it will be reviewed by the core team.
