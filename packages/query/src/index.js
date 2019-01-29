@@ -12,3 +12,4 @@ export { default as ROIConnectivity } from './ROIConnectivity';
 export { default as ROIsIntersectingNeurons } from './ROIsIntersectingNeurons';
 export { default as ShortestPath } from './ShortestPath';
 export { default as SimpleConnections } from './SimpleConnections';
+export { default as ConnectivityGraph } from './ConnectivityGraph';
