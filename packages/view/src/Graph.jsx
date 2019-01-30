@@ -3,6 +3,11 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Cytoscape from './Cytoscape';
 
+// TODO: save positions of adjusted graph when user switches tabs
+// TODO: explore other positioning algorithms
+// TODO: ability to click neuron to view meta info?
+// TODO: colors for rois??
+
 const styles = () => ({});
 
 const Graph = props => {
@@ -43,21 +48,22 @@ const Graph = props => {
       selector: 'node',
       style: {
         'background-color': '#666',
-        label: 'data(id)',
+        label: 'data(label)',
         'text-halign': 'center',
         'text-valign': 'bottom',
+        'font-size': '1em',
+        'text-wrap': 'wrap',
         height: 30,
-        width: 30,
-        'font-size': '1.5em'
+        width: 30
       }
     },
     {
       selector: 'edge',
       style: {
         width: `mapData(label,${minWeight},${maxWeight},1,10)`,
-        'line-color': '#ffaaaa',
+        'line-color': '#ff5959',
         'curve-style': 'bezier',
-        'target-arrow-color': '#ffaaaa',
+        'target-arrow-color': '#ff5959',
         'target-arrow-shape': 'triangle',
         label: 'data(label)',
         'font-size': '1em'

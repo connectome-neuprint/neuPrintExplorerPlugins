@@ -13,22 +13,16 @@ import TextField from '@material-ui/core/TextField';
 const pluginName = 'ConnectivityGraph';
 const pluginAbbrev = 'cg';
 
+// TODO: add colors based on similar name?
+
 const styles = theme => ({
-  textField: {
-    margin: 4,
-    display: 'block',
-    marginLeft: 'auto',
-    marginRight: 'auto'
-  },
   formControl: {
-    margin: theme.spacing.unit
-  },
-  select: {
-    fontFamily: theme.typography.fontFamily,
-    margin: '0.5em 0 1em 0'
+    marginBottom: theme.spacing.unit,
+    marginTop: theme.spacing.unit,
+    maxWidth: 400,
+    display: 'block'
   },
   button: {
-    margin: 4,
     display: 'block'
   },
   clickable: {
@@ -59,37 +53,52 @@ class ConnectivityGraph extends React.Component {
 
   processResults = (query, apiResponse) => {
     const { actions } = this.props;
-    const nodes = query.parameters.bodyIds.map(bodyId => ({ data: { id: bodyId } }));
-    const { includeAutapses = true } = actions.getQueryObject(pluginAbbrev);
+    const { includeAutapses = true, minWeight = 1 } = actions.getQueryObject(pluginAbbrev);
 
-    let maxWeight;
-    let minWeight;
+    let maxObsWeight;
+    let minObsWeight;
 
-    const edges = apiResponse.data
-      .filter(row => {
-        if (!includeAutapses) {
-          return row[2] > 5 && row[1] !== row[0];
-        }
-        return row[2] > 5;
-      })
-      .map(row => {
-        const start = row[0];
-        const end = row[1];
-        const weight = row[2];
+    const edges = [];
+    const bodyIdToName = {};
 
-        if (maxWeight === undefined || maxWeight < weight) {
-          maxWeight = weight;
-        }
-        if (minWeight === undefined || minWeight > weight) {
-          minWeight = weight;
-        }
+    apiResponse.data.forEach(row => {
+      const start = row[0];
+      const end = row[1];
+      const weight = row[2];
+      const startName = row[3];
+      const endName = row[4];
 
-        return { data: { source: start, target: end, label: weight, classes: 'autorotate' } };
-      });
+      if (maxObsWeight === undefined || maxObsWeight < weight) {
+        maxObsWeight = weight;
+      }
+      if (minObsWeight === undefined || minObsWeight > weight) {
+        minObsWeight = weight;
+      }
+      if ((includeAutapses || start !== end) && weight > minWeight) {
+        edges.push({
+          data: { source: start, target: end, label: weight, classes: 'autorotate' }
+        });
+      }
+
+      if (!bodyIdToName[start]) {
+        bodyIdToName[start] = startName;
+      }
+      if (!bodyIdToName[end]) {
+        bodyIdToName[end] = endName;
+      }
+    });
+
+    const nodes = query.parameters.bodyIds.map(bodyId => {
+      const label =
+        bodyIdToName[bodyId] && bodyIdToName[bodyId] !== null
+          ? `${bodyIdToName[bodyId]}\n(${bodyId})`
+          : bodyId;
+      return { data: { id: bodyId, label } };
+    });
 
     return {
       columns: [],
-      data: { nodes, edges, minWeight, maxWeight },
+      data: { nodes, edges, minWeight: minObsWeight, maxWeight: maxObsWeight },
       debug: apiResponse.debug
     };
   };
@@ -131,6 +140,15 @@ class ConnectivityGraph extends React.Component {
     });
   };
 
+  handleMinWeightChange = event => {
+    const { actions } = this.props;
+    actions.setQueryString({
+      [pluginAbbrev]: {
+        minWeight: event.target.value
+      }
+    });
+  };
+
   toggleAutapses = () => {
     const { actions } = this.props;
     const { includeAutapses } = actions.getQueryObject(pluginAbbrev);
@@ -151,7 +169,9 @@ class ConnectivityGraph extends React.Component {
 
   render() {
     const { isQuerying, classes, actions } = this.props;
-    const { bodyIds = '', includeAutapses = true } = actions.getQueryObject(pluginAbbrev);
+    const { bodyIds = '', includeAutapses = true, minWeight = 1 } = actions.getQueryObject(
+      pluginAbbrev
+    );
 
     return (
       <div>
@@ -160,6 +180,7 @@ class ConnectivityGraph extends React.Component {
             label="Neuron bodyIds"
             multiline
             fullWidth
+            margin="dense"
             rows={1}
             value={bodyIds}
             name="bodyIds"
@@ -167,6 +188,17 @@ class ConnectivityGraph extends React.Component {
             helperText="Separate ids with commas."
             onChange={this.addNeuronBodyIds}
             onKeyDown={this.catchReturn}
+          />
+        </FormControl>
+        <FormControl className={classes.formControl}>
+          <TextField
+            label="minimum weight"
+            type="number"
+            margin="dense"
+            rows={1}
+            value={minWeight}
+            rowsMax={1}
+            onChange={this.handleMinWeightChange}
           />
         </FormControl>
         <FormControl className={classes.formControl}>
