@@ -10,34 +10,21 @@ import Cytoscape from './Cytoscape';
 
 const styles = () => ({});
 
-const Graph = props => {
+function areEqual(prevProps, nextProps) {
+  if (prevProps.query.result.data === nextProps.query.result.data) {
+    return true;
+  }
+  return false;
+}
+
+const Graph = React.memo(props => {
   const { query } = props;
 
   let elements;
   const minWeight = query.result.data.minWeight ? query.result.data.minWeight : 1;
   const maxWeight = query.result.data.maxWeight ? query.result.data.maxWeight : 1;
   if (query.result.data === undefined) {
-    elements = {
-      nodes: [
-        { data: { id: 'cat' } },
-        { data: { id: 'bird' } },
-        { data: { id: 'ladybug' } },
-        { data: { id: 'aphid' } },
-        { data: { id: 'rose' } },
-        { data: { id: 'grasshopper' } },
-        { data: { id: 'plant' } },
-        { data: { id: 'wheat' } }
-      ],
-      edges: [
-        { data: { source: 'cat', target: 'bird' } },
-        { data: { source: 'bird', target: 'ladybug' } },
-        { data: { source: 'bird', target: 'grasshopper' } },
-        { data: { source: 'grasshopper', target: 'plant' } },
-        { data: { source: 'grasshopper', target: 'wheat' } },
-        { data: { source: 'ladybug', target: 'aphid' } },
-        { data: { source: 'aphid', target: 'rose' } }
-      ]
-    };
+    elements = {};
   } else {
     elements = { nodes: query.result.data.nodes, edges: query.result.data.edges };
   }
@@ -89,7 +76,7 @@ const Graph = props => {
       }}
     />
   );
-};
+}, areEqual);
 
 Graph.propTypes = {
   query: PropTypes.object.isRequired
