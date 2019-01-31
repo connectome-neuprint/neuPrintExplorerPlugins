@@ -67,45 +67,49 @@ class ShortestPath extends React.Component {
     let maxObsWeight;
     let minObsWeight;
 
-    const nodes = [];
-    const edges = [];
+    const foundNodes = {};
+    const foundEdges = {};
 
     const startId = apiResponse.data[0][1][0][0];
     const startName = apiResponse.data[0][1][0][1];
     const startNode = {
-      data: { id: startId, label: startName !== null ? `${startName}\n(${startId})` : startId }
+      id: startId,
+      label: startName !== null ? `${startName}\n(${startId})` : startId
     };
+    foundNodes[startId] = startNode;
 
     const endId = apiResponse.data[0][1][apiResponse.data[0][1].length - 1][0];
     const endName = apiResponse.data[0][1][apiResponse.data[0][1].length - 1][1];
     const endNode = {
-      data: { id: endId, label: endName !== null ? `${endName}\n(${endId})` : endId }
+      id: endId,
+      label: endName !== null ? `${endName}\n(${endId})` : endId
     };
-
-    nodes.push(startNode, endNode);
+    foundNodes[endId] = endNode;
 
     apiResponse.data.forEach(path => {
-      const pathIdList = path[1].filter((id, index) => index > 0 && index < path[1].length - 1);
+      const pathIdList = path[1].filter((_, index) => index > 0 && index < path[1].length - 1);
       const weightList = path[2];
 
       pathIdList.forEach(node => {
-        nodes.push({
-          data: {
-            id: node[0],
-            label: node[1] !== null ? `${node[1]}\n(${node[0]})` : node[0]
-          }
-        });
+        const id = node[0];
+        const name = node[1];
+        foundNodes[id] = {
+          id,
+          label: name !== null ? `${name}\n(${id})` : id
+        };
       });
 
       weightList.forEach((weight, index) => {
-        edges.push({
-          data: {
-            source: path[1][index][0],
-            target: path[1][index + 1][0],
-            label: weight,
-            classes: 'autorotate'
-          }
-        });
+        const source = path[1][index][0];
+        const target = path[1][index + 1][0];
+        const key = `${source}:${target}`;
+        foundEdges[key] = {
+          source,
+          target,
+          label: weight,
+          classes: 'autorotate'
+        };
+
         if (maxObsWeight === undefined || maxObsWeight < weight) {
           maxObsWeight = weight;
         }
@@ -113,6 +117,16 @@ class ShortestPath extends React.Component {
           minObsWeight = weight;
         }
       });
+    });
+
+    const nodes = [];
+    const edges = [];
+
+    Object.keys(foundNodes).forEach(node => {
+      nodes.push({ data: foundNodes[node] });
+    });
+    Object.keys(foundEdges).forEach(edge => {
+      edges.push({ data: foundEdges[edge] });
     });
 
     return {
