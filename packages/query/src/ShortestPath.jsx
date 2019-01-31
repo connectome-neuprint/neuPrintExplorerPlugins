@@ -1,6 +1,8 @@
 /*
  * Query to find shortest path between two neurons.
  */
+
+// TODO: add graph viz and change to all shortest paths
 import React from 'react';
 import PropTypes from 'prop-types';
 import randomColor from 'randomcolor';
@@ -34,17 +36,12 @@ const pluginName = 'ShortestPath';
 const pluginAbbrev = 'sp';
 
 class ShortestPath extends React.Component {
-
   static get queryName() {
-    return 'Shortest path';
-  }
-
-  static get queryCategory() {
-    return 'recon';
+    return 'Shortest paths';
   }
 
   static get queryDescription() {
-    return 'Find all neurons along the shortest path between two neurons.';
+    return 'Find all neurons along the shortest paths between two neurons.';
   }
 
   static get queryAbbreviation() {
@@ -56,11 +53,61 @@ class ShortestPath extends React.Component {
   }
 
   processResults = (query, apiResponse) => {
-    const data = apiResponse.data.map(row => [row[0], row[1], row[2], row[3], row[4]]);
+    let maxObsWeight;
+    let minObsWeight;
+
+    const nodes = [];
+    const edges = [];
+
+    const startId = apiResponse.data[0][1][0][0];
+    const startName = apiResponse.data[0][1][0][1];
+    const startNode = {
+      data: { id: startId, label: startName !== null ? `${startName}\n(${startId})` : startId }
+    };
+
+    const endId = apiResponse.data[0][1][apiResponse.data[0][1].length - 1][0];
+    const endName = apiResponse.data[0][1][apiResponse.data[0][1].length - 1][1];
+    const endNode = {
+      data: { id: endId, label: endName !== null ? `${endName}\n(${endId})` : endId }
+    };
+
+    nodes.push(startNode, endNode);
+
+    apiResponse.data.forEach(path => {
+      const pathIdList = path[1].filter((id, index) => index > 0 && index < path[1].length - 1);
+      const weightList = path[2];
+
+      pathIdList.forEach(node => {
+        nodes.push({
+          data: {
+            id: node[0],
+            label: node[1] !== null ? `${node[1]}\n(${node[0]})` : node[0]
+          }
+        });
+      });
+
+      weightList.forEach((weight, index) => {
+        edges.push({
+          data: {
+            source: path[1][index][0],
+            target: path[1][index + 1][0],
+            label: weight,
+            classes: 'autorotate'
+          }
+        });
+        if (maxObsWeight === undefined || maxObsWeight < weight) {
+          maxObsWeight = weight;
+        }
+        if (minObsWeight === undefined || minObsWeight > weight) {
+          minObsWeight = weight;
+        }
+      });
+    });
 
     return {
-      columns: ['bodyId', 'name', 'status', '#pre', '#post'],
-      data,
+      columns: ['length(path)', 'ids', 'weights'],
+      data: apiResponse.data,
+      graph: { elements: { nodes, edges }, minWeight: minObsWeight, maxWeight: maxObsWeight },
       debug: apiResponse.debug
     };
   };
@@ -70,11 +117,11 @@ class ShortestPath extends React.Component {
     const { dataSet, actions, history } = this.props;
     const { bodyId1 = '', bodyId2 = '', minWeight = 0 } = actions.getQueryObject(pluginAbbrev);
 
-    const shortestPathQuery = `MATCH path=shortestPath((a:\`${dataSet}-Neuron\`{bodyId:${bodyId1}})-[r:ConnectsTo*]-(b:\`${dataSet}-Neuron\`{bodyId:${bodyId2}})) WHERE all(rs in r WHERE rs.weight>=${minWeight}) WITH nodes(path) AS ns UNWIND ns AS n RETURN n.bodyId, n.name, n.status, n.pre, n.post`;
+    const shortestPathQuery = `MATCH path=allShortestPaths((a:\`${dataSet}-Neuron\`{bodyId:${bodyId1}})-[r:ConnectsTo*]->(b:\`${dataSet}-Neuron\`{bodyId:${bodyId2}})) WHERE all(rs in r WHERE rs.weight>=${minWeight}) WITH extract(n IN nodes(path) | [n.bodyId,n.name]) AS ids,extract(rst IN rels(path) | rst.weight) AS weights, path RETURN length(path), ids, weights`;
     const query = {
       dataSet,
       cypherQuery: shortestPathQuery,
-      visType: 'SimpleTable',
+      visType: 'Graph',
       plugin: pluginName,
       parameters: { dataset: dataSet },
       title: `Neurons along path between ${bodyId1} and ${bodyId2}`,
@@ -109,7 +156,7 @@ class ShortestPath extends React.Component {
 
   addMinWeight = event => {
     const { actions } = this.props;
-    actions.setQuryString({
+    actions.setQueryString({
       [pluginAbbrev]: {
         minWeight: event.target.value
       }
