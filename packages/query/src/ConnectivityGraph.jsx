@@ -35,10 +35,6 @@ class ConnectivityGraph extends React.Component {
     return 'Connectivity graph';
   }
 
-  static get queryCategory() {
-    return 'recon';
-  }
-
   static get queryDescription() {
     return 'View a graph displaying connectivity between neurons.';
   }
