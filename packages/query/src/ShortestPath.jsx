@@ -53,6 +53,17 @@ class ShortestPath extends React.Component {
   }
 
   processResults = (query, apiResponse) => {
+    const { actions } = this.props;
+
+    if (apiResponse.data.length === 0) {
+      actions.pluginResponseError('No path found.');
+      return {
+        columns: [],
+        data: [],
+        debug: apiResponse.debug
+      };
+    }
+
     let maxObsWeight;
     let minObsWeight;
 
