@@ -19,10 +19,8 @@ function areEqual(prevProps, nextProps) {
 
 const Graph = React.memo(props => {
   const { query } = props;
-
-  const minWeight = query.result.graph.minWeight ? query.result.graph.minWeight : 1;
-  const maxWeight = query.result.graph.maxWeight ? query.result.graph.maxWeight : 1;
-  const { elements = {} } = query.result.graph;
+  const { graph = {} } = query.result;
+  const { elements = { nodes: [], edges: [] }, minWeight = 1, maxWeight = 1 } = graph;
 
   const style = [
     // the stylesheet for the graph
