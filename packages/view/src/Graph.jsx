@@ -11,7 +11,7 @@ import Cytoscape from './Cytoscape';
 const styles = () => ({});
 
 function areEqual(prevProps, nextProps) {
-  if (prevProps.query.result.data === nextProps.query.result.data) {
+  if (prevProps.query.result.graph === nextProps.query.result.graph) {
     return true;
   }
   return false;
@@ -20,14 +20,9 @@ function areEqual(prevProps, nextProps) {
 const Graph = React.memo(props => {
   const { query } = props;
 
-  let elements;
-  const minWeight = query.result.data.minWeight ? query.result.data.minWeight : 1;
-  const maxWeight = query.result.data.maxWeight ? query.result.data.maxWeight : 1;
-  if (query.result.data === undefined) {
-    elements = {};
-  } else {
-    elements = { nodes: query.result.data.nodes, edges: query.result.data.edges };
-  }
+  const minWeight = query.result.graph.minWeight ? query.result.graph.minWeight : 1;
+  const maxWeight = query.result.graph.maxWeight ? query.result.graph.maxWeight : 1;
+  const { elements = {} } = query.result.graph;
 
   const style = [
     // the stylesheet for the graph

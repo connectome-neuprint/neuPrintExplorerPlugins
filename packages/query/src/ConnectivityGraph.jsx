@@ -97,8 +97,9 @@ class ConnectivityGraph extends React.Component {
     });
 
     return {
-      columns: [],
-      data: { nodes, edges, minWeight: minObsWeight, maxWeight: maxObsWeight },
+      columns: ['start', 'end', 'weight', 'startName', 'endName'],
+      data: apiResponse.data,
+      graph: { elements: { nodes, edges }, minWeight: minObsWeight, maxWeight: maxObsWeight },
       debug: apiResponse.debug
     };
   };
