@@ -35,7 +35,7 @@ const styles = theme => ({
 const pluginName = 'ShortestPath';
 const pluginAbbrev = 'sp';
 
-class ShortestPath extends React.Component {
+export class ShortestPath extends React.Component {
   static get queryName() {
     return 'Shortest paths';
   }
@@ -58,8 +58,8 @@ class ShortestPath extends React.Component {
     if (apiResponse.data.length === 0) {
       actions.pluginResponseError('No path found.');
       return {
-        columns: [],
-        data: [],
+        columns: apiResponse.columns,
+        data: apiResponse.data,
         debug: apiResponse.debug
       };
     }
@@ -130,7 +130,7 @@ class ShortestPath extends React.Component {
     });
 
     return {
-      columns: ['length(path)', 'ids', 'weights'],
+      columns: apiResponse.columns,
       data: apiResponse.data,
       graph: { elements: { nodes, edges }, minWeight: minObsWeight, maxWeight: maxObsWeight },
       debug: apiResponse.debug
