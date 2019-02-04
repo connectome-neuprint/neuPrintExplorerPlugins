@@ -339,7 +339,7 @@ export class FindNeurons extends React.Component {
         <FormControl fullWidth className={classes.formControl}>
           <NeuronHelp>
             <TextField
-              label="Neuron name (optional)"
+              label="Neuron name or ID (optional)"
               multiline
               rows={1}
               fullWidth
