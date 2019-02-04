@@ -7,6 +7,7 @@
     "pretest": "eslint --ext .jsx,.js src/",
     "test": "jest",
     "test-watch": "jest --watch",
+    "test-debug": "node --inspect node_modules/.bin/jest --runInBand",
     "prebuild": "rimraf build",
     "build": "NODE_ENV=production npx babel ./src --out-dir ./build --ignore '**/*.test.jsx' --ignore '**/*.test.js'",
     "dev": "NODE_ENV=development npx babel ./src --out-dir ./build --ignore '**/*.test.jsx' --ignore '**/*.test.js' --source-maps --watch --verbose",
