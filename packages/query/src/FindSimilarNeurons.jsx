@@ -104,7 +104,6 @@ export class FindSimilarNeurons extends React.Component {
     const shouldShowSimilarityScores = apiResponse.data.length > 1 && parameters.bodyId;
     const singleResult = apiResponse.data.length === 1 && parameters.bodyId;
 
-    // TODO: sublevel rois are not yet determined, need to move column logic to later
     const basicColumns = [
       'bodyId',
       'name',
