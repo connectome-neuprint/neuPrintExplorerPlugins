@@ -187,62 +187,64 @@ export function getBodyIdForTable(dataset, bodyId, hasSkeleton, actions) {
 }
 
 /**
+ *
+ *
+ * @export
+ * @param {Array.<number>} vectorA
+ * @param {Array.<number>} vectorB
+ * @param {number} sumOfVector
+ * @param {number} precision
+ * @returns
+ */
+export function getScore(vectorA, vectorB, sumOfVector, precision) {
+  return math.round(math.sum(math.abs(math.subtract(vectorA, vectorB))) / sumOfVector, precision);
+}
+
+/**
  * Returns similarity scores for two vectors, one for each neuron, representing input/output distribution
  * within ROIs. Distance is defined as sum of absolute differences between the queriedBodyVector and the inputVector.
  * Output contains inputScore, outputScore, and totalScore, which is the average of the two.
  *
  * @export
- * @param {Array<number>} inputVector
- * @param {Array<number>} queriedBodyVector
- * @param {number} totalNumberOfRois
- * @returns {Object<string,number>}
+ * @param {Array.<number>} inputVector
+ * @param {Array.<number>} queriedBodyVector
+ * @returns {Object.<string,number>}
  */
-export function computeSimilarity(inputVector, queriedBodyVector, totalNumberOfRois) {
+export function computeSimilarity(inputVector, queriedBodyVector) {
   if (inputVector === undefined) {
     throw new Error('computeSimilarity: inputVector is not defined.');
   }
   if (queriedBodyVector === undefined) {
     throw new Error('computeSimilarity: queriedBodyVector is not defined.');
   }
-  if (totalNumberOfRois === undefined) {
-    throw new Error('computeSimilarity: totalNumberOfRois is not defined.');
-  }
+  inputVector.forEach(v => {
+    if (Number.isNaN(v)) {
+      throw new Element('computeSimilarity: inputVector contains NaN.');
+    }
+  });
+  queriedBodyVector.forEach(v => {
+    if (Number.isNaN(v)) {
+      throw new Element('computeSimilarity: queriedBodyVector contains NaN.');
+    }
+  });
+
+  const totalNumberOfRois = queriedBodyVector.length / 2;
   // input score (pre)
-  const inputScore = math.round(
-    math.sum(
-      math.abs(
-        math.subtract(
-          queriedBodyVector.slice(totalNumberOfRois),
-          inputVector.slice(totalNumberOfRois)
-        )
-      )
-    ) / 2.0,
+  const inputScore = getScore(
+    queriedBodyVector.slice(totalNumberOfRois),
+    inputVector.slice(totalNumberOfRois),
+    2.0,
     4
   );
   // output score (post)
-  const outputScore = math.round(
-    math.sum(
-      math.abs(
-        math.subtract(
-          queriedBodyVector.slice(0, totalNumberOfRois),
-          inputVector.slice(0, totalNumberOfRois)
-        )
-      )
-    ) / 2.0,
+  const outputScore = getScore(
+    queriedBodyVector.slice(0, totalNumberOfRois),
+    inputVector.slice(0, totalNumberOfRois),
+    2.0,
     4
   );
   // total score
-  let totalScore = math.round(
-    math.sum(math.abs(math.subtract(queriedBodyVector, inputVector))) / 4.0,
-    4
-  );
-
-  if (Number.isNaN(inputScore) && !Number.isNaN(outputScore)) {
-    totalScore = outputScore;
-  } else if (Number.isNaN(outputScore) && !Number.isNaN(inputScore)) {
-    totalScore = inputScore;
-  }
-
+  const totalScore = getScore(queriedBodyVector, inputVector, 4.0, 4);
   return { inputScore, outputScore, totalScore };
 }
 
