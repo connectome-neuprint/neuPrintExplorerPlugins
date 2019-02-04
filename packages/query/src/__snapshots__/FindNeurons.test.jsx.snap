@@ -230,7 +230,7 @@ exports[`find neurons Plugin renders correctly 1`] = `
           className="MuiFormLabel-root-12 MuiInputLabel-root-1 MuiInputLabel-formControl-6 MuiInputLabel-animated-9"
           data-shrink={false}
         >
-          Neuron name (optional)
+          Neuron name or ID (optional)
         </label>
         <div
           className="MuiInputBase-root-37 MuiInput-root-24 MuiInput-underline-28 MuiInputBase-fullWidth-46 MuiInput-fullWidth-31 MuiInputBase-formControl-38 MuiInput-formControl-25 MuiInputBase-multiline-45 MuiInput-multiline-30"
