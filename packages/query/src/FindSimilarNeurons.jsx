@@ -574,7 +574,7 @@ export class FindSimilarNeurons extends React.Component {
       <div>
         <FormControl fullWidth className={classes.formControl}>
           <TextField
-            label="Neuron bodyId"
+            label="Neuron ID"
             multiline
             fullWidth
             rows={1}

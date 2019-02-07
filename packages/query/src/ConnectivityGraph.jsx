@@ -174,7 +174,7 @@ class ConnectivityGraph extends React.Component {
       <div>
         <FormControl fullWidth className={classes.formControl}>
           <TextField
-            label="Neuron bodyIds"
+            label="Neuron IDs"
             multiline
             fullWidth
             margin="dense"
@@ -182,7 +182,7 @@ class ConnectivityGraph extends React.Component {
             value={bodyIds}
             name="bodyIds"
             rowsMax={4}
-            helperText="Separate ids with commas."
+            helperText="Separate IDs with commas."
             onChange={this.addNeuronBodyIds}
             onKeyDown={this.catchReturn}
           />

@@ -196,7 +196,7 @@ export class ShortestPath extends React.Component {
       <div>
         <FormControl fullWidth className={classes.formControl}>
           <TextField
-            label="Body ID A"
+            label="Neuron ID A"
             multiline
             fullWidth
             rows={1}
@@ -206,7 +206,7 @@ export class ShortestPath extends React.Component {
             onChange={this.addBodyId1}
           />
           <TextField
-            label="Body ID B"
+            label="Neuron ID B"
             multiline
             fullWidth
             rows={1}

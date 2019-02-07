@@ -63,7 +63,7 @@ class CommonConnectivity extends React.Component {
     const connectionArray = apiResponse.data[0][0];
 
     const columns = [
-      `${queryKey[0].toUpperCase() + queryKey.substring(1)} BodyId`,
+      `${queryKey[0].toUpperCase() + queryKey.substring(1)} ID`,
       `${queryKey[0].toUpperCase() + queryKey.substring(1)} Name`
     ];
 
@@ -205,14 +205,14 @@ class CommonConnectivity extends React.Component {
       <div>
         <FormControl fullWidth className={classes.formControl}>
           <TextField
-            label="Neuron bodyIds"
+            label="Neuron IDs"
             multiline
             fullWidth
             rows={1}
             value={bodyIds}
             name="bodyIds"
             rowsMax={4}
-            helperText="Separate ids with commas."
+            helperText="Separate IDs with commas."
             onChange={this.addNeuronBodyIds}
             onKeyDown={this.catchReturn}
           />
