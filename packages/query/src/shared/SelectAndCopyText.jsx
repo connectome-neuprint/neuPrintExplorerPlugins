@@ -43,7 +43,7 @@ export default class SelectAndCopyText extends React.Component {
         role="link"
         style={
           hover
-            ? { backgroundColor: '#325f95', color: 'white', outline: 'none' }
+            ? { backgroundColor: '#4085f7', color: 'white', outline: 'none' }
             : { backgroundColor: 'transparent', outline: 'none' }
         }
       >
