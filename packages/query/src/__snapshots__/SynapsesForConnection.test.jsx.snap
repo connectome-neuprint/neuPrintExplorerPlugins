@@ -1,111 +1,119 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`synapses for connection Plugin renders correctly 1`] = `
-<div
-  className="MuiFormControl-root-1"
->
+<div>
   <div
-    className="MuiFormControl-root-1 MuiFormControl-fullWidth-4"
+    className="MuiFormControl-root-1"
   >
-    <label
-      className="MuiFormLabel-root-16 MuiInputLabel-root-5 MuiInputLabel-formControl-10 MuiInputLabel-animated-13"
-      data-shrink={false}
-    >
-      Neuron ID A
-    </label>
     <div
-      className="MuiInputBase-root-36 MuiInput-root-23 MuiInput-underline-27 MuiInputBase-fullWidth-45 MuiInput-fullWidth-30 MuiInputBase-formControl-37 MuiInput-formControl-24 MuiInputBase-multiline-44 MuiInput-multiline-29"
-      onClick={[Function]}
+      className="MuiFormControl-root-1 MuiFormControl-fullWidth-4"
     >
-      <div
-        className="MuiPrivateTextarea-root-53"
+      <label
+        className="MuiFormLabel-root-16 MuiInputLabel-root-5 MuiInputLabel-formControl-10 MuiInputLabel-animated-13"
+        data-shrink={false}
       >
-        <textarea
-          aria-hidden="true"
-          className="MuiPrivateTextarea-textarea-54 MuiPrivateTextarea-shadow-55"
-          readOnly={true}
-          rows="1"
-          tabIndex={-1}
-          value=""
-        />
-        <textarea
-          aria-hidden="true"
-          className="MuiPrivateTextarea-textarea-54 MuiPrivateTextarea-shadow-55"
-          readOnly={true}
-          rows={1}
-          tabIndex={-1}
-          value=""
-        />
-        <textarea
-          aria-invalid={false}
-          className="MuiPrivateTextarea-textarea-54 MuiInputBase-input-46 MuiInput-input-31 MuiInputBase-inputMultiline-48 MuiInput-inputMultiline-33"
-          disabled={false}
-          onBlur={[Function]}
-          onChange={[Function]}
-          onFocus={[Function]}
-          required={false}
-          rows={1}
-          style={
-            Object {
-              "height": 19,
+        Neuron ID A
+      </label>
+      <div
+        className="MuiInputBase-root-36 MuiInput-root-23 MuiInput-underline-27 MuiInputBase-fullWidth-45 MuiInput-fullWidth-30 MuiInputBase-formControl-37 MuiInput-formControl-24 MuiInputBase-multiline-44 MuiInput-multiline-29"
+        onClick={[Function]}
+      >
+        <div
+          className="MuiPrivateTextarea-root-53"
+        >
+          <textarea
+            aria-hidden="true"
+            className="MuiPrivateTextarea-textarea-54 MuiPrivateTextarea-shadow-55"
+            readOnly={true}
+            rows="1"
+            tabIndex={-1}
+            value=""
+          />
+          <textarea
+            aria-hidden="true"
+            className="MuiPrivateTextarea-textarea-54 MuiPrivateTextarea-shadow-55"
+            readOnly={true}
+            rows={1}
+            tabIndex={-1}
+            value=""
+          />
+          <textarea
+            aria-invalid={false}
+            className="MuiPrivateTextarea-textarea-54 MuiInputBase-input-46 MuiInput-input-31 MuiInputBase-inputMultiline-48 MuiInput-inputMultiline-33"
+            disabled={false}
+            onBlur={[Function]}
+            onChange={[Function]}
+            onFocus={[Function]}
+            required={false}
+            rows={1}
+            style={
+              Object {
+                "height": 19,
+              }
             }
-          }
-          value=""
-        />
+            value=""
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      className="MuiFormControl-root-1 MuiFormControl-fullWidth-4"
+    >
+      <label
+        className="MuiFormLabel-root-16 MuiInputLabel-root-5 MuiInputLabel-formControl-10 MuiInputLabel-animated-13"
+        data-shrink={false}
+      >
+        Neuron ID B
+      </label>
+      <div
+        className="MuiInputBase-root-36 MuiInput-root-23 MuiInput-underline-27 MuiInputBase-fullWidth-45 MuiInput-fullWidth-30 MuiInputBase-formControl-37 MuiInput-formControl-24 MuiInputBase-multiline-44 MuiInput-multiline-29"
+        onClick={[Function]}
+      >
+        <div
+          className="MuiPrivateTextarea-root-53"
+        >
+          <textarea
+            aria-hidden="true"
+            className="MuiPrivateTextarea-textarea-54 MuiPrivateTextarea-shadow-55"
+            readOnly={true}
+            rows="1"
+            tabIndex={-1}
+            value=""
+          />
+          <textarea
+            aria-hidden="true"
+            className="MuiPrivateTextarea-textarea-54 MuiPrivateTextarea-shadow-55"
+            readOnly={true}
+            rows={1}
+            tabIndex={-1}
+            value=""
+          />
+          <textarea
+            aria-invalid={false}
+            className="MuiPrivateTextarea-textarea-54 MuiInputBase-input-46 MuiInput-input-31 MuiInputBase-inputMultiline-48 MuiInput-inputMultiline-33"
+            disabled={false}
+            onBlur={[Function]}
+            onChange={[Function]}
+            onFocus={[Function]}
+            required={false}
+            rows={1}
+            style={
+              Object {
+                "height": 19,
+              }
+            }
+            value=""
+          />
+        </div>
       </div>
     </div>
   </div>
-  <div
-    className="MuiFormControl-root-1 MuiFormControl-fullWidth-4"
+  <label
+    className="MuiFormLabel-root-16 MuiInputLabel-root-5 MuiInputLabel-animated-13"
+    htmlFor="select-multiple-chip"
   >
-    <label
-      className="MuiFormLabel-root-16 MuiInputLabel-root-5 MuiInputLabel-formControl-10 MuiInputLabel-animated-13"
-      data-shrink={false}
-    >
-      Neuron ID B
-    </label>
-    <div
-      className="MuiInputBase-root-36 MuiInput-root-23 MuiInput-underline-27 MuiInputBase-fullWidth-45 MuiInput-fullWidth-30 MuiInputBase-formControl-37 MuiInput-formControl-24 MuiInputBase-multiline-44 MuiInput-multiline-29"
-      onClick={[Function]}
-    >
-      <div
-        className="MuiPrivateTextarea-root-53"
-      >
-        <textarea
-          aria-hidden="true"
-          className="MuiPrivateTextarea-textarea-54 MuiPrivateTextarea-shadow-55"
-          readOnly={true}
-          rows="1"
-          tabIndex={-1}
-          value=""
-        />
-        <textarea
-          aria-hidden="true"
-          className="MuiPrivateTextarea-textarea-54 MuiPrivateTextarea-shadow-55"
-          readOnly={true}
-          rows={1}
-          tabIndex={-1}
-          value=""
-        />
-        <textarea
-          aria-invalid={false}
-          className="MuiPrivateTextarea-textarea-54 MuiInputBase-input-46 MuiInput-input-31 MuiInputBase-inputMultiline-48 MuiInput-inputMultiline-33"
-          disabled={false}
-          onBlur={[Function]}
-          onChange={[Function]}
-          onFocus={[Function]}
-          required={false}
-          rows={1}
-          style={
-            Object {
-              "height": 19,
-            }
-          }
-          value=""
-        />
-      </div>
-    </div>
-  </div>
+    ROIs
+  </label>
   <div
     className="css-10nd86i [object Object]"
     onKeyDown={[Function]}

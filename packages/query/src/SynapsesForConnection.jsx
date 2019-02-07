@@ -7,6 +7,7 @@ import randomColor from 'randomcolor';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
 import { withStyles } from '@material-ui/core/styles';
 import { round } from 'mathjs';
 import Select from 'react-select';
@@ -23,7 +24,7 @@ const styles = theme => ({
     margin: 4,
     display: 'block'
   },
-  formControl: {},
+  formControl: { display: 'block' },
   select: {
     fontFamily: theme.typography.fontFamily,
     margin: '0.5em 0 1em 0'
@@ -179,27 +180,30 @@ export class SynapsesForConnection extends React.Component {
     }));
 
     return (
-      <FormControl className={classes.formControl}>
-        <TextField
-          label="Neuron ID A"
-          multiline
-          fullWidth
-          rows={1}
-          value={bodyId1}
-          rowsMax={1}
-          className={classes.textField}
-          onChange={this.addBodyId1}
-        />
-        <TextField
-          label="Neuron ID B"
-          multiline
-          fullWidth
-          rows={1}
-          value={bodyId2}
-          rowsMax={1}
-          className={classes.textField}
-          onChange={this.addBodyId2}
-        />
+      <div>
+        <FormControl className={classes.formControl}>
+          <TextField
+            label="Neuron ID A"
+            multiline
+            fullWidth
+            rows={1}
+            value={bodyId1}
+            rowsMax={1}
+            className={classes.textField}
+            onChange={this.addBodyId1}
+          />
+          <TextField
+            label="Neuron ID B"
+            multiline
+            fullWidth
+            rows={1}
+            value={bodyId2}
+            rowsMax={1}
+            className={classes.textField}
+            onChange={this.addBodyId2}
+          />
+        </FormControl>
+        <InputLabel htmlFor="select-multiple-chip">ROIs</InputLabel>
         <Select
           className={classes.select}
           isMulti
@@ -217,7 +221,7 @@ export class SynapsesForConnection extends React.Component {
         >
           Submit
         </Button>
-      </FormControl>
+      </div>
     );
   }
 }
