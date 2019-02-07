@@ -103,6 +103,14 @@ class SimpleTable extends React.Component {
     };
   }
 
+  shouldComponentUpdate(nextProps) {
+    const { query } = this.props;
+    if (nextProps.query.result === query.result) {
+      return false;
+    }
+    return true;
+  }
+
   handleChangePage = (event, page) => {
     this.setState({ page });
   };
