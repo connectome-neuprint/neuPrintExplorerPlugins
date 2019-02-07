@@ -4,6 +4,7 @@ import Icon from '@material-ui/core/Icon';
 import * as math from 'mathjs';
 import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
 import RoiBarGraph from '../visualization/MiniRoiBarGraph';
+import SelectAndCopyText from './SelectAndCopyText';
 
 /**
  * Launches actions for opening the skeleton viewer and neuroglancer.
@@ -159,6 +160,7 @@ export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, 
  * @returns {Object}
  */
 export function getBodyIdForTable(dataset, bodyId, hasSkeleton, actions) {
+  const selectableId = <SelectAndCopyText text={bodyId} actions={actions} />;
   return {
     value: hasSkeleton ? (
       <div
@@ -167,7 +169,7 @@ export function getBodyIdForTable(dataset, bodyId, hasSkeleton, actions) {
           flexDirection: 'row'
         }}
       >
-        {bodyId}
+        {selectableId}
         <div style={{ margin: '3px' }} />
         <Icon
           style={{
@@ -180,7 +182,7 @@ export function getBodyIdForTable(dataset, bodyId, hasSkeleton, actions) {
         </Icon>
       </div>
     ) : (
-      bodyId
+      selectableId
     ),
     sortBy: bodyId
   };
