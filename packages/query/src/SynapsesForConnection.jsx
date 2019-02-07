@@ -41,6 +41,10 @@ export class SynapsesForConnection extends React.Component {
     return 'Retrieves synapses involved in a connection.';
   }
 
+  static get isExperimental() {
+    return true;
+  }
+
   static get queryAbbreviation() {
     return pluginAbbrev;
   }
