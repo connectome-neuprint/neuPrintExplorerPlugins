@@ -13,7 +13,7 @@ exports[`find similar neurons Plugin renders correctly 1`] = `
         className="MuiFormLabel-root-16 MuiInputLabel-root-5 MuiInputLabel-formControl-10 MuiInputLabel-animated-13"
         data-shrink={false}
       >
-        Neuron bodyId
+        Neuron ID
       </label>
       <div
         className="MuiInputBase-root-36 MuiInput-root-23 MuiInput-underline-27 MuiInputBase-fullWidth-45 MuiInput-fullWidth-30 MuiInputBase-formControl-37 MuiInput-formControl-24 MuiInputBase-multiline-44 MuiInput-multiline-29"

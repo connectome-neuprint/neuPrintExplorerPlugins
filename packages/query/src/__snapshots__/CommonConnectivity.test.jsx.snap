@@ -13,7 +13,7 @@ exports[`Common Connectivity Plugin renders correct defaults should render 1`] =
         className="MuiFormLabel-root-18 MuiInputLabel-root-7 MuiInputLabel-formControl-12 MuiInputLabel-animated-15"
         data-shrink={false}
       >
-        Neuron bodyIds
+        Neuron IDs
       </label>
       <div
         className="MuiInputBase-root-38 MuiInput-root-25 MuiInput-underline-29 MuiInputBase-fullWidth-47 MuiInput-fullWidth-32 MuiInputBase-formControl-39 MuiInput-formControl-26 MuiInputBase-multiline-46 MuiInput-multiline-31"
@@ -60,7 +60,7 @@ exports[`Common Connectivity Plugin renders correct defaults should render 1`] =
       <p
         className="MuiFormHelperText-root-58"
       >
-        Separate ids with commas.
+        Separate IDs with commas.
       </p>
     </div>
   </div>
