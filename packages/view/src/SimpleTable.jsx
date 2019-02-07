@@ -103,9 +103,9 @@ class SimpleTable extends React.Component {
     };
   }
 
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps, nextState) {
     const { query } = this.props;
-    if (nextProps.query.result === query.result) {
+    if (nextProps.query.result === query.result && nextState === this.state) {
       return false;
     }
     return true;
