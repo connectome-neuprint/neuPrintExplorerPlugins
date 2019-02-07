@@ -4,11 +4,14 @@ let wrapper;
 let button;
 let bodyAField;
 let bodyBField;
+let roiSelect;
+
 const emptyApiResponse = {
   columns: ['s.type', 's.location.x', 's.location.y', 's.location.z', 's.confidence', 'keys(s)'],
   data: [],
   debug: 'test'
 };
+const query = { parameters: { bodyId1: '123456', bodyId2: '645321', rois: [] } };
 const apiResponse = {
   columns: ['s.type', 's.location.x', 's.location.y', 's.location.z', 's.confidence', 'keys(s)'],
   data: [
@@ -53,6 +56,7 @@ describe('synapses for connection Plugin', () => {
     button = wrapper.find('Button');
     bodyAField = wrapper.find('TextField').at(0);
     bodyBField = wrapper.find('TextField').at(1);
+    roiSelect = wrapper.find('Select');
   });
   beforeEach(() => {
     actions.submit.mockClear();
@@ -79,13 +83,31 @@ describe('synapses for connection Plugin', () => {
           cypherQuery: synapsesForConnectionQuery,
           visType: 'SimpleTable',
           plugin: 'SynapsesForConnection',
-          parameters: {},
+          parameters: query.parameters,
           title: expect.any(String),
           menuColor: expect.any(String),
           processResults: expect.any(Function)
         })
       );
       expect(actions.submit).toHaveBeenCalledTimes(1);
+
+      roiSelect.props().onChange([{ value: 'roi1' }, { value: 'roi2' }]);
+      const synapsesForConnectionQueryWithRois =
+        'MATCH (a:`test-Neuron`{bodyId:123456})<-[:From]-(c:ConnectionSet)-[:To]->(b{bodyId:645321}), (c)-[:Contains]->(s:Synapse) WHERE (exists(s.`roi1`) AND exists(s.`roi2`)) RETURN s.type, s.location.x ,s.location.y ,s.location.z, s.confidence, keys(s)';
+
+      expect(button.props().onClick()).toEqual(
+        expect.objectContaining({
+          dataSet: 'test',
+          cypherQuery: synapsesForConnectionQueryWithRois,
+          visType: 'SimpleTable',
+          plugin: 'SynapsesForConnection',
+          parameters: { ...query.parameters, rois: ['roi1', 'roi2'] },
+          title: expect.any(String),
+          menuColor: expect.any(String),
+          processResults: expect.any(Function)
+        })
+      );
+      expect(actions.submit).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -100,7 +122,7 @@ describe('synapses for connection Plugin', () => {
       });
     });
     it('should produce object with data rows', () => {
-      const processedResults = wrapper.instance().processResults({}, apiResponse);
+      const processedResults = wrapper.instance().processResults(query, apiResponse);
       const { columns, data, debug } = processedResults;
       expect(columns).toEqual(['type', 'location', 'confidence', 'rois']);
       expect(data[0]).toEqual(['pre', '[1.1,2.1,3.1]', 0.9839, ['roi1', 'roi2']]);

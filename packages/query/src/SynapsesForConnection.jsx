@@ -9,11 +9,12 @@ import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import { withStyles } from '@material-ui/core/styles';
 import { round } from 'mathjs';
+import Select from 'react-select';
 import { setColumnIndices } from './shared/pluginhelpers';
 
 const pluginName = 'SynapsesForConnection';
 
-const styles = () => ({
+const styles = theme => ({
   textField: {
     width: 300,
     margin: '0 0 1em 0'
@@ -22,7 +23,11 @@ const styles = () => ({
     margin: 4,
     display: 'block'
   },
-  formControl: {}
+  formControl: {},
+  select: {
+    fontFamily: theme.typography.fontFamily,
+    margin: '0.5em 0 1em 0'
+  }
 });
 
 const pluginAbbrev = 'sfc';
@@ -42,13 +47,26 @@ export class SynapsesForConnection extends React.Component {
 
   processRequest = () => {
     const { dataSet, actions, history } = this.props;
-    const { bodyId1 = '', bodyId2 = '' } = actions.getQueryObject(pluginAbbrev);
+    const { bodyId1 = '', bodyId2 = '', rois = [] } = actions.getQueryObject(pluginAbbrev);
+
+    let roiPredicate = '';
+    if (rois.length > 0) {
+      roiPredicate = ' WHERE (';
+      rois.forEach(roi => {
+        roiPredicate += `exists(s.\`${roi}\`) AND `;
+      });
+      roiPredicate = roiPredicate.slice(0, -5);
+      roiPredicate += ')';
+    }
+
+    const cypherQuery = `MATCH (a:\`${dataSet}-Neuron\`{bodyId:${bodyId1}})<-[:From]-(c:ConnectionSet)-[:To]->(b{bodyId:${bodyId2}}), (c)-[:Contains]->(s:Synapse)${roiPredicate} RETURN s.type, s.location.x ,s.location.y ,s.location.z, s.confidence, keys(s)`;
+
     const query = {
       dataSet,
-      cypherQuery: `MATCH (a:\`${dataSet}-Neuron\`{bodyId:${bodyId1}})<-[:From]-(c:ConnectionSet)-[:To]->(b{bodyId:${bodyId2}}), (c)-[:Contains]->(s:Synapse) RETURN s.type, s.location.x ,s.location.y ,s.location.z, s.confidence, keys(s)`,
+      cypherQuery,
       visType: 'SimpleTable',
       plugin: pluginName,
-      parameters: {},
+      parameters: { bodyId1, bodyId2, rois },
       title: `Synapses involved in connection between ${bodyId1} and ${bodyId2}`,
       menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
       processResults: this.processResults
@@ -63,6 +81,8 @@ export class SynapsesForConnection extends React.Component {
 
   processResults = (query, apiResponse) => {
     const { actions } = this.props;
+    const { parameters = {} } = query;
+    const { bodyId1 = '', bodyId2 = '', rois = [] } = parameters;
     const indexOf = setColumnIndices(['type', 'location', 'confidence', 'rois']);
 
     if (apiResponse.data.length > 0) {
@@ -102,7 +122,9 @@ export class SynapsesForConnection extends React.Component {
       };
     }
 
-    actions.pluginResponseError('No connection found');
+    actions.pluginResponseError(
+      `No synapses between ${bodyId1} and ${bodyId2} in specified rois (${rois})`
+    );
     return {
       columns: [],
       data: [],
@@ -128,12 +150,29 @@ export class SynapsesForConnection extends React.Component {
     });
   };
 
-  // render() is the main function that handles displaying the form. This requires
-  // a few properties passed in from neuPrintExplorer, but will take no direct
-  // arguments.
+  handleChangeRois = selected => {
+    const { actions } = this.props;
+    const rois = selected.map(item => item.value);
+    actions.setQueryString({
+      [pluginAbbrev]: {
+        rois
+      }
+    });
+  };
+
   render() {
-    const { actions, classes, isQuerying } = this.props;
-    const { bodyId1 = '', bodyId2 = '' } = actions.getQueryObject(pluginAbbrev);
+    const { actions, classes, isQuerying, availableROIs } = this.props;
+    const { bodyId1 = '', bodyId2 = '', rois = [] } = actions.getQueryObject(pluginAbbrev);
+
+    const roiOptions = availableROIs.map(name => ({
+      label: name,
+      value: name
+    }));
+
+    const roiValues = rois.map(roi => ({
+      label: roi,
+      value: roi
+    }));
 
     return (
       <FormControl className={classes.formControl}>
@@ -157,6 +196,14 @@ export class SynapsesForConnection extends React.Component {
           className={classes.textField}
           onChange={this.addBodyId2}
         />
+        <Select
+          className={classes.select}
+          isMulti
+          value={roiValues}
+          onChange={this.handleChangeRois}
+          options={roiOptions}
+          closeMenuOnSelect={false}
+        />
         <Button
           variant="contained"
           className={classes.button}
@@ -171,19 +218,13 @@ export class SynapsesForConnection extends React.Component {
   }
 }
 
-// property Types or propTypes describe the items that will be passed
-// to the plugin and you will be required to add them. It is probably
-// sufficient to copy this data structure into your plugin and change
-// 'Example' to your plugin name.
 SynapsesForConnection.propTypes = {
   classes: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
   dataSet: PropTypes.string.isRequired,
   history: PropTypes.object.isRequired,
-  isQuerying: PropTypes.bool.isRequired
+  isQuerying: PropTypes.bool.isRequired,
+  availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired
 };
 
-// Finally we need to export the plugin into the main application so that
-// it is registered with the site. This will add it to the Query selection
-// menu and allow users to select it.
 export default withStyles(styles)(withRouter(SynapsesForConnection));
