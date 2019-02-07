@@ -13,3 +13,4 @@ export { default as ROIsIntersectingNeurons } from './ROIsIntersectingNeurons';
 export { default as ShortestPath } from './ShortestPath';
 export { default as SimpleConnections } from './SimpleConnections';
 export { default as ConnectivityGraph } from './ConnectivityGraph';
+export { default as SynapsesForConnection } from './SynapsesForConnection';
