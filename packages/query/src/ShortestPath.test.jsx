@@ -36,7 +36,6 @@ const component = (
     history={{ push: jest.fn() }}
     isQuerying={false}
     neoServerSettings={neoServerSettings}
-    urlQueryString=""
     neoServer="testServer"
   />
 );

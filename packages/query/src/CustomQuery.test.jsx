@@ -14,7 +14,6 @@ const component = (
     history={{ push: jest.fn() }}
     classes={styles}
     actions={actions}
-    urlQueryString=""
     isQuerying={false}
   />
 );
