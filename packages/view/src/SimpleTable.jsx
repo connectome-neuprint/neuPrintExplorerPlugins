@@ -80,43 +80,32 @@ const styles = theme => ({
 });
 
 class SimpleTable extends React.Component {
-  constructor(props) {
-    super(props);
-    const { properties } = this.props;
-    let { paginate, rowsPerPage } = properties;
-
-    // set defaults if not specified by user
-    if (rowsPerPage === undefined) {
-      rowsPerPage = 5;
-    }
-
-    if (paginate === undefined) {
-      paginate = true;
-    }
-
-    this.state = {
-      order: 'asc',
-      orderBy: '',
-      page: 0,
-      rowsPerPage,
-      paginate
-    };
-  }
-
   shouldComponentUpdate(nextProps, nextState) {
-    const { query } = this.props;
-    if (nextProps.query.result === query.result && nextState === this.state) {
+    const { query, properties } = this.props;
+    if (
+      nextProps.query.result === query.result &&
+      nextState === this.state &&
+      nextProps.properties === properties
+    ) {
       return false;
     }
     return true;
   }
 
   handleChangePage = (event, page) => {
-    this.setState({ page });
+    const { query, actions, index } = this.props;
+    const { visProps } = query;
+    const newVisProps = Object.assign({}, visProps, { page });
+
+    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
   };
 
   handleChangeRowsPerPage = event => {
-    this.setState({ rowsPerPage: event.target.value });
+    const { query, actions, index } = this.props;
+    const { visProps } = query;
+    const newVisProps = Object.assign({}, visProps, { rowsPerPage: event.target.value });
+
+    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
   };
 
   handleCellClick = action => () => {
@@ -124,22 +113,23 @@ class SimpleTable extends React.Component {
   };
 
   handleRequestSort = property => () => {
-    const { orderBy, order } = this.state;
+    const { query, actions, index, properties } = this.props;
+    const { visProps } = query;
+    const { orderBy = '', order = 'asc' } = properties;
+
     const newOrderBy = property;
-    let newOrder = 'desc';
+    const newOrder = orderBy === property && order === 'desc' ? 'asc' : 'desc';
 
-    if (orderBy === property && order === 'desc') {
-      newOrder = 'asc';
-    }
+    const newVisProps = Object.assign({}, visProps, { order: newOrder, orderBy: newOrderBy });
 
-    this.setState({ order: newOrder, orderBy: newOrderBy });
+    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
   };
 
   render() {
-    const { query, classes } = this.props;
-    const { page, orderBy, order } = this.state;
-    let { rowsPerPage } = this.state;
-    const { paginate } = this.state;
+    const { query, classes, properties } = this.props;
+    let { rowsPerPage = 5 } = properties;
+    const { paginate = true, page = 0, orderBy = '', order = 'asc' } = properties;
+
     // fit table to data
     if (query.result.data.length < rowsPerPage || paginate === false) {
       rowsPerPage = query.result.data.length;
@@ -236,7 +226,9 @@ class SimpleTable extends React.Component {
 SimpleTable.propTypes = {
   query: PropTypes.object.isRequired,
   properties: PropTypes.object,
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
+  index: PropTypes.number.isRequired
 };
 
 SimpleTable.defaultProps = {
