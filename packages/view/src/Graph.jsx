@@ -73,12 +73,6 @@ const Graph = React.memo(props => {
 
 Graph.propTypes = {
   query: PropTypes.object.isRequired
-  //   properties: PropTypes.object,
-  //   classes: PropTypes.object.isRequired
 };
-
-// Graph.defaultProps = {
-//   properties: {}
-// };
 
 export default withStyles(styles)(Graph);
