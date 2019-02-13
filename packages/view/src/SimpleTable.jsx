@@ -81,11 +81,11 @@ const styles = theme => ({
 
 class SimpleTable extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
-    const { query, properties } = this.props;
+    const { query } = this.props;
     if (
       nextProps.query.result === query.result &&
       nextState === this.state &&
-      nextProps.properties === properties
+      nextProps.query.visProps === query.visProps
     ) {
       return false;
     }
@@ -113,9 +113,9 @@ class SimpleTable extends React.Component {
   };
 
   handleRequestSort = property => () => {
-    const { query, actions, index, properties } = this.props;
+    const { query, actions, index } = this.props;
     const { visProps } = query;
-    const { orderBy = '', order = 'asc' } = properties;
+    const { orderBy = '', order = 'asc' } = visProps;
 
     const newOrderBy = property;
     const newOrder = orderBy === property && order === 'desc' ? 'asc' : 'desc';
@@ -126,9 +126,10 @@ class SimpleTable extends React.Component {
   };
 
   render() {
-    const { query, classes, properties } = this.props;
-    let { rowsPerPage = 5 } = properties;
-    const { paginate = true, page = 0, orderBy = '', order = 'asc' } = properties;
+    const { query, classes } = this.props;
+    const { visProps = {} } = query;
+    let { rowsPerPage = 5 } = visProps;
+    const { paginate = true, page = 0, orderBy = '', order = 'asc' } = visProps;
 
     // fit table to data
     if (query.result.data.length < rowsPerPage || paginate === false) {
@@ -225,14 +226,9 @@ class SimpleTable extends React.Component {
 
 SimpleTable.propTypes = {
   query: PropTypes.object.isRequired,
-  properties: PropTypes.object,
   classes: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired
-};
-
-SimpleTable.defaultProps = {
-  properties: {}
 };
 
 export default withStyles(styles)(SimpleTable);
