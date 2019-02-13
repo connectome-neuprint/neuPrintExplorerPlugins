@@ -5,23 +5,24 @@
  *
  *
  */
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // Here we are importing components to generate a table from material-ui.
 // For other views we would need to import different code. eg: if we wanted
 // to draw a bar chart or line graph, we might import the code from http://recharts.org/
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 
 // Since we are extending a react component, we need to generate a class and
 // provide the minimum number of fuctcions from the React life-cycle so that it
 // will work. The only required class method for a simple view is the render()
 // method.
+
+// eslint-disable-next-line react/prefer-stateless-function
 class Example extends React.Component {
   // The render method takes no direct arguments, but there will be information
   // passed in as properties to the class. Generally this will come in the form of
@@ -69,14 +70,10 @@ class Example extends React.Component {
               return (
                 <TableRow hover key={key} style={rowStyle}>
                   {row.map((cell, i) => {
-                    if (cell && typeof cell === "object" && "value" in cell) {
+                    if (cell && typeof cell === 'object' && 'value' in cell) {
                       const cellKey = `${i}${cell.value}`;
-                      if ("action" in cell) {
-                        return (
-                          <TableCell key={cellKey} >
-                            {cell.value}
-                          </TableCell>
-                        );
+                      if ('action' in cell) {
+                        return <TableCell key={cellKey}>{cell.value}</TableCell>;
                       }
                       return <TableCell key={cellKey}>{cell.value}</TableCell>;
                     }
@@ -94,7 +91,7 @@ class Example extends React.Component {
 }
 
 Example.propTypes = {
-  query: PropTypes.object.isRequired,
+  query: PropTypes.object.isRequired
 };
 
 export default Example;

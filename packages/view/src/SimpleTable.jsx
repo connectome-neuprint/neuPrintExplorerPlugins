@@ -11,6 +11,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { withStyles } from '@material-ui/core/styles';
 
+// eslint-disable-next-line import/no-unresolved
 import TablePaginationActions from '@neuprint/support';
 
 function desc(a, b, orderBy) {
