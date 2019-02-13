@@ -11,6 +11,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { withStyles } from '@material-ui/core/styles';
 
+// eslint-disable-next-line import/no-unresolved
 import TablePaginationActions from '@neuprint/support';
 
 function desc(a, b, orderBy) {
@@ -91,14 +92,6 @@ class IndependentTable extends React.Component {
       order,
       rowsPerPage
     };
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    const { data } = this.props;
-    if (nextProps.data === data && nextState === this.state) {
-      return false;
-    }
-    return true;
   }
 
   handleChangePage = (event, page) => {
