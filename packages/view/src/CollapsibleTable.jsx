@@ -14,7 +14,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import TablePaginationActions from '@neuprint/support';
-import SimpleTable from './SimpleTable';
+import IndependentTable from './visualization/IndependentTable';
 
 const styles = theme => ({
   root: {},
@@ -37,38 +37,20 @@ const styles = theme => ({
 });
 
 class CollapsibleTable extends React.Component {
-  constructor(props) {
-    super(props);
-    const { properties } = this.props;
-    let { rowsPerPage, paginate, paginateExpansion } = properties;
-
-    // set defaults if not specified by user
-    if (rowsPerPage === undefined) {
-      rowsPerPage = 5;
-    }
-
-    if (paginate === undefined) {
-      paginate = true;
-    }
-
-    if (paginateExpansion === undefined) {
-      paginateExpansion = false;
-    }
-
-    this.state = {
-      page: 0,
-      rowsPerPage,
-      paginate,
-      paginateExpansion
-    };
-  }
-
   handleChangePage = (event, page) => {
-    this.setState({ page });
+    const { query, actions, index } = this.props;
+    const { visProps } = query;
+    const newVisProps = Object.assign({}, visProps, { page });
+
+    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
   };
 
   handleChangeRowsPerPage = event => {
-    this.setState({ rowsPerPage: event.target.value });
+    const { query, actions, index } = this.props;
+    const { visProps } = query;
+    const newVisProps = Object.assign({}, visProps, { rowsPerPage: event.target.value });
+
+    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
   };
 
   handleCellClick = action => () => {
@@ -77,8 +59,9 @@ class CollapsibleTable extends React.Component {
 
   render() {
     const { query, classes } = this.props;
-    const { page, paginate, paginateExpansion } = this.state;
-    let { rowsPerPage } = this.state;
+    const { visProps = {} } = query;
+    let { rowsPerPage = 5 } = visProps;
+    const { paginate = true, page = 0, paginateExpansion = false } = visProps;
 
     const emptyRows =
       rowsPerPage - Math.min(rowsPerPage, query.result.data.length - page * rowsPerPage);
@@ -112,9 +95,10 @@ class CollapsibleTable extends React.Component {
                             <Typography>{row.name}</Typography>
                           </ExpansionPanelSummary>
                           <ExpansionPanelDetails className={classes.nopad}>
-                            <SimpleTable
-                              query={{ result: row }}
-                              properties={{ paginate: paginateExpansion.valueOf() }}
+                            <IndependentTable
+                              data={row.data}
+                              columns={row.columns}
+                              paginate={paginateExpansion.valueOf()}
                             />
                           </ExpansionPanelDetails>
                         </ExpansionPanel>
@@ -150,11 +134,8 @@ class CollapsibleTable extends React.Component {
 CollapsibleTable.propTypes = {
   query: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  properties: PropTypes.object
-};
-
-CollapsibleTable.defaultProps = {
-  properties: {}
+  actions: PropTypes.object.isRequired,
+  index: PropTypes.number.isRequired
 };
 
 export default withStyles(styles)(CollapsibleTable);
