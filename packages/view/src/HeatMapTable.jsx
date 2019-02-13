@@ -53,7 +53,8 @@ const styles = theme => ({
 
 const HeatMapTable = props => {
   const { query, classes } = props;
-  const { squareSize } = query.visProps;
+  const { visProps = {} } = query;
+  const { squareSize = 30 } = visProps;
 
   return (
     <div className={classes.root}>
