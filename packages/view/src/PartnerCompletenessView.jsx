@@ -1,16 +1,14 @@
+/* eslint-disable prefer-destructuring */
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
-import { connect } from 'react-redux';
 
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import { metaInfoError } from '@neuprint/support';
-
-import SimpleTable from './SimpleTable';
+import IndependentTable from './visualization/IndependentTable';
 
 const styles = theme => ({
   root: {},
@@ -33,6 +31,55 @@ const styles = theme => ({
 class PartnerCompletenessView extends React.Component {
   constructor(props) {
     super(props);
+    const { index, actions, query } = props;
+    const { visProps = {} } = query;
+    const initialValues = this.getInitialValues();
+
+    const newVisProps = Object.assign({}, visProps, {
+      highlightIndexInput: initialValues.highlightIndexInput,
+      highlightIndexOutput: initialValues.highlightIndexOutput,
+      selectedStatus: initialValues.allStatus,
+      allStatus: initialValues.allStatus,
+      inputTable: initialValues.inputTable,
+      outputTable: initialValues.outputTable,
+      bodyStats: initialValues.bodyStats,
+      inputStats: initialValues.inputStats,
+      outputStats: initialValues.outputStats,
+      statusDefinitions: initialValues.statusDefinitions,
+      orphanFilter: 0
+    });
+
+    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
+  }
+
+  componentDidUpdate() {
+    const { index, actions, query } = this.props;
+    const { visProps = {} } = query;
+
+    // if this is a new query result, there will be no values stored in visProps so need to calculate initial values
+    if (Object.keys(visProps).length === 0) {
+      const initialValues = this.getInitialValues();
+
+      const newVisProps = Object.assign({}, visProps, {
+        highlightIndexInput: initialValues.highlightIndexInput,
+        highlightIndexOutput: initialValues.highlightIndexOutput,
+        selectedStatus: initialValues.allStatus,
+        allStatus: initialValues.allStatus,
+        inputTable: initialValues.inputTable,
+        outputTable: initialValues.outputTable,
+        bodyStats: initialValues.bodyStats,
+        inputStats: initialValues.inputStats,
+        outputStats: initialValues.outputStats,
+        statusDefinitions: initialValues.statusDefinitions,
+        orphanFilter: 0
+      });
+
+      actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
+    }
+  }
+
+  getInitialValues = () => {
+    const { query, neoServer } = this.props;
     const inputTable = {
       result: {
         columns: ['id', 'name', '#connections', 'status', '#pre', '#post'],
@@ -46,7 +93,7 @@ class PartnerCompletenessView extends React.Component {
       }
     };
 
-    const { result } = props.query;
+    const { result } = query;
 
     const allStatus = new Set();
     const highlightIndexInput = {};
@@ -97,27 +144,23 @@ class PartnerCompletenessView extends React.Component {
       }
     }
 
-    outputTable.result.disableSort = new Set([0, 1, 2, 3, 4, 5]);
-    inputTable.result.disableSort = new Set([0, 1, 2, 3, 4, 5]);
-    inputTable.result.highlightIndex = highlightIndexInput;
-    outputTable.result.highlightIndex = highlightIndexOutput;
-
     const inputStats = this.highlightStats(inputTable.result.data, highlightIndexInput, 0);
     const outputStats = this.highlightStats(outputTable.result.data, highlightIndexOutput, 0);
 
-    this.queryStatusDefinitions(props.neoServer, props.query.dataSet);
+    const statusDefinitions = this.queryStatusDefinitions(neoServer, query.dataSet);
 
-    this.state = {
+    return {
       inputTable,
       outputTable,
+      highlightIndexInput,
+      highlightIndexOutput,
       allStatus: [...allStatus],
-      selectedStatus: [...allStatus],
       bodyStats,
       inputStats,
       outputStats,
-      orphanFilter: 0
+      statusDefinitions
     };
-  }
+  };
 
   queryStatusDefinitions = (neoServer, dataset) => {
     const { actions } = this.props;
@@ -155,7 +198,8 @@ class PartnerCompletenessView extends React.Component {
             }
           });
         }
-        this.setState({ statusDefinitions });
+
+        return statusDefinitions;
       })
       .catch(error => {
         actions.metaInfoError(error);
@@ -189,7 +233,9 @@ class PartnerCompletenessView extends React.Component {
   };
 
   highlightRows = filter => selected => {
-    const { inputTable, outputTable } = this.state;
+    const { actions, query, index } = this.props;
+    const { visProps } = query;
+    const { inputTable, outputTable } = visProps;
     const currSelected = selected.map(item => item.value);
     const currSelectedSet = new Set(currSelected);
     const filterLimit = filter === '' ? 0 : filter;
@@ -212,32 +258,32 @@ class PartnerCompletenessView extends React.Component {
       }
     }
 
-    inputTable.result.highlightIndex = inputHighlight;
-    outputTable.result.highlightIndex = outputHighlight;
-
     const inputStats = this.highlightStats(inputTable.result.data, inputHighlight, filterLimit);
     const outputStats = this.highlightStats(outputTable.result.data, outputHighlight, filterLimit);
 
-    this.setState({
+    const newVisProps = Object.assign({}, visProps, {
+      highlightIndexInput: inputHighlight,
+      highlightIndexOutput: outputHighlight,
+      selectedStatus: currSelected,
       inputTable,
       outputTable,
-      selectedStatus: currSelected,
       inputStats,
-      outputStats
+      outputStats,
+      orphanFilter: filter
     });
+
+    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
   };
 
   handleChange = event => {
-    const { selectedStatus } = this.state;
+    const { query } = this.props;
+    const { visProps } = query;
+    const { selectedStatus } = visProps;
     let val = parseInt(event.target.value, 10);
     if (event.target.value === '' || event.target.value === null) {
       val = '';
     }
     if (/^\d+$/.test(val) || val === '') {
-      this.setState({
-        orphanFilter: val
-      });
-
       const currSelected = selectedStatus.map(name => ({
         label: name,
         value: name
@@ -247,18 +293,21 @@ class PartnerCompletenessView extends React.Component {
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes, query } = this.props;
+    const { visProps = {} } = query;
     const {
-      selectedStatus,
-      allStatus,
-      inputTable,
-      outputTable,
-      bodyStats,
-      inputStats,
-      outputStats,
-      orphanFilter,
+      highlightIndexInput = {},
+      highlightIndexOutput = {},
+      selectedStatus = [],
+      allStatus = [],
+      inputTable = { result: { data: [], columns: [] } },
+      outputTable = { result: { data: [], columns: [] } },
+      bodyStats = '',
+      orphanFilter = 0,
+      inputStats = {},
+      outputStats = {},
       statusDefinitions
-    } = this.state;
+    } = visProps;
 
     const options = allStatus.map(name => ({
       label: name,
@@ -268,8 +317,6 @@ class PartnerCompletenessView extends React.Component {
       label: name,
       value: name
     }));
-
-    const visProperties = { rowsPerPage: 10 };
 
     return (
       <div className={classes.root}>
@@ -308,13 +355,25 @@ class PartnerCompletenessView extends React.Component {
           {((inputStats.highconn / inputStats.totalconn) * 100).toFixed(2)} percent connections,{' '}
           {inputStats.numhigh} bodies highlighted out of {inputStats.numbodies}
         </Typography>
-        <SimpleTable query={inputTable} properties={visProperties} />
+        <IndependentTable
+          data={inputTable.result.data}
+          columns={inputTable.result.columns}
+          rowsPerPage={10}
+          disableSort={new Set([0, 1, 2, 3, 4, 5])}
+          highlightIndex={highlightIndexInput}
+        />
         <Typography variant="h6">Outputs</Typography>
         <Typography>
           {((outputStats.highconn / outputStats.totalconn) * 100).toFixed(2)} percent connections,{' '}
           {outputStats.numhigh} bodies highlighted out of {outputStats.numbodies}
         </Typography>
-        <SimpleTable query={outputTable} properties={visProperties} />
+        <IndependentTable
+          data={outputTable.result.data}
+          columns={outputTable.result.columns}
+          rowsPerPage={10}
+          disableSort={new Set([0, 1, 2, 3, 4, 5])}
+          highlightIndex={highlightIndexOutput}
+        />
       </div>
     );
   }
@@ -324,24 +383,8 @@ PartnerCompletenessView.propTypes = {
   query: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
-  neoServer: PropTypes.string.isRequired
+  neoServer: PropTypes.string.isRequired,
+  index: PropTypes.number.isRequired
 };
 
-const PartnerCompletenessViewState = state => ({
-  neoServer: state.neo4jsettings.get('neoServer')
-});
-
-const PartnerCompletenessViewDispatch = dispatch => ({
-  actions: {
-    metaInfoError(error) {
-      dispatch(metaInfoError(error));
-    }
-  }
-});
-
-export default withStyles(styles)(
-  connect(
-    PartnerCompletenessViewState,
-    PartnerCompletenessViewDispatch
-  )(PartnerCompletenessView)
-);
+export default withStyles(styles)(PartnerCompletenessView);
