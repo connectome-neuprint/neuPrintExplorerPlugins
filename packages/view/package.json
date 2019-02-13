@@ -4,6 +4,7 @@
   "description": "View plugins used by the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
+    "pretest": "eslint --ext .jsx,.js src/",
     "test": "jest",
     "prebuild": "rimraf build",
     "build": "NODE_ENV=production npx babel ./src --out-dir ./build --ignore '**/*.test.jsx' --ignore '**/*.test.js'",
