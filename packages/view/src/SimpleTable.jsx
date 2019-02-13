@@ -1,3 +1,4 @@
+// Table that stores state in query.visProps
 import React from 'react';
 import PropTypes from 'prop-types';
 
