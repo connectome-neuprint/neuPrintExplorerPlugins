@@ -54,7 +54,7 @@ class ROIConnectivity extends React.Component {
   }
 
   processResults = (query, apiResponse) => {
-    const { actions, classes, availableROIs } = this.props;
+    const { actions, availableROIs } = this.props;
     const bodyInputCountsPerRoi = {};
     const { squareSize } = query.visProps;
     let { rois } = query.parameters;
