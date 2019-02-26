@@ -31,11 +31,6 @@ const styles = theme => ({
   select: {
     fontFamily: theme.typography.fontFamily,
     margin: '0.5em 0 1em 0'
-  },
-  button: {
-    padding: 0,
-    border: 0,
-    cursor: 'pointer'
   }
 });
 
@@ -178,10 +173,11 @@ class ROIConnectivity extends React.Component {
 
         row.push({
           value: (
-            <button
-              type="button"
-              className={classes.button}
+            <div
+              role="link"
+              tabIndex={-1}
               onClick={() => actions.submit(neuronsQuery)}
+              onKeyDown={() => actions.submit(neuronsQuery)}
             >
               <ColorBox
                 margin={0}
@@ -197,7 +193,7 @@ class ROIConnectivity extends React.Component {
                   </div>
                 }
               />
-            </button>
+            </div>
           ),
           sortBy: { rowValue: inputRoiName, columeValue: outputRoiName },
           csvValue: connectivityValue,
