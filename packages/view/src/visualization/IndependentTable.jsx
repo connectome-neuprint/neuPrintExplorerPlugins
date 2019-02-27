@@ -212,7 +212,7 @@ class IndependentTable extends React.Component {
 
 IndependentTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.array).isRequired,
-  columns: PropTypes.arrayOf(PropTypes.string).isRequired,
+  columns: PropTypes.arrayOf(PropTypes.any).isRequired,
   paginate: PropTypes.bool,
   page: PropTypes.number,
   orderBy: PropTypes.string,

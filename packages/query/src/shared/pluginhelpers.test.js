@@ -79,9 +79,9 @@ describe('createSimpleConnectionsResult', () => {
     );
     const { columns, data, debug } = result;
     expect(debug).toEqual(apiResponse.debug);
-    expect(columns.length).toBe(9);
+    expect(columns.length).toBe(10);
     expect(data.length).toBe(3);
-    expect(data[0].length).toBe(9);
+    expect(data[0].length).toBe(10);
   });
 });
 

@@ -273,6 +273,7 @@ export function createSimpleConnectionsResult(
     'name',
     'status',
     'connectionWeight',
+    'connectionWeightHP',
     'post',
     'pre',
     'size',
@@ -297,6 +298,7 @@ export function createSimpleConnectionsResult(
     converted[indexOf.name] = row[1];
     converted[indexOf.status] = row[6];
     converted[indexOf.connectionWeight] = row[3];
+    converted[indexOf.connectionWeightHP] = row[12];
     converted[indexOf.size] = row[8];
 
     const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
@@ -340,6 +342,7 @@ export function createSimpleConnectionsResult(
   columns[indexOf.name] = 'neuron';
   columns[indexOf.status] = 'status';
   columns[indexOf.connectionWeight] = '#connections';
+  columns[indexOf.connectionWeightHP] = '#connections (high-confidence)';
   columns[indexOf.post] = '#post (inputs)';
   columns[indexOf.pre] = '#pre (outputs)';
   columns[indexOf.size] = '#voxels';

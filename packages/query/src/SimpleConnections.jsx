@@ -16,6 +16,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { withStyles } from '@material-ui/core/styles';
 
 import NeuronHelp from './shared/NeuronHelp';
+import { createSimpleConnectionsResult } from './shared/pluginhelpers';
 
 const styles = () => ({
   textField: {},
@@ -59,15 +60,35 @@ class SimpleConnections extends React.Component {
     return true;
   }
 
+  processBasicSimpleConnections = (query, apiResponse) => {
+    const { actions } = this.props;
+
+    return createSimpleConnectionsResult(
+      query,
+      apiResponse,
+      actions,
+      pluginName,
+      this.processBasicSimpleConnections
+    );
+  };
+
   processResults = (query, apiResponse) => {
+    const { actions } = this.props;
     const tables = [];
-    const columnNames = ['ID', 'Name', 'Weight'];
 
     let currentTable = [];
     let lastBody = -1;
     let lastName = '';
 
-    apiResponse.data.forEach(row => {
+    const { columns, data } = createSimpleConnectionsResult(
+      query,
+      apiResponse,
+      actions,
+      pluginName,
+      this.processBasicSimpleConnections
+    );
+
+    apiResponse.data.forEach((row, index) => {
       const neuron1Id = row[4];
       if (lastBody !== -1 && neuron1Id !== lastBody) {
         let tableName = `${lastName} id=(${String(lastBody)})`;
@@ -78,20 +99,23 @@ class SimpleConnections extends React.Component {
         }
 
         tables.push({
-          columns: columnNames,
+          columns,
           data: currentTable,
           name: tableName
         });
         currentTable = [];
       }
+      // change code here to use common code
       lastBody = neuron1Id;
       [lastName] = row;
 
-      let neuron2Name = row[1];
-      if (neuron2Name === null) {
-        neuron2Name = '';
-      }
-      currentTable.push([row[2], neuron2Name, row[3]]);
+      // let neuron2Name = row[1];
+      // if (neuron2Name === null) {
+      //   neuron2Name = '';
+      // }
+      // currentTable.push([row[2], neuron2Name, row[3]]);
+      currentTable.push(data[index]);
+      //
     });
 
     if (lastBody !== -1) {
@@ -103,7 +127,7 @@ class SimpleConnections extends React.Component {
       }
 
       tables.push({
-        columns: columnNames,
+        columns,
         data: currentTable,
         name: tableName
       });
