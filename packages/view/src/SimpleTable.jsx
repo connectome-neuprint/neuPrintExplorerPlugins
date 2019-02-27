@@ -117,7 +117,7 @@ class SimpleTable extends React.Component {
   handleRequestSort = property => () => {
     const { query, actions, index } = this.props;
     const { visProps = {} } = query;
-    const { orderBy = 0, order = 'asc' } = visProps;
+    const { orderBy = '', order = 'asc' } = visProps;
 
     const newOrderBy = property;
     const newOrder = orderBy === property && order === 'desc' ? 'asc' : 'desc';
@@ -131,7 +131,7 @@ class SimpleTable extends React.Component {
     const { query, classes } = this.props;
     const { visProps = {} } = query;
     let { rowsPerPage = 5 } = visProps;
-    const { paginate = true, page = 0, orderBy = 0, order = 'asc' } = visProps;
+    const { paginate = true, page = 0, orderBy = '', order = 'asc' } = visProps;
 
     // fit table to data
     if (query.result.data.length < rowsPerPage || paginate === false) {
