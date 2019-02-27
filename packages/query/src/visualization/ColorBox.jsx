@@ -13,14 +13,14 @@ function ColorBox({ margin, width, height, backgroundColor, title, text }) {
     display: 'inline-flex',
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row'
+    flexDirection: 'column'
   };
   return (
     <div style={styles} title={title}>
       {text}
     </div>
   );
-};
+}
 
 ColorBox.propTypes = {
   margin: PropTypes.number.isRequired,
@@ -28,10 +28,7 @@ ColorBox.propTypes = {
   height: PropTypes.number.isRequired,
   backgroundColor: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  text: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.string,
-  ]).isRequired,
+  text: PropTypes.oneOfType([PropTypes.object, PropTypes.string]).isRequired
 };
 
 export default ColorBox;

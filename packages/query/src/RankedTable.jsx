@@ -13,13 +13,16 @@ import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
+import Icon from '@material-ui/core/Icon';
+import Switch from '@material-ui/core/Switch';
 
 import ColorBox from './visualization/ColorBox';
 import NeuronHelp from './shared/NeuronHelp';
+
+const squareSize = 100;
 
 const styles = () => ({
   textField: {},
@@ -29,23 +32,6 @@ const styles = () => ({
   }
 });
 
-// available colors
-
-/* const colorArray = [
-  '#8dd3c7',
-  '#ffffb3',
-  '#bebada',
-  '#fb8072',
-  '#80b1d3',
-  '#fdb462',
-  '#b3de69',
-  '#fccde5',
-  '#d9d9d9',
-  '#bc80bd',
-  '#ccebc5',
-  '#ffed6f'
-]; */
-
 const pluginName = 'RankedTable';
 const pluginAbbrev = 'rt';
 
@@ -54,7 +40,8 @@ class RankedTable extends React.Component {
     super(props);
     this.state = {
       neuronSrc: '',
-      preOrPost: 'pre'
+      preOrPost: 'pre',
+      useHighConfidence: false
     };
   }
 
@@ -63,7 +50,7 @@ class RankedTable extends React.Component {
   }
 
   static get queryDescription() {
-    return 'Show connections to neuron(s) ranked in order and colored by neuron class';
+    return 'Show connections to neuron(s) ranked by synaptic weight and colored by neuron type or name';
   }
 
   static get queryAbbreviation() {
@@ -75,7 +62,19 @@ class RankedTable extends React.Component {
   }
 
   processResults = (query, apiResponse) => {
-    const { dataSet } = query;
+    const { dataSet, parameters } = query;
+    const { actions } = this.props;
+    const { useHighConfidence } = parameters;
+
+    if (apiResponse.data.length === 0) {
+      // produce appropriate error message if no data found
+      actions.pluginResponseError('No results found for queried neuron.');
+      return {
+        columns: [],
+        data: [],
+        debug: apiResponse.debug
+      };
+    }
 
     const colorMap = {};
     const reverseCounts = {};
@@ -86,23 +85,35 @@ class RankedTable extends React.Component {
     let maxColumns = 0;
 
     apiResponse.data.forEach(row => {
-      const [, , weight, body2, , , mId, nId, preId, body1] = row;
+      const [, , weight, body2, , , mId, nId, preId, body1, weightHP] = row;
 
       if (
         (query.parameters.find_inputs === false && (preId !== mId || nId === mId)) ||
         (query.parameters.find_inputs === true && preId === mId)
       ) {
         if (body2 in reverseCounts) {
-          reverseCounts[String(body2)][String(body1)] = weight;
+          reverseCounts[String(body2)][String(body1)] = useHighConfidence ? weightHP : weight;
         } else {
           reverseCounts[String(body2)] = {};
-          reverseCounts[String(body2)][String(body1)] = weight;
+          reverseCounts[String(body2)][String(body1)] = useHighConfidence ? weightHP : weight;
         }
       }
     });
 
     apiResponse.data.forEach((row, index) => {
-      const [neuron1, neuron2, weight, body2, , neuron2Type, mId, nId, preId, body1] = row;
+      const [
+        neuron1,
+        neuron2,
+        weight,
+        body2,
+        ,
+        neuron2Type,
+        mId,
+        nId,
+        preId,
+        body1,
+        weightHP
+      ] = row;
 
       if (
         (query.parameters.find_inputs === false && preId === mId) ||
@@ -112,11 +123,18 @@ class RankedTable extends React.Component {
         // if present use the existing color.
         // else add a new one from the list. Unless they have all been used,
         // then add a random one.
-        if (!(neuron2Type in colorMap)) {
+        if (neuron2Type && !(neuron2Type in colorMap)) {
           colorMap[neuron2Type] = randomColor({ luminosity: 'light', hue: 'random' });
+        } else if (neuron2 && !(neuron2 in colorMap)) {
+          colorMap[neuron2] = randomColor({ luminosity: 'light', hue: 'random' });
         }
         // color should be white if we don't have a type defined.
-        const weightColor = neuron2Type ? colorMap[neuron2Type] : '#ffffff';
+        let weightColor = '#ffffff';
+        if (neuron2Type) {
+          weightColor = colorMap[neuron2Type];
+        } else if (neuron2) {
+          weightColor = colorMap[neuron2];
+        }
 
         // start a new row for each body1.
         if (body1 !== lastBody) {
@@ -132,22 +150,77 @@ class RankedTable extends React.Component {
 
         const cellKey = `${index}${body1}${body2}`;
 
+        // set arrow icons
+        const arrow1 = query.parameters.find_inputs ? (
+          <Icon fontSize="inherit">arrow_downward</Icon>
+        ) : (
+          <Icon fontSize="inherit">arrow_upward</Icon>
+        );
+        const arrow2 = query.parameters.find_inputs ? (
+          <Icon fontSize="inherit">arrow_upward</Icon>
+        ) : (
+          <Icon fontSize="inherit">arrow_downward</Icon>
+        );
+
+        // truncate name if necessary
+        let displayName = neuron2 || body2;
+        if (displayName.length > 20) {
+          displayName = `${displayName.substring(0, 17)}...`;
+        }
+
         // add the current item to the current columns array
         columns.push({
           value: (
             <ColorBox
               margin={0}
-              width={85}
-              height={85}
+              width={squareSize}
+              height={squareSize}
               backgroundColor={weightColor}
               title=""
               key={cellKey}
               text={
-                <div>
-                  <Typography>{neuron2 || body2}</Typography>
-                  <Typography variant="caption">{weight}</Typography>
-                  <Typography variant="caption">{reverseWeight}</Typography>
-                </div>
+                <>
+                  <Typography
+                    style={{
+                      marginTop: '20px',
+                      marginLeft: '10px',
+                      marginRight: '10px',
+                      textAlign: 'center',
+                      wordBreak: 'break-all'
+                    }}
+                    variant="body2"
+                    title={neuron2 || body2}
+                  >
+                    {displayName}
+                  </Typography>
+                  <div
+                    style={{
+                      marginTop: 'auto',
+                      display: 'flex'
+                    }}
+                  >
+                    <Typography
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                      variant="caption"
+                    >
+                      {arrow1}
+                      {useHighConfidence ? weightHP : weight}
+                    </Typography>
+                    <Typography
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                      variant="caption"
+                    >
+                      {arrow2}
+                      {reverseWeight}
+                    </Typography>
+                  </div>
+                </>
               }
             />
           ),
@@ -174,7 +247,7 @@ class RankedTable extends React.Component {
   };
 
   processRequest = () => {
-    const { neuronSrc, preOrPost } = this.state;
+    const { neuronSrc, preOrPost, useHighConfidence } = this.state;
     const { dataSet, actions, history } = this.props;
     if (neuronSrc !== '') {
       const parameters = { dataset: dataSet };
@@ -183,20 +256,22 @@ class RankedTable extends React.Component {
       } else {
         parameters.neuron_name = neuronSrc;
       }
-      let title = `Outputs from ${neuronSrc}`;
+      let title = `Neurons postsynaptic to ${neuronSrc}`;
 
       if (preOrPost === 'pre') {
         parameters.find_inputs = false;
       } else {
         parameters.find_inputs = true;
-        title = `Inputs to ${neuronSrc}`;
+        title = `Neurons presynaptic to ${neuronSrc}`;
       }
+
+      parameters.useHighConfidence = useHighConfidence;
 
       const query = {
         dataSet,
         queryString: '/npexplorer/rankedtable',
         visType: 'HeatMapTable',
-        visProps: { squareSize: 85 },
+        visProps: { squareSize },
         plugin: pluginName,
         parameters,
         title,
@@ -222,6 +297,11 @@ class RankedTable extends React.Component {
     this.setState({ preOrPost: event.target.value });
   };
 
+  toggleHighConfidence = () => {
+    const { useHighConfidence } = this.state;
+    this.setState({ useHighConfidence: !useHighConfidence });
+  };
+
   catchReturn = event => {
     // submit request if user presses enter
     if (event.keyCode === 13) {
@@ -232,7 +312,7 @@ class RankedTable extends React.Component {
 
   render() {
     const { classes, isQuerying } = this.props;
-    const { neuronSrc, preOrPost } = this.state;
+    const { neuronSrc, preOrPost, useHighConfidence } = this.state;
     return (
       <div>
         <FormControl className={classes.formControl}>
@@ -251,7 +331,6 @@ class RankedTable extends React.Component {
           </NeuronHelp>
         </FormControl>
         <FormControl component="fieldset" required className={classes.formControl}>
-          <FormLabel component="legend">Neuron Direction</FormLabel>
           <RadioGroup
             aria-label="preorpost"
             name="preorpost"
@@ -262,14 +341,30 @@ class RankedTable extends React.Component {
             <FormControlLabel
               value="pre"
               control={<Radio color="primary" />}
-              label="Pre-synaptic"
+              label="Rank outputs"
             />
             <FormControlLabel
               value="post"
               control={<Radio color="primary" />}
-              label="Post-synaptic"
+              label="Rank inputs"
             />
           </RadioGroup>
+        </FormControl>
+        <FormControl className={classes.formControl}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={useHighConfidence}
+                onChange={this.toggleHighConfidence}
+                color="primary"
+              />
+            }
+            label={
+              <Typography variant="body1" style={{ display: 'inline-flex' }}>
+                Limit to high-confidence synapses
+              </Typography>
+            }
+          />
         </FormControl>
         <Button
           disabled={isQuerying}
