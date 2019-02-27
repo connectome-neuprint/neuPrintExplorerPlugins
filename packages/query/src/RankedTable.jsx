@@ -84,6 +84,32 @@ class RankedTable extends React.Component {
     let columns = [];
     let maxColumns = 0;
 
+    // need to re-sort by weightHP (grouped by body1 id) if using high confidence
+    if (useHighConfidence) {
+      apiResponse.data.sort((a, b) => {
+        const weightHPa = a[10];
+        const weightHPb = b[10];
+        const body1a = a[9];
+        const body1b = b[9];
+
+        if (body1a > body1b) {
+          return 1;
+        }
+        if (body1a < body1b) {
+          return -1;
+        }
+        if (body1a === body1b) {
+          if (weightHPa > weightHPb) {
+            return -1;
+          }
+          if (weightHPa < weightHPb) {
+            return 1;
+          }
+        }
+        return 0;
+      });
+    }
+
     apiResponse.data.forEach(row => {
       const [, , weight, body2, , , mId, nId, preId, body1, weightHP] = row;
 
