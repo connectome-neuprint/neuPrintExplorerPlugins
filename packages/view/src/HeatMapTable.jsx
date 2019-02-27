@@ -6,11 +6,9 @@ import { withStyles } from '@material-ui/core/styles';
 import ColorBox from './visualization/ColorBox';
 
 const styles = theme => ({
-  root: {},
   scroll: {
     width: '100%',
-    marginTop: theme.spacing.unit * 1,
-    marginBottom: theme.spacing.unit * 1,
+    paddingBottom: theme.spacing.unit,
     overflowY: 'auto',
     overflowX: 'auto',
     maxHeight: '90vh'
