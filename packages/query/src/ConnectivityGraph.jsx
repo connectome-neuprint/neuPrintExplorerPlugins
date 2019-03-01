@@ -105,7 +105,7 @@ class ConnectivityGraph extends React.Component {
     const { dataSet, actions, history } = this.props;
     const { bodyIds } = actions.getQueryObject(pluginAbbrev);
 
-    const cypherQuery = `WITH [${bodyIds}] AS input MATCH (n:\`hemibrain-Neuron\`)-[c:ConnectsTo]->(m) WHERE n.bodyId IN input AND m.bodyId IN input RETURN n.bodyId AS start, m.bodyId AS end, c.weight AS weight, n.name AS startName, m.name AS endName`;
+    const cypherQuery = `WITH [${bodyIds}] AS input MATCH (n:\`${dataSet}-Neuron\`)-[c:ConnectsTo]->(m) WHERE n.bodyId IN input AND m.bodyId IN input RETURN n.bodyId AS start, m.bodyId AS end, c.weight AS weight, n.name AS startName, m.name AS endName`;
 
     const query = {
       dataSet,
