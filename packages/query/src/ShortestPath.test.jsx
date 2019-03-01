@@ -66,7 +66,7 @@ describe('shortest path Plugin', () => {
       minWeightField.props().onChange({ target: { value: '6' } });
 
       const shortestPathQuery =
-        'MATCH path=allShortestPaths((a:`test-Neuron`{bodyId:123456})-[r:ConnectsTo*]->(b:`test-Neuron`{bodyId:645321})) WHERE all(rs in r WHERE rs.weight>=6) WITH extract(n IN nodes(path) | [n.bodyId,n.name]) AS ids,extract(rst IN rels(path) | rst.weight) AS weights, path RETURN length(path), ids, weights';
+        "MATCH (a:`test-Neuron`{bodyId:123456}), (b:`test-Neuron`{bodyId:645321}) CALL analysis.getShortestPathWithMinWeight(a, b, 'ConnectsTo>', 'prop', 'weight', 1, 6) YIELD path,weight WITH extract(n IN nodes(path) | [n.bodyId,n.name]) AS ids,extract(rst IN rels(path) | rst.weight) AS weights, path RETURN length(path), ids, weights";
 
       expect(button.props().onClick()).toEqual(
         expect.objectContaining({

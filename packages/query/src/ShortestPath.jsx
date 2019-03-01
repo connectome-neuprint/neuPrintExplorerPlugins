@@ -142,7 +142,7 @@ export class ShortestPath extends React.Component {
     const { dataSet, actions, history } = this.props;
     const { bodyId1 = '', bodyId2 = '', minWeight = 0 } = actions.getQueryObject(pluginAbbrev);
 
-    const shortestPathQuery = `MATCH path=allShortestPaths((a:\`${dataSet}-Neuron\`{bodyId:${bodyId1}})-[r:ConnectsTo*]->(b:\`${dataSet}-Neuron\`{bodyId:${bodyId2}})) WHERE all(rs in r WHERE rs.weight>=${minWeight}) WITH extract(n IN nodes(path) | [n.bodyId,n.name]) AS ids,extract(rst IN rels(path) | rst.weight) AS weights, path RETURN length(path), ids, weights`;
+    const shortestPathQuery = `MATCH (a:\`${dataSet}-Neuron\`{bodyId:${bodyId1}}), (b:\`${dataSet}-Neuron\`{bodyId:${bodyId2}}) CALL analysis.getShortestPathWithMinWeight(a, b, 'ConnectsTo>', 'prop', 'weight', 1, ${minWeight}) YIELD path,weight WITH extract(n IN nodes(path) | [n.bodyId,n.name]) AS ids,extract(rst IN rels(path) | rst.weight) AS weights, path RETURN length(path), ids, weights`;
     const query = {
       dataSet,
       cypherQuery: shortestPathQuery,
