@@ -2,8 +2,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
-import { withRouter } from 'react-router';
-import randomColor from 'randomcolor';
 
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -36,55 +34,37 @@ const styles = theme => ({
 const pluginName = 'FindNeurons';
 const pluginAbbrev = 'fn';
 
+function processSimpleConnections(query, apiResponse, actions) {
+  return createSimpleConnectionsResult(query, apiResponse, actions, pluginName);
+}
+
 export class FindNeurons extends React.Component {
-  constructor(props) {
-    super(props);
-    // set the default state for the query input.
-    this.state = {
-      limitNeurons: true,
-      statusFilters: [],
-      preThreshold: 0,
-      postThreshold: 0
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: 'Find neurons',
+      abbr: pluginAbbrev,
+      description: 'Find neurons that have inputs or outputs in ROIs',
+      visType: 'SimpleTable'
     };
   }
 
-  static get queryName() {
-    // This is the string used in the 'Query Type' select.
-    return 'Find neurons';
+  static fetchParameters() {
+    return {
+      queryString: '/npexplorer/findneurons'
+    };
   }
-
-  static get queryDescription() {
-    // This is a description of the purpose of the plugin.
-    // it will be displayed in the form above the custom
-    // inputs for this plugin.
-    return 'Find neurons that have inputs or outputs in ROIs';
-  }
-
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  processSimpleConnections = (query, apiResponse) => {
-    const { actions } = this.props;
-
-    return createSimpleConnectionsResult(
-      query,
-      apiResponse,
-      actions,
-      pluginName,
-      this.processSimpleConnections
-    );
-  };
 
   // this function will parse the results from the query to the
   // Neo4j server and place them in the correct format for the
   // visualization plugin.
-  processResults = (query, apiResponse) => {
-    const { actions } = this.props;
-    /* eslint-disable camelcase */
-    const { input_ROIs, output_ROIs } = query.parameters;
-    const rois = input_ROIs && output_ROIs ? [...new Set(input_ROIs.concat(output_ROIs))] : [];
-    /* eslint-enable camelcase */
+  static processResults(query, apiResponse, actions, submit) {
+    if (query.pm.neuron_id) {
+      return processSimpleConnections(query, apiResponse, actions, submit);
+    }
+
+    const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = query.pm;
+    const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
 
     // assigns data properties to column indices for convenient access/modification
     const columnIds = ['bodyId', 'name', 'status', 'post', 'pre'];
@@ -129,27 +109,25 @@ export class FindNeurons extends React.Component {
         converted[indexOf.roiBarGraph] = barGraph;
 
         const postQuery = createSimpleConnectionQueryObject(
-          query.dataSet,
+          query.ds,
           true,
           bodyId,
-          this.processSimpleConnections,
-          pluginName
+          pluginAbbrev
         );
         converted[indexOf.post] = {
           value: totalPost,
-          action: () => actions.submit(postQuery)
+          action: () => submit(postQuery)
         };
 
         const preQuery = createSimpleConnectionQueryObject(
-          query.dataSet,
+          query.ds,
           false,
           bodyId,
-          this.processSimpleConnections,
-          pluginName
+          pluginAbbrev
         );
         converted[indexOf.pre] = {
           value: totalPre,
-          action: () => actions.submit(preQuery)
+          action: () => submit(preQuery)
         };
 
         if (rois.length > 0) {
@@ -185,16 +163,38 @@ export class FindNeurons extends React.Component {
     return {
       columns,
       data,
-      debug: apiResponse.debug
+      debug: apiResponse.debug,
+      title: `Neurons with inputs in [${inputROIs}] and outputs in [${outputROIs}]`
     };
-  };
+  }
+
+  constructor(props) {
+    super(props);
+    // set the default state for the query input.
+    this.state = {
+      limitNeurons: true,
+      statusFilters: [],
+      preThreshold: 0,
+      postThreshold: 0,
+      neuronName: '',
+      inputROIs: [],
+      outputROIs: []
+    };
+  }
 
   // use this method to cleanup your form data, perform validation
   // and generate the query object.
   processRequest = () => {
-    const { dataSet, actions, history } = this.props;
-    const { statusFilters, limitNeurons, preThreshold, postThreshold } = this.state;
-    const { neuronName, inputROIs = [], outputROIs = [] } = actions.getQueryObject(pluginAbbrev);
+    const { dataSet, submit } = this.props;
+    const {
+      statusFilters,
+      limitNeurons,
+      preThreshold,
+      postThreshold,
+      neuronName,
+      inputROIs,
+      outputROIs
+    } = this.state;
 
     const parameters = {
       dataset: dataSet,
@@ -222,53 +222,26 @@ export class FindNeurons extends React.Component {
 
     const query = {
       dataSet, // <string> for the data set selected
-      queryString: '/npexplorer/findneurons', // <neo4jquery string>
-      // cypherQuery: <string> if this is passed then use generic /api/custom/custom endpoint
-      visType: 'SimpleTable', // <string> which visualization plugin to use. Default is 'table'
-      visProps: { rowsPerPage: 25 },
       plugin: pluginName, // <string> the name of this plugin.
-      parameters, // <object>
-      title: `Neurons with inputs in [${inputROIs}] and outputs in [${outputROIs}]`,
-      menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-      processResults: this.processResults
+      pluginCode: pluginAbbrev,
+      parameters
     };
-    actions.submit(query);
-    // redirect to the results page.
-    history.push({
-      pathname: '/results',
-      search: actions.getQueryString()
-    });
-    return query;
+    submit(query);
   };
 
   handleChangeROIsIn = selected => {
-    const { actions } = this.props;
     const rois = selected.map(item => item.value);
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        inputROIs: rois
-      }
-    });
+    this.setState({ inputROIs: rois });
   };
 
   handleChangeROIsOut = selected => {
-    const { actions } = this.props;
     const rois = selected.map(item => item.value);
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        outputROIs: rois
-      }
-    });
+    this.setState({ outputROIs: rois });
   };
 
   addNeuron = event => {
-    const { actions } = this.props;
     const neuronName = event.target.value;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        neuronName
-      }
-    });
+    this.setState({ neuronName });
   };
 
   loadNeuronFilters = params => {
@@ -292,9 +265,7 @@ export class FindNeurons extends React.Component {
   // validate the variables for your Neo4j query.
   render() {
     const { classes, isQuerying, availableROIs, dataSet, actions, neoServerSettings } = this.props;
-    const { neuronName = '', inputROIs = [], outputROIs = [] } = actions.getQueryObject(
-      pluginAbbrev
-    );
+    const { neuronName = '', inputROIs = [], outputROIs = [] } = this.state;
 
     const inputOptions = availableROIs.map(name => ({
       label: name,
@@ -377,9 +348,9 @@ FindNeurons.propTypes = {
   availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
   dataSet: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
+  submit: PropTypes.func.isRequired,
   isQuerying: PropTypes.bool.isRequired,
   neoServerSettings: PropTypes.object.isRequired
 };
 
-export default withRouter(withStyles(styles)(FindNeurons));
+export default withStyles(styles)(FindNeurons);

@@ -3,9 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 import Select from 'react-select';
-import randomColor from 'randomcolor';
 
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -15,14 +13,6 @@ import { withStyles } from '@material-ui/core/styles';
 import { sortRois } from '@neuprint/support';
 
 import ColorBox from './visualization/ColorBox';
-import { ColorLegend } from './visualization/MiniRoiHeatMap';
-import {
-  getBodyIdForTable,
-  createSimpleConnectionsResult,
-  generateRoiHeatMapAndBarGraph,
-  setColumnIndices,
-  createSimpleConnectionQueryObject
-} from './shared/pluginhelpers';
 
 const styles = theme => ({
   clickable: {
@@ -41,42 +31,36 @@ const pluginAbbrev = 'rc';
 const WEIGHTCOLOR = '255,100,100,';
 
 class ROIConnectivity extends React.Component {
-  static get queryName() {
-    return 'ROI Connectivity';
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: 'ROI Connectivity',
+      abbr: pluginAbbrev,
+      description: 'Extract connectivity matrix for a dataset',
+      visType: 'HeatMapTable'
+    };
   }
 
-  static get queryDescription() {
-    return 'Extract connectivity matrix for a dataset';
+  static fetchParameters() {
+    return {
+      queryString: '/npexplorer/roiconnectivity',
+    };
   }
 
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  processResults = (query, apiResponse) => {
-    const { actions, availableROIs } = this.props;
+  static processResults(query, apiResponse, actions, submit) {
     const bodyInputCountsPerRoi = {};
     const { squareSize } = query.visProps;
-    let { rois } = query.parameters;
-
-    // if no selected rois, should include all rois
-    if (!rois || rois.length === 0) {
-      rois = availableROIs;
-    }
+    const { pm: parameters } = query;
+    const { rois } = parameters;
 
     const neuronsInRoisQuery = (inputRoi, outputRoi) => ({
-      dataSet: query.parameters.dataset,
-      queryString: '/npexplorer/findneurons',
+      dataSet: parameters.dataset,
       parameters: {
-        dataset: query.parameters.dataset,
+        dataset: parameters.dataset,
         input_ROIs: [inputRoi],
         output_ROIs: [outputRoi]
       },
-      visType: 'SimpleTable',
-      plugin: pluginName,
-      title: `Neurons with inputs in: ${inputRoi} and outputs in: ${outputRoi}`,
-      menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-      processResults: this.processRoiResults
+      pluginCode: 'fn',
     });
 
     // get set of all rois included in this query
@@ -145,9 +129,13 @@ class ROIConnectivity extends React.Component {
     // make data table
     const data = [];
 
-    const sortedRoisInQuery = Array.from(roisInQuery)
-      .sort(sortRois)
-      .filter(roi => rois.includes(roi));
+    let sortedRoisInQuery = Array.from(roisInQuery)
+      .sort(sortRois);
+
+    // if rois list is > 0 then filter, otherwise show everything
+    if (rois && rois.length > 0) {
+      sortedRoisInQuery = sortedRoisInQuery.filter(roi => rois.includes(roi));
+    }
 
     for (let i = 0; i < sortedRoisInQuery.length; i += 1) {
       const inputRoiName = sortedRoisInQuery[i];
@@ -173,11 +161,9 @@ class ROIConnectivity extends React.Component {
 
         row.push({
           value: (
-            <div
-              role="link"
-              tabIndex={-1}
-              onClick={() => actions.submit(neuronsQuery)}
-              onKeyDown={() => actions.submit(neuronsQuery)}
+            <button
+              type="button"
+              onClick={() => submit(neuronsQuery)}
             >
               <ColorBox
                 margin={0}
@@ -206,167 +192,44 @@ class ROIConnectivity extends React.Component {
     return {
       columns: ['', ...sortedRoisInQuery],
       data,
-      debug: apiResponse.debug
+      debug: apiResponse.debug,
+      title: 'ROI Connectivity (column: inputs, row: outputs)',
     };
   };
 
-  processSimpleConnections = (query, apiResponse) => {
-    const { actions } = this.props;
-
-    return createSimpleConnectionsResult(
-      query,
-      apiResponse,
-      actions,
-      pluginName,
-      this.processSimpleConnections
-    );
-  };
-
-  processRoiResults = (query, apiResponse) => {
-    const { actions } = this.props;
-    const { parameters } = query;
-
-    const indexOf = setColumnIndices([
-      'bodyId',
-      'name',
-      'status',
-      'post',
-      'pre',
-      `${parameters.input_ROIs[0]}Post`,
-      `${parameters.output_ROIs[0]}Pre`,
-      'size',
-      'roiHeatMap',
-      'roiBarGraph'
-    ]);
-
-    const data = apiResponse.data.map(row => {
-      const hasSkeleton = row[8];
-      const roiInfoObject = row[3] ? JSON.parse(row[3]) : '{}';
-      const inputRoi = parameters.input_ROIs[0];
-      const outputRoi = parameters.output_ROIs[0];
-      const bodyId = row[0];
-      const name = row[1];
-      const status = row[2];
-      const size = row[4];
-      const totalPre = row[5];
-      const totalPost = row[6];
-      const roiList = row[7];
-      // make sure none is added to the rois list.
-      roiList.push('none');
-
-      const converted = [];
-      converted[indexOf.bodyId] = getBodyIdForTable(query.dataSet, bodyId, hasSkeleton, actions);
-      converted[indexOf.name] = name;
-      converted[indexOf.status] = status;
-      converted[indexOf.post] = '-'; // empty unless roiInfoObject present
-      converted[indexOf.pre] = '-';
-      converted[indexOf[`${parameters.input_ROIs[0]}Post`]] = roiInfoObject[inputRoi].post;
-      converted[indexOf[`${parameters.output_ROIs[0]}Pre`]] = roiInfoObject[outputRoi].pre;
-      converted[indexOf.size] = size;
-      converted[indexOf.roiHeatMap] = '';
-      converted[indexOf.roiBarGraph] = '';
-
-      if (roiInfoObject) {
-        const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
-          roiInfoObject,
-          roiList,
-          totalPre,
-          totalPost
-        );
-
-        converted[indexOf.roiHeatMap] = heatMap;
-        converted[indexOf.roiBarGraph] = barGraph;
-
-        const postQuery = createSimpleConnectionQueryObject(
-          query.dataSet,
-          true,
-          bodyId,
-          this.processSimpleConnections,
-          pluginName
-        );
-        converted[indexOf.post] = {
-          value: totalPost,
-          action: () => actions.submit(postQuery)
-        };
-
-        const preQuery = createSimpleConnectionQueryObject(
-          query.dataSet,
-          false,
-          bodyId,
-          this.processSimpleConnections,
-          pluginName
-        );
-        converted[indexOf.pre] = {
-          value: totalPre,
-          action: () => actions.submit(preQuery)
-        };
-      }
-
-      return converted;
-    });
-
-    const columns = [];
-    columns[indexOf.bodyId] = 'id';
-    columns[indexOf.name] = 'neuron';
-    columns[indexOf.status] = 'status';
-    columns[indexOf.post] = '#post (inputs)';
-    columns[indexOf.pre] = '#pre (outputs)';
-    columns[indexOf[`${parameters.input_ROIs[0]}Post`]] = `#post in ${parameters.input_ROIs[0]}`;
-    columns[indexOf[`${parameters.input_ROIs[0]}Pre`]] = `#pre in ${parameters.output_ROIs[0]}`;
-    columns[indexOf.size] = '#voxels';
-    columns[indexOf.roiHeatMap] = (
-      <div>
-        roi heatmap <ColorLegend />
-      </div>
-    );
-    columns[indexOf.roiBarGraph] = 'roi breakdown';
-
-    return {
-      columns,
-      data,
-      debug: apiResponse.debug
+  constructor(props) {
+    super(props);
+    this.state = {
+      rois: []
     };
-  };
+  }
 
   processRequest = () => {
-    const { dataSet, actions, history } = this.props;
-    const { rois = [] } = actions.getQueryObject(pluginAbbrev);
+    const { dataSet, submit } = this.props;
+    const { rois } = this.state;
 
     const query = {
       dataSet,
-      queryString: '/npexplorer/roiconnectivity',
-      visType: 'HeatMapTable',
       visProps: { squareSize: 75 },
       plugin: pluginName,
+      pluginCode: pluginAbbrev,
       parameters: {
         dataset: dataSet,
         rois
       },
-      title: 'ROI Connectivity (column: inputs, row: outputs)',
-      menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-      processResults: this.processResults
     };
-    actions.submit(query);
-    history.push({
-      pathname: '/results',
-      search: actions.getQueryString()
-    });
+    submit(query);
     return query;
   };
 
   handleChangeROIs = selected => {
-    const { actions } = this.props;
     const rois = selected.map(item => item.value);
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        rois
-      }
-    });
+    this.setState({ rois });
   };
 
   render() {
-    const { isQuerying, availableROIs, actions, classes } = this.props;
-    const { rois = [] } = actions.getQueryObject(pluginAbbrev);
+    const { isQuerying, availableROIs, classes } = this.props;
+    const { rois } = this.state;
 
     const roiOptions = availableROIs.map(name => ({
       label: name,
@@ -416,10 +279,9 @@ class ROIConnectivity extends React.Component {
 ROIConnectivity.propTypes = {
   dataSet: PropTypes.string.isRequired,
   availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
-  actions: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired,
-  history: PropTypes.object.isRequired
+  submit: PropTypes.func.isRequired
 };
 
-export default withRouter(withStyles(styles)(ROIConnectivity));
+export default withStyles(styles)(ROIConnectivity);

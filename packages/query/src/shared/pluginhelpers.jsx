@@ -86,20 +86,15 @@ function getRoiInfoObjectWithNoneCount(roiInfoObject, roiList, preTotal, postTot
  * @param {string} pluginName
  * @returns {Object}
  */
-export function createSimpleConnectionQueryObject(dataset, isPost, bodyId, callback, pluginName) {
+export function createSimpleConnectionQueryObject(dataSet, isPost, bodyId) {
   return {
-    dataSet: dataset, // <string> for the data set selected
-    queryString: '/npexplorer/simpleconnections', // <neo4jquery string>
-    visType: 'SimpleTable', // <string> which visualization plugin to use. Default is 'table'
-    plugin: pluginName, // <string> the name of this plugin.
+    dataSet, // <string> for the data set selected
+    pluginCode: 'sc',
     parameters: {
-      dataset,
+      dataSet,
       find_inputs: isPost,
       neuron_id: bodyId
     },
-    title: isPost ? `Connections to bodyID ${bodyId}` : `Connections from bodyID ${bodyId}`,
-    menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-    processResults: callback
   };
 }
 
@@ -314,7 +309,6 @@ export function createSimpleConnectionsResult(
       query.dataSet,
       true,
       bodyId,
-      simpleConnectionsCallback,
       pluginName
     );
     converted[indexOf.post] = {
@@ -326,7 +320,6 @@ export function createSimpleConnectionsResult(
       query.dataSet,
       false,
       bodyId,
-      simpleConnectionsCallback,
       pluginName
     );
     converted[indexOf.pre] = {
@@ -357,7 +350,8 @@ export function createSimpleConnectionsResult(
   return {
     columns,
     data,
-    debug: apiResponse.debug
+    debug: apiResponse.debug,
+    title:`Connections from bodyID ${query.pm.neuron_id}`
   };
 }
 

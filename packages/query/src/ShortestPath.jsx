@@ -5,8 +5,6 @@
 // TODO: add graph viz and change to all shortest paths
 import React from 'react';
 import PropTypes from 'prop-types';
-import randomColor from 'randomcolor';
-import { withRouter } from 'react-router';
 
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
@@ -36,24 +34,26 @@ const pluginName = 'ShortestPath';
 const pluginAbbrev = 'sp';
 
 export class ShortestPath extends React.Component {
-  static get queryName() {
-    return 'Shortest paths';
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: 'Shortest paths',
+      abbr: pluginAbbrev,
+      experimental: true,
+      description: 'Find all neurons along the shortest paths between two neurons.',
+      visType: 'Graph'
+    };
   }
 
-  static get queryDescription() {
-    return 'Find all neurons along the shortest paths between two neurons.';
+  static fetchParameters(params) {
+    const { dataSet, bodyId1, bodyId2, minWeight } = params;
+    const shortestPathQuery = `MATCH (a:\`${dataSet}-Neuron\`{bodyId:${bodyId1}}), (b:\`${dataSet}-Neuron\`{bodyId:${bodyId2}}) CALL analysis.getShortestPathWithMinWeight(a, b, 'ConnectsTo>', 'prop', 'weight', 1, ${minWeight}) YIELD path,weight WITH extract(n IN nodes(path) | [n.bodyId,n.name]) AS ids,extract(rst IN rels(path) | rst.weight) AS weights, path RETURN length(path), ids, weights`;
+    return {
+       cypherQuery: shortestPathQuery
+    };
   }
 
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  static get isExperimental() {
-    return true;
-  }
-
-  processResults = (query, apiResponse) => {
-    const { actions } = this.props;
+  static processResults(query, apiResponse, actions) {
 
     if (apiResponse.data.length === 0) {
       actions.pluginResponseError('No path found.');
@@ -133,64 +133,54 @@ export class ShortestPath extends React.Component {
       columns: apiResponse.columns,
       data: apiResponse.data,
       graph: { elements: { nodes, edges }, minWeight: minObsWeight, maxWeight: maxObsWeight },
-      debug: apiResponse.debug
+      debug: apiResponse.debug,
+      title: `Neurons along path between ${query.pm.bodyId1} and ${query.pm.bodyId2}`
     };
   };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      bodyId1: '',
+      bodyId2: '',
+      minWeight: 0
+    };
+  }
 
   // creates query object and sends to callback
   processRequest = () => {
-    const { dataSet, actions, history } = this.props;
-    const { bodyId1 = '', bodyId2 = '', minWeight = 0 } = actions.getQueryObject(pluginAbbrev);
+    const { dataSet, submit } = this.props;
+    const { bodyId1, bodyId2, minWeight } = this.state;
 
-    const shortestPathQuery = `MATCH (a:\`${dataSet}-Neuron\`{bodyId:${bodyId1}}), (b:\`${dataSet}-Neuron\`{bodyId:${bodyId2}}) CALL analysis.getShortestPathWithMinWeight(a, b, 'ConnectsTo>', 'prop', 'weight', 1, ${minWeight}) YIELD path,weight WITH extract(n IN nodes(path) | [n.bodyId,n.name]) AS ids,extract(rst IN rels(path) | rst.weight) AS weights, path RETURN length(path), ids, weights`;
     const query = {
       dataSet,
-      cypherQuery: shortestPathQuery,
-      visType: 'Graph',
       plugin: pluginName,
-      parameters: { dataset: dataSet },
-      title: `Neurons along path between ${bodyId1} and ${bodyId2}`,
-      menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-      processResults: this.processResults
+      pluginCode: pluginAbbrev,
+      parameters: {
+        dataset: dataSet,
+        minWeight,
+        bodyId1,
+        bodyId2,
+      }
     };
-    actions.submit(query);
-    history.push({
-      pathname: '/results',
-      search: actions.getQueryString()
-    });
-    return query;
+    submit(query);
   };
 
   addBodyId1 = event => {
-    const { actions } = this.props;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        bodyId1: event.target.value
-      }
-    });
+    this.setState({ bodyId1: event.target.value });
   };
 
   addBodyId2 = event => {
-    const { actions } = this.props;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        bodyId2: event.target.value
-      }
-    });
+    this.setState({ bodyId2: event.target.value });
   };
 
   addMinWeight = event => {
-    const { actions } = this.props;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        minWeight: event.target.value
-      }
-    });
+    this.setState({ minWeight: event.target.value });
   };
 
   render() {
-    const { isQuerying, actions, classes } = this.props;
-    const { bodyId1 = '', bodyId2 = '', minWeight = 0 } = actions.getQueryObject(pluginAbbrev);
+    const { isQuerying, classes } = this.props;
+    const { bodyId1, bodyId2, minWeight } = this.state;
 
     return (
       <div>
@@ -243,9 +233,8 @@ export class ShortestPath extends React.Component {
 ShortestPath.propTypes = {
   dataSet: PropTypes.string.isRequired,
   isQuerying: PropTypes.bool.isRequired,
-  actions: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
+  submit: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired
 };
 
-export default withRouter(withStyles(styles, { withTheme: true })(ShortestPath));
+export default withStyles(styles, { withTheme: true })(ShortestPath);

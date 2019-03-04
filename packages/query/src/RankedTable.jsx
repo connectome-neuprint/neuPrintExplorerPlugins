@@ -5,7 +5,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 import randomColor from 'randomcolor';
 
 import TextField from '@material-ui/core/TextField';
@@ -36,45 +35,26 @@ const pluginName = 'RankedTable';
 const pluginAbbrev = 'rt';
 
 class RankedTable extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      neuronSrc: '',
-      preOrPost: 'pre',
-      useHighConfidence: false
+
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: 'Ranked Table',
+      abbr: pluginAbbrev,
+      experimental: true,
+      description: 'Show connections to neuron(s) ranked in order and colored by neuron class',
+      visType: 'HeatMapTable',
     };
   }
 
-  static get queryName() {
-    return 'Ranked Table';
+  static fetchParameters() {
+    return {
+      queryString: '/npexplorer/rankedtable'
+    };
   }
 
-  static get queryDescription() {
-    return 'Show connections to neuron(s) ranked by synaptic weight and colored by neuron type or name';
-  }
-
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  static get isExperimental() {
-    return true;
-  }
-
-  processResults = (query, apiResponse) => {
-    const { dataSet, parameters } = query;
-    const { actions } = this.props;
-    const { useHighConfidence } = parameters;
-
-    if (apiResponse.data.length === 0) {
-      // produce appropriate error message if no data found
-      actions.pluginResponseError('No results found for queried neuron.');
-      return {
-        columns: [],
-        data: [],
-        debug: apiResponse.debug
-      };
-    }
+  static processResults(query, apiResponse) {
+    const { dataSet } = query;
 
     const colorMap = {};
     const reverseCounts = {};
@@ -114,8 +94,8 @@ class RankedTable extends React.Component {
       const [, , weight, body2, , , mId, nId, preId, body1, weightHP] = row;
 
       if (
-        (query.parameters.find_inputs === false && (preId !== mId || nId === mId)) ||
-        (query.parameters.find_inputs === true && preId === mId)
+        (query.pm.find_inputs === false && (preId !== mId || nId === mId)) ||
+        (query.pm.find_inputs === true && preId === mId)
       ) {
         if (body2 in reverseCounts) {
           reverseCounts[String(body2)][String(body1)] = useHighConfidence ? weightHP : weight;
@@ -142,8 +122,8 @@ class RankedTable extends React.Component {
       ] = row;
 
       if (
-        (query.parameters.find_inputs === false && preId === mId) ||
-        (query.parameters.find_inputs === true && (preId !== mId || nId === mId))
+        (query.pm.find_inputs === false && preId === mId) ||
+        (query.pm.find_inputs === true && (preId !== mId || nId === mId))
       ) {
         // check the colormap for the current type.
         // if present use the existing color.
@@ -264,17 +244,34 @@ class RankedTable extends React.Component {
       .fill(0)
       .map((e, i) => `#${i + 1}`);
 
+    const neuronSrc = query.pm.neuron_name || query.pm.neuron_id;
+    let title = `Neurons postsynaptic to ${neuronSrc}`;
+
+    if (query.pm.find_inputs) {
+      title = `Neurons presynaptic to ${neuronSrc}`;
+    }
+
     return {
       columns: ['', ...headings],
       data,
       debug: apiResponse.debug,
-      dataSet
+      dataSet,
+      title
     };
   };
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      neuronSrc: '',
+      preOrPost: 'pre',
+      useHighConfidence: false
+    };
+  }
+
   processRequest = () => {
     const { neuronSrc, preOrPost, useHighConfidence } = this.state;
-    const { dataSet, actions, history } = this.props;
+    const { dataSet, actions, submit } = this.props;
     if (neuronSrc !== '') {
       const parameters = { dataset: dataSet };
       if (/^\d+$/.test(neuronSrc)) {
@@ -282,34 +279,24 @@ class RankedTable extends React.Component {
       } else {
         parameters.neuron_name = neuronSrc;
       }
-      let title = `Neurons postsynaptic to ${neuronSrc}`;
 
       if (preOrPost === 'pre') {
         parameters.find_inputs = false;
       } else {
         parameters.find_inputs = true;
-        title = `Neurons presynaptic to ${neuronSrc}`;
       }
 
       parameters.useHighConfidence = useHighConfidence;
 
       const query = {
         dataSet,
-        queryString: '/npexplorer/rankedtable',
-        visType: 'HeatMapTable',
         visProps: { squareSize },
         plugin: pluginName,
-        parameters,
-        title,
-        menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-        processResults: this.processResults
+        pluginCode: pluginAbbrev,
+        parameters
       };
 
-      actions.submit(query);
-      history.push({
-        pathname: '/results',
-        search: actions.getQueryString()
-      });
+      submit(query);
     } else {
       actions.formError('Please enter a neuron name.');
     }
@@ -407,10 +394,10 @@ class RankedTable extends React.Component {
 
 RankedTable.propTypes = {
   isQuerying: PropTypes.bool.isRequired,
-  history: PropTypes.object.isRequired,
+  submit: PropTypes.func.isRequired,
   actions: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   dataSet: PropTypes.string.isRequired
 };
 
-export default withRouter(withStyles(styles)(RankedTable));
+export default withStyles(styles)(RankedTable);

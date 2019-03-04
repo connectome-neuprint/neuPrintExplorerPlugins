@@ -3,8 +3,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-import randomColor from 'randomcolor';
 
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
@@ -14,47 +12,60 @@ const styles = () => ({});
 const pluginName = 'NeuronMeta';
 const pluginAbbrev = 'nm';
 
-class NeuronMeta extends React.Component {
-  static get queryName() {
-    return 'Neuron Meta';
-  }
+function processMetaValues(query, apiResponse) {
+  const data = apiResponse.data.map(row => [row[0]]);
 
-  static get queryDescription() {
-    return 'Provides information on the types of meta data stored for neurons.  Clicking on a different property type name in the resulting table provides a list of unique names for that type stored in the database.';
-  }
-
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  processMetaValues = (query, apiResponse) => {
-    const data = apiResponse.data.map(row => [row[0]]);
-
-    return {
-      columns: ['Property Value'],
-      data,
-      debug: apiResponse.debug
-    };
+  return {
+    columns: ['Property Value'],
+    data,
+    debug: apiResponse.debug,
+    title: `Distinct values for property type: ${query.pm.key_name}`
   };
+}
 
-  processResults = (query, apiResponse) => {
-    const { actions, dataSet } = this.props;
+class NeuronMeta extends React.Component {
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: 'Neuron Meta',
+      abbr: pluginAbbrev,
+      description:
+        'Provides information on the types of meta data stored for neurons.  Clicking on a different property type name in the resulting table provides a list of unique names for that type stored in the database.',
+      visType: 'SimpleTable'
+    };
+  }
+
+  static fetchParameters(params) {
+    // return the cypher Query and the api end point based on the parameters
+    // received.
+    if (params.key_name) {
+      return {
+        queryString: '/npexplorer/neuronmetavals'
+      };
+    }
+    // the default response
+    return {
+      queryString: '/npexplorer/neuronmeta'
+    };
+  }
+
+  static processResults(query, apiResponse, actions, submit) {
+    if (query.pm.key_name) {
+      return processMetaValues(query, apiResponse);
+    }
+
     const data = apiResponse.data.map(row => {
       const valuesQuery = {
-        queryString: '/npexplorer/neuronmetavals',
-        parameters: { dataset: dataSet, key_name: row[0] },
+        parameters: { dataset: query.pm.dataset, key_name: row[0] },
         dataSet: query.dataSet, // <string> for the data set selected
-        visType: 'SimpleTable', // <string> which visualization plugin to use. Default is 'table'
         plugin: pluginName, // <string> the name of this plugin.
-        title: `Distinct values for property type: ${row[0]}`,
-        menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-        processResults: this.processMetaValues
+        pluginCode: pluginAbbrev
       };
 
       return [
         {
           value: row[0],
-          action: () => actions.submit(valuesQuery)
+          action: () => submit(valuesQuery)
         }
       ];
     });
@@ -62,33 +73,24 @@ class NeuronMeta extends React.Component {
     return {
       columns: ['Property Name'],
       data,
-      debug: apiResponse.debug
+      debug: apiResponse.debug,
+      title: `Distinct property types found in dataset: ${query.pm.dataset}`
     };
-  };
+  }
 
   processRequest = () => {
-    const { dataSet, actions, history } = this.props;
+    const { dataSet, submit } = this.props;
     const parameters = {
       dataset: dataSet
     };
 
     const query = {
       dataSet, // <string> for the data set selected
-      queryString: '/npexplorer/neuronmeta',
-      visType: 'SimpleTable',
-      visProps: { rowsPerPage: 10 },
       plugin: pluginName, // <string> the name of this plugin.
-      parameters, // <object>
-      title: `Distinct property types found in dataset: ${dataSet}`,
-      menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-      processResults: this.processResults
+      pluginCode: pluginAbbrev,
+      parameters // <object>
     };
-    actions.submit(query);
-    // redirect to the results page.
-    history.push({
-      pathname: '/results',
-      search: actions.getQueryString()
-    });
+    submit(query);
   };
 
   render() {
@@ -107,11 +109,10 @@ class NeuronMeta extends React.Component {
 }
 
 NeuronMeta.propTypes = {
-  actions: PropTypes.object.isRequired,
+  submit: PropTypes.func.isRequired,
   dataSet: PropTypes.string.isRequired,
-  history: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired
 };
 
 // boiler plate for redux.
-export default withRouter(withStyles(styles)(NeuronMeta));
+export default withStyles(styles)(NeuronMeta);

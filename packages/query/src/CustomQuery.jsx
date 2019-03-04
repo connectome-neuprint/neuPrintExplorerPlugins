@@ -3,8 +3,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import randomColor from 'randomcolor';
-import { withRouter } from 'react-router';
 
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -27,19 +25,22 @@ const pluginName = 'CustomQuery';
 const pluginAbbrev = 'cq';
 
 export class CustomQuery extends React.Component {
-  static get queryName() {
-    return 'Custom';
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: 'Custom Query',
+      abbr: pluginAbbrev,
+      description: 'Enter custom Neo4j Cypher query',
+      visType: 'SimpleTable'
+    };
   }
 
-  static get queryDescription() {
-    return 'Enter custom Neo4j Cypher query';
+  static fetchParameters() {
+    return {
+    };
   }
 
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  processResults = (query, apiResponse) => {
+  static processResults(query, apiResponse) {
     if (apiResponse.data) {
       const data = apiResponse.data.map(row =>
         row.map(item => (typeof item === 'object' ? JSON.stringify(item) : item))
@@ -47,7 +48,8 @@ export class CustomQuery extends React.Component {
       return {
         columns: apiResponse.columns,
         data,
-        debug: apiResponse.debug
+        debug: apiResponse.debug,
+        title: 'Custom Query'
       };
     }
     return {
@@ -57,35 +59,31 @@ export class CustomQuery extends React.Component {
     };
   };
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      textValue: ''
+    };
+  }
+
   processRequest = () => {
-    const { dataSet, actions, history } = this.props;
-    const { textValue = '' } = actions.getQueryObject(pluginAbbrev);
+    const { dataSet, submit } = this.props;
+    const { textValue = '' } = this.state;
 
     const query = {
       dataSet,
-      cypherQuery: textValue,
-      visType: 'SimpleTable',
       plugin: pluginName,
-      parameters: {},
-      title: 'Custom query',
-      menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-      processResults: this.processResults
+      pluginCode: pluginAbbrev,
+      parameters: {
+        cypherQuery: textValue,
+      }
     };
-    actions.submit(query);
-    history.push({
-      pathname: '/results',
-      search: actions.getQueryString()
-    });
-    return query;
+    submit(query);
   };
 
   handleChange = event => {
-    const { actions } = this.props;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        textValue: event.target.value
-      }
-    });
+    this.setState({textValue: event.target.value});
   };
 
   catchReturn = event => {
@@ -97,8 +95,8 @@ export class CustomQuery extends React.Component {
   };
 
   render() {
-    const { actions, classes, isQuerying } = this.props;
-    const { textValue = '' } = actions.getQueryObject(pluginAbbrev);
+    const { classes, isQuerying } = this.props;
+    const { textValue = '' } = this.state;
     return (
       <FormControl className={classes.formControl}>
         <TextField
@@ -127,10 +125,9 @@ export class CustomQuery extends React.Component {
 
 CustomQuery.propTypes = {
   classes: PropTypes.object.isRequired,
-  actions: PropTypes.object.isRequired,
   dataSet: PropTypes.string.isRequired,
-  history: PropTypes.object.isRequired,
+  submit: PropTypes.func.isRequired,
   isQuerying: PropTypes.bool.isRequired
 };
 
-export default withStyles(styles)(withRouter(CustomQuery));
+export default withStyles(styles)(CustomQuery);

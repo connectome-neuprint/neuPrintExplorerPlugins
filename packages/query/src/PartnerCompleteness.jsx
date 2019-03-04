@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 import randomColor from 'randomcolor';
 
 import { withStyles } from '@material-ui/core/styles';
@@ -20,31 +19,33 @@ const styles = theme => ({
   }
 });
 
-const pluginName = 'Partner Completeness';
+const pluginName = 'PartnerCompleteness';
 const pluginAbbrev = 'pc';
 
 class PartnerCompleteness extends React.Component {
-  static get queryName() {
-    return pluginName;
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: 'Partner Completeness',
+      abbr: pluginAbbrev,
+      experimental: true,
+      category: 'recon',
+      description: 'Show all connections to and from selected neuron and show reconstruction completeness.',
+      visType: 'SimpleTable'
+    };
   }
 
-  static get queryCategory() {
-    return 'recon';
+  static fetchParameters(params) {
+
+    const { dataSet, bodyId } = params;
+    const cypherQuery = `MATCH (n :\`${dataSet}-Segment\` {bodyId: ${bodyId}})-[x:ConnectsTo]-(m) RETURN m.bodyId, m.name, CASE WHEN startnode(x).bodyId = ${bodyId} THEN false ELSE true END, x.weight, m.status, m.pre, m.post, n.name, n.pre, n.post, n.status ORDER BY x.weight DESC`;
+    return {
+      cypherQuery,
+      queryString: '/custom/custom',
+    };
   }
 
-  static get queryDescription() {
-    return 'Show all connections to and from selected neuron and show reconstruction completeness.';
-  }
-
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  static get isExperimental() {
-    return true;
-  }
-
-  processResults = (dataSet, apiResponse) => {
+  static processResults(query, apiResponse) {
     const data = apiResponse.data.map(row => [
       row[0],
       row[1],
@@ -63,47 +64,39 @@ class PartnerCompleteness extends React.Component {
       columns: ['id', 'name', 'isinput', '#connections', 'status', '#pre', '#post'],
       data,
       debug: apiResponse.debug,
-      bodyId: apiResponse.bodyId
+      bodyId: apiResponse.bodyId,
+      title: `Tracing completeness of connections to/from ${query.pm.bodyId}`,
     };
   };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      bodyId: ''
+    };
+  }
 
   // creates query object and sends to callback
   processRequest = () => {
-    const { dataSet, actions, history } = this.props;
-    const { bodyId } = actions.getQueryObject(pluginAbbrev);
-    const cypher = `MATCH (n :\`${dataSet}-Segment\` {bodyId: ${bodyId}})-[x:ConnectsTo]-(m) RETURN m.bodyId, m.name, CASE WHEN startnode(x).bodyId = ${bodyId} THEN false ELSE true END, x.weight, m.status, m.pre, m.post, n.name, n.pre, n.post, n.status ORDER BY x.weight DESC`;
+    const { dataSet, submit } = this.props;
+    const { bodyId } = this.state;
 
     const query = {
       dataSet,
-      queryString: '/custom/custom',
-      visType: 'PartnerCompletenessView',
       plugin: pluginName,
-      parameters: { cypher },
-      title: `Tracing completeness of connections to/from ${bodyId}`,
-      menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-      processResults: this.processResults,
-      bodyId
+      pluginCode: pluginAbbrev,
+      parameters: { dataSet, bodyId },
     };
-    actions.submit(query);
-    history.push({
-      pathname: '/results',
-      search: actions.getQueryString()
-    });
-    return query;
+    submit(query);
   };
 
   addNeuron = event => {
-    const { actions } = this.props;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        bodyId: event.target.value
-      }
-    });
+    this.setState({ bodyId: event.target.value });
   };
 
   render() {
-    const { classes, isQuerying, actions } = this.props;
-    const { bodyId = '' } = actions.getQueryObject(pluginAbbrev);
+    const { classes, isQuerying } = this.props;
+    const { bodyId } = this.state;
     return (
       <div>
         <TextField
@@ -129,10 +122,9 @@ class PartnerCompleteness extends React.Component {
 
 PartnerCompleteness.propTypes = {
   dataSet: PropTypes.string.isRequired,
-  actions: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
+  submit: PropTypes.func.isRequired,
   isQuerying: PropTypes.bool.isRequired,
   classes: PropTypes.object.isRequired
 };
 
-export default withRouter(withStyles(styles)(PartnerCompleteness));
+export default withStyles(styles)(PartnerCompleteness);

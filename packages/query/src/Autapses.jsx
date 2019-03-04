@@ -3,8 +3,6 @@
 */
 import React from 'react';
 import PropTypes from 'prop-types';
-import randomColor from 'randomcolor';
-import { withRouter } from 'react-router';
 
 import Button from '@material-ui/core/Button';
 
@@ -12,55 +10,45 @@ const pluginName = 'Autapses';
 const pluginAbbrev = 'au';
 
 class Autapses extends React.Component {
-  static get queryName() {
-    return 'Autapses';
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: pluginName,
+      abbr: pluginAbbrev,
+      experimental: true,
+      category: 'recon',
+      description: 'Finds all the self connections (loops) in the dataset.',
+      visType: 'SimpleTable'
+    };
   }
 
-  static get queryCategory() {
-    return 'recon';
+  static fetchParameters() {
+    return {
+      queryString: '/npexplorer/autapses',
+    };
   }
 
-  static get queryDescription() {
-    return 'Finds all the self connections (loops) in the dataset.';
-  }
-
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  static get isExperimental() {
-    return true;
-  }
-
-  processResults = (query, apiResponse) => {
+  static processResults(query, apiResponse) {
     const data = apiResponse.data.map(row => [row[0], row[2], row[1]]);
 
     return {
       columns: ['id', 'name', '#connections'],
       data,
-      debug: apiResponse.debug
+      debug: apiResponse.debug,
+      title: `Number of autapses recorded for each neuron in ${query.pm.dataset}`,
     };
   };
 
   // creates query object and sends to callback
   processRequest = () => {
-    const { dataSet, actions, history } = this.props;
+    const { dataSet, submit } = this.props;
     const query = {
       dataSet,
-      queryString: '/npexplorer/autapses',
-      visType: 'SimpleTable',
       plugin: pluginName,
+      pluginCode: pluginAbbrev,
       parameters: { dataset: dataSet },
-      title: 'Number of autapses recorded for each neuron',
-      menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-      processResults: this.processResults
     };
-    actions.submit(query);
-    history.push({
-      pathname: '/results',
-      search: actions.getQueryString()
-    });
-    return query;
+    submit(query);
   };
 
   render() {
@@ -81,8 +69,7 @@ class Autapses extends React.Component {
 Autapses.propTypes = {
   dataSet: PropTypes.string.isRequired,
   isQuerying: PropTypes.bool.isRequired,
-  actions: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired
+  submit: PropTypes.func.isRequired,
 };
 
-export default withRouter(Autapses);
+export default Autapses;
