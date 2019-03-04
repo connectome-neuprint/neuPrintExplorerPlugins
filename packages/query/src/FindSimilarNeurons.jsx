@@ -340,7 +340,7 @@ function processGroupResults(query, apiResponse, actions, submit) {
   // for displaying cluster names
   if (apiResponse.data.length === 0) {
     actions.pluginResponseError('No cluster names found in the dataset.');
-    return { columns: apiResponse.columns, data: apiResponse.data, debug: apiResponse.debug };
+    return { columns: [], data: apiResponse.data, debug: apiResponse.debug };
   }
 
   const data = apiResponse.data.map(row => {

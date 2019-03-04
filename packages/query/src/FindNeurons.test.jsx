@@ -172,7 +172,7 @@ describe('find neurons Plugin', () => {
         },
         title: 'Neurons with inputs in [] and outputs in []'
       };
-      const processedResultsWithRois = FindNeurons.processResults(queryWithRoisSelected, apiResponse);
+      const processedResultsWithRois = FindNeurons.processResults(queryWithRoisSelected, apiResponse, actions);
       expect(processedResultsWithRois).toEqual(
         expect.objectContaining({
           columns: [
