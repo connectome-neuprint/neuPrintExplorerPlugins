@@ -55,6 +55,7 @@ class RankedTable extends React.Component {
 
   static processResults(query, apiResponse) {
     const { dataSet } = query;
+    const { useHighConfidence } = query.pm;
 
     const colorMap = {};
     const reverseCounts = {};

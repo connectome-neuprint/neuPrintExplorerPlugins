@@ -1,5 +1,4 @@
 import React from 'react';
-import randomColor from 'randomcolor';
 import Icon from '@material-ui/core/Icon';
 import * as math from 'mathjs';
 import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
@@ -253,7 +252,6 @@ export function computeSimilarity(inputVector, queriedBodyVector) {
  * @param {Object} apiResponse
  * @param {Object} actions
  * @param {string} pluginName
- * @param {function} simpleConnectionsCallback
  * @returns {Object}
  */
 export function createSimpleConnectionsResult(
@@ -261,7 +259,6 @@ export function createSimpleConnectionsResult(
   apiResponse,
   actions,
   pluginName,
-  simpleConnectionsCallback
 ) {
   const indexOf = setColumnIndices([
     'bodyId',

@@ -179,7 +179,7 @@ class ROIConnectivity extends React.Component {
                   </div>
                 }
               />
-            </div>
+            </button>
           ),
           sortBy: { rowValue: inputRoiName, columeValue: outputRoiName },
           csvValue: connectivityValue,

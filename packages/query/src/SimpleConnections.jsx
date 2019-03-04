@@ -51,18 +51,6 @@ class SimpleConnections extends React.Component {
     };
   }
 
-  processBasicSimpleConnections = (query, apiResponse) => {
-    const { actions } = this.props;
-
-    return createSimpleConnectionsResult(
-      query,
-      apiResponse,
-      actions,
-      pluginName,
-      this.processBasicSimpleConnections
-    );
-  };
-
   static processResults(query, apiResponse, actions) {
     const tables = [];
 
@@ -141,6 +129,18 @@ class SimpleConnections extends React.Component {
       preOrPost: 'pre'
     };
   }
+
+  processBasicSimpleConnections = (query, apiResponse) => {
+    const { actions } = this.props;
+
+    return createSimpleConnectionsResult(
+      query,
+      apiResponse,
+      actions,
+      pluginName,
+      this.processBasicSimpleConnections
+    );
+  };
 
   processRequest = () => {
     const { dataSet, actions, submit } = this.props;
