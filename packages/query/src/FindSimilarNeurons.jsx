@@ -355,8 +355,6 @@ function processGroupResults(query, apiResponse, actions, submit) {
     parameters.clusterName = clusterName;
     parameters.emptyDataErrorMessage = 'Cluster name does not exist in the dataset.';
 
-    // const title = `Neurons with classification ${clusterName}`;
-
     const clusterQuery = {
       dataset: parameters.dataset,
       cypherQuery: clusterQueryString,
@@ -473,8 +471,6 @@ export class FindSimilarNeurons extends React.Component {
       dataset: dataSet
     };
 
-    // const title = `Cluster names for ${dataset} dataset`;
-
     const query = {
       dataSet,
       plugin: pluginName,
@@ -494,9 +490,6 @@ export class FindSimilarNeurons extends React.Component {
       rois,
       emptyDataErrorMessage: `No neurons located in all selected rois: ${rois}`
     };
-
-    // TODO: change title based on results
-    // const title = `Neurons in ${rois}`;
 
     const query = {
       dataSet,
