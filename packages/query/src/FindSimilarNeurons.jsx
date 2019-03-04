@@ -420,7 +420,7 @@ export class FindSimilarNeurons extends React.Component {
     const { pm: parameters } = query;
     // Determine which type of  processing to use, either ROI, GROUPS or BODY_ID,
     // based on the parameters in the query.
-    if ( parameters.rois || parameters.bodyId ) {
+    if ( parameters && (parameters.rois || parameters.bodyId)) {
       return processSimilarResults(query, apiResponse, actions, submit);
     }
     return processGroupResults(query, apiResponse, actions, submit);

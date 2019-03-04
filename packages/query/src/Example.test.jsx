@@ -12,6 +12,7 @@ const raw = (
   <MemoryRouter>
     <Example
       actions={actions}
+      submit={actions.submit}
       dataSet="mb6"
       history={{ push: jest.fn() }}
       classes={styles}
@@ -24,7 +25,7 @@ const raw = (
 function providedRenderedComponent() {
   const wrapper = enzyme.mount(raw);
   // get through the styles and router components that wrap the plugin.
-  const rendered = wrapper.children().children();
+  const rendered = wrapper.children().children().children();
   return rendered;
 }
 
@@ -37,10 +38,10 @@ describe('Example Plugin', () => {
 
   describe('has required functions', () => {
     test('name', () => {
-      expect(Example.queryName).toBeTruthy();
+      expect(Example.details.name).toBeTruthy();
     });
     test('description', () => {
-      expect(Example.queryDescription).toBeTruthy();
+      expect(Example.details.description).toBeTruthy();
     });
   });
 
@@ -70,15 +71,14 @@ describe('Example Plugin', () => {
 
   describe('handles user input', () => {
     const rendered = providedRenderedComponent();
-    test('query text change triggers url update', () => {
+    test('query text change triggers state change', () => {
       // can't use .find('TextField').simulate as it wont trigger the onChange
       // method.
       rendered
         .find('textarea')
         .at(2)
         .simulate('change', { target: { value: 'test me' } });
-      expect(rendered.props().actions.getQueryObject('ex').textValue).toEqual('test me');
-      expect(actions.setQueryString).toHaveBeenCalledTimes(1);
+      expect(rendered.state('textValue')).toEqual('test me');
     });
   });
 
@@ -100,7 +100,7 @@ describe('Example Plugin', () => {
         .simulate('change', { target: { value: 'test me' } });
       rendered.find('Button').simulate('click');
       expect(actions.submit).toHaveBeenCalledTimes(1);
-      expect(actions.submit.mock.calls[0][0].cypherQuery).toEqual('test me');
+      expect(actions.submit.mock.calls[0][0].parameters.textValue).toEqual('test me');
     });
   });
 });

@@ -5,6 +5,7 @@ const { actions } = global;
 describe('createSimpleConnectionsResult', () => {
   it('should return a simple connections query object', () => {
     const query = {
+      pm: {},
       dataSet: 'test'
     };
     const apiResponse = {

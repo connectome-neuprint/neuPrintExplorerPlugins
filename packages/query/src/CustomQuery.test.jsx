@@ -14,6 +14,7 @@ const component = (
     history={{ push: jest.fn() }}
     classes={styles}
     actions={actions}
+    submit={actions.submit}
     isQuerying={false}
   />
 );
@@ -28,8 +29,8 @@ describe('custom query Plugin', () => {
     actions.submit.mockClear();
   });
   it('has name and description', () => {
-    expect(CustomQuery.queryName).toBeTruthy();
-    expect(CustomQuery.queryDescription).toBeTruthy();
+    expect(CustomQuery.details.name).toBeTruthy();
+    expect(CustomQuery.details.description).toBeTruthy();
   });
   it('renders correctly', () => {
     const pluginView = renderer.create(component).toJSON();
@@ -37,18 +38,7 @@ describe('custom query Plugin', () => {
   });
   describe('when user clicks submit', () => {
     it('should return a query object and submit', () => {
-      expect(button.props().onClick()).toEqual(
-        expect.objectContaining({
-          dataSet: 'test',
-          cypherQuery: '',
-          visType: 'SimpleTable',
-          plugin: 'CustomQuery',
-          parameters: {},
-          title: 'Custom query',
-          menuColor: expect.any(String),
-          processResults: expect.any(Function)
-        })
-      );
+      expect(button.props().onClick()).toEqual(undefined);
       expect(actions.submit).toHaveBeenCalledTimes(1);
     });
 
@@ -61,22 +51,16 @@ describe('custom query Plugin', () => {
         parameters: {},
         title: 'Custom query'
       };
-      const apiResponse = { data: [[1, 2, 3], [4, 5, 6]], columns: ['a', 'b', 'c'], debug: 'test' };
-      const processedResults = wrapper
-        .find('CustomQuery')
-        .instance()
-        .processResults(query, apiResponse);
+      const apiResponse = { data: [[1, 2, 3], [4, 5, 6]], columns: ['a', 'b', 'c'], debug: 'test', title: 'Custom Query' };
+      const processedResults = CustomQuery.processResults(query, apiResponse);
       expect(processedResults).toEqual(apiResponse);
 
       // if no data returned
-      const processedResultsEmpty = wrapper
-        .find('CustomQuery')
-        .instance()
-        .processResults(query, {});
+      const processedResultsEmpty = CustomQuery.processResults(query, {});
       expect(processedResultsEmpty).toEqual({
         columns: [],
         data: [],
-        debug: ''
+        debug: '',
       });
     });
   });
@@ -92,11 +76,10 @@ describe('custom query Plugin', () => {
     });
   });
   describe('when user inputs text', () => {
-    it('should change url query string in state', () => {
+    it('should change state', () => {
       actions.setQueryString.mockClear();
       textField.props().onChange({ target: { value: 'abc' } });
-      expect(actions.getQueryObject('cq').textValue).toBe('abc');
-      expect(actions.setQueryString).toHaveBeenCalledTimes(1);
+      expect(wrapper.find('CustomQuery').state('textValue')).toEqual('abc');
     });
   });
 });

@@ -23,6 +23,7 @@ const component = (
     dataSet="test"
     datasetstr="test"
     actions={actions}
+    submit={actions.submit}
     classes={styles}
     history={{ push: jest.fn() }}
     isQuerying={false}
@@ -46,8 +47,8 @@ describe('find neurons Plugin', () => {
     actions.submit.mockClear();
   });
   it('has name and description', () => {
-    expect(FindNeurons.queryName).toBeTruthy();
-    expect(FindNeurons.queryDescription).toBeTruthy();
+    expect(FindNeurons.details.name).toBeTruthy();
+    expect(FindNeurons.details.description).toBeTruthy();
   });
   it('renders correctly', () => {
     const pluginView = renderer.create(component).toJSON();
@@ -55,120 +56,28 @@ describe('find neurons Plugin', () => {
   });
   describe('when user clicks submit', () => {
     it('should return a query object and submit', () => {
-      expect(button.props().onClick()).toEqual(
-        expect.objectContaining({
-          dataSet: 'test',
-          queryString: '/npexplorer/findneurons',
-          visType: 'SimpleTable',
-          visProps: { rowsPerPage: 25 },
-          plugin: 'FindNeurons',
-          parameters: {
-            dataset: 'test',
-            input_ROIs: [],
-            output_ROIs: [],
-            all_segments: false,
-            statuses: []
-          },
-          title: 'Neurons with inputs in [] and outputs in []',
-          menuColor: expect.any(String),
-          processResults: expect.any(Function)
-        })
-      );
+      expect(button.props().onClick()).toEqual(undefined);
       expect(actions.submit).toHaveBeenCalledTimes(1);
 
       // if neuron name/id is present add to parameters
       textField.props().onChange({ target: { value: 'abc' } });
-      expect(button.props().onClick()).toEqual(
-        expect.objectContaining({
-          dataSet: 'test',
-          menuColor: expect.any(String),
-          parameters: {
-            dataset: 'test',
-            input_ROIs: [],
-            neuron_name: 'abc',
-            output_ROIs: [],
-            all_segments: false,
-            statuses: []
-          },
-          plugin: 'FindNeurons',
-          processResults: expect.any(Function),
-          queryString: '/npexplorer/findneurons',
-          title: 'Neurons with inputs in [] and outputs in []',
-          visProps: { rowsPerPage: 25 },
-          visType: 'SimpleTable'
-        })
-      );
+      expect(button.props().onClick()).toEqual(undefined);
       textField.props().onChange({ target: { value: '123' } });
-      expect(button.props().onClick()).toEqual(
-        expect.objectContaining({
-          dataSet: 'test',
-          menuColor: expect.any(String),
-          parameters: {
-            dataset: 'test',
-            input_ROIs: [],
-            neuron_id: 123,
-            output_ROIs: [],
-            all_segments: false,
-            statuses: []
-          },
-          plugin: 'FindNeurons',
-          processResults: expect.any(Function),
-          queryString: '/npexplorer/findneurons',
-          title: 'Neurons with inputs in [] and outputs in []',
-          visProps: { rowsPerPage: 25 },
-          visType: 'SimpleTable'
-        })
-      );
+      expect(button.props().onClick()).toEqual(undefined)
 
       // if input/output rois present add to parameters
       textField.props().onChange({ target: { value: '' } });
       inputSelect.props().onChange([{ value: 'roiA' }]);
       outputSelect.props().onChange([{ value: 'roiB' }]);
-      expect(button.props().onClick()).toEqual(
-        expect.objectContaining({
-          dataSet: 'test',
-          menuColor: expect.any(String),
-          parameters: {
-            dataset: 'test',
-            input_ROIs: ['roiA'],
-            output_ROIs: ['roiB'],
-            all_segments: false,
-            statuses: []
-          },
-          plugin: 'FindNeurons',
-          processResults: expect.any(Function),
-          queryString: '/npexplorer/findneurons',
-          title: 'Neurons with inputs in [roiA] and outputs in [roiB]',
-          visProps: { rowsPerPage: 25 },
-          visType: 'SimpleTable'
-        })
-      );
+      expect(button.props().onClick()).toEqual(undefined);
 
       // if neuron/segment filters present add to parameters
       limitNeuronsToggle.props().onChange();
       preThresholdField.props().onChange({ target: { value: 12 } });
       postThresholdField.props().onChange({ target: { value: 13 } });
-      expect(button.props().onClick()).toEqual(
-        expect.objectContaining({
-          dataSet: 'test',
-          menuColor: expect.any(String),
-          parameters: {
-            dataset: 'test',
-            input_ROIs: ['roiA'],
-            output_ROIs: ['roiB'],
-            all_segments: true,
-            pre_threshold: 12,
-            post_threshold: 13,
-            statuses: []
-          },
-          plugin: 'FindNeurons',
-          processResults: expect.any(Function),
-          queryString: '/npexplorer/findneurons',
-          title: 'Neurons with inputs in [roiA] and outputs in [roiB]',
-          visProps: { rowsPerPage: 25 },
-          visType: 'SimpleTable'
-        })
-      );
+      expect(button.props().onClick()).toEqual(undefined);
+
+      expect(actions.submit).toHaveBeenCalledTimes(5);
     });
     it('should process returned results into data object', () => {
       const query = {
@@ -177,7 +86,7 @@ describe('find neurons Plugin', () => {
         visType: 'SimpleTable',
         plugin: 'FindNeurons',
         visProps: { rowsPerPage: 25 },
-        parameters: {
+        pm: {
           dataset: 'test',
           input_ROIs: [],
           output_ROIs: [],
@@ -203,7 +112,7 @@ describe('find neurons Plugin', () => {
         columns: [],
         debug: 'test'
       };
-      const processedResults = wrapper.instance().processResults(query, apiResponse);
+      const processedResults = FindNeurons.processResults(query, apiResponse, actions, actions.submit);
       expect(processedResults).toEqual(
         expect.objectContaining({
           columns: [
@@ -224,11 +133,11 @@ describe('find neurons Plugin', () => {
       );
 
       // if no data returned
-      const processedResultsEmpty = wrapper.instance().processResults(query, {
+      const processedResultsEmpty = FindNeurons.processResults(query, {
         columns: [],
         data: [],
         debug: 'test'
-      });
+      }, actions, actions.submit);
       expect(processedResultsEmpty).toEqual({
         columns: [
           'id',
@@ -243,7 +152,8 @@ describe('find neurons Plugin', () => {
           'roi breakdown'
         ],
         data: [],
-        debug: 'test'
+        debug: 'test',
+        title: "Neurons with inputs in [] and outputs in []"
       });
 
       // if rois selected should add roi count columns
@@ -253,7 +163,7 @@ describe('find neurons Plugin', () => {
         visType: 'SimpleTable',
         plugin: 'FindNeurons',
         visProps: { rowsPerPage: 25 },
-        parameters: {
+        pm: {
           dataset: 'test',
           input_ROIs: ['roiA'],
           output_ROIs: ['roiB'],
@@ -262,9 +172,7 @@ describe('find neurons Plugin', () => {
         },
         title: 'Neurons with inputs in [] and outputs in []'
       };
-      const processedResultsWithRois = wrapper
-        .instance()
-        .processResults(queryWithRoisSelected, apiResponse);
+      const processedResultsWithRois = FindNeurons.processResults(queryWithRoisSelected, apiResponse);
       expect(processedResultsWithRois).toEqual(
         expect.objectContaining({
           columns: [
@@ -300,27 +208,24 @@ describe('find neurons Plugin', () => {
     });
   });
   describe('when user inputs text or selects rois', () => {
-    it('should change url query string in state', () => {
+    it('should change state', () => {
       actions.setQueryString.mockClear();
 
       // neuron name input
       textField.props().onChange({ target: { value: 'abc' } });
-      expect(actions.setQueryString).toHaveBeenCalledTimes(1);
-      expect(actions.getQueryObject('fn').neuronName).toBe('abc');
+      expect(wrapper.find('FindNeurons').state('neuronName')).toBe('abc');
 
       // input rois
       inputSelect.props().onChange([{ value: 'roiA' }, { value: 'roiB' }]);
-      expect(actions.getQueryObject('fn').inputROIs).toContainEqual('roiA');
-      expect(actions.getQueryObject('fn').inputROIs).toContainEqual('roiB');
-      expect(actions.getQueryObject('fn').inputROIs.length).toBe(2);
-      expect(actions.setQueryString).toHaveBeenCalledTimes(2);
+      expect(wrapper.find('FindNeurons').state('inputROIs')).toContainEqual('roiA');
+      expect(wrapper.find('FindNeurons').state('inputROIs')).toContainEqual('roiB');
+      expect(wrapper.find('FindNeurons').state('inputROIs').length).toBe(2);
 
       // output rois
       outputSelect.props().onChange([{ value: 'roiB' }, { value: 'roiC' }]);
-      expect(actions.getQueryObject('fn').outputROIs).toContainEqual('roiC');
-      expect(actions.getQueryObject('fn').outputROIs).toContainEqual('roiB');
-      expect(actions.getQueryObject('fn').outputROIs.length).toBe(2);
-      expect(actions.setQueryString).toHaveBeenCalledTimes(3);
+      expect(wrapper.find('FindNeurons').state('outputROIs')).toContainEqual('roiC');
+      expect(wrapper.find('FindNeurons').state('outputROIs')).toContainEqual('roiB');
+      expect(wrapper.find('FindNeurons').state('outputROIs').length).toBe(2);
     });
   });
 });

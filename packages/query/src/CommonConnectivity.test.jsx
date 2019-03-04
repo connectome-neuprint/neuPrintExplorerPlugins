@@ -12,6 +12,7 @@ const raw = (
   <MemoryRouter>
     <CommonConnectivity
       actions={actions}
+      submit={actions.submit}
       dataSet="mb6"
       history={{ push: jest.fn() }}
       classes={styles}
@@ -34,10 +35,10 @@ describe('Common Connectivity Plugin', () => {
 
   describe('has required functions', () => {
     test('name', () => {
-      expect(CommonConnectivity.queryName).toBeTruthy();
+      expect(CommonConnectivity.details.name).toBeTruthy();
     });
     test('description', () => {
-      expect(CommonConnectivity.queryDescription).toBeTruthy();
+      expect(CommonConnectivity.details.description).toBeTruthy();
     });
   });
 

@@ -41,6 +41,7 @@ const component = (
     dataSet="test"
     datasetstr="test"
     actions={actions}
+    submit={actions.submit}
     classes={styles}
     history={{ push: jest.fn() }}
     isQuerying={false}
@@ -61,8 +62,8 @@ describe('synapses for connection Plugin', () => {
     actions.submit.mockClear();
   });
   it('has name and description', () => {
-    expect(SynapsesForConnection.queryName).toBeTruthy();
-    expect(SynapsesForConnection.queryDescription).toBeTruthy();
+    expect(SynapsesForConnection.details.name).toBeTruthy();
+    expect(SynapsesForConnection.details.description).toBeTruthy();
   });
   it('renders correctly', () => {
     const pluginView = renderer.create(component).toJSON();
@@ -73,55 +74,29 @@ describe('synapses for connection Plugin', () => {
       bodyAField.props().onChange({ target: { value: '123456' } });
       bodyBField.props().onChange({ target: { value: '645321' } });
 
-      const synapsesForConnectionQuery =
-        'MATCH (a:`test-Neuron`{bodyId:123456})<-[:From]-(c:ConnectionSet)-[:To]->(b{bodyId:645321}), (c)-[:Contains]->(s:Synapse) RETURN s.type, s.location.x ,s.location.y ,s.location.z, s.confidence, keys(s)';
-
-      expect(button.props().onClick()).toEqual(
-        expect.objectContaining({
-          dataSet: 'test',
-          cypherQuery: synapsesForConnectionQuery,
-          visType: 'SimpleTable',
-          plugin: 'SynapsesForConnection',
-          parameters: query.parameters,
-          title: expect.any(String),
-          menuColor: expect.any(String),
-          processResults: expect.any(Function)
-        })
-      );
+      expect(button.props().onClick()).toEqual(undefined);
       expect(actions.submit).toHaveBeenCalledTimes(1);
 
       roiSelect.props().onChange([{ value: 'roi1' }, { value: 'roi2' }]);
-      const synapsesForConnectionQueryWithRois =
-        'MATCH (a:`test-Neuron`{bodyId:123456})<-[:From]-(c:ConnectionSet)-[:To]->(b{bodyId:645321}), (c)-[:Contains]->(s:Synapse) WHERE (exists(s.`roi1`) AND exists(s.`roi2`)) RETURN s.type, s.location.x ,s.location.y ,s.location.z, s.confidence, keys(s)';
 
-      expect(button.props().onClick()).toEqual(
-        expect.objectContaining({
-          dataSet: 'test',
-          cypherQuery: synapsesForConnectionQueryWithRois,
-          visType: 'SimpleTable',
-          plugin: 'SynapsesForConnection',
-          parameters: { ...query.parameters, rois: ['roi1', 'roi2'] },
-          title: expect.any(String),
-          menuColor: expect.any(String),
-          processResults: expect.any(Function)
-        })
-      );
+      expect(button.props().onClick()).toEqual(undefined);
       expect(actions.submit).toHaveBeenCalledTimes(2);
     });
   });
 
   describe('processes returned results', () => {
     it('should produce error, empty data object if results are empty', () => {
-      const processedEmptyResults = wrapper.instance().processResults({}, emptyApiResponse);
+      const processedEmptyResults = SynapsesForConnection.processResults({}, emptyApiResponse, actions);
       expect(actions.pluginResponseError).toHaveBeenCalledTimes(1);
       expect(processedEmptyResults).toEqual({
         columns: [],
         data: [],
-        debug: emptyApiResponse.debug
+        debug: emptyApiResponse.debug,
+        title: "Synapses involved in connection between  and "
       });
     });
     it('should produce object with data rows', () => {
-      const processedResults = wrapper.instance().processResults(query, apiResponse);
+      const processedResults = SynapsesForConnection.processResults(query, apiResponse, actions);
       const { columns, data, debug } = processedResults;
       expect(columns).toEqual(['type', 'location', 'confidence', 'rois']);
       expect(data[0]).toEqual(['pre', '[1.1,2.1,3.1]', 0.9839, ['roi1', 'roi2']]);

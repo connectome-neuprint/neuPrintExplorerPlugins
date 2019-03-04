@@ -129,12 +129,18 @@ export class ShortestPath extends React.Component {
       edges.push({ data: foundEdges[edge] });
     });
 
+    let title = 'Neurons along shortest path';
+
+    if (query.pm && query.pm.bodyId1 && query.pm.bodyId2) {
+      title = `Neurons along path between ${query.pm.bodyId1} and ${query.pm.bodyId2}`;
+    }
+
     return {
       columns: apiResponse.columns,
       data: apiResponse.data,
       graph: { elements: { nodes, edges }, minWeight: minObsWeight, maxWeight: maxObsWeight },
       debug: apiResponse.debug,
-      title: `Neurons along path between ${query.pm.bodyId1} and ${query.pm.bodyId2}`
+      title 
     };
   };
 
