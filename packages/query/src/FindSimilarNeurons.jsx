@@ -134,7 +134,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
     }
 
     const converted = [];
-    converted[indexOf.bodyId] = getBodyIdForTable(query.dataset, bodyId, hasSkeleton, actions);
+    converted[indexOf.bodyId] = getBodyIdForTable(query.pm.dataset, bodyId, hasSkeleton, actions);
     converted[indexOf.name] = name;
     converted[indexOf.status] = status;
     const postQuery = createSimpleConnectionQueryObject(
