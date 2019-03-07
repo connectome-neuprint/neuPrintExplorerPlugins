@@ -86,7 +86,7 @@ export class FindNeurons extends React.Component {
       const roiInfoObject = JSON.parse(row[3]);
 
       const converted = [];
-      converted[indexOf.bodyId] = getBodyIdForTable(query.dataSet, bodyId, hasSkeleton, actions);
+      converted[indexOf.bodyId] = getBodyIdForTable(query.ds, bodyId, hasSkeleton, actions);
       converted[indexOf.name] = row[1];
       converted[indexOf.status] = row[2];
       converted[indexOf.post] = '-'; // empty unless roiInfoObject present

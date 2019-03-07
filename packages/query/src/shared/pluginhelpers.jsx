@@ -14,7 +14,8 @@ import SelectAndCopyText from './SelectAndCopyText';
  */
 function showSkeleton(id, dataset, actions) {
   actions.skeletonAddandOpen(id, dataset);
-  actions.neuroglancerAddandOpen(id, dataset);
+  // TODO: fix this
+  // actions.neuroglancerAddandOpen(id, dataset);
 }
 
 /**
