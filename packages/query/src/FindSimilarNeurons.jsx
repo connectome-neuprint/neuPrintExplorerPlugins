@@ -326,13 +326,17 @@ function processSimilarResults(query, apiResponse, actions, submit) {
     title = `Neurons in ${parameters.rois}`;
   }
 
+  if (parameters.clusterName) {
+    title = `Neurons with classification ${parameters.clusterName}`;
+  }
+
   return {
     columns,
     data,
     debug: apiResponse.debug,
-    title,
+    title
   };
-};
+}
 
 function processGroupResults(query, apiResponse, actions, submit) {
   const { pm: parameters } = query;
@@ -346,21 +350,17 @@ function processGroupResults(query, apiResponse, actions, submit) {
   const data = apiResponse.data.map(row => {
     const clusterName = row[0];
 
-    const clusterQueryString = `MATCH (m:Meta{dataset:'${
-      parameters.dataset
-    }'}) WITH m.superLevelRois AS rois MATCH (n:\`${
-      parameters.dataset
-    }-Neuron\`{clusterName:'${clusterName}'}) RETURN n.bodyId, n.name, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
-
-    parameters.clusterName = clusterName;
-    parameters.emptyDataErrorMessage = 'Cluster name does not exist in the dataset.';
+    const queryParameters = {
+      ...parameters,
+      clusterName,
+      emptyDataErrorMessage: 'Cluster name does not exist in the dataset.'
+    };
 
     const clusterQuery = {
       dataset: parameters.dataset,
-      cypherQuery: clusterQueryString,
       plugin: pluginName,
-      parameters,
-      // processResults: this.processResults
+      pluginCode: pluginAbbrev,
+      parameters: queryParameters
     };
 
     const converted = [
@@ -377,9 +377,9 @@ function processGroupResults(query, apiResponse, actions, submit) {
     columns: ['cluster name (click to explore group)'],
     data,
     debug: apiResponse.debug,
-    title: `Cluster names for ${parameters.dataset} dataset`,
+    title: `Cluster names for ${parameters.dataset} dataset`
   };
-};
+}
 
 export class FindSimilarNeurons extends React.Component {
   static get details() {
@@ -388,25 +388,33 @@ export class FindSimilarNeurons extends React.Component {
       displayName: 'Find similar neurons',
       abbr: pluginAbbrev,
       experimental: true,
-      description: 'Find neurons that are similar to a neuron of interest in terms of their input and output locations (ROIs).',
+      description:
+        'Find neurons that are similar to a neuron of interest in terms of their input and output locations (ROIs).',
       visType: 'SimpleTable'
     };
   }
 
   static fetchParameters(params) {
-    const { dataset, bodyId, rois } = params;
+    const { dataset, bodyId, rois, clusterName } = params;
 
     // by default this is a groups query
     let cypherQuery = `MATCH (n:\`${dataset}-Neuron\`) RETURN DISTINCT n.clusterName`;
 
-    if (bodyId) { // similarity query
+    if (bodyId) {
+      // similarity query
       cypherQuery = `MATCH (m:Meta{dataset:'${dataset}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataset}-Neuron\`{bodyId:${bodyId}}) WITH n.clusterName AS cn, rois MATCH (n:\`${dataset}-Neuron\`{clusterName:cn}) RETURN n.bodyId, n.name, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
-    } else if (rois) { // rois query
+    } else if (rois) {
+      // rois query
       let roiPredicate = '';
       rois.forEach(roi => {
         roiPredicate += `exists(n.\`${roi}\`) AND `;
       });
-      cypherQuery = `MATCH (m:Meta{dataset:'${dataset}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataset}-Neuron\`) WHERE (${roiPredicate.slice(0, -4)}) RETURN n.bodyId, n.name, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
+      cypherQuery = `MATCH (m:Meta{dataset:'${dataset}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataset}-Neuron\`) WHERE (${roiPredicate.slice(
+        0,
+        -4
+      )}) RETURN n.bodyId, n.name, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
+    } else if (clusterName) {
+      cypherQuery = `MATCH (m:Meta{dataset:'${dataset}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataset}-Neuron\`{clusterName:'${clusterName}'}) RETURN n.bodyId, n.name, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
     }
 
     return {
@@ -418,7 +426,7 @@ export class FindSimilarNeurons extends React.Component {
     const { pm: parameters } = query;
     // Determine which type of  processing to use, either ROI, GROUPS or BODY_ID,
     // based on the parameters in the query.
-    if ( parameters && (parameters.rois || parameters.bodyId)) {
+    if (parameters && (parameters.rois || parameters.bodyId || parameters.clusterName)) {
       return processSimilarResults(query, apiResponse, actions, submit);
     }
     return processGroupResults(query, apiResponse, actions, submit);
@@ -451,14 +459,15 @@ export class FindSimilarNeurons extends React.Component {
 
     const parameters = {
       dataset: dataSet,
-      bodyId
+      bodyId,
+      emptyDataErrorMessage: 'Body ID not found in dataset.'
     };
 
     const query = {
       dataSet,
       plugin: pluginName,
       pluginCode: pluginAbbrev,
-      parameters,
+      parameters
     };
 
     submit(query);
@@ -475,7 +484,7 @@ export class FindSimilarNeurons extends React.Component {
       dataSet,
       plugin: pluginName,
       pluginCode: pluginAbbrev,
-      parameters,
+      parameters
     };
 
     submit(query);
@@ -495,7 +504,7 @@ export class FindSimilarNeurons extends React.Component {
       dataSet,
       plugin: pluginName,
       pluginCode: pluginAbbrev,
-      parameters,
+      parameters
     };
 
     submit(query);

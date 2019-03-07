@@ -66,7 +66,6 @@ describe('find similar neurons Plugin', () => {
       expect(bodyIdButton.props().onClick()).toEqual(undefined);
       expect(actions.submit).toHaveBeenCalledTimes(1);
 
-      // const rois = ['roiA', 'roiB'];
       roiSelect.props().onChange([{ value: 'roiA' }, { value: 'roiB' }]);
       expect(roiButton.props().onClick()).toEqual(undefined);
       expect(actions.submit).toHaveBeenCalledTimes(2);
@@ -101,7 +100,11 @@ describe('find similar neurons Plugin', () => {
           ]
         ]
       };
-      let processedResults = FindSimilarNeurons.processResults(queryOneNeuron, apiResponseOneNeuron, actions);
+      let processedResults = FindSimilarNeurons.processResults(
+        queryOneNeuron,
+        apiResponseOneNeuron,
+        actions
+      );
       expect(processedResults.data[0].length).toBe(12);
       expect(processedResults.columns.length).toBe(12);
       expect(processedResults.data[0].slice(8, 12)).toEqual([0, 0, 0, 0]);
@@ -123,7 +126,11 @@ describe('find similar neurons Plugin', () => {
           ]
         ]
       };
-      processedResults = FindSimilarNeurons.processResults(queryOneNeuron, apiResponseOneNeuronNoSub, actions);
+      processedResults = FindSimilarNeurons.processResults(
+        queryOneNeuron,
+        apiResponseOneNeuronNoSub,
+        actions
+      );
       expect(processedResults.data[0].length).toBe(11);
       expect(processedResults.data[0][7]).toEqual('N/A');
       expect(processedResults.columns.length).toBe(11);
@@ -164,7 +171,11 @@ describe('find similar neurons Plugin', () => {
           ]
         ]
       };
-      processedResults = FindSimilarNeurons.processResults(queryMultNeurons, apiResponseMultNeurons, actions);
+      processedResults = FindSimilarNeurons.processResults(
+        queryMultNeurons,
+        apiResponseMultNeurons,
+        actions
+      );
       expect(processedResults.data[0].length).toBe(12);
       expect(processedResults.data[0][0].sortBy).toBe(456);
       expect(processedResults.data.length).toBe(2);
@@ -198,7 +209,11 @@ describe('find similar neurons Plugin', () => {
           ]
         ]
       };
-      processedResults = FindSimilarNeurons.processResults(queryMultNeurons, apiResponseMultNeuronsNoSub, actions);
+      processedResults = FindSimilarNeurons.processResults(
+        queryMultNeurons,
+        apiResponseMultNeuronsNoSub,
+        actions
+      );
       expect(processedResults.data[0].length).toBe(11);
       expect(processedResults.data[0][0].sortBy).toBe(456);
       expect(processedResults.data.length).toBe(2);
@@ -211,49 +226,74 @@ describe('find similar neurons Plugin', () => {
           rois: ['roiA']
         }
       };
-      processedResults = FindSimilarNeurons.processResults(queryRoi, apiResponseMultNeurons, actions);
+      processedResults = FindSimilarNeurons.processResults(
+        queryRoi,
+        apiResponseMultNeurons,
+        actions
+      );
       expect(processedResults.data[0].length).toBe(12);
       expect(processedResults.data[0][0].sortBy).toBe(123);
       expect(processedResults.data.length).toBe(2);
       expect(processedResults.columns.length).toBe(12);
 
       // roi result without sub-rois
-      processedResults = FindSimilarNeurons.processResults(queryRoi, apiResponseMultNeuronsNoSub, actions);
+      processedResults = FindSimilarNeurons.processResults(
+        queryRoi,
+        apiResponseMultNeuronsNoSub,
+        actions
+      );
       expect(processedResults.data[0].length).toBe(11);
       expect(processedResults.data[0][0].sortBy).toBe(123);
       expect(processedResults.data.length).toBe(2);
       expect(processedResults.columns.length).toBe(11);
 
-      // cluster query results with sub-rois
+      // cluster query (result of clicking cluster name in "explore groups" result) results with sub-rois
       const queryGroup = {
         pm: {
-          dataset: 'test'
+          dataset: 'test',
+          clusterName: 'testCluster'
         }
       };
-      processedResults = FindSimilarNeurons.processResults(queryGroup, apiResponseMultNeurons, actions);
-      expect(processedResults.data[0].length).toBe(1);
-      expect(processedResults.data[0][0].value).toBe(123);
+      processedResults = FindSimilarNeurons.processResults(
+        queryGroup,
+        apiResponseMultNeurons,
+        actions
+      );
+      expect(processedResults.data[0].length).toBe(12);
+      expect(processedResults.data[0][0].sortBy).toBe(123);
       expect(processedResults.data.length).toBe(2);
-      expect(processedResults.columns.length).toBe(1);
+      expect(processedResults.columns.length).toBe(12);
 
-      // cluster query results without sub-rois
-      processedResults = FindSimilarNeurons.processResults(queryGroup, apiResponseMultNeuronsNoSub, actions);
-      expect(processedResults.data[0].length).toBe(1);
-      expect(processedResults.data[0][0].value).toBe(123);
+      // cluster query (result of clicking cluster name in "explore groups" result) results without sub-rois
+      processedResults = FindSimilarNeurons.processResults(
+        queryGroup,
+        apiResponseMultNeuronsNoSub,
+        actions
+      );
+      expect(processedResults.data[0].length).toBe(11);
+      expect(processedResults.data[0][0].sortBy).toBe(123);
       expect(processedResults.data.length).toBe(2);
-      expect(processedResults.columns.length).toBe(1);
+      expect(processedResults.columns.length).toBe(11);
 
       // no results
       processedResults = FindSimilarNeurons.processResults({ pm: {} }, { data: [] }, actions);
       expect(processedResults.data.length).toBe(0);
       expect(processedResults.columns.length).toBe(0);
 
-      // cluster name results
-      processedResults = FindSimilarNeurons.processResults({ pm: { dataset: 'test' } }, { data: ['a', 'b', 'c'] }, actions);
+      // cluster name results (initial result of "explore groups")
+      processedResults = FindSimilarNeurons.processResults(
+        { pm: { dataset: 'test' } },
+        { data: ['a', 'b', 'c'] },
+        actions
+      );
       expect(processedResults.data.length).toBe(3);
 
       // no cluster names
-      processedResults = FindSimilarNeurons.processResults({ pm: { dataset: 'test' } }, { data: [] }, actions);
+      processedResults = FindSimilarNeurons.processResults(
+        { pm: { dataset: 'test' } },
+        { data: [] },
+        actions
+      );
       expect(processedResults.data.length).toBe(0);
     });
   });
