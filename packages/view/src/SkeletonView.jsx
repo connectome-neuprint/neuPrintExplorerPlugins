@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import randomColor from 'randomcolor';
 import Immutable from 'immutable';
+import PouchDB from 'pouchdb';
 
 import { withStyles } from '@material-ui/core/styles';
 import Chip from '@material-ui/core/Chip';
@@ -56,7 +57,7 @@ class SkeletonView extends React.Component {
       sharkViewer: {
         animate: () => {}
       },
-      // db: new PouchDB('neuprint_compartments')
+      db: new PouchDB('neuprint_compartments'),
       bodies: Immutable.Map({}),
       compartments: Immutable.Map({})
     };
@@ -84,15 +85,14 @@ class SkeletonView extends React.Component {
     const { query } = this.props;
 
     if (query.pm.bodyIds !== prevProps.query.pm.bodyIds) {
-      // figure out which ones to add and which ones to remove.
-      // const newIds = 
-      // this.addSkeletons(newIds, query.pm.dataSet);
-      // const removedIds = 
-      // this.removeSkeletons(removedIds);
       const bodyIds = query.pm.bodyIds.toString().split(',');
       this.addSkeletons(bodyIds, query.pm.dataSet);
     }
 
+    if (query.pm.compartments !== prevProps.query.pm.compartments) {
+      const compartments = query.pm.compartments.toString().split(',');
+      this.addCompartments(compartments, query.pm.dataSet);
+    }
 
     // now check the state to see if that has changed and if so, then load in the
     // new data.
@@ -250,7 +250,7 @@ class SkeletonView extends React.Component {
   handleClick = id => () => {
     const { bodies } = this.state;
     const newState = !bodies.getIn([id, 'visible']);
-    const updated = bodies.setIn([id, 'visible'], newState );
+    const updated = bodies.setIn([id, 'visible'], newState);
     this.setState({ bodies: updated });
   };
 
@@ -291,8 +291,6 @@ class SkeletonView extends React.Component {
   }
 
   addSkeleton(bodyId, dataSet) {
-    // dispatch loading skeleton action
-    // dispatch(skeletonLoading(id));
     // generate the querystring.
     const completeQuery = skeletonQuery.replace(/YY/g, dataSet).replace(/ZZ/g, bodyId);
     // fetch swc data
@@ -315,44 +313,152 @@ class SkeletonView extends React.Component {
         this.skeletonLoaded(bodyId, dataSet, result);
       })
       .catch(error => this.setState({ loadingError: error }));
-    // dispatch skeleton storing action
-    // dispatch skeleton error if issues occur.
+  }
+
+  addCompartments(cIds, dataSet) {
+    cIds.forEach(id => {
+      this.addCompartment(id, dataSet);
+    });
+  }
+
+  addCompartmentsToQueryString(updated) {
+    const { actions, index } = this.props;
+    const tabData = actions.getQueryObject('qr', []);
+    tabData[index].pm.compartments = updated.keySeq().join(',');
+    actions.setQueryString({
+      'qr': tabData
+    });
+  }
+
+  skeletonLoadedCompartment(id, result) {
+    const { db, compartments } = this.state;
+    const compartment = Immutable.Map({
+      name: id,
+      obj: 'localStorage',
+      visible: true,
+      color: '#000000'
+    });
+    return db
+      .putAttachment(id, 'obj', btoa(result), 'text/plain')
+      .then(() => {
+        const updated = compartments.set(id, compartment);
+        this.setState({ compartments: updated });
+        // TODO: update url query string here
+        this.addCompartmentsToQueryString(updated);
+      })
+      .catch(err => {
+        if (err.name === 'conflict') {
+          const updated = compartments.set(id, compartment);
+          this.setState({ compartments: updated });
+          // TODO: update url query string here
+          this.addCompartmentsToQueryString(updated);
+        } else {
+          this.setState({
+            loadingError: err
+          });
+        }
+      });
+  }
+
+  fetchMesh(id, key, host, uuid) {
+    return fetch(`${host}/api/node/${uuid}/roi_data/key/${key}`, {
+      headers: {
+        'Content-Type': 'text/plain',
+        Accept: 'text/plain'
+      },
+      method: 'GET'
+    })
+      .then(result => result.text())
+      .then(result => {
+        this.skeletonLoadedCompartment(id, result);
+      });
+  }
+
+  addCompartment = id => {
+    const { neo4jsettings, query } = this.props;
+    const meshHost = neo4jsettings.get('meshInfo').hemibrain;
+    const { uuid } = neo4jsettings.get('datasetInfo').hemibrain;
+
+    return fetch(`${meshHost}/api/node/${uuid}/rois/key/${id}`, {
+      headers: {
+        'Content-Type': 'text/plain',
+        Accept: 'application/json'
+      },
+      method: 'GET'
+    })
+      .then(result => result.json())
+      .then(result => {
+        const { key } = result['->'];
+        this.fetchMesh(id, key, meshHost, uuid);
+      })
+      .catch(error => this.setState({ loadingError: error }));
+  };
+
+  removeCompartment = cId => {
+    const { actions, index } = this.props;
+    const { compartments } = this.state;
+    const updated = compartments.delete(cId);
+    this.setState({ compartments: updated });
+
+    // TODO: update url query string here
+    const tabData = actions.getQueryObject('qr', []);
+
+    tabData[index].pm.compartments = updated.keySeq().join(',');
+    actions.setQueryString({
+      'qr': tabData,
+    });
   }
 
   render() {
-    const { classes } = this.props;
-    const { bodies } = this.state;
+    const { classes, query, neo4jsettings, index } = this.props;
+    const { bodies, compartments } = this.state;
 
-    const chips = bodies
-      .map(neuron => {
-        // gray out the chip if it is not active.
-        let currcolor = neuron.get('color');
-        if (!neuron.get('visible')) {
-          currcolor = 'gray';
-        }
+    const chips = bodies.map(neuron => {
+      // gray out the chip if it is not active.
+      let currcolor = neuron.get('color');
+      if (!neuron.get('visible')) {
+        currcolor = 'gray';
+      }
 
-        const name = neuron.get('name');
+      const name = neuron.get('name');
 
-        return (
-          <Chip
-            key={name}
-            label={name}
-            onDelete={this.handleDelete(name)}
-            onClick={this.handleClick(name)}
-            className={classes.chip}
-            style={{ background: currcolor }}
-          />
-        );
-      })
+      return (
+        <Chip
+          key={name}
+          label={name}
+          onDelete={this.handleDelete(name)}
+          onClick={this.handleClick(name)}
+          className={classes.chip}
+          style={{ background: currcolor }}
+        />
+      );
+    });
 
     const chipsArray = chips.valueSeq().toArray();
 
+    let compartmentSelection = '';
+
+    if (query.pm.dataSet === 'hemibrain') {
+      // pass action callbacks to add or remove compartments to
+      // the compartment selection component.
+      const compartmentActions = {
+        addROI: this.addCompartment,
+        removeROI: this.removeCompartment
+      };
+
+      compartmentSelection = (
+        <CompartmentSelection
+          availableROIs={neo4jsettings.get('availableROIs')}
+          selectedROIs={compartments}
+          actions={compartmentActions}
+          query={query}
+        />
+      );
+    }
     return (
       <div className={classes.root}>
         <div className={classes.floater}>{chipsArray}</div>
-        <div className={classes.footer}>
-          <CompartmentSelection />
-        </div>
+        <div className={classes.footer}>{compartmentSelection}</div>
         <div className={classes.skel} ref={this.skelRef} id="skeletonviewer" />
       </div>
     );
@@ -361,8 +467,10 @@ class SkeletonView extends React.Component {
 
 SkeletonView.propTypes = {
   query: PropTypes.object.isRequired,
+  index: PropTypes.number.isRequired,
   classes: PropTypes.object.isRequired,
-  actions: PropTypes.object.isRequired
+  actions: PropTypes.object.isRequired,
+  neo4jsettings: PropTypes.object.isRequired
 };
 
 export default withStyles(styles)(SkeletonView);

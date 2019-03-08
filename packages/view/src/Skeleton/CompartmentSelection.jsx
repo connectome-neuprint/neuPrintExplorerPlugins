@@ -2,9 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { withStyles } from '@material-ui/core/styles';
-import { connect } from 'react-redux';
-
-import { skeletonAddCompartment, skeletonRemoveCompartment } from 'actions/skeleton';
 
 const styles = () => ({
   select: {
@@ -13,7 +10,6 @@ const styles = () => ({
 });
 
 class CompartmentSelection extends React.Component {
-
   handleROIChange = chosen => {
     const { actions, selectedROIs } = this.props;
     const chosenList = chosen.map(item => item.value);
@@ -28,29 +24,28 @@ class CompartmentSelection extends React.Component {
     // if not in the list of already selected then fire off
     // an action to load it.
     chosenList.forEach(choice => {
-      if (!(selectedROIs.has(choice))) {
+      if (!selectedROIs.has(choice)) {
         actions.addROI(choice);
       }
     });
-  }
+  };
 
   render() {
     const { classes, availableROIs, selectedROIs } = this.props;
 
+    if (!availableROIs.hemibrain) {
+      return '';
+    }
 
-    const queryOptions = availableROIs.hemibrain.map(
-      roi => ({
-        value: roi,
-        label: roi
-      })
-    );
+    const queryOptions = availableROIs.hemibrain.map(roi => ({
+      value: roi,
+      label: roi
+    }));
 
-    const selectedValue = selectedROIs.keySeq().map(
-      key => ({
-        label: key,
-        value: key
-      })
-    );
+    const selectedValue = selectedROIs.keySeq().map(key => ({
+      label: key,
+      value: key
+    }));
 
     return (
       <Select
@@ -72,26 +67,4 @@ CompartmentSelection.propTypes = {
   selectedROIs: PropTypes.object.isRequired
 };
 
-const CompartmentSelectionState = state => ({
-  dataSetInfo: state.neo4jsettings.get('datasetInfo'),
-  availableROIs: state.neo4jsettings.get('availableROIs'),
-  selectedROIs: state.skeleton.get('compartments')
-});
-
-const CompartmentSelectionDispatch = dispatch => ({
-  actions: {
-    addROI: query => {
-      dispatch(skeletonAddCompartment(query));
-    },
-    removeROI: query => {
-      dispatch(skeletonRemoveCompartment(query));
-    }
-  }
-});
-
-export default withStyles(styles, { withTheme: true })(
-  connect(
-    CompartmentSelectionState,
-    CompartmentSelectionDispatch
-  )(CompartmentSelection)
-);
+export default withStyles(styles, { withTheme: true })(CompartmentSelection);
