@@ -47,6 +47,7 @@ const styles = theme => ({
     right: '1em'
   }
 });
+
 const skeletonQuery =
   'MATCH (:`YY-Neuron` {bodyId:ZZ})-[:Contains]->(:Skeleton)-[:Contains]->(root :SkelNode) WHERE NOT (root)<-[:LinksTo]-() RETURN root.rowNumber AS rowId, root.location.x AS x, root.location.y AS y, root.location.z AS z, root.radius AS radius, -1 AS link ORDER BY root.rowNumber UNION match (:`YY-Neuron` {bodyId:ZZ})-[:Contains]->(:Skeleton)-[:Contains]->(s :SkelNode)<-[:LinksTo]-(ss :SkelNode) RETURN s.rowNumber AS rowId, s.location.x AS x, s.location.y AS y, s.location.z AS z, s.radius AS radius, ss.rowNumber AS link ORDER BY s.rowNumber';
 
@@ -393,6 +394,13 @@ class SkeletonView extends React.Component {
     // generate the querystring.
     const completeQuery = skeletonQuery.replace(/YY/g, dataSet).replace(/ZZ/g, bodyId);
     // fetch swc data
+    // TODO: check if we have a cached copy of the data and skip the fetch if we do.
+    // document key should be sk_<id>
+    //
+    // we can fetch the timestamps with the following neuprint cypher query:
+    // WITH [1,2] AS ids MATCH (n:`mb6-Neuron`)-[:Contains]->(s:Skeleton) WHERE n.bodyId IN ids RETURN n.bodyId,s.timeStamp
+    // That will return the timestamps for each of the neurons, then if it is different or blank,
+    // we fetch the swc data.
     return fetch('/api/custom/custom', {
       headers: {
         'content-type': 'application/json',
@@ -421,10 +429,9 @@ class SkeletonView extends React.Component {
   }
 
   skeletonLoaded(id, dataSet, result) {
-    const { bodies } = this.state;
+    const { db } = this.state;
     // parse the result into swc format for skeleton viewer code.
     const data = {};
-    const color = randomColor({ luminosity: 'light', hue: 'random' });
 
     result.data.forEach(row => {
       data[parseInt(row[0], 10)] = {
@@ -436,6 +443,26 @@ class SkeletonView extends React.Component {
       };
     });
 
+    // TODO: check to see if we have a color cached for this neuron.
+    // if yes, then return the color,
+    // else, generate random color and cache it.
+    db.get(`sk_${id}`).then(doc => {
+      const { color } = doc;
+        this.addSkeletonToState(id, dataSet, data, color);
+    }).catch(err => {
+      const color = randomColor({ luminosity: 'light', hue: 'random' });
+      db.put({
+        _id: `sk_${id}`,
+        color
+      }).then(resp => {
+        this.addSkeletonToState(id, dataSet, data, color);
+      });
+
+    });
+  }
+
+  addSkeletonToState(id, dataSet, data, color) {
+    const { bodies } = this.state;
     const updated = bodies.set(
       id,
       Immutable.Map({
@@ -446,7 +473,6 @@ class SkeletonView extends React.Component {
         visible: true
       })
     );
-
     this.setState({ bodies: updated });
   }
 
