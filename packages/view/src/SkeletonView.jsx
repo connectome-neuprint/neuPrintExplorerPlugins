@@ -152,14 +152,16 @@ class SkeletonView extends React.Component {
       const coords = sharkViewer.cameraCoords();
       const target = sharkViewer.cameraTarget();
 
-      const coordinateString = `${coords.x},${coords.y},${coords.z},${target.x},${target.y},${target.z}`;
+      const coordinateString = `${coords.x},${coords.y},${coords.z},${target.x},${target.y},${
+        target.z
+      }`;
       const tabData = actions.getQueryObject('qr', []);
       // if we have switched tabs and not removed the skeleton tab then we
       // need to keep track of the camera position.
       if (tabData[index]) {
         tabData[index].pm.coordinates = coordinateString;
         actions.setQueryString({
-          'qr': tabData,
+          qr: tabData
         });
       }
     }
@@ -256,9 +258,14 @@ class SkeletonView extends React.Component {
       const target = {
         x: parseFloat(coords[3]),
         y: parseFloat(coords[4]),
-        z: parseFloat(coords[5]),
+        z: parseFloat(coords[5])
       };
-      sharkViewer.restoreView(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]), target);
+      sharkViewer.restoreView(
+        parseFloat(coords[0]),
+        parseFloat(coords[1]),
+        parseFloat(coords[2]),
+        target
+      );
     }
 
     sharkViewer.render();
@@ -299,9 +306,9 @@ class SkeletonView extends React.Component {
 
     tabData[index].pm.compartments = updated.keySeq().join(',');
     actions.setQueryString({
-      'qr': tabData,
+      qr: tabData
     });
-  }
+  };
 
   addCompartment = id => {
     const { neo4jsettings } = this.props;
@@ -337,7 +344,6 @@ class SkeletonView extends React.Component {
       });
   }
 
-
   addCompartments(cIds, dataSet) {
     cIds.forEach(id => {
       this.addCompartment(id, dataSet);
@@ -349,7 +355,7 @@ class SkeletonView extends React.Component {
     const tabData = actions.getQueryObject('qr', []);
     tabData[index].pm.compartments = updated.keySeq().join(',');
     actions.setQueryString({
-      'qr': tabData
+      qr: tabData
     });
   }
 
@@ -382,7 +388,6 @@ class SkeletonView extends React.Component {
         }
       });
   }
-
 
   addSkeleton(bodyId, dataSet) {
     // generate the querystring.
@@ -444,7 +449,6 @@ class SkeletonView extends React.Component {
 
     this.setState({ bodies: updated });
   }
-
 
   render() {
     const { classes, query, neo4jsettings } = this.props;
