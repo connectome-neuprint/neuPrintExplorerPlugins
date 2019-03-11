@@ -81,17 +81,20 @@ class SkeletonView extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // TODO: have to check here to see if any new ids have been passed in.
+    // have to check here to see if any new ids have been passed in.
     const { query } = this.props;
+    let moveCamera = false;
 
     if (query.pm.bodyIds !== prevProps.query.pm.bodyIds) {
       const bodyIds = query.pm.bodyIds.toString().split(',');
       this.addSkeletons(bodyIds, query.pm.dataSet);
+      moveCamera = true;
     }
 
     if (query.pm.compartments !== prevProps.query.pm.compartments) {
       const compartments = query.pm.compartments.toString().split(',');
       this.addCompartments(compartments, query.pm.dataSet);
+      moveCamera = true;
     }
 
     // now check the state to see if that has changed and if so, then load in the
@@ -130,18 +133,45 @@ class SkeletonView extends React.Component {
         Immutable.Map(differentBodies),
         Immutable.Map(differentCompartments),
         removedNeurons,
-        removedCompartments
+        removedCompartments,
+        moveCamera
       );
     }
   }
 
-  loadShark = (swcs, rois, removedSWCs, removedROIs) => {
+  componentWillUnmount() {
+    const { sharkViewer } = this.state;
+    const { actions, query, index } = this.props;
+
+    const bodyIds = query.pm.bodyIds.toString().split(',');
+
+    // Set the correct query string to store the camera position.
+    // TODO: we need to do this every time the camera position is changed,
+    // otherwise camera position will be lost on page refresh.
+    if (bodyIds.length > 0) {
+      const coords = sharkViewer.cameraCoords();
+      const target = sharkViewer.cameraTarget();
+
+      const coordinateString = `${coords.x},${coords.y},${coords.z},${target.x},${target.y},${target.z}`;
+      const tabData = actions.getQueryObject('qr', []);
+      // if we have switched tabs and not removed the skeleton tab then we
+      // need to keep track of the camera position.
+      if (tabData[index]) {
+        tabData[index].pm.coordinates = coordinateString;
+        actions.setQueryString({
+          'qr': tabData,
+        });
+      }
+    }
+  }
+
+  loadShark = (swcs, rois, removedSWCs, removedROIs, moveCamera) => {
     const { sharkViewer, db } = this.state;
+    const { query } = this.props;
+
     // check here to see if we have added or removed neurons.
     const names = {};
     const roiNames = {};
-    // TODO: fix the camera movement setting
-    const moveCamera = false;
     swcs.forEach(swc => {
       // If added, then add them to the scene.
       const exists = sharkViewer.scene.getObjectByName(swc.get('name'));
@@ -191,9 +221,8 @@ class SkeletonView extends React.Component {
 
   createShark = (swcs, rois) => {
     const { query } = this.props;
-    const { cameraPosition } = query;
     const { db } = this.state;
-    const moveCamera = !cameraPosition;
+    const moveCamera = false;
     const sharkViewer = new SharkViewer({
       dom_element: 'skeletonviewer',
       WIDTH: this.skelRef.current.clientWidth,
@@ -222,9 +251,14 @@ class SkeletonView extends React.Component {
       });
     }
 
-    if (cameraPosition) {
-      const { coords, target } = cameraPosition;
-      sharkViewer.restoreView(coords.x, coords.y, coords.z, target);
+    if (query.pm.coordinates) {
+      const coords = query.pm.coordinates.split(',');
+      const target = {
+        x: parseFloat(coords[3]),
+        y: parseFloat(coords[4]),
+        z: parseFloat(coords[5]),
+      };
+      sharkViewer.restoreView(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]), target);
     }
 
     sharkViewer.render();
@@ -253,6 +287,133 @@ class SkeletonView extends React.Component {
     const updated = bodies.setIn([id, 'visible'], newState);
     this.setState({ bodies: updated });
   };
+
+  removeCompartment = cId => {
+    const { actions, index } = this.props;
+    const { compartments } = this.state;
+    const updated = compartments.delete(cId);
+    this.setState({ compartments: updated });
+
+    // update url query string here
+    const tabData = actions.getQueryObject('qr', []);
+
+    tabData[index].pm.compartments = updated.keySeq().join(',');
+    actions.setQueryString({
+      'qr': tabData,
+    });
+  }
+
+  addCompartment = id => {
+    const { neo4jsettings } = this.props;
+    const meshHost = neo4jsettings.get('meshInfo').hemibrain;
+    const { uuid } = neo4jsettings.get('datasetInfo').hemibrain;
+
+    return fetch(`${meshHost}/api/node/${uuid}/rois/key/${id}`, {
+      headers: {
+        'Content-Type': 'text/plain',
+        Accept: 'application/json'
+      },
+      method: 'GET'
+    })
+      .then(result => result.json())
+      .then(result => {
+        const { key } = result['->'];
+        this.fetchMesh(id, key, meshHost, uuid);
+      })
+      .catch(error => this.setState({ loadingError: error }));
+  };
+
+  fetchMesh(id, key, host, uuid) {
+    return fetch(`${host}/api/node/${uuid}/roi_data/key/${key}`, {
+      headers: {
+        'Content-Type': 'text/plain',
+        Accept: 'text/plain'
+      },
+      method: 'GET'
+    })
+      .then(result => result.text())
+      .then(result => {
+        this.skeletonLoadedCompartment(id, result);
+      });
+  }
+
+
+  addCompartments(cIds, dataSet) {
+    cIds.forEach(id => {
+      this.addCompartment(id, dataSet);
+    });
+  }
+
+  addCompartmentsToQueryString(updated) {
+    const { actions, index } = this.props;
+    const tabData = actions.getQueryObject('qr', []);
+    tabData[index].pm.compartments = updated.keySeq().join(',');
+    actions.setQueryString({
+      'qr': tabData
+    });
+  }
+
+  skeletonLoadedCompartment(id, result) {
+    const { db, compartments } = this.state;
+    const compartment = Immutable.Map({
+      name: id,
+      obj: 'localStorage',
+      visible: true,
+      color: '#000000'
+    });
+    return db
+      .putAttachment(id, 'obj', btoa(result), 'text/plain')
+      .then(() => {
+        const updated = compartments.set(id, compartment);
+        this.setState({ compartments: updated });
+        // update url query string here
+        this.addCompartmentsToQueryString(updated);
+      })
+      .catch(err => {
+        if (err.name === 'conflict') {
+          const updated = compartments.set(id, compartment);
+          this.setState({ compartments: updated });
+          // update url query string here
+          this.addCompartmentsToQueryString(updated);
+        } else {
+          this.setState({
+            loadingError: err
+          });
+        }
+      });
+  }
+
+
+  addSkeleton(bodyId, dataSet) {
+    // generate the querystring.
+    const completeQuery = skeletonQuery.replace(/YY/g, dataSet).replace(/ZZ/g, bodyId);
+    // fetch swc data
+    return fetch('/api/custom/custom', {
+      headers: {
+        'content-type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({
+        cypher: completeQuery
+      }),
+      method: 'POST',
+      credentials: 'include'
+    })
+      .then(result => result.json())
+      .then(result => {
+        if ('error' in result) {
+          throw result.error;
+        }
+        this.skeletonLoaded(bodyId, dataSet, result);
+      })
+      .catch(error => this.setState({ loadingError: error }));
+  }
+
+  addSkeletons(bodyIds, dataSet) {
+    bodyIds.forEach(id => {
+      this.addSkeleton(id, dataSet);
+    });
+  }
 
   skeletonLoaded(id, dataSet, result) {
     const { bodies } = this.state;
@@ -284,133 +445,9 @@ class SkeletonView extends React.Component {
     this.setState({ bodies: updated });
   }
 
-  addSkeletons(bodyIds, dataSet) {
-    bodyIds.forEach(id => {
-      this.addSkeleton(id, dataSet);
-    });
-  }
-
-  addSkeleton(bodyId, dataSet) {
-    // generate the querystring.
-    const completeQuery = skeletonQuery.replace(/YY/g, dataSet).replace(/ZZ/g, bodyId);
-    // fetch swc data
-    return fetch('/api/custom/custom', {
-      headers: {
-        'content-type': 'application/json',
-        Accept: 'application/json'
-      },
-      body: JSON.stringify({
-        cypher: completeQuery
-      }),
-      method: 'POST',
-      credentials: 'include'
-    })
-      .then(result => result.json())
-      .then(result => {
-        if ('error' in result) {
-          throw result.error;
-        }
-        this.skeletonLoaded(bodyId, dataSet, result);
-      })
-      .catch(error => this.setState({ loadingError: error }));
-  }
-
-  addCompartments(cIds, dataSet) {
-    cIds.forEach(id => {
-      this.addCompartment(id, dataSet);
-    });
-  }
-
-  addCompartmentsToQueryString(updated) {
-    const { actions, index } = this.props;
-    const tabData = actions.getQueryObject('qr', []);
-    tabData[index].pm.compartments = updated.keySeq().join(',');
-    actions.setQueryString({
-      'qr': tabData
-    });
-  }
-
-  skeletonLoadedCompartment(id, result) {
-    const { db, compartments } = this.state;
-    const compartment = Immutable.Map({
-      name: id,
-      obj: 'localStorage',
-      visible: true,
-      color: '#000000'
-    });
-    return db
-      .putAttachment(id, 'obj', btoa(result), 'text/plain')
-      .then(() => {
-        const updated = compartments.set(id, compartment);
-        this.setState({ compartments: updated });
-        // TODO: update url query string here
-        this.addCompartmentsToQueryString(updated);
-      })
-      .catch(err => {
-        if (err.name === 'conflict') {
-          const updated = compartments.set(id, compartment);
-          this.setState({ compartments: updated });
-          // TODO: update url query string here
-          this.addCompartmentsToQueryString(updated);
-        } else {
-          this.setState({
-            loadingError: err
-          });
-        }
-      });
-  }
-
-  fetchMesh(id, key, host, uuid) {
-    return fetch(`${host}/api/node/${uuid}/roi_data/key/${key}`, {
-      headers: {
-        'Content-Type': 'text/plain',
-        Accept: 'text/plain'
-      },
-      method: 'GET'
-    })
-      .then(result => result.text())
-      .then(result => {
-        this.skeletonLoadedCompartment(id, result);
-      });
-  }
-
-  addCompartment = id => {
-    const { neo4jsettings, query } = this.props;
-    const meshHost = neo4jsettings.get('meshInfo').hemibrain;
-    const { uuid } = neo4jsettings.get('datasetInfo').hemibrain;
-
-    return fetch(`${meshHost}/api/node/${uuid}/rois/key/${id}`, {
-      headers: {
-        'Content-Type': 'text/plain',
-        Accept: 'application/json'
-      },
-      method: 'GET'
-    })
-      .then(result => result.json())
-      .then(result => {
-        const { key } = result['->'];
-        this.fetchMesh(id, key, meshHost, uuid);
-      })
-      .catch(error => this.setState({ loadingError: error }));
-  };
-
-  removeCompartment = cId => {
-    const { actions, index } = this.props;
-    const { compartments } = this.state;
-    const updated = compartments.delete(cId);
-    this.setState({ compartments: updated });
-
-    // TODO: update url query string here
-    const tabData = actions.getQueryObject('qr', []);
-
-    tabData[index].pm.compartments = updated.keySeq().join(',');
-    actions.setQueryString({
-      'qr': tabData,
-    });
-  }
 
   render() {
-    const { classes, query, neo4jsettings, index } = this.props;
+    const { classes, query, neo4jsettings } = this.props;
     const { bodies, compartments } = this.state;
 
     const chips = bodies.map(neuron => {
