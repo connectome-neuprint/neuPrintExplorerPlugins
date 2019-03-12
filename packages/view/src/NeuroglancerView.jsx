@@ -15,7 +15,6 @@ class NeuroGlancerView extends React.Component {
   }
 
   componentDidMount() {
-    // TODO: get all the neuronIds from the url and add them to the state.
     const { query } = this.props;
     if (query.pm.dataSet) {
       if (query.pm.bodyIds) {
@@ -28,7 +27,6 @@ class NeuroGlancerView extends React.Component {
 
   componentDidUpdate() {
     // TODO: get all the neuronIds from the url and add them to the state.
-    const { query } = this.props;
   }
 
   addNeurons(ids, dataSet) {
@@ -154,17 +152,7 @@ class NeuroGlancerView extends React.Component {
 }
 
 NeuroGlancerView.propTypes = {
-  query: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired,
-  neo4jsettings: PropTypes.object.isRequired
+  query: PropTypes.object.isRequired
 };
-
-/*
-const NeuroGlancerState = state => ({
-  ngState: state.neuroglancer,
-  ngLayers: state.neuroglancer.get('layers'),
-  ngNeurons: state.neuroglancer.get('neurons'),
-  ngCoordinates: state.neuroglancer.get('coordinates')
-}); */
 
 export default NeuroGlancerView;
