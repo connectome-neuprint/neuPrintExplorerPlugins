@@ -86,13 +86,13 @@ class SkeletonView extends React.Component {
     const { query } = this.props;
     let moveCamera = false;
 
-    if (query.pm.bodyIds !== prevProps.query.pm.bodyIds) {
+    if (query.pm.bodyIds && (query.pm.bodyIds !== prevProps.query.pm.bodyIds)) {
       const bodyIds = query.pm.bodyIds.toString().split(',');
       this.addSkeletons(bodyIds, query.pm.dataSet);
       moveCamera = true;
     }
 
-    if (query.pm.compartments !== prevProps.query.pm.compartments) {
+    if (query.pm.compartments && (query.pm.compartments !== prevProps.query.pm.compartments)) {
       const compartments = query.pm.compartments.toString().split(',');
       this.addCompartments(compartments, query.pm.dataSet);
       moveCamera = true;
@@ -443,7 +443,7 @@ class SkeletonView extends React.Component {
       };
     });
 
-    // TODO: check to see if we have a color cached for this neuron.
+    // check to see if we have a color cached for this neuron.
     // if yes, then return the color,
     // else, generate random color and cache it.
     db.get(`sk_${id}`).then(doc => {
