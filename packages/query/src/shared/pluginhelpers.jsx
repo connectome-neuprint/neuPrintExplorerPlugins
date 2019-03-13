@@ -13,9 +13,8 @@ import SelectAndCopyText from './SelectAndCopyText';
  * @param {Object} actions
  */
 function showSkeleton(id, dataset, actions) {
+  actions.neuroglancerAddandOpen(id, dataset);
   actions.skeletonAddandOpen(id, dataset);
-  // TODO: fix this
-  // actions.neuroglancerAddandOpen(id, dataset);
 }
 
 /**
