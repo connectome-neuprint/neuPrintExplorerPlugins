@@ -315,7 +315,7 @@ class SkeletonView extends React.Component {
 
   removeCompartment = cId => {
     const { actions, index } = this.props;
-    this.removeCompartmentFromState(cId);
+    const updated = this.removeCompartmentFromState(cId);
 
     // update url query string here
     const tabData = actions.getQueryObject('qr', []);
@@ -350,6 +350,7 @@ class SkeletonView extends React.Component {
     const { compartments } = this.state;
     const updated = compartments.delete(id);
     this.setState({ compartments: updated });
+    return updated;
   }
 
   fetchMesh(id, key, host, uuid) {
