@@ -109,7 +109,7 @@ class NeuroGlancerView extends React.Component {
   }
 
   render() {
-    const { layers, neurons, coordinates } = this.state;
+    const { layers, neurons, coordinates, loadingError } = this.state;
     const viewerState = {
       perspectiveOrientation: [0.1, -0.3, -0.3, 0.8],
       perspectiveZoom: 95,
@@ -144,11 +144,20 @@ class NeuroGlancerView extends React.Component {
       viewerState.navigation.pose.position.voxelCoordinates = coordinates.toJS();
       // TODO: need to be able to pass in call backs so that removing neurons in the
       // neuroglancer interface will remove them from the component state.
-      return <Neuroglancer perspectiveZoom={80} viewerState={viewerState} />;
+      return (
+        <div>
+          <Neuroglancer perspectiveZoom={80} viewerState={viewerState} />;
+          <div>{loadingError}</div>
+        </div>
+      );
     }
 
-    return <div>Loading...</div>;
-
+    return (
+      <div>
+        <div>Loading...</div>;
+        <div>{loadingError}</div>
+      </div>
+    );
   };
 
 }

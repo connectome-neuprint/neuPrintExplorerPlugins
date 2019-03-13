@@ -187,7 +187,6 @@ class SkeletonView extends React.Component {
 
   loadShark = (swcs, rois, removedSWCs, removedROIs, moveCamera) => {
     const { sharkViewer, db } = this.state;
-    const { query } = this.props;
 
     // check here to see if we have added or removed neurons.
     const names = {};
@@ -471,12 +470,12 @@ class SkeletonView extends React.Component {
     db.get(`sk_${id}`).then(doc => {
       const { color } = doc;
         this.addSkeletonToState(id, dataSet, data, color);
-    }).catch(err => {
+    }).catch(() => {
       const color = randomColor({ luminosity: 'light', hue: 'random' });
       db.put({
         _id: `sk_${id}`,
         color
-      }).then(resp => {
+      }).then(() => {
         this.addSkeletonToState(id, dataSet, data, color);
       });
 
@@ -506,7 +505,7 @@ class SkeletonView extends React.Component {
 
   render() {
     const { classes, query, neo4jsettings } = this.props;
-    const { bodies, compartments } = this.state;
+    const { bodies, compartments, loadingError } = this.state;
 
     const chips = bodies.map(neuron => {
       // gray out the chip if it is not active.
@@ -555,6 +554,7 @@ class SkeletonView extends React.Component {
         <div className={classes.floater}>{chipsArray}</div>
         <div className={classes.footer}>{compartmentSelection}</div>
         <div className={classes.skel} ref={this.skelRef} id="skeletonviewer" />
+        <div>{loadingError}</div>
       </div>
     );
   }
