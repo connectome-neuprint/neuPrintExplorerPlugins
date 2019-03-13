@@ -36,7 +36,6 @@ class NeuroGlancerView extends React.Component {
   }
 
   addNeuron(id, dataSet) {
-    const { neurons } = this.state;
 
     const coordinatesQuery = `WITH neuprint.getNeuronCentroid(${id}, "${dataSet}") AS centroid RETURN centroid `;
     return fetch('/api/custom/custom', {
@@ -52,6 +51,7 @@ class NeuroGlancerView extends React.Component {
     })
     .then(result => result.json())
     .then(result => {
+      const { neurons } = this.state;
       const updated = neurons.set(id, Immutable.Map({
         id,
         dataSet,
@@ -66,7 +66,7 @@ class NeuroGlancerView extends React.Component {
     })
     .catch(error => this.setState({loadingError: error }));
 
-     }
+  }
 
   addLayer(dataSet) {
     const { layers } = this.state;
