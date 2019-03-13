@@ -84,17 +84,34 @@ class SkeletonView extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     // have to check here to see if any new ids have been passed in.
     const { query } = this.props;
+    const { bodyIds = '', compartments: compartmentIds = '' } = query.pm;
+    const { bodyIds: prevBodyIds = '', compartments: prevCompartmentIds = '' } = prevProps.query.pm;
+
     let moveCamera = false;
 
-    if (query.pm.bodyIds && (query.pm.bodyIds !== prevProps.query.pm.bodyIds)) {
-      const bodyIds = query.pm.bodyIds.toString().split(',');
-      this.addSkeletons(bodyIds, query.pm.dataSet);
+    const bodyIdList = bodyIds.toString().split(',');
+    if (bodyIds !== prevBodyIds) {
+      this.addSkeletons(bodyIdList, query.pm.dataSet);
+      // remove skeletons that are no longer in the query.
+      const prevBodyList = prevBodyIds.toString().split(',');
+      prevBodyList.forEach(id => {
+        if (!bodyIdList.includes(id)) {
+          this.removeSkeleton(id);
+        }
+      });
       moveCamera = true;
     }
 
-    if (query.pm.compartments && (query.pm.compartments !== prevProps.query.pm.compartments)) {
-      const compartments = query.pm.compartments.toString().split(',');
-      this.addCompartments(compartments, query.pm.dataSet);
+    if (compartmentIds !== prevCompartmentIds) {
+      const compartmentList = compartmentIds.toString().split(',');
+      this.addCompartments(compartmentList, query.pm.dataSet);
+      // remove compartments that are no longer in the current query
+      const prevCompartmentList = prevCompartmentIds.toString().split(',');
+      prevCompartmentList.forEach(id => {
+        if (!compartmentList.includes(id)) {
+          this.removeCompartmentFromState(id);
+        }
+      });
       moveCamera = true;
     }
 
@@ -298,9 +315,7 @@ class SkeletonView extends React.Component {
 
   removeCompartment = cId => {
     const { actions, index } = this.props;
-    const { compartments } = this.state;
-    const updated = compartments.delete(cId);
-    this.setState({ compartments: updated });
+    this.removeCompartmentFromState(cId);
 
     // update url query string here
     const tabData = actions.getQueryObject('qr', []);
@@ -330,6 +345,12 @@ class SkeletonView extends React.Component {
       })
       .catch(error => this.setState({ loadingError: error }));
   };
+
+  removeCompartmentFromState(id) {
+    const { compartments } = this.state;
+    const updated = compartments.delete(id);
+    this.setState({ compartments: updated });
+  }
 
   fetchMesh(id, key, host, uuid) {
     return fetch(`${host}/api/node/${uuid}/roi_data/key/${key}`, {
@@ -473,6 +494,12 @@ class SkeletonView extends React.Component {
         visible: true
       })
     );
+    this.setState({ bodies: updated });
+  }
+
+  removeSkeleton(id) {
+    const { bodies } = this.state;
+    const updated = bodies.delete(id);
     this.setState({ bodies: updated });
   }
 
