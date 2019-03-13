@@ -14,3 +14,5 @@ export { default as ShortestPath } from './ShortestPath';
 export { default as SimpleConnections } from './SimpleConnections';
 export { default as ConnectivityGraph } from './ConnectivityGraph';
 export { default as SynapsesForConnection } from './SynapsesForConnection';
+export { default as Skeleton } from './Skeleton';
+export { default as Neuroglancer } from './Neuroglancer';

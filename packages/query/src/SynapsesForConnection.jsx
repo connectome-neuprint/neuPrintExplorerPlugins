@@ -1,8 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-
-import randomColor from 'randomcolor';
 
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -12,8 +9,6 @@ import { withStyles } from '@material-ui/core/styles';
 import { round } from 'mathjs';
 import Select from 'react-select';
 import { setColumnIndices } from './shared/pluginhelpers';
-
-const pluginName = 'SynapsesForConnection';
 
 const styles = theme => ({
   textField: {
@@ -31,28 +26,23 @@ const styles = theme => ({
   }
 });
 
+const pluginName = 'SynapsesForConnection';
 const pluginAbbrev = 'sfc';
 
 export class SynapsesForConnection extends React.Component {
-  static get queryName() {
-    return 'Synapses for connection';
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: 'Synapses for connection',
+      experimental: true,
+      abbr: pluginAbbrev,
+      description: 'Retrieves synapses involved in a connection.',
+      visType: 'SimpleTable'
+    };
   }
 
-  static get queryDescription() {
-    return 'Retrieves synapses involved in a connection.';
-  }
-
-  static get isExperimental() {
-    return true;
-  }
-
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  processRequest = () => {
-    const { dataSet, actions, history } = this.props;
-    const { bodyId1 = '', bodyId2 = '', rois = [] } = actions.getQueryObject(pluginAbbrev);
+  static fetchParameters(params) {
+    const {dataSet, bodyId1 = '', bodyId2 = '', rois = [] } = params;
 
     let roiPredicate = '';
     if (rois.length > 0) {
@@ -66,31 +56,19 @@ export class SynapsesForConnection extends React.Component {
 
     const cypherQuery = `MATCH (a:\`${dataSet}-Neuron\`{bodyId:${bodyId1}})<-[:From]-(c:ConnectionSet)-[:To]->(b{bodyId:${bodyId2}}), (c)-[:Contains]->(s:Synapse)${roiPredicate} RETURN s.type, s.location.x ,s.location.y ,s.location.z, s.confidence, keys(s)`;
 
-    const query = {
-      dataSet,
-      cypherQuery,
-      visType: 'SimpleTable',
-      plugin: pluginName,
-      parameters: { bodyId1, bodyId2, rois },
-      title: `Synapses involved in connection between ${bodyId1} and ${bodyId2}`,
-      menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-      processResults: this.processResults
+    return {
+      cypherQuery
     };
-    actions.submit(query);
-    history.push({
-      pathname: '/results',
-      search: actions.getQueryString()
-    });
-    return query;
-  };
+  }
 
-  processResults = (query, apiResponse) => {
-    const { actions } = this.props;
-    const { parameters = {} } = query;
+  static processResults(query, apiResponse, actions) {
+    const { pm: parameters = {} } = query;
     const { bodyId1 = '', bodyId2 = '', rois = [] } = parameters;
     const indexOf = setColumnIndices(['type', 'location', 'confidence', 'rois']);
 
-    if (apiResponse.data.length > 0) {
+    const title = `Synapses involved in connection between ${bodyId1} and ${bodyId2}`;
+
+    if (apiResponse.data && apiResponse.data.length > 0) {
       const data = apiResponse.data.map(row => {
         const type = row[0];
         const x = row[1];
@@ -123,7 +101,8 @@ export class SynapsesForConnection extends React.Component {
       return {
         columns,
         data,
-        debug: apiResponse.debug
+        debug: apiResponse.debug,
+        title
       };
     }
 
@@ -133,41 +112,55 @@ export class SynapsesForConnection extends React.Component {
     return {
       columns: [],
       data: [],
-      debug: apiResponse.debug
+      debug: apiResponse.debug,
+      title
     };
   };
 
-  addBodyId1 = event => {
-    const { actions } = this.props;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        bodyId1: event.target.value
+  constructor(props) {
+    super(props);
+    this.state = {
+      bodyId1: '',
+      bodyId2: '',
+      rois: []
+    };
+  }
+
+  processRequest = () => {
+    const { dataSet, submit } = this.props;
+    const { bodyId1, bodyId2, rois } = this.state;
+
+      const query = {
+      dataSet,
+      plugin: pluginName,
+      pluginCode: pluginAbbrev,
+      parameters: {
+        dataSet,
+        bodyId1,
+        bodyId2,
+        rois,
       }
-    });
+    };
+    submit(query);
+  };
+
+
+  addBodyId1 = event => {
+    this.setState({ bodyId1: event.target.value });
   };
 
   addBodyId2 = event => {
-    const { actions } = this.props;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        bodyId2: event.target.value
-      }
-    });
+    this.setState({ bodyId2: event.target.value });
   };
 
   handleChangeRois = selected => {
-    const { actions } = this.props;
     const rois = selected.map(item => item.value);
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        rois
-      }
-    });
+    this.setState({ rois });
   };
 
   render() {
-    const { actions, classes, isQuerying, availableROIs } = this.props;
-    const { bodyId1 = '', bodyId2 = '', rois = [] } = actions.getQueryObject(pluginAbbrev);
+    const { classes, isQuerying, availableROIs } = this.props;
+    const { bodyId1, bodyId2, rois } = this.state;
 
     const roiOptions = availableROIs.map(name => ({
       label: name,
@@ -228,11 +221,10 @@ export class SynapsesForConnection extends React.Component {
 
 SynapsesForConnection.propTypes = {
   classes: PropTypes.object.isRequired,
-  actions: PropTypes.object.isRequired,
   dataSet: PropTypes.string.isRequired,
-  history: PropTypes.object.isRequired,
+  submit: PropTypes.func.isRequired,
   isQuerying: PropTypes.bool.isRequired,
   availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired
 };
 
-export default withStyles(styles)(withRouter(SynapsesForConnection));
+export default withStyles(styles)(SynapsesForConnection);

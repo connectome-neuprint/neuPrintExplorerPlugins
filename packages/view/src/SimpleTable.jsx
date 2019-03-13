@@ -99,7 +99,12 @@ class SimpleTable extends React.Component {
     const { visProps = {} } = query;
     const newVisProps = Object.assign({}, visProps, { page });
 
-    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
+    const updated =  Object.assign({}, query, { visProps: newVisProps });
+    // TODO: we need to pass in the results data as a separate object from the
+    // query. If we don't delete it here the URL explodes when we try to set it
+    delete updated.result;
+
+    actions.updateQuery(index, updated);
   };
 
   handleChangeRowsPerPage = event => {
@@ -107,7 +112,12 @@ class SimpleTable extends React.Component {
     const { visProps = {} } = query;
     const newVisProps = Object.assign({}, visProps, { rowsPerPage: event.target.value });
 
-    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
+    const updated =  Object.assign({}, query, { visProps: newVisProps });
+    // TODO: we need to pass in the results data as a separate object from the
+    // query. If we don't delete it here the URL explodes when we try to set it
+    delete updated.result;
+
+    actions.updateQuery(index, updated);
   };
 
   handleCellClick = action => () => {
@@ -124,23 +134,28 @@ class SimpleTable extends React.Component {
 
     const newVisProps = Object.assign({}, visProps, { order: newOrder, orderBy: newOrderBy });
 
-    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
+    const updated =  Object.assign({}, query, { visProps: newVisProps });
+    // TODO: we need to pass in the results data as a separate object from the
+    // query. If we don't delete it here the URL explodes when we try to set it
+    delete updated.result;
+
+    actions.updateQuery(index, updated);
   };
 
   render() {
     const { query, classes } = this.props;
-    const { visProps = {} } = query;
+    const { visProps = {}, result } = query;
     let { rowsPerPage = 5 } = visProps;
     const { paginate = true, page = 0, orderBy = '', order = 'asc' } = visProps;
 
     // fit table to data
-    if (query.result.data.length < rowsPerPage || paginate === false) {
-      rowsPerPage = query.result.data.length;
+    if (result.data.length < rowsPerPage || paginate === false) {
+      rowsPerPage = result.data.length;
     }
     const emptyRows =
-      rowsPerPage - Math.min(rowsPerPage, query.result.data.length - page * rowsPerPage);
+      rowsPerPage - Math.min(rowsPerPage, result.data.length - page * rowsPerPage);
 
-    const { highlightIndex } = query.result;
+    const { highlightIndex } = result;
 
     return (
       <div className={classes.root}>
@@ -148,9 +163,9 @@ class SimpleTable extends React.Component {
           <Table padding="dense">
             <TableHead>
               <TableRow>
-                {query.result.columns.map((header, index) => {
+                {result.columns.map((header, index) => {
                   const headerKey = `${header}${index}`;
-                  if ('disableSort' in query.result && query.result.disableSort.has(index)) {
+                  if ('disableSort' in result && result.disableSort.has(index)) {
                     return <TableCell key={headerKey}>{header}</TableCell>;
                   }
                   return (
@@ -168,7 +183,7 @@ class SimpleTable extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {stableSort(query.result.data, getSorting(order, orderBy))
+              {stableSort(result.data, getSorting(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   let rowStyle = {};
@@ -212,7 +227,7 @@ class SimpleTable extends React.Component {
         {paginate ? (
           <TablePagination
             component="div"
-            count={query.result.data.length}
+            count={result.data.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onChangePage={this.handleChangePage}

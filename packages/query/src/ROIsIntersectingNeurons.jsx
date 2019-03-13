@@ -3,8 +3,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import randomColor from 'randomcolor';
-import { withRouter } from 'react-router';
 
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -29,23 +27,25 @@ const pluginName = 'ROIsIntersectingNeurons';
 const pluginAbbrev = 'rin';
 
 class ROIsIntersectingNeurons extends React.Component {
-  static get queryName() {
-    return 'ROIs in Neuron';
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: 'ROIs in Neuron',
+      abbr: pluginAbbrev,
+      experimental: true,
+      description: 'Find ROIs that intersect a given neuron(s).  A putative name is given based on top two ROI inputs and outputs',
+      visType: 'CollapsibleTable',
+    };
   }
 
-  static get queryDescription() {
-    return 'Find ROIs that intersect a given neuron(s).  A putative name is given based on top two ROI inputs and outputs';
+
+  static fetchParameters() {
+    return {
+      queryString: '/npexplorer/roisinneuron'
+    };
   }
 
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  static get isExperimental() {
-    return true;
-  }
-
-  processResults = (query, apiResponse) => {
+  static processResults(query, apiResponse) {
     const columnNames = ['ROI name', 'inputs', 'outputs'];
     const tables = [];
 
@@ -99,13 +99,21 @@ class ROIsIntersectingNeurons extends React.Component {
 
     return {
       data: tables,
-      debug: apiResponse.debug
+      debug: apiResponse.debug,
+      title: 'ROIs intersecting neurons',
     };
   };
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      neuronsrc: '',
+    };
+  }
+
   processRequest = () => {
-    const { dataSet, history, actions } = this.props;
-    const { neuronsrc = '' } = actions.getQueryObject(pluginAbbrev);
+    const { dataSet, actions, submit } = this.props;
+    const { neuronsrc } = this.state;
     if (neuronsrc !== '') {
       const parameters = { dataset: dataSet };
       if (/^\d+$/.test(neuronsrc)) {
@@ -115,32 +123,18 @@ class ROIsIntersectingNeurons extends React.Component {
       }
       const query = {
         dataSet,
-        queryString: '/npexplorer/roisinneuron',
         parameters,
-        visType: 'CollapsibleTable',
         plugin: pluginName,
-        title: 'ROIs intersecting neurons',
-        menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-        processResults: this.processResults
+        pluginCode: pluginAbbrev
       };
-      actions.submit(query);
-      // redirect to the results page.
-      history.push({
-        pathname: '/results',
-        search: actions.getQueryString()
-      });
+      submit(query);
     } else {
       actions.formError('Please enter a neuron name.');
     }
   };
 
   handleClick = event => {
-    const { actions } = this.props;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        neuronsrc: event.target.value
-      }
-    });
+    this.setState({ neuronsrc: event.target.value });
   };
 
   catchReturn = event => {
@@ -152,8 +146,8 @@ class ROIsIntersectingNeurons extends React.Component {
   };
 
   render() {
-    const { classes, actions, isQuerying } = this.props;
-    const { neuronsrc = '' } = actions.getQueryObject(pluginAbbrev);
+    const { classes, isQuerying } = this.props;
+    const { neuronsrc } = this.state;
     return (
       <div>
         <FormControl className={classes.formControl}>
@@ -187,9 +181,9 @@ class ROIsIntersectingNeurons extends React.Component {
 ROIsIntersectingNeurons.propTypes = {
   dataSet: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired,
-  actions: PropTypes.object.isRequired
+  actions: PropTypes.object.isRequired,
+  submit: PropTypes.func.isRequired
 };
 
-export default withRouter(withStyles(styles)(ROIsIntersectingNeurons));
+export default withStyles(styles)(ROIsIntersectingNeurons);

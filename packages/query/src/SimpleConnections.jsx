@@ -3,8 +3,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import randomColor from 'randomcolor';
-import { withRouter } from 'react-router';
 
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -36,44 +34,24 @@ const pluginName = 'SimpleConnection';
 const pluginAbbrev = 'sc';
 
 class SimpleConnections extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      neuronName: '',
-      preOrPost: 'pre'
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: 'Simple Connections',
+      abbr: pluginAbbrev,
+      experimental: true,
+      description: 'List inputs or outputs to selected neuron(s)',
+      visType: 'CollapsibleTable'
     };
   }
 
-  static get queryName() {
-    return 'Simple Connections';
+  static fetchParameters() {
+    return {
+      queryString: '/npexplorer/simpleconnections'
+    };
   }
 
-  static get queryDescription() {
-    return 'List inputs or outputs to selected neuron(s)';
-  }
-
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  static get isExperimental() {
-    return true;
-  }
-
-  processBasicSimpleConnections = (query, apiResponse) => {
-    const { actions } = this.props;
-
-    return createSimpleConnectionsResult(
-      query,
-      apiResponse,
-      actions,
-      pluginName,
-      this.processBasicSimpleConnections
-    );
-  };
-
-  processResults = (query, apiResponse) => {
-    const { actions } = this.props;
+  static processResults(query, apiResponse, actions) {
     const tables = [];
 
     let currentTable = [];
@@ -92,7 +70,7 @@ class SimpleConnections extends React.Component {
       const neuron1Id = row[4];
       if (lastBody !== -1 && neuron1Id !== lastBody) {
         let tableName = `${lastName} id=(${String(lastBody)})`;
-        if (query.parameters.find_inputs === false) {
+        if (query.pm.find_inputs === false) {
           tableName = `${tableName} => ...`;
         } else {
           tableName = `... => ${tableName}`;
@@ -120,7 +98,7 @@ class SimpleConnections extends React.Component {
 
     if (lastBody !== -1) {
       let tableName = `${lastName} id=(${String(lastBody)})`;
-      if (query.parameters.find_inputs === false) {
+      if (query.pm.find_inputs === false) {
         tableName = `${tableName} => ...`;
       } else {
         tableName = `... => ${tableName}`;
@@ -133,14 +111,39 @@ class SimpleConnections extends React.Component {
       });
     }
 
+    // Title choices.
+    const neuronSrc = query.pm.neuron_name || query.pm.neuron_id;
+    const preOrPost = (query.pm.find_inputs) ? 'Post' : 'Pre';
+
     return {
       data: tables,
-      debug: apiResponse.debug
+      debug: apiResponse.debug,
+      title: `${preOrPost}-synaptic connections to ${neuronSrc}`
     };
   };
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      neuronName: '',
+      preOrPost: 'pre'
+    };
+  }
+
+  processBasicSimpleConnections = (query, apiResponse) => {
+    const { actions } = this.props;
+
+    return createSimpleConnectionsResult(
+      query,
+      apiResponse,
+      actions,
+      pluginName,
+      this.processBasicSimpleConnections
+    );
+  };
+
   processRequest = () => {
-    const { dataSet, actions, history } = this.props;
+    const { dataSet, actions, submit } = this.props;
     const { neuronName, preOrPost } = this.state;
     if (neuronName !== '') {
       const parameters = { dataset: dataSet };
@@ -156,21 +159,12 @@ class SimpleConnections extends React.Component {
       }
       const query = {
         dataSet,
-        queryString: '/npexplorer/simpleconnections',
-        visType: 'CollapsibleTable',
-        visProps: { paginateExpansion: true },
         plugin: pluginName,
+        pluginCode: pluginAbbrev,
         parameters,
-        title: `${preOrPost}-synaptic connections to ${neuronName}`,
-        menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-        processResults: this.processResults
       };
 
-      actions.submit(query);
-      history.push({
-        pathname: '/results',
-        search: actions.getQueryString()
-      });
+      submit(query);
     } else {
       actions.formError('Please enter a neuron name.');
     }
@@ -249,9 +243,9 @@ class SimpleConnections extends React.Component {
 SimpleConnections.propTypes = {
   classes: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
+  submit: PropTypes.func.isRequired,
   isQuerying: PropTypes.bool.isRequired,
   dataSet: PropTypes.string.isRequired
 };
 
-export default withRouter(withStyles(styles)(SimpleConnections));
+export default withStyles(styles)(SimpleConnections);

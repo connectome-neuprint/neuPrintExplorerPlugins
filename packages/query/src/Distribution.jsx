@@ -3,8 +3,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import randomColor from 'randomcolor';
-import { withRouter } from 'react-router';
 
 import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
@@ -27,28 +25,27 @@ const pluginName = 'Distribution';
 const pluginAbbrev = 'dn';
 
 class Distribution extends React.Component {
-  static get queryName() {
-    return 'Distribution';
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: pluginName,
+      abbr: pluginAbbrev,
+      category: 'recon',
+      experimental: true,
+      description: 'Shows segment size distribution for segments in a given region.',
+      visType: 'SimpleTable',
+    };
   }
 
-  static get queryCategory() {
-    return 'recon';
+  static fetchParameters() {
+    return {
+      queryString: '/npexplorer/distribution'
+    };
   }
 
-  static get queryDescription() {
-    return 'Shows segment size distribution for segments in a given region.';
-  }
-
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  static get isExperimental() {
-    return true;
-  }
-
-  processResults = (query, apiResponse) => {
+  static processResults(query, apiResponse) {
     const data = [];
+    const { pm: parameters } = query;
 
     const dist = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1.0];
     let currdist = 0;
@@ -77,64 +74,54 @@ class Distribution extends React.Component {
       }
     });
 
-    const typeHeader = query.parameters.is_pre
+    const typeHeader = parameters.is_pre
       ? 'Number of pre-synapses'
       : 'Number of post-synapses';
 
     return {
       columns: ['percentage', 'num segments', typeHeader],
       data,
-      debug: apiResponse.debug
+      debug: apiResponse.debug,
+      title: `Distribution of body sizes for ${parameters.ROI}`,
     };
   };
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      roi: '',
+      isPre: true
+    };
+  }
+
   // creates query object and sends to callback
   processRequest = () => {
-    const { dataSet, actions, history } = this.props;
-    const { roi = '', isPre = true } = actions.getQueryObject(pluginAbbrev);
+    const { dataSet, submit } = this.props;
+    const { roi, isPre } = this.state;
     const query = {
       dataSet,
-      queryString: '/npexplorer/distribution',
-      visType: 'SimpleTable',
       plugin: pluginName,
+      pluginCode: pluginAbbrev,
       parameters: {
         dataset: dataSet,
         ROI: roi,
         is_pre: isPre
-      },
-      title: `Distribution of body sizes for ${roi}`,
-      menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-      processResults: this.processResults
+      }
     };
-    actions.submit(query);
-    history.push({
-      pathname: '/results',
-      search: actions.getQueryString()
-    });
-    return query;
+    submit(query);
   };
 
   setROI = event => {
-    const { actions } = this.props;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        roi: event.target.value
-      }
-    });
+    this.setState({ roi: event.target.value });
   };
 
   setType = event => {
-    const { actions } = this.props;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        isPre: event.target.value
-      }
-    });
+    this.setState({ isPre: (event.target.value === 'true') });
   };
 
   render() {
-    const { isQuerying, classes, availableROIs, actions } = this.props;
-    const { roi = '', isPre = true } = actions.getQueryObject(pluginAbbrev);
+    const { isQuerying, classes, availableROIs } = this.props;
+    const { roi, isPre } = this.state;
 
     const preValue = true;
     const postValue = false;
@@ -186,8 +173,7 @@ Distribution.propTypes = {
   isQuerying: PropTypes.bool.isRequired,
   availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
   dataSet: PropTypes.string.isRequired,
-  actions: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired
+  submit: PropTypes.func.isRequired
 };
 
-export default withRouter(withStyles(styles)(Distribution));
+export default withStyles(styles)(Distribution);

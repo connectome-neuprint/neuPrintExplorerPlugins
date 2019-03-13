@@ -6,15 +6,12 @@ const abbreviationList = [];
 Object.keys(plugins).forEach(plugin => {
   describe(`Testing: ${plugin}`, () => {
     describe('has required functions', () => {
-      test('name', () => {
-        expect(plugins[plugin].queryName).toBeTruthy();
+      test('details', () => {
+        expect(plugins[plugin].details).toBeTruthy();
+        abbreviationList.push(plugins[plugin].details.abbr);
       });
-      test('description', () => {
-        expect(plugins[plugin].queryDescription).toBeTruthy();
-      });
-      test('abbreviation', () => {
-        expect(plugins[plugin].queryAbbreviation).toBeTruthy();
-        abbreviationList.push(plugins[plugin].queryAbbreviation);
+      test('fetchParameters', () => {
+        expect(plugins[plugin].fetchParameters).toBeTruthy();
       });
     });
   });

@@ -1,5 +1,4 @@
 import React from 'react';
-import randomColor from 'randomcolor';
 import Icon from '@material-ui/core/Icon';
 import * as math from 'mathjs';
 import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
@@ -14,8 +13,8 @@ import SelectAndCopyText from './SelectAndCopyText';
  * @param {Object} actions
  */
 function showSkeleton(id, dataset, actions) {
-  actions.skeletonAddandOpen(id, dataset);
   actions.neuroglancerAddandOpen(id, dataset);
+  actions.skeletonAddandOpen(id, dataset);
 }
 
 /**
@@ -86,20 +85,15 @@ function getRoiInfoObjectWithNoneCount(roiInfoObject, roiList, preTotal, postTot
  * @param {string} pluginName
  * @returns {Object}
  */
-export function createSimpleConnectionQueryObject(dataset, isPost, bodyId, callback, pluginName) {
+export function createSimpleConnectionQueryObject(dataSet, isPost, bodyId) {
   return {
-    dataSet: dataset, // <string> for the data set selected
-    queryString: '/npexplorer/simpleconnections', // <neo4jquery string>
-    visType: 'SimpleTable', // <string> which visualization plugin to use. Default is 'table'
-    plugin: pluginName, // <string> the name of this plugin.
+    dataSet, // <string> for the data set selected
+    pluginCode: 'sc',
     parameters: {
-      dataset,
+      dataSet,
       find_inputs: isPost,
       neuron_id: bodyId
     },
-    title: isPost ? `Connections to bodyID ${bodyId}` : `Connections from bodyID ${bodyId}`,
-    menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-    processResults: callback
   };
 }
 
@@ -258,7 +252,6 @@ export function computeSimilarity(inputVector, queriedBodyVector) {
  * @param {Object} apiResponse
  * @param {Object} actions
  * @param {string} pluginName
- * @param {function} simpleConnectionsCallback
  * @returns {Object}
  */
 export function createSimpleConnectionsResult(
@@ -266,7 +259,6 @@ export function createSimpleConnectionsResult(
   apiResponse,
   actions,
   pluginName,
-  simpleConnectionsCallback
 ) {
   const indexOf = setColumnIndices([
     'bodyId',
@@ -314,7 +306,6 @@ export function createSimpleConnectionsResult(
       query.dataSet,
       true,
       bodyId,
-      simpleConnectionsCallback,
       pluginName
     );
     converted[indexOf.post] = {
@@ -326,7 +317,6 @@ export function createSimpleConnectionsResult(
       query.dataSet,
       false,
       bodyId,
-      simpleConnectionsCallback,
       pluginName
     );
     converted[indexOf.pre] = {
@@ -357,7 +347,8 @@ export function createSimpleConnectionsResult(
   return {
     columns,
     data,
-    debug: apiResponse.debug
+    debug: apiResponse.debug,
+    title:`Connections from bodyID ${query.pm.neuron_id}`
   };
 }
 

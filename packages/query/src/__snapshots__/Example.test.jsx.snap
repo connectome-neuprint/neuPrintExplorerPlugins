@@ -2,10 +2,10 @@
 
 exports[`Example Plugin renders correct defaults should render 1`] = `
 <div
-  className="MuiFormControl-root-4 withRouter-Example--formControl-3"
+  className="MuiFormControl-root-4 Example-formControl-3"
 >
   <div
-    className="MuiFormControl-root-4 withRouter-Example--textField-1"
+    className="MuiFormControl-root-4 Example-textField-1"
   >
     <label
       className="MuiFormLabel-root-19 MuiInputLabel-root-8 MuiInputLabel-formControl-13 MuiInputLabel-animated-16"
@@ -56,7 +56,7 @@ exports[`Example Plugin renders correct defaults should render 1`] = `
     </div>
   </div>
   <button
-    className="MuiButtonBase-root-85 MuiButton-root-59 MuiButton-contained-70 MuiButton-containedPrimary-71 MuiButton-raised-73 MuiButton-raisedPrimary-74 withRouter-Example--button-2"
+    className="MuiButtonBase-root-85 MuiButton-root-59 MuiButton-contained-70 MuiButton-containedPrimary-71 MuiButton-raised-73 MuiButton-raisedPrimary-74 Example-button-2"
     disabled={false}
     onBlur={[Function]}
     onClick={[Function]}

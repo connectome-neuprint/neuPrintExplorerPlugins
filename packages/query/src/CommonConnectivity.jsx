@@ -3,8 +3,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-import randomColor from 'randomcolor';
 
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -30,34 +28,27 @@ const pluginName = 'CommonConnectivity';
 const pluginAbbrev = 'cc';
 
 class CommonConnectivity extends React.Component {
-  static get queryName() {
-    return 'Common connectivity';
-  }
 
-  static get queryDescription() {
-    return 'Finds common inputs/outputs for a group of bodies and weights of their connections to these inputs/outputs.';
-  }
-
-  static get queryAbbreviation() {
-    return pluginAbbrev;
-  }
-
-  static get isExperimental() {
-    return true;
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      limitNeurons: true,
-      statusFilters: [],
-      preThreshold: 0,
-      postThreshold: 0
+  static get details() {
+    return {
+      name: pluginName,
+      displayName: 'Common connectivity',
+      abbr: pluginAbbrev,
+      experimental: true,
+      description:
+        'Finds common inputs/outputs for a group of bodies and weights of their connections to these inputs/outputs.',
+      visType: 'SimpleTable',
     };
   }
 
-  processResults = (query, apiResponse) => {
-    const { parameters } = query;
+  static fetchParameters() {
+    return {
+      queryString: '/npexplorer/commonconnectivity'
+    };
+  }
+
+  static processResults(query, apiResponse) {
+    const { pm: parameters } = query;
 
     const queryKey = parameters.find_inputs ? 'input' : 'output';
     const connectionArray = apiResponse.data[0][0];
@@ -116,14 +107,27 @@ class CommonConnectivity extends React.Component {
     return {
       columns,
       data,
-      debug: apiResponse.debug
+      debug: apiResponse.debug,
+      title: `Common ${queryKey}s for ${selectedNeurons} in ${parameters.dataset}`
     };
-  };
+  }
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      limitNeurons: true,
+      statusFilters: [],
+      preThreshold: 0,
+      postThreshold: 0,
+      bodyIds: '',
+      typeValue: 'input'
+    };
+  }
 
   processRequest = () => {
-    const { dataSet, actions, history } = this.props;
+    const { dataSet, submit } = this.props;
     const { limitNeurons, preThreshold, postThreshold, statusFilters } = this.state;
-    const { bodyIds = '', typeValue = 'input' } = actions.getQueryObject(pluginAbbrev);
+    const { bodyIds, typeValue } = this.state;
 
     const parameters = {
       dataset: dataSet,
@@ -141,25 +145,14 @@ class CommonConnectivity extends React.Component {
       parameters.post_threshold = postThreshold;
     }
 
-    const selectedNeurons = parameters.neuron_ids;
-
     const query = {
       dataSet,
-      queryString: '/npexplorer/commonconnectivity',
-      visType: 'SimpleTable',
       plugin: pluginName,
-      parameters,
-      title: `Common ${typeValue}s for ${selectedNeurons} in ${dataSet}`,
-      menuColor: randomColor({ luminosity: 'light', hue: 'random' }),
-      processResults: this.processResults
+      pluginCode: pluginAbbrev,
+      parameters
     };
 
-    actions.submit(query);
-    // redirect to the results page.
-    history.push({
-      pathname: '/results',
-      search: actions.getQueryString()
-    });
+    submit(query);
   };
 
   loadNeuronFilters = params => {
@@ -172,21 +165,13 @@ class CommonConnectivity extends React.Component {
   };
 
   addNeuronBodyIds = event => {
-    const { actions } = this.props;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        bodyIds: event.target.value
-      }
+    this.setState({
+      bodyIds: event.target.value
     });
   };
 
   setInputOrOutput = event => {
-    const { actions } = this.props;
-    actions.setQueryString({
-      [pluginAbbrev]: {
-        typeValue: event.target.value
-      }
-    });
+    this.setState({ typeValue: event.target.value });
   };
 
   catchReturn = event => {
@@ -199,7 +184,7 @@ class CommonConnectivity extends React.Component {
 
   render() {
     const { classes, dataSet, actions, neoServerSettings } = this.props;
-    const { bodyIds = '', typeValue = 'input' } = actions.getQueryObject(pluginAbbrev);
+    const { bodyIds, typeValue } = this.state;
 
     return (
       <div>
@@ -243,9 +228,9 @@ class CommonConnectivity extends React.Component {
 CommonConnectivity.propTypes = {
   dataSet: PropTypes.string.isRequired,
   actions: PropTypes.object.isRequired,
+  submit: PropTypes.func.isRequired,
   neoServerSettings: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired
 };
 
-export default withRouter(withStyles(styles, { withTheme: true })(CommonConnectivity));
+export default withStyles(styles, { withTheme: true })(CommonConnectivity);
