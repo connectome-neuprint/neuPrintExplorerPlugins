@@ -405,6 +405,9 @@ class SkeletonView extends React.Component {
   }
 
   addSkeleton(bodyId, dataSet) {
+    if (bodyId === "") {
+      return;
+    }
     // generate the querystring.
     const completeQuery = skeletonQuery.replace(/YY/g, dataSet).replace(/ZZ/g, bodyId);
     // fetch swc data
@@ -415,7 +418,7 @@ class SkeletonView extends React.Component {
     // WITH [1,2] AS ids MATCH (n:`mb6-Neuron`)-[:Contains]->(s:Skeleton) WHERE n.bodyId IN ids RETURN n.bodyId,s.timeStamp
     // That will return the timestamps for each of the neurons, then if it is different or blank,
     // we fetch the swc data.
-    return fetch('/api/custom/custom', {
+    fetch('/api/custom/custom', {
       headers: {
         'content-type': 'application/json',
         Accept: 'application/json'
