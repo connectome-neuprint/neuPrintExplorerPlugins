@@ -99,7 +99,7 @@ class SimpleTable extends React.Component {
     const { visProps = {} } = query;
     const newVisProps = Object.assign({}, visProps, { page });
 
-    const updated =  Object.assign({}, query, { visProps: newVisProps });
+    const updated = Object.assign({}, query, { visProps: newVisProps });
     // TODO: we need to pass in the results data as a separate object from the
     // query. If we don't delete it here the URL explodes when we try to set it
     delete updated.result;
@@ -112,7 +112,7 @@ class SimpleTable extends React.Component {
     const { visProps = {} } = query;
     const newVisProps = Object.assign({}, visProps, { rowsPerPage: event.target.value });
 
-    const updated =  Object.assign({}, query, { visProps: newVisProps });
+    const updated = Object.assign({}, query, { visProps: newVisProps });
     // TODO: we need to pass in the results data as a separate object from the
     // query. If we don't delete it here the URL explodes when we try to set it
     delete updated.result;
@@ -134,7 +134,7 @@ class SimpleTable extends React.Component {
 
     const newVisProps = Object.assign({}, visProps, { order: newOrder, orderBy: newOrderBy });
 
-    const updated =  Object.assign({}, query, { visProps: newVisProps });
+    const updated = Object.assign({}, query, { visProps: newVisProps });
     // TODO: we need to pass in the results data as a separate object from the
     // query. If we don't delete it here the URL explodes when we try to set it
     delete updated.result;
@@ -152,8 +152,7 @@ class SimpleTable extends React.Component {
     if (result.data.length < rowsPerPage || paginate === false) {
       rowsPerPage = result.data.length;
     }
-    const emptyRows =
-      rowsPerPage - Math.min(rowsPerPage, result.data.length - page * rowsPerPage);
+    const emptyRows = rowsPerPage - Math.min(rowsPerPage, result.data.length - page * rowsPerPage);
 
     const { highlightIndex } = result;
 
@@ -164,7 +163,7 @@ class SimpleTable extends React.Component {
             <TableHead>
               <TableRow>
                 {result.columns.map((header, index) => {
-                  const headerKey = `${header}${index}`;
+                  const headerKey = header;
                   if ('disableSort' in result && result.disableSort.has(index)) {
                     return <TableCell key={headerKey}>{header}</TableCell>;
                   }
@@ -191,12 +190,12 @@ class SimpleTable extends React.Component {
                   if (highlightIndex && currspot.toString() in highlightIndex) {
                     rowStyle = { backgroundColor: highlightIndex[currspot.toString()] };
                   }
-                  const key = index;
+                  const key = row.id ? row.id : index;
                   return (
                     <TableRow hover key={key} style={rowStyle}>
                       {row.map((cell, i) => {
+                        const cellKey = i;
                         if (cell && typeof cell === 'object' && 'value' in cell) {
-                          const cellKey = `${i}${cell.value}`;
                           if ('action' in cell) {
                             return (
                               <TableCell
@@ -210,7 +209,6 @@ class SimpleTable extends React.Component {
                           }
                           return <TableCell key={cellKey}>{cell.value}</TableCell>;
                         }
-                        const cellKey = `${i}${cell}`;
                         return <TableCell key={cellKey}>{cell}</TableCell>;
                       })}
                     </TableRow>
