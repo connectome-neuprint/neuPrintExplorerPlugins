@@ -287,11 +287,11 @@ class SkeletonView extends React.Component {
   };
 
   handleDelete = id => () => {
-    const { actions, query } = this.props;
+    const { actions, query, index } = this.props;
     const { bodies } = this.state;
     const updated = bodies.delete(id);
     this.setState({ bodies: updated });
-    actions.skeletonRemove(id, query.pm.dataSet);
+    actions.skeletonRemove(id, query.pm.dataSet, index);
     // action passed in from Results that removes id from the url
   };
 
