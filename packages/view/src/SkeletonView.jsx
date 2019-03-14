@@ -91,27 +91,17 @@ class SkeletonView extends React.Component {
 
     const bodyIdList = bodyIds.toString().split(',');
     if (bodyIds !== prevBodyIds) {
-      this.addSkeletons(bodyIdList, query.pm.dataSet);
       // remove skeletons that are no longer in the query.
-      const prevBodyList = prevBodyIds.toString().split(',');
-      prevBodyList.forEach(id => {
-        if (!bodyIdList.includes(id)) {
-          this.removeSkeleton(id);
-        }
-      });
+      this.clearAllBodies();
+      this.addSkeletons(bodyIdList, query.pm.dataSet);
       moveCamera = true;
     }
 
     if (compartmentIds !== prevCompartmentIds) {
       const compartmentList = compartmentIds.toString().split(',');
-      this.addCompartments(compartmentList, query.pm.dataSet);
       // remove compartments that are no longer in the current query
-      const prevCompartmentList = prevCompartmentIds.toString().split(',');
-      prevCompartmentList.forEach(id => {
-        if (!compartmentList.includes(id)) {
-          this.removeCompartmentFromState(id);
-        }
-      });
+      this.clearAllCompartments();
+      this.addCompartments(compartmentList, query.pm.dataSet);
       moveCamera = true;
     }
 
@@ -333,7 +323,7 @@ class SkeletonView extends React.Component {
     const meshHost = neo4jsettings.get('meshInfo').hemibrain;
     const { uuid } = neo4jsettings.get('datasetInfo').hemibrain;
 
-    return fetch(`${meshHost}/api/node/${uuid}/rois/key/${id}`, {
+    fetch(`${meshHost}/api/node/${uuid}/rois/key/${id}`, {
       headers: {
         'Content-Type': 'text/plain',
         Accept: 'application/json'
@@ -504,6 +494,18 @@ class SkeletonView extends React.Component {
     const { bodies } = this.state;
     const updated = bodies.delete(id);
     this.setState({ bodies: updated });
+  }
+
+  clearAllBodies() {
+    const { bodies } = this.state;
+    const updated = bodies.clear();
+    this.setState({ bodies: updated });
+  }
+
+  clearAllCompartments() {
+    const { compartments } = this.state;
+    const updated = compartments.clear();
+    this.setState({ compartments: updated });
   }
 
   render() {
