@@ -326,6 +326,9 @@ class SkeletonView extends React.Component {
   };
 
   addCompartment = id => {
+    if (id === "") {
+      return;
+    }
     const { neo4jsettings } = this.props;
     const meshHost = neo4jsettings.get('meshInfo').hemibrain;
     const { uuid } = neo4jsettings.get('datasetInfo').hemibrain;
