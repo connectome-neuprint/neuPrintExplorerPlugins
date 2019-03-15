@@ -229,7 +229,10 @@ export class FindNeurons extends React.Component {
       dataSet, // <string> for the data set selected
       plugin: pluginName, // <string> the name of this plugin.
       pluginCode: pluginAbbrev,
-      parameters
+      parameters,
+      visProps: {
+        rowsPerPage: 25
+      }
     };
     submit(query);
   };
