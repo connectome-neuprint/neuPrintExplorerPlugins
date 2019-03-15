@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /*
  * Implements table view that shows ordered strongest connection to each neuron
  * and visually indicates the different classes of neurons.  (This is meant
@@ -16,10 +17,10 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
-import Switch from '@material-ui/core/Switch';
 
 import ColorBox from './visualization/ColorBox';
 import NeuronHelp from './shared/NeuronHelp';
+import HPWeightSlider from './shared/HPWeightSlider';
 
 const squareSize = 100;
 
@@ -34,16 +35,15 @@ const styles = () => ({
 const pluginName = 'RankedTable';
 const pluginAbbrev = 'rt';
 
-class RankedTable extends React.Component {
-
+export class RankedTable extends React.Component {
   static get details() {
     return {
       name: pluginName,
       displayName: 'Ranked Table',
       abbr: pluginAbbrev,
-      experimental: true,
+      // experimental: true,
       description: 'Show connections to neuron(s) ranked in order and colored by neuron class',
-      visType: 'HeatMapTable',
+      visType: 'HeatMapTable'
     };
   }
 
@@ -55,7 +55,7 @@ class RankedTable extends React.Component {
 
   static processResults(query, apiResponse) {
     const { dataSet } = query;
-    const { useHighConfidence } = query.pm;
+    const { useHighConfidence, find_inputs } = query.pm;
 
     const colorMap = {};
     const reverseCounts = {};
@@ -95,8 +95,8 @@ class RankedTable extends React.Component {
       const [, , weight, body2, , , mId, nId, preId, body1, weightHP] = row;
 
       if (
-        (query.pm.find_inputs === false && (preId !== mId || nId === mId)) ||
-        (query.pm.find_inputs === true && preId === mId)
+        (find_inputs === false && (preId !== mId || nId === mId)) ||
+        (find_inputs === true && preId === mId)
       ) {
         if (body2 in reverseCounts) {
           reverseCounts[String(body2)][String(body1)] = useHighConfidence ? weightHP : weight;
@@ -123,8 +123,8 @@ class RankedTable extends React.Component {
       ] = row;
 
       if (
-        (query.pm.find_inputs === false && preId === mId) ||
-        (query.pm.find_inputs === true && (preId !== mId || nId === mId))
+        (find_inputs === false && preId === mId) ||
+        (find_inputs === true && (preId !== mId || nId === mId))
       ) {
         // check the colormap for the current type.
         // if present use the existing color.
@@ -158,12 +158,12 @@ class RankedTable extends React.Component {
         const cellKey = `${index}${body1}${body2}`;
 
         // set arrow icons
-        const arrow1 = query.parameters.find_inputs ? (
+        const arrow1 = find_inputs ? (
           <Icon fontSize="inherit">arrow_downward</Icon>
         ) : (
           <Icon fontSize="inherit">arrow_upward</Icon>
         );
-        const arrow2 = query.parameters.find_inputs ? (
+        const arrow2 = find_inputs ? (
           <Icon fontSize="inherit">arrow_upward</Icon>
         ) : (
           <Icon fontSize="inherit">arrow_downward</Icon>
@@ -259,7 +259,7 @@ class RankedTable extends React.Component {
       dataSet,
       title
     };
-  };
+  }
 
   constructor(props) {
     super(props);
@@ -325,7 +325,7 @@ class RankedTable extends React.Component {
   };
 
   render() {
-    const { classes, isQuerying } = this.props;
+    const { classes, isQuerying, isPublic } = this.props;
     const { neuronSrc, preOrPost, useHighConfidence } = this.state;
     return (
       <div>
@@ -364,22 +364,15 @@ class RankedTable extends React.Component {
             />
           </RadioGroup>
         </FormControl>
-        <FormControl className={classes.formControl}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={useHighConfidence}
-                onChange={this.toggleHighConfidence}
-                color="primary"
-              />
-            }
-            label={
-              <Typography variant="body1" style={{ display: 'inline-flex' }}>
-                Limit to high-confidence synapses
-              </Typography>
-            }
+        {isPublic ? (
+          ''
+        ) : (
+          <HPWeightSlider
+            formControlClass={classes.formControl}
+            useHighConfidence={useHighConfidence}
+            toggleHighConfidence={this.toggleHighConfidence}
           />
-        </FormControl>
+        )}
         <Button
           disabled={isQuerying}
           variant="contained"
@@ -398,7 +391,8 @@ RankedTable.propTypes = {
   submit: PropTypes.func.isRequired,
   actions: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  dataSet: PropTypes.string.isRequired
+  dataSet: PropTypes.string.isRequired,
+  isPublic: PropTypes.bool.isRequired
 };
 
 export default withStyles(styles)(RankedTable);
