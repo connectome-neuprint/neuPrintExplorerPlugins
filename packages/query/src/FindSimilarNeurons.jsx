@@ -359,7 +359,10 @@ function processGroupResults(query, apiResponse, actions, submit) {
       dataset: parameters.dataset,
       plugin: pluginName,
       pluginCode: pluginAbbrev,
-      parameters: queryParameters
+      parameters: queryParameters,
+      visProps: {
+        rowsPerPage: 25
+      }
     };
 
     const converted = [
@@ -454,7 +457,10 @@ export class FindSimilarNeurons extends React.Component {
       dataSet,
       plugin: pluginName,
       pluginCode: pluginAbbrev,
-      parameters
+      parameters,
+      visProps: {
+        rowsPerPage: 25
+      }
     };
 
     submit(query);
@@ -471,7 +477,10 @@ export class FindSimilarNeurons extends React.Component {
       dataSet,
       plugin: pluginName,
       pluginCode: pluginAbbrev,
-      parameters
+      parameters,
+      visProps: {
+        rowsPerPage: 25
+      }
     };
 
     submit(query);
@@ -491,7 +500,10 @@ export class FindSimilarNeurons extends React.Component {
       dataSet,
       plugin: pluginName,
       pluginCode: pluginAbbrev,
-      parameters
+      parameters,
+      visProps: {
+        rowsPerPage: 25
+      }
     };
 
     submit(query);
