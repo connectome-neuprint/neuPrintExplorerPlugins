@@ -93,7 +93,7 @@ export function createSimpleConnectionQueryObject(dataSet, isPost, bodyId) {
       dataSet,
       find_inputs: isPost,
       neuron_id: bodyId
-    },
+    }
   };
 }
 
@@ -251,27 +251,48 @@ export function computeSimilarity(inputVector, queriedBodyVector) {
  * @param {Object} query
  * @param {Object} apiResponse
  * @param {Object} actions
+ * @param {function} submit
  * @param {string} pluginName
+ * @param {boolean} includeWeightHP // indicates whether or not the table should include high-precision weights
  * @returns {Object}
  */
 export function createSimpleConnectionsResult(
   query,
   apiResponse,
   actions,
+  submit,
   pluginName,
+  includeWeightHP = false
 ) {
-  const indexOf = setColumnIndices([
-    'bodyId',
-    'name',
-    'status',
-    'connectionWeight',
-    'connectionWeightHP',
-    'post',
-    'pre',
-    'size',
-    'roiHeatMap',
-    'roiBarGraph'
-  ]);
+  let columnNames;
+  if (includeWeightHP) {
+    columnNames = [
+      'bodyId',
+      'name',
+      'status',
+      'connectionWeight',
+      'connectionWeightHP',
+      'post',
+      'pre',
+      'size',
+      'roiHeatMap',
+      'roiBarGraph'
+    ];
+  } else {
+    columnNames = [
+      'bodyId',
+      'name',
+      'status',
+      'connectionWeight',
+      'post',
+      'pre',
+      'size',
+      'roiHeatMap',
+      'roiBarGraph'
+    ];
+  }
+
+  const indexOf = setColumnIndices(columnNames);
 
   /* eslint-disable prefer-destructuring */
   const data = apiResponse.data.map(row => {
@@ -286,11 +307,13 @@ export function createSimpleConnectionsResult(
     roiList.push('none');
 
     const converted = [];
+    if (includeWeightHP) {
+      converted[indexOf.connectionWeightHP] = row[12];
+    }
     converted[indexOf.bodyId] = getBodyIdForTable(query.dataSet, bodyId, hasSkeleton, actions);
     converted[indexOf.name] = row[1];
     converted[indexOf.status] = row[6];
     converted[indexOf.connectionWeight] = row[3];
-    converted[indexOf.connectionWeightHP] = row[12];
     converted[indexOf.size] = row[8];
 
     const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
@@ -306,33 +329,37 @@ export function createSimpleConnectionsResult(
       query.dataSet,
       true,
       bodyId,
-      pluginName
+      pluginName,
+      includeWeightHP
     );
     converted[indexOf.post] = {
       value: postTotal,
-      action: () => actions.submit(postQuery)
+      action: () => submit(postQuery)
     };
 
     const preQuery = createSimpleConnectionQueryObject(
       query.dataSet,
       false,
       bodyId,
-      pluginName
+      pluginName,
+      includeWeightHP
     );
     converted[indexOf.pre] = {
       value: preTotal,
-      action: () => actions.submit(preQuery)
+      action: () => submit(preQuery)
     };
 
     return converted;
   });
 
   const columns = [];
+  if (includeWeightHP) {
+    columns[indexOf.connectionWeightHP] = '#connections (high-confidence)';
+  }
   columns[indexOf.bodyId] = 'id';
   columns[indexOf.name] = 'neuron';
   columns[indexOf.status] = 'status';
   columns[indexOf.connectionWeight] = '#connections';
-  columns[indexOf.connectionWeightHP] = '#connections (high-confidence)';
   columns[indexOf.post] = '#post (inputs)';
   columns[indexOf.pre] = '#pre (outputs)';
   columns[indexOf.size] = '#voxels';
@@ -348,7 +375,7 @@ export function createSimpleConnectionsResult(
     columns,
     data,
     debug: apiResponse.debug,
-    title:`Connections from bodyID ${query.pm.neuron_id}`
+    title: `Connections from bodyID ${query.pm.neuron_id}`
   };
 }
 

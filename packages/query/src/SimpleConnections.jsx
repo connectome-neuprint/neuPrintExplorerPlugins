@@ -51,7 +51,14 @@ class SimpleConnections extends React.Component {
     };
   }
 
-  static processResults(query, apiResponse, actions) {
+  static processResults(query, apiResponse, actions, submit, isPublic) {
+    // settings for whether or not the application is in public mode
+    let includeWeightHP;
+    if (isPublic) {
+      includeWeightHP = false;
+    } else {
+      includeWeightHP = true;
+    }
     const tables = [];
 
     let currentTable = [];
@@ -62,8 +69,9 @@ class SimpleConnections extends React.Component {
       query,
       apiResponse,
       actions,
+      submit,
       pluginName,
-      this.processBasicSimpleConnections
+      includeWeightHP
     );
 
     apiResponse.data.forEach((row, index) => {
@@ -113,14 +121,14 @@ class SimpleConnections extends React.Component {
 
     // Title choices.
     const neuronSrc = query.pm.neuron_name || query.pm.neuron_id;
-    const preOrPost = (query.pm.find_inputs) ? 'Post' : 'Pre';
+    const preOrPost = query.pm.find_inputs ? 'Post' : 'Pre';
 
     return {
       data: tables,
       debug: apiResponse.debug,
       title: `${preOrPost}-synaptic connections to ${neuronSrc}`
     };
-  };
+  }
 
   constructor(props) {
     super(props);
@@ -129,18 +137,6 @@ class SimpleConnections extends React.Component {
       preOrPost: 'pre'
     };
   }
-
-  processBasicSimpleConnections = (query, apiResponse) => {
-    const { actions } = this.props;
-
-    return createSimpleConnectionsResult(
-      query,
-      apiResponse,
-      actions,
-      pluginName,
-      this.processBasicSimpleConnections
-    );
-  };
 
   processRequest = () => {
     const { dataSet, actions, submit } = this.props;
@@ -161,7 +157,7 @@ class SimpleConnections extends React.Component {
         dataSet,
         plugin: pluginName,
         pluginCode: pluginAbbrev,
-        parameters,
+        parameters
       };
 
       submit(query);

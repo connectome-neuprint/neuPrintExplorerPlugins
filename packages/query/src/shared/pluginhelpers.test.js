@@ -1,6 +1,6 @@
 import { createSimpleConnectionsResult, computeSimilarity } from './pluginhelpers';
 
-const { actions } = global;
+const { actions, submit } = global;
 
 describe('createSimpleConnectionsResult', () => {
   it('should return a simple connections query object', () => {
@@ -70,19 +70,32 @@ describe('createSimpleConnectionsResult', () => {
       debug: 'testQuery'
     };
 
-    const callback = jest.fn();
     const result = createSimpleConnectionsResult(
       query,
       apiResponse,
       actions,
+      submit,
       'testPlugin',
-      callback
+      true // testing private version
     );
     const { columns, data, debug } = result;
     expect(debug).toEqual(apiResponse.debug);
     expect(columns.length).toBe(10);
     expect(data.length).toBe(3);
     expect(data[0].length).toBe(10);
+
+    const resultPublic = createSimpleConnectionsResult(
+      query,
+      apiResponse,
+      actions,
+      submit,
+      'testPlugin',
+      false // testing public version
+    );
+    expect(resultPublic.debug).toEqual(apiResponse.debug);
+    expect(resultPublic.columns.length).toBe(9);
+    expect(resultPublic.data.length).toBe(3);
+    expect(resultPublic.data[0].length).toBe(9);
   });
 });
 

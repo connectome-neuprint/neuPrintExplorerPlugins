@@ -34,8 +34,23 @@ const styles = theme => ({
 const pluginName = 'FindNeurons';
 const pluginAbbrev = 'fn';
 
-function processSimpleConnections(query, apiResponse, actions) {
-  return createSimpleConnectionsResult(query, apiResponse, actions, pluginName);
+function processSimpleConnections(query, apiResponse, actions, submit, isPublic) {
+  // settings for whether or not the application is in public mode
+  let includeWeightHP;
+  if (isPublic) {
+    includeWeightHP = false;
+  } else {
+    includeWeightHP = true;
+  }
+
+  return createSimpleConnectionsResult(
+    query,
+    apiResponse,
+    actions,
+    submit,
+    pluginName,
+    includeWeightHP
+  );
 }
 
 export class FindNeurons extends React.Component {
@@ -108,23 +123,13 @@ export class FindNeurons extends React.Component {
         converted[indexOf.roiHeatMap] = heatMap;
         converted[indexOf.roiBarGraph] = barGraph;
 
-        const postQuery = createSimpleConnectionQueryObject(
-          query.ds,
-          true,
-          bodyId,
-          pluginAbbrev
-        );
+        const postQuery = createSimpleConnectionQueryObject(query.ds, true, bodyId, pluginAbbrev);
         converted[indexOf.post] = {
           value: totalPost,
           action: () => submit(postQuery)
         };
 
-        const preQuery = createSimpleConnectionQueryObject(
-          query.ds,
-          false,
-          bodyId,
-          pluginAbbrev
-        );
+        const preQuery = createSimpleConnectionQueryObject(query.ds, false, bodyId, pluginAbbrev);
         converted[indexOf.pre] = {
           value: totalPre,
           action: () => submit(preQuery)

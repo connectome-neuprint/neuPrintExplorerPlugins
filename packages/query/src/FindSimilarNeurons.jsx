@@ -19,7 +19,6 @@ import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
 import {
   setColumnIndices,
   createSimpleConnectionQueryObject,
-  createSimpleConnectionsResult,
   generateRoiHeatMapAndBarGraph,
   getBodyIdForTable,
   computeSimilarity,
@@ -440,18 +439,6 @@ export class FindSimilarNeurons extends React.Component {
     };
   }
 
-  processConnections = (query, apiResponse) => {
-    const { actions } = this.props;
-
-    return createSimpleConnectionsResult(
-      query,
-      apiResponse,
-      actions,
-      pluginName,
-      this.processConnections
-    );
-  };
-
   // processing intital request
   processIDRequest = () => {
     const { dataSet, submit } = this.props;
@@ -599,7 +586,6 @@ export class FindSimilarNeurons extends React.Component {
 }
 
 FindSimilarNeurons.propTypes = {
-  actions: PropTypes.object.isRequired,
   submit: PropTypes.func.isRequired,
   availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
   dataSet: PropTypes.string.isRequired,

@@ -39,3 +39,5 @@ global.actions = {
     return queryObject || {};
   })
 };
+
+global.submit = jest.fn();
