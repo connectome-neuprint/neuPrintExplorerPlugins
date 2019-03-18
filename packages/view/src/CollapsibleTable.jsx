@@ -34,6 +34,17 @@ const styles = theme => ({
     overflowY: 'auto',
     overflowX: 'auto',
     height: '100%'
+  },
+  expandButton: {
+    left: '5px',
+    right: 'auto',
+    position: 'absolute',
+    top: '50%',
+    transform: 'translateY(-50%) rotate(0deg)',
+    transition: 'transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms'
+  },
+  expansionText: {
+    margin: '0 0 0 20px'
   }
 });
 
@@ -92,8 +103,13 @@ class CollapsibleTable extends React.Component {
                     <TableRow hover key={rowIndex} style={rowStyle}>
                       <TableCell className={classes.cellborder} padding="none">
                         <ExpansionPanel>
-                          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                            <Typography>{row.name}</Typography>
+                          <ExpansionPanelSummary
+                            classes={{
+                              expandIcon: classes.expandButton
+                            }}
+                            expandIcon={<ExpandMoreIcon />}
+                          >
+                            <Typography className={classes.expansionText}>{row.name}</Typography>
                           </ExpansionPanelSummary>
                           <ExpansionPanelDetails className={classes.nopad}>
                             <IndependentTable
