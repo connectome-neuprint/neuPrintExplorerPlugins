@@ -163,6 +163,7 @@ class ROIConnectivity extends React.Component {
           value: (
             <button
               type="button"
+              className="heatmapbutton"
               onClick={() => submit(neuronsQuery)}
             >
               <ColorBox
