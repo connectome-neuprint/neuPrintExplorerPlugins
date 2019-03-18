@@ -157,7 +157,8 @@ class SimpleConnections extends React.Component {
         dataSet,
         plugin: pluginName,
         pluginCode: pluginAbbrev,
-        parameters
+        parameters,
+        visProps: { paginateExpansion: true }
       };
 
       submit(query);
