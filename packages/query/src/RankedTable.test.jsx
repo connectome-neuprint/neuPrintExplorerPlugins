@@ -1,7 +1,7 @@
 import { RankedTable } from './RankedTable';
 
-const styles = { select: {}, clickable: {} };
-const { actions, React, renderer } = global;
+const styles = { formControl: 'formControlClass' };
+const { actions, React, renderer, submit } = global;
 
 const neoServerSettings = {
   get: () => 'http://example.com'
@@ -13,7 +13,7 @@ const component = (
     dataSet="test"
     datasetstr="test"
     actions={actions}
-    submit={actions.submit}
+    submit={submit}
     classes={styles}
     history={{ push: jest.fn() }}
     isQuerying={false}
@@ -29,7 +29,7 @@ const componentPublic = (
     dataSet="test"
     datasetstr="test"
     actions={actions}
-    submit={actions.submit}
+    submit={submit}
     classes={styles}
     history={{ push: jest.fn() }}
     isQuerying={false}

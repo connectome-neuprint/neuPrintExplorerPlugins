@@ -3,7 +3,7 @@
 exports[`RankedTable Plugin renders correctly 1`] = `
 <div>
   <div
-    className="MuiFormControl-root-1"
+    className="MuiFormControl-root-1 formControlClass"
   >
     <div>
       <div
@@ -74,7 +74,7 @@ exports[`RankedTable Plugin renders correctly 1`] = `
     </div>
   </div>
   <fieldset
-    className="MuiFormControl-root-1"
+    className="MuiFormControl-root-1 formControlClass"
   >
     <div
       aria-label="preorpost"
@@ -188,7 +188,7 @@ exports[`RankedTable Plugin renders correctly 1`] = `
     </div>
   </fieldset>
   <div
-    className="MuiFormControl-root-1"
+    className="MuiFormControl-root-1 formControlClass"
   >
     <label
       className="MuiFormControlLabel-root-102"
@@ -282,7 +282,7 @@ exports[`RankedTable Plugin renders correctly 1`] = `
 exports[`RankedTable Plugin renders correctly in public mode 1`] = `
 <div>
   <div
-    className="MuiFormControl-root-1"
+    className="MuiFormControl-root-1 formControlClass"
   >
     <div>
       <div
@@ -353,7 +353,7 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
     </div>
   </div>
   <fieldset
-    className="MuiFormControl-root-1"
+    className="MuiFormControl-root-1 formControlClass"
   >
     <div
       aria-label="preorpost"
