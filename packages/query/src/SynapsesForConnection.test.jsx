@@ -29,7 +29,7 @@ const apiResponse = {
 };
 
 const styles = { select: {}, clickable: {} };
-const { actions, React, enzyme, renderer } = global;
+const { actions, React, enzyme, renderer, submit } = global;
 
 const neoServerSettings = {
   get: () => 'http://example.com'
@@ -41,7 +41,7 @@ const component = (
     dataSet="test"
     datasetstr="test"
     actions={actions}
-    submit={actions.submit}
+    submit={submit}
     classes={styles}
     history={{ push: jest.fn() }}
     isQuerying={false}
@@ -59,7 +59,7 @@ describe('synapses for connection Plugin', () => {
     roiSelect = wrapper.find('Select');
   });
   beforeEach(() => {
-    actions.submit.mockClear();
+    submit.mockClear();
   });
   it('has name and description', () => {
     expect(SynapsesForConnection.details.name).toBeTruthy();
@@ -75,24 +75,28 @@ describe('synapses for connection Plugin', () => {
       bodyBField.props().onChange({ target: { value: '645321' } });
 
       expect(button.props().onClick()).toEqual(undefined);
-      expect(actions.submit).toHaveBeenCalledTimes(1);
+      expect(submit).toHaveBeenCalledTimes(1);
 
       roiSelect.props().onChange([{ value: 'roi1' }, { value: 'roi2' }]);
 
       expect(button.props().onClick()).toEqual(undefined);
-      expect(actions.submit).toHaveBeenCalledTimes(2);
+      expect(submit).toHaveBeenCalledTimes(2);
     });
   });
 
   describe('processes returned results', () => {
     it('should produce error, empty data object if results are empty', () => {
-      const processedEmptyResults = SynapsesForConnection.processResults({}, emptyApiResponse, actions);
+      const processedEmptyResults = SynapsesForConnection.processResults(
+        {},
+        emptyApiResponse,
+        actions
+      );
       expect(actions.pluginResponseError).toHaveBeenCalledTimes(1);
       expect(processedEmptyResults).toEqual({
         columns: [],
         data: [],
         debug: emptyApiResponse.debug,
-        title: "Synapses involved in connection between  and "
+        title: 'Synapses involved in connection between  and '
       });
     });
     it('should produce object with data rows', () => {

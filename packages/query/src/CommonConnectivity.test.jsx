@@ -2,7 +2,7 @@ import { MemoryRouter } from 'react-router-dom';
 import CommonConnectivity from './CommonConnectivity';
 
 const styles = {};
-const { actions, React, enzyme, renderer } = global;
+const { actions, React, enzyme, renderer, submit } = global;
 
 const neoServerSettings = {
   get: () => 'http://example.com'
@@ -12,7 +12,7 @@ const raw = (
   <MemoryRouter>
     <CommonConnectivity
       actions={actions}
-      submit={actions.submit}
+      submit={submit}
       dataSet="mb6"
       history={{ push: jest.fn() }}
       classes={styles}
@@ -30,7 +30,7 @@ function providedRenderedComponent() {
 
 describe('Common Connectivity Plugin', () => {
   beforeEach(() => {
-    actions.submit.mockClear();
+    submit.mockClear();
   });
 
   describe('has required functions', () => {
@@ -75,7 +75,7 @@ describe('Common Connectivity Plugin', () => {
     const rendered = providedRenderedComponent();
     test('submit button pressed', () => {
       rendered.find('Button').simulate('click');
-      expect(actions.submit).toHaveBeenCalledTimes(1);
+      expect(submit).toHaveBeenCalledTimes(1);
     });
 
     test('enter key pressed in text field', () => {
@@ -83,7 +83,7 @@ describe('Common Connectivity Plugin', () => {
         .find('TextField')
         .at(0)
         .simulate('keyDown', { keyCode: 13 });
-      expect(actions.submit).toHaveBeenCalledTimes(1);
+      expect(submit).toHaveBeenCalledTimes(1);
     });
   });
 });

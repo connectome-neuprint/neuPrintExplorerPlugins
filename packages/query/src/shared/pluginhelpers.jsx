@@ -4,6 +4,7 @@ import * as math from 'mathjs';
 import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
 import RoiBarGraph from '../visualization/MiniRoiBarGraph';
 import SelectAndCopyText from './SelectAndCopyText';
+import { SimpleConnections } from '../SimpleConnections';
 
 /**
  * Launches actions for opening the skeleton viewer and neuroglancer.
@@ -81,16 +82,16 @@ function getRoiInfoObjectWithNoneCount(roiInfoObject, roiList, preTotal, postTot
  * @param {string} dataset
  * @param {boolean} isPost
  * @param {number} bodyId
- * @param {function} callback
- * @param {string} pluginName
  * @returns {Object}
  */
 export function createSimpleConnectionQueryObject(dataSet, isPost, bodyId) {
   return {
     dataSet, // <string> for the data set selected
-    pluginCode: 'sc',
+    pluginCode: SimpleConnections.details.abbr,
+    pluginName: SimpleConnections.details.name,
+    visProps: { paginateExpansion: true },
     parameters: {
-      dataSet,
+      dataset: dataSet,
       find_inputs: isPost,
       neuron_id: bodyId
     }
@@ -325,25 +326,13 @@ export function createSimpleConnectionsResult(
     converted[indexOf.roiHeatMap] = heatMap;
     converted[indexOf.roiBarGraph] = barGraph;
 
-    const postQuery = createSimpleConnectionQueryObject(
-      query.dataSet,
-      true,
-      bodyId,
-      pluginName,
-      includeWeightHP
-    );
+    const postQuery = createSimpleConnectionQueryObject(query.ds, true, bodyId, includeWeightHP);
     converted[indexOf.post] = {
       value: postTotal,
       action: () => submit(postQuery)
     };
 
-    const preQuery = createSimpleConnectionQueryObject(
-      query.dataSet,
-      false,
-      bodyId,
-      pluginName,
-      includeWeightHP
-    );
+    const preQuery = createSimpleConnectionQueryObject(query.ds, false, bodyId, includeWeightHP);
     converted[indexOf.pre] = {
       value: preTotal,
       action: () => submit(preQuery)

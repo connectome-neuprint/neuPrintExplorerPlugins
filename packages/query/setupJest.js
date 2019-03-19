@@ -18,7 +18,6 @@ const overwriteMerge = (destinationArray, sourceArray) => sourceArray;
 
 // these should match actions available in QueryForm.jsx in neuPrintExplorer
 global.actions = {
-  submit: jest.fn(),
   skeletonAddandOpen: jest.fn(),
   neuroglancerAddandOpen: jest.fn(),
   formError: jest.fn(),

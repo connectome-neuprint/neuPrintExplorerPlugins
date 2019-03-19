@@ -4,7 +4,7 @@ let wrapper;
 let button;
 let textField;
 
-const { actions, React, enzyme, renderer } = global;
+const { actions, React, enzyme, renderer, submit } = global;
 
 const styles = { textField: '', button: '', formControl: '' };
 
@@ -14,7 +14,7 @@ const component = (
     history={{ push: jest.fn() }}
     classes={styles}
     actions={actions}
-    submit={actions.submit}
+    submit={submit}
     isQuerying={false}
   />
 );
@@ -26,7 +26,7 @@ describe('custom query Plugin', () => {
     textField = wrapper.find('CustomQuery').find('TextField');
   });
   beforeEach(() => {
-    actions.submit.mockClear();
+    submit.mockClear();
   });
   it('has name and description', () => {
     expect(CustomQuery.details.name).toBeTruthy();
@@ -39,7 +39,7 @@ describe('custom query Plugin', () => {
   describe('when user clicks submit', () => {
     it('should return a query object and submit', () => {
       expect(button.props().onClick()).toEqual(undefined);
-      expect(actions.submit).toHaveBeenCalledTimes(1);
+      expect(submit).toHaveBeenCalledTimes(1);
     });
 
     it('should process returned results into data object', () => {
@@ -51,7 +51,12 @@ describe('custom query Plugin', () => {
         parameters: {},
         title: 'Custom query'
       };
-      const apiResponse = { data: [[1, 2, 3], [4, 5, 6]], columns: ['a', 'b', 'c'], debug: 'test', title: 'Custom Query' };
+      const apiResponse = {
+        data: [[1, 2, 3], [4, 5, 6]],
+        columns: ['a', 'b', 'c'],
+        debug: 'test',
+        title: 'Custom Query'
+      };
       const processedResults = CustomQuery.processResults(query, apiResponse);
       expect(processedResults).toEqual(apiResponse);
 
@@ -60,7 +65,7 @@ describe('custom query Plugin', () => {
       expect(processedResultsEmpty).toEqual({
         columns: [],
         data: [],
-        debug: '',
+        debug: ''
       });
     });
   });
@@ -72,7 +77,7 @@ describe('custom query Plugin', () => {
       textField.props().onKeyDown({ keyCode: 13, preventDefault });
       expect(preventDefault).toHaveBeenCalledTimes(1);
       expect(processRequest).toHaveBeenCalledTimes(1);
-      expect(actions.submit).toHaveBeenCalledTimes(1);
+      expect(submit).toHaveBeenCalledTimes(1);
     });
   });
   describe('when user inputs text', () => {

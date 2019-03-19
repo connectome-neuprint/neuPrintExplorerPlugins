@@ -1,7 +1,7 @@
 import { FindSimilarNeurons } from './FindSimilarNeurons';
 
 const styles = { select: {}, clickable: {} };
-const { actions, React, enzyme, renderer } = global;
+const { actions, React, enzyme, renderer, submit } = global;
 
 let wrapper;
 let bodyIdButton;
@@ -20,7 +20,7 @@ const component = (
     dataSet="test"
     datasetstr="test"
     actions={actions}
-    submit={actions.submit}
+    submit={submit}
     classes={styles}
     history={{ push: jest.fn() }}
     isQuerying={false}
@@ -38,7 +38,7 @@ describe('find similar neurons Plugin', () => {
     groupsButton = wrapper.find('Button').at(2);
   });
   beforeEach(() => {
-    actions.submit.mockClear();
+    submit.mockClear();
   });
   it('has name and description', () => {
     expect(FindSimilarNeurons.details.name).toBeTruthy();
@@ -55,7 +55,7 @@ describe('find similar neurons Plugin', () => {
       bodyIdField.props().onKeyDown({ keyCode: 13, preventDefault });
       expect(preventDefault).toHaveBeenCalledTimes(1);
       expect(processRequest).toHaveBeenCalledTimes(1);
-      expect(actions.submit).toHaveBeenCalledTimes(1);
+      expect(submit).toHaveBeenCalledTimes(1);
     });
   });
   describe('when user clicks submit', () => {
@@ -64,14 +64,14 @@ describe('find similar neurons Plugin', () => {
       const bodyId = 122;
       bodyIdField.props().onChange({ target: { value: bodyId } });
       expect(bodyIdButton.props().onClick()).toEqual(undefined);
-      expect(actions.submit).toHaveBeenCalledTimes(1);
+      expect(submit).toHaveBeenCalledTimes(1);
 
       roiSelect.props().onChange([{ value: 'roiA' }, { value: 'roiB' }]);
       expect(roiButton.props().onClick()).toEqual(undefined);
-      expect(actions.submit).toHaveBeenCalledTimes(2);
+      expect(submit).toHaveBeenCalledTimes(2);
 
       expect(groupsButton.props().onClick()).toEqual(undefined);
-      expect(actions.submit).toHaveBeenCalledTimes(3);
+      expect(submit).toHaveBeenCalledTimes(3);
     });
 
     it('should process returned results into tabular data', () => {

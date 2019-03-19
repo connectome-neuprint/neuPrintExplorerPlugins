@@ -11,7 +11,7 @@ let preThresholdField;
 let postThresholdField;
 
 const styles = { select: {}, clickable: {} };
-const { actions, React, enzyme, renderer } = global;
+const { actions, React, enzyme, renderer, submit } = global;
 
 const neoServerSettings = {
   get: () => 'http://example.com'
@@ -23,7 +23,7 @@ const component = (
     dataSet="test"
     datasetstr="test"
     actions={actions}
-    submit={actions.submit}
+    submit={submit}
     classes={styles}
     history={{ push: jest.fn() }}
     isQuerying={false}
@@ -44,7 +44,7 @@ describe('find neurons Plugin', () => {
     outputSelect = wrapper.find('Select').at(1);
   });
   beforeEach(() => {
-    actions.submit.mockClear();
+    submit.mockClear();
   });
   it('has name and description', () => {
     expect(FindNeurons.details.name).toBeTruthy();
@@ -57,13 +57,13 @@ describe('find neurons Plugin', () => {
   describe('when user clicks submit', () => {
     it('should return a query object and submit', () => {
       expect(button.props().onClick()).toEqual(undefined);
-      expect(actions.submit).toHaveBeenCalledTimes(1);
+      expect(submit).toHaveBeenCalledTimes(1);
 
       // if neuron name/id is present add to parameters
       textField.props().onChange({ target: { value: 'abc' } });
       expect(button.props().onClick()).toEqual(undefined);
       textField.props().onChange({ target: { value: '123' } });
-      expect(button.props().onClick()).toEqual(undefined)
+      expect(button.props().onClick()).toEqual(undefined);
 
       // if input/output rois present add to parameters
       textField.props().onChange({ target: { value: '' } });
@@ -77,7 +77,7 @@ describe('find neurons Plugin', () => {
       postThresholdField.props().onChange({ target: { value: 13 } });
       expect(button.props().onClick()).toEqual(undefined);
 
-      expect(actions.submit).toHaveBeenCalledTimes(5);
+      expect(submit).toHaveBeenCalledTimes(5);
     });
     it('should process returned results into data object', () => {
       const query = {
@@ -112,7 +112,7 @@ describe('find neurons Plugin', () => {
         columns: [],
         debug: 'test'
       };
-      const processedResults = FindNeurons.processResults(query, apiResponse, actions, actions.submit);
+      const processedResults = FindNeurons.processResults(query, apiResponse, actions, submit);
       expect(processedResults).toEqual(
         expect.objectContaining({
           columns: [
@@ -133,11 +133,16 @@ describe('find neurons Plugin', () => {
       );
 
       // if no data returned
-      const processedResultsEmpty = FindNeurons.processResults(query, {
-        columns: [],
-        data: [],
-        debug: 'test'
-      }, actions, actions.submit);
+      const processedResultsEmpty = FindNeurons.processResults(
+        query,
+        {
+          columns: [],
+          data: [],
+          debug: 'test'
+        },
+        actions,
+        submit
+      );
       expect(processedResultsEmpty).toEqual({
         columns: [
           'id',
@@ -153,7 +158,7 @@ describe('find neurons Plugin', () => {
         ],
         data: [],
         debug: 'test',
-        title: "Neurons with inputs in [] and outputs in []"
+        title: 'Neurons with inputs in [] and outputs in []'
       });
 
       // if rois selected should add roi count columns
@@ -172,7 +177,11 @@ describe('find neurons Plugin', () => {
         },
         title: 'Neurons with inputs in [] and outputs in []'
       };
-      const processedResultsWithRois = FindNeurons.processResults(queryWithRoisSelected, apiResponse, actions);
+      const processedResultsWithRois = FindNeurons.processResults(
+        queryWithRoisSelected,
+        apiResponse,
+        actions
+      );
       expect(processedResultsWithRois).toEqual(
         expect.objectContaining({
           columns: [
@@ -204,7 +213,7 @@ describe('find neurons Plugin', () => {
       textField.props().onKeyDown({ keyCode: 13, preventDefault });
       expect(preventDefault).toHaveBeenCalledTimes(1);
       expect(processRequest).toHaveBeenCalledTimes(1);
-      expect(actions.submit).toHaveBeenCalledTimes(1);
+      expect(submit).toHaveBeenCalledTimes(1);
     });
   });
   describe('when user inputs text or selects rois', () => {

@@ -20,7 +20,7 @@ const apiResponse = {
 };
 
 const styles = { select: {}, clickable: {} };
-const { actions, React, enzyme, renderer } = global;
+const { actions, React, enzyme, renderer, submit } = global;
 
 const neoServerSettings = {
   get: () => 'http://example.com'
@@ -32,7 +32,7 @@ const component = (
     dataSet="test"
     datasetstr="test"
     actions={actions}
-    submit={actions.submit}
+    submit={submit}
     classes={styles}
     history={{ push: jest.fn() }}
     isQuerying={false}
@@ -50,7 +50,7 @@ describe('shortest path Plugin', () => {
     minWeightField = wrapper.find('TextField').at(2);
   });
   beforeEach(() => {
-    actions.submit.mockClear();
+    submit.mockClear();
   });
   it('has name and description', () => {
     expect(ShortestPath.details.name).toBeTruthy();
@@ -67,13 +67,18 @@ describe('shortest path Plugin', () => {
       minWeightField.props().onChange({ target: { value: '6' } });
 
       expect(button.props().onClick()).toEqual(undefined);
-      expect(actions.submit).toHaveBeenCalledTimes(1);
+      expect(submit).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('processes returned results', () => {
     it('should produce error, empty data object if results are empty', () => {
-      const processedEmptyResults = ShortestPath.processResults({}, emptyApiResponse, actions, actions.submit);
+      const processedEmptyResults = ShortestPath.processResults(
+        {},
+        emptyApiResponse,
+        actions,
+        submit
+      );
       expect(actions.pluginResponseError).toHaveBeenCalledTimes(1);
       expect(processedEmptyResults).toEqual({
         columns: emptyApiResponse.columns,

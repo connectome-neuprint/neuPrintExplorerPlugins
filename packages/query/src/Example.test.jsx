@@ -2,7 +2,7 @@ import { MemoryRouter } from 'react-router-dom';
 import Example from './Example';
 
 const styles = {};
-const { actions, React, enzyme, renderer } = global;
+const { actions, React, enzyme, renderer, submit } = global;
 
 const neoServerSettings = {
   get: () => 'http://example.com'
@@ -12,7 +12,7 @@ const raw = (
   <MemoryRouter>
     <Example
       actions={actions}
-      submit={actions.submit}
+      submit={submit}
       dataSet="mb6"
       history={{ push: jest.fn() }}
       classes={styles}
@@ -25,13 +25,16 @@ const raw = (
 function providedRenderedComponent() {
   const wrapper = enzyme.mount(raw);
   // get through the styles and router components that wrap the plugin.
-  const rendered = wrapper.children().children().children();
+  const rendered = wrapper
+    .children()
+    .children()
+    .children();
   return rendered;
 }
 
 describe('Example Plugin', () => {
   beforeEach(() => {
-    actions.submit.mockClear();
+    submit.mockClear();
     actions.setQueryString.mockClear();
     global.queryStringObject = {};
   });
@@ -86,7 +89,7 @@ describe('Example Plugin', () => {
     const rendered = providedRenderedComponent();
     test('submit button pressed', () => {
       rendered.find('Button').simulate('click');
-      expect(actions.submit).toHaveBeenCalledTimes(1);
+      expect(submit).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -99,8 +102,8 @@ describe('Example Plugin', () => {
         .at(2)
         .simulate('change', { target: { value: 'test me' } });
       rendered.find('Button').simulate('click');
-      expect(actions.submit).toHaveBeenCalledTimes(1);
-      expect(actions.submit.mock.calls[0][0].parameters.textValue).toEqual('test me');
+      expect(submit).toHaveBeenCalledTimes(1);
+      expect(submit.mock.calls[0][0].parameters.textValue).toEqual('test me');
     });
   });
 });
