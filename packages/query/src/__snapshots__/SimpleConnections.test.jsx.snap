@@ -1,0 +1,445 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SimpleConnections Plugin renders correctly 1`] = `
+<div>
+  <div
+    className="MuiFormControl-root-1"
+  >
+    <div>
+      <div
+        className="MuiFormControl-root-1 MuiFormControl-fullWidth-4"
+        onKeyDown={[Function]}
+      >
+        <label
+          className="MuiFormLabel-root-17 MuiInputLabel-root-6 MuiInputLabel-formControl-11 MuiInputLabel-animated-14"
+          data-shrink={false}
+        >
+          Neuron name
+        </label>
+        <div
+          className="MuiInputBase-root-37 MuiInput-root-24 MuiInput-underline-28 MuiInputBase-fullWidth-46 MuiInput-fullWidth-31 MuiInputBase-formControl-38 MuiInput-formControl-25 MuiInputBase-multiline-45 MuiInput-multiline-30"
+          onClick={[Function]}
+        >
+          <div
+            className="MuiPrivateTextarea-root-54"
+          >
+            <textarea
+              aria-hidden="true"
+              className="MuiPrivateTextarea-textarea-55 MuiPrivateTextarea-shadow-56"
+              readOnly={true}
+              rows="1"
+              tabIndex={-1}
+              value=""
+            />
+            <textarea
+              aria-hidden="true"
+              className="MuiPrivateTextarea-textarea-55 MuiPrivateTextarea-shadow-56"
+              readOnly={true}
+              rows={1}
+              tabIndex={-1}
+              value=""
+            />
+            <textarea
+              aria-invalid={false}
+              className="MuiPrivateTextarea-textarea-55 MuiInputBase-input-47 MuiInput-input-32 MuiInputBase-inputMultiline-49 MuiInput-inputMultiline-34"
+              disabled={false}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              required={false}
+              rows={1}
+              style={
+                Object {
+                  "height": 19,
+                }
+              }
+              value=""
+            />
+          </div>
+        </div>
+      </div>
+      <p
+        aria-describedby={null}
+        className="MuiTypography-root-65 MuiTypography-body1-74 MuiTypography-colorError-99 NeuronHelp-badge-5"
+        onBlur={[Function]}
+        onFocus={[Function]}
+        onMouseLeave={[Function]}
+        onMouseOver={[Function]}
+        onTouchEnd={[Function]}
+        onTouchStart={[Function]}
+        title="Enter body ID, neuron name, or wildcard names using period+star (e.g., MBON.*). Warning: if using regular expressions, special characters like parentheses must be escaped (e.g. Delta6g\\\\\\\\(preQ7\\\\\\\\).*)"
+      >
+        ?
+      </p>
+    </div>
+  </div>
+  <div
+    className="MuiFormControl-root-1"
+  >
+    <legend
+      className="MuiFormLabel-root-17"
+    >
+      Neuron Direction
+    </legend>
+    <div
+      aria-label="preOrPost"
+      className="MuiFormGroup-root-100"
+      role="radiogroup"
+    >
+      <label
+        className="MuiFormControlLabel-root-102"
+      >
+        <span
+          className="MuiButtonBase-root-123 MuiIconButton-root-117 MuiPrivateSwitchBase-root-113 MuiRadio-root-108 MuiRadio-colorPrimary-111 MuiPrivateSwitchBase-checked-114 MuiRadio-checked-109"
+          onBlur={[Function]}
+          onContextMenu={[Function]}
+          onFocus={[Function]}
+          onKeyDown={[Function]}
+          onKeyUp={[Function]}
+          onMouseDown={[Function]}
+          onMouseLeave={[Function]}
+          onMouseUp={[Function]}
+          onTouchEnd={[Function]}
+          onTouchMove={[Function]}
+          onTouchStart={[Function]}
+          tabIndex={null}
+        >
+          <span
+            className="MuiIconButton-label-122"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-126"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+              />
+            </svg>
+            <input
+              checked={true}
+              className="MuiPrivateSwitchBase-input-116"
+              disabled={false}
+              name="preOrPost"
+              onChange={[Function]}
+              type="radio"
+              value="post"
+            />
+          </span>
+          <span
+            className="MuiTouchRipple-root-161"
+          />
+        </span>
+        <span
+          className="MuiTypography-root-65 MuiTypography-body1-74 MuiFormControlLabel-label-107"
+        >
+          Find postsynaptic partners (outputs)
+        </span>
+      </label>
+      <label
+        className="MuiFormControlLabel-root-102"
+      >
+        <span
+          className="MuiButtonBase-root-123 MuiIconButton-root-117 MuiPrivateSwitchBase-root-113 MuiRadio-root-108 MuiRadio-colorPrimary-111"
+          onBlur={[Function]}
+          onContextMenu={[Function]}
+          onFocus={[Function]}
+          onKeyDown={[Function]}
+          onKeyUp={[Function]}
+          onMouseDown={[Function]}
+          onMouseLeave={[Function]}
+          onMouseUp={[Function]}
+          onTouchEnd={[Function]}
+          onTouchMove={[Function]}
+          onTouchStart={[Function]}
+          tabIndex={null}
+        >
+          <span
+            className="MuiIconButton-label-122"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-126"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+              />
+            </svg>
+            <input
+              checked={false}
+              className="MuiPrivateSwitchBase-input-116"
+              disabled={false}
+              name="preOrPost"
+              onChange={[Function]}
+              type="radio"
+              value="pre"
+            />
+          </span>
+          <span
+            className="MuiTouchRipple-root-161"
+          />
+        </span>
+        <span
+          className="MuiTypography-root-65 MuiTypography-body1-74 MuiFormControlLabel-label-107"
+        >
+          Find presynaptic partners (inputs)
+        </span>
+      </label>
+    </div>
+  </div>
+  <button
+    className="MuiButtonBase-root-123 MuiButton-root-135 MuiButton-contained-146 MuiButton-containedPrimary-147 MuiButton-raised-149 MuiButton-raisedPrimary-150"
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onContextMenu={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseDown={[Function]}
+    onMouseLeave={[Function]}
+    onMouseUp={[Function]}
+    onTouchEnd={[Function]}
+    onTouchMove={[Function]}
+    onTouchStart={[Function]}
+    tabIndex="0"
+    type="button"
+  >
+    <span
+      className="MuiButton-label-136"
+    >
+      Submit
+    </span>
+    <span
+      className="MuiTouchRipple-root-161"
+    />
+  </button>
+</div>
+`;
+
+exports[`SimpleConnections Plugin renders correctly in public mode 1`] = `
+<div>
+  <div
+    className="MuiFormControl-root-1"
+  >
+    <div>
+      <div
+        className="MuiFormControl-root-1 MuiFormControl-fullWidth-4"
+        onKeyDown={[Function]}
+      >
+        <label
+          className="MuiFormLabel-root-17 MuiInputLabel-root-6 MuiInputLabel-formControl-11 MuiInputLabel-animated-14"
+          data-shrink={false}
+        >
+          Neuron name
+        </label>
+        <div
+          className="MuiInputBase-root-37 MuiInput-root-24 MuiInput-underline-28 MuiInputBase-fullWidth-46 MuiInput-fullWidth-31 MuiInputBase-formControl-38 MuiInput-formControl-25 MuiInputBase-multiline-45 MuiInput-multiline-30"
+          onClick={[Function]}
+        >
+          <div
+            className="MuiPrivateTextarea-root-54"
+          >
+            <textarea
+              aria-hidden="true"
+              className="MuiPrivateTextarea-textarea-55 MuiPrivateTextarea-shadow-56"
+              readOnly={true}
+              rows="1"
+              tabIndex={-1}
+              value=""
+            />
+            <textarea
+              aria-hidden="true"
+              className="MuiPrivateTextarea-textarea-55 MuiPrivateTextarea-shadow-56"
+              readOnly={true}
+              rows={1}
+              tabIndex={-1}
+              value=""
+            />
+            <textarea
+              aria-invalid={false}
+              className="MuiPrivateTextarea-textarea-55 MuiInputBase-input-47 MuiInput-input-32 MuiInputBase-inputMultiline-49 MuiInput-inputMultiline-34"
+              disabled={false}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              required={false}
+              rows={1}
+              style={
+                Object {
+                  "height": 19,
+                }
+              }
+              value=""
+            />
+          </div>
+        </div>
+      </div>
+      <p
+        aria-describedby={null}
+        className="MuiTypography-root-65 MuiTypography-body1-74 MuiTypography-colorError-99 NeuronHelp-badge-5"
+        onBlur={[Function]}
+        onFocus={[Function]}
+        onMouseLeave={[Function]}
+        onMouseOver={[Function]}
+        onTouchEnd={[Function]}
+        onTouchStart={[Function]}
+        title="Enter body ID, neuron name, or wildcard names using period+star (e.g., MBON.*). Warning: if using regular expressions, special characters like parentheses must be escaped (e.g. Delta6g\\\\\\\\(preQ7\\\\\\\\).*)"
+      >
+        ?
+      </p>
+    </div>
+  </div>
+  <div
+    className="MuiFormControl-root-1"
+  >
+    <legend
+      className="MuiFormLabel-root-17"
+    >
+      Neuron Direction
+    </legend>
+    <div
+      aria-label="preOrPost"
+      className="MuiFormGroup-root-100"
+      role="radiogroup"
+    >
+      <label
+        className="MuiFormControlLabel-root-102"
+      >
+        <span
+          className="MuiButtonBase-root-123 MuiIconButton-root-117 MuiPrivateSwitchBase-root-113 MuiRadio-root-108 MuiRadio-colorPrimary-111 MuiPrivateSwitchBase-checked-114 MuiRadio-checked-109"
+          onBlur={[Function]}
+          onContextMenu={[Function]}
+          onFocus={[Function]}
+          onKeyDown={[Function]}
+          onKeyUp={[Function]}
+          onMouseDown={[Function]}
+          onMouseLeave={[Function]}
+          onMouseUp={[Function]}
+          onTouchEnd={[Function]}
+          onTouchMove={[Function]}
+          onTouchStart={[Function]}
+          tabIndex={null}
+        >
+          <span
+            className="MuiIconButton-label-122"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-126"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+              />
+            </svg>
+            <input
+              checked={true}
+              className="MuiPrivateSwitchBase-input-116"
+              disabled={false}
+              name="preOrPost"
+              onChange={[Function]}
+              type="radio"
+              value="post"
+            />
+          </span>
+          <span
+            className="MuiTouchRipple-root-161"
+          />
+        </span>
+        <span
+          className="MuiTypography-root-65 MuiTypography-body1-74 MuiFormControlLabel-label-107"
+        >
+          Find postsynaptic partners (outputs)
+        </span>
+      </label>
+      <label
+        className="MuiFormControlLabel-root-102"
+      >
+        <span
+          className="MuiButtonBase-root-123 MuiIconButton-root-117 MuiPrivateSwitchBase-root-113 MuiRadio-root-108 MuiRadio-colorPrimary-111"
+          onBlur={[Function]}
+          onContextMenu={[Function]}
+          onFocus={[Function]}
+          onKeyDown={[Function]}
+          onKeyUp={[Function]}
+          onMouseDown={[Function]}
+          onMouseLeave={[Function]}
+          onMouseUp={[Function]}
+          onTouchEnd={[Function]}
+          onTouchMove={[Function]}
+          onTouchStart={[Function]}
+          tabIndex={null}
+        >
+          <span
+            className="MuiIconButton-label-122"
+          >
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-126"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+              />
+            </svg>
+            <input
+              checked={false}
+              className="MuiPrivateSwitchBase-input-116"
+              disabled={false}
+              name="preOrPost"
+              onChange={[Function]}
+              type="radio"
+              value="pre"
+            />
+          </span>
+          <span
+            className="MuiTouchRipple-root-161"
+          />
+        </span>
+        <span
+          className="MuiTypography-root-65 MuiTypography-body1-74 MuiFormControlLabel-label-107"
+        >
+          Find presynaptic partners (inputs)
+        </span>
+      </label>
+    </div>
+  </div>
+  <button
+    className="MuiButtonBase-root-123 MuiButton-root-135 MuiButton-contained-146 MuiButton-containedPrimary-147 MuiButton-raised-149 MuiButton-raisedPrimary-150"
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onContextMenu={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseDown={[Function]}
+    onMouseLeave={[Function]}
+    onMouseUp={[Function]}
+    onTouchEnd={[Function]}
+    onTouchMove={[Function]}
+    onTouchStart={[Function]}
+    tabIndex="0"
+    type="button"
+  >
+    <span
+      className="MuiButton-label-136"
+    >
+      Submit
+    </span>
+    <span
+      className="MuiTouchRipple-root-161"
+    />
+  </button>
+</div>
+`;

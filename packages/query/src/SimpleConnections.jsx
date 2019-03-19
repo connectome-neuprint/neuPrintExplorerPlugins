@@ -33,7 +33,7 @@ const styles = () => ({
 const pluginName = 'SimpleConnection';
 const pluginAbbrev = 'sc';
 
-class SimpleConnections extends React.Component {
+export class SimpleConnections extends React.Component {
   static get details() {
     return {
       name: pluginName,
@@ -106,10 +106,10 @@ class SimpleConnections extends React.Component {
 
     if (lastBody !== -1) {
       let tableName = `${lastName} id=(${String(lastBody)})`;
-      if (query.pm.find_inputs === false) {
-        tableName = `${tableName} => ...`;
+      if (query.pm.find_inputs === true) {
+        tableName = `${tableName} <= ...`;
       } else {
-        tableName = `... => ${tableName}`;
+        tableName = `${tableName} => ...`;
       }
 
       tables.push({
@@ -121,12 +121,12 @@ class SimpleConnections extends React.Component {
 
     // Title choices.
     const neuronSrc = query.pm.neuron_name || query.pm.neuron_id;
-    const preOrPost = query.pm.find_inputs ? 'Post' : 'Pre';
+    const preOrPost = query.pm.find_inputs ? 'pre' : 'post';
 
     return {
       data: tables,
       debug: apiResponse.debug,
-      title: `${preOrPost}-synaptic connections to ${neuronSrc}`
+      title: `Neurons ${preOrPost}synaptic to ${neuronSrc}`
     };
   }
 
@@ -134,7 +134,7 @@ class SimpleConnections extends React.Component {
     super(props);
     this.state = {
       neuronName: '',
-      preOrPost: 'pre'
+      preOrPost: 'post'
     };
   }
 
@@ -148,7 +148,7 @@ class SimpleConnections extends React.Component {
       } else {
         parameters.neuron_name = neuronName;
       }
-      if (preOrPost === 'pre') {
+      if (preOrPost === 'post') {
         parameters.find_inputs = false;
       } else {
         parameters.find_inputs = true;
@@ -157,14 +157,15 @@ class SimpleConnections extends React.Component {
         dataSet,
         plugin: pluginName,
         pluginCode: pluginAbbrev,
-        parameters,
-        visProps: { paginateExpansion: true }
+        visProps: { paginateExpansion: true },
+        parameters
       };
 
       submit(query);
-    } else {
-      actions.formError('Please enter a neuron name.');
+      return query;
     }
+    actions.formError('Please enter a neuron name.');
+    return {};
   };
 
   handleNeuronName = event => {
@@ -213,14 +214,14 @@ class SimpleConnections extends React.Component {
             onChange={this.handleDirection}
           >
             <FormControlLabel
-              value="pre"
-              control={<Radio color="primary" />}
-              label="Pre-synaptic"
-            />
-            <FormControlLabel
               value="post"
               control={<Radio color="primary" />}
-              label="Post-synaptic"
+              label="Find postsynaptic partners (outputs)"
+            />
+            <FormControlLabel
+              value="pre"
+              control={<Radio color="primary" />}
+              label="Find presynaptic partners (inputs)"
             />
           </RadioGroup>
         </FormControl>
