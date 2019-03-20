@@ -249,20 +249,19 @@ export function computeSimilarity(inputVector, queriedBodyVector) {
  * Creates a result for a table view of the simpleconnections query.
  *
  * @export
- * @param {Object} query
+ * @param {string} dataset
  * @param {Object} apiResponse
  * @param {Object} actions
  * @param {function} submit
- * @param {string} pluginName
  * @param {boolean} includeWeightHP // indicates whether or not the table should include high-precision weights
  * @returns {Object}
  */
+// TODO: explicitly pass required actions to prevent future bugs
 export function createSimpleConnectionsResult(
-  query,
+  dataset,
   apiResponse,
   actions,
   submit,
-  pluginName,
   includeWeightHP = false
 ) {
   let columnNames;
@@ -298,7 +297,7 @@ export function createSimpleConnectionsResult(
   /* eslint-disable prefer-destructuring */
   const data = apiResponse.data.map(row => {
     const hasSkeleton = row[5];
-    const roiInfoObject = JSON.parse(row[7]);
+    const roiInfoObject = JSON.parse(row[7]) || {};
     const roiList = row[11];
     const postTotal = row[10];
     const preTotal = row[9];
@@ -311,7 +310,7 @@ export function createSimpleConnectionsResult(
     if (includeWeightHP) {
       converted[indexOf.connectionWeightHP] = row[12];
     }
-    converted[indexOf.bodyId] = getBodyIdForTable(query.dataSet, bodyId, hasSkeleton, actions);
+    converted[indexOf.bodyId] = getBodyIdForTable(dataset, bodyId, hasSkeleton, actions);
     converted[indexOf.name] = row[1];
     converted[indexOf.status] = row[6];
     converted[indexOf.connectionWeight] = row[3];
@@ -326,13 +325,13 @@ export function createSimpleConnectionsResult(
     converted[indexOf.roiHeatMap] = heatMap;
     converted[indexOf.roiBarGraph] = barGraph;
 
-    const postQuery = createSimpleConnectionQueryObject(query.ds, true, bodyId, includeWeightHP);
+    const postQuery = createSimpleConnectionQueryObject(dataset, true, bodyId, includeWeightHP);
     converted[indexOf.post] = {
       value: postTotal,
       action: () => submit(postQuery)
     };
 
-    const preQuery = createSimpleConnectionQueryObject(query.ds, false, bodyId, includeWeightHP);
+    const preQuery = createSimpleConnectionQueryObject(dataset, false, bodyId, includeWeightHP);
     converted[indexOf.pre] = {
       value: preTotal,
       action: () => submit(preQuery)
@@ -363,8 +362,7 @@ export function createSimpleConnectionsResult(
   return {
     columns,
     data,
-    debug: apiResponse.debug,
-    title: `Connections from bodyID ${query.pm.neuron_id}`
+    debug: apiResponse.debug
   };
 }
 

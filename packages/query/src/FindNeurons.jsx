@@ -44,7 +44,7 @@ function processSimpleConnections(query, apiResponse, actions, submit, isPublic)
   }
 
   return createSimpleConnectionsResult(
-    query,
+    query.ds,
     apiResponse,
     actions,
     submit,

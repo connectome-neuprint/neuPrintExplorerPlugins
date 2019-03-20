@@ -4,10 +4,6 @@ const { actions, submit } = global;
 
 describe('createSimpleConnectionsResult', () => {
   it('should return a simple connections query object', () => {
-    const query = {
-      pm: {},
-      dataSet: 'test'
-    };
     const apiResponse = {
       columns: [
         'Neuron1',
@@ -71,11 +67,10 @@ describe('createSimpleConnectionsResult', () => {
     };
 
     const result = createSimpleConnectionsResult(
-      query,
+      'test',
       apiResponse,
       actions,
       submit,
-      'testPlugin',
       true // testing private version
     );
     const { columns, data, debug } = result;
@@ -85,11 +80,10 @@ describe('createSimpleConnectionsResult', () => {
     expect(data[0].length).toBe(10);
 
     const resultPublic = createSimpleConnectionsResult(
-      query,
+      'test',
       apiResponse,
       actions,
       submit,
-      'testPlugin',
       false // testing public version
     );
     expect(resultPublic.debug).toEqual(apiResponse.debug);

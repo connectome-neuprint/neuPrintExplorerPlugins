@@ -66,7 +66,7 @@ export class SimpleConnections extends React.Component {
     let lastName = '';
 
     const { columns, data } = createSimpleConnectionsResult(
-      query,
+      query.ds,
       apiResponse,
       actions,
       submit,
