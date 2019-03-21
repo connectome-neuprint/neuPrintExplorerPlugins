@@ -34,7 +34,7 @@ const styles = theme => ({
 const pluginName = 'FindNeurons';
 const pluginAbbrev = 'fn';
 
-function processSimpleConnections(query, apiResponse, actions, submit, isPublic) {
+function processSimpleConnections(query, apiResponse, actions, submit, isPublic, isInputs) {
   // settings for whether or not the application is in public mode
   let includeWeightHP;
   if (isPublic) {
@@ -48,7 +48,7 @@ function processSimpleConnections(query, apiResponse, actions, submit, isPublic)
     apiResponse,
     actions,
     submit,
-    pluginName,
+    isInputs,
     includeWeightHP
   );
 }
@@ -75,7 +75,7 @@ export class FindNeurons extends React.Component {
   // visualization plugin.
   static processResults(query, apiResponse, actions, submit) {
     if (query.pm.neuron_id) {
-      return processSimpleConnections(query, apiResponse, actions, submit);
+      return processSimpleConnections(query, apiResponse, actions, submit, query.pm.find_inputs);
     }
 
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = query.pm;

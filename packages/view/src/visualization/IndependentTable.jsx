@@ -14,58 +14,7 @@ import { withStyles } from '@material-ui/core/styles';
 // eslint-disable-next-line import/no-unresolved
 import TablePaginationActions from '@neuprint/support';
 
-function desc(a, b, orderBy) {
-  let aVal = a[orderBy];
-  let bVal = b[orderBy];
-
-  // need to check if the cell has a value / action object
-  if (aVal && typeof aVal === 'object') {
-    if ('sortBy' in aVal) {
-      aVal = aVal.sortBy;
-    } else if ('value' in aVal) {
-      aVal = aVal.value;
-    }
-  }
-
-  if (bVal && typeof bVal === 'object') {
-    if ('sortBy' in bVal) {
-      bVal = bVal.sortBy;
-    } else if ('value' in bVal) {
-      bVal = bVal.value;
-    }
-  }
-
-  // need to check for null values
-  if (bVal === null) {
-    return 1;
-  }
-  if (aVal === null) {
-    return -1;
-  }
-
-  // now finish the sort
-  if (bVal < aVal) {
-    return -1;
-  }
-  if (bVal > aVal) {
-    return 1;
-  }
-  return 0;
-}
-
-function stableSort(array, cmp) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = cmp(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map(el => el[0]);
-}
-
-function getSorting(order, orderBy) {
-  return order === 'desc' ? (a, b) => desc(a, b, orderBy) : (a, b) => -desc(a, b, orderBy);
-}
+import { stableSort, getSorting } from '../shared/vishelpers';
 
 const styles = theme => ({
   root: {

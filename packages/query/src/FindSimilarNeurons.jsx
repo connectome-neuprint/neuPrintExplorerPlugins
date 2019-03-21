@@ -15,7 +15,7 @@ import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 
 import { round } from 'mathjs';
-import RoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
+import NeuronRoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
 import {
   setColumnIndices,
   createSimpleConnectionQueryObject,
@@ -252,7 +252,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
 
       // sub-level ROI heatmap
       data[index][indexOf.subLevelRoiHeatMap] = (
-        <RoiHeatMap
+        <NeuronRoiHeatMap
           roiList={subLevelRoiList}
           roiInfoObject={roiInfoObject}
           preTotal={totalPre}

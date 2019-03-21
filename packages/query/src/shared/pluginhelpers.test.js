@@ -71,25 +71,27 @@ describe('createSimpleConnectionsResult', () => {
       apiResponse,
       actions,
       submit,
+      true,
       true // testing private version
     );
     const { columns, data, debug } = result;
     expect(debug).toEqual(apiResponse.debug);
-    expect(columns.length).toBe(10);
+    expect(columns.length).toBe(11);
     expect(data.length).toBe(3);
-    expect(data[0].length).toBe(10);
+    expect(data[0].length).toBe(11);
 
     const resultPublic = createSimpleConnectionsResult(
       'test',
       apiResponse,
       actions,
       submit,
+      true,
       false // testing public version
     );
     expect(resultPublic.debug).toEqual(apiResponse.debug);
-    expect(resultPublic.columns.length).toBe(9);
+    expect(resultPublic.columns.length).toBe(10);
     expect(resultPublic.data.length).toBe(3);
-    expect(resultPublic.data[0].length).toBe(9);
+    expect(resultPublic.data[0].length).toBe(10);
   });
 });
 

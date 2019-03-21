@@ -1,8 +1,8 @@
 import React from 'react';
 import Icon from '@material-ui/core/Icon';
 import * as math from 'mathjs';
-import RoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
-import RoiBarGraph from '../visualization/MiniRoiBarGraph';
+import NeuronRoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
+import NeuronRoiBarGraph from '../visualization/MiniRoiBarGraph';
 import SelectAndCopyText from './SelectAndCopyText';
 import { SimpleConnections } from '../SimpleConnections';
 
@@ -124,7 +124,7 @@ export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, 
   }
 
   const heatMap = (
-    <RoiHeatMap
+    <NeuronRoiHeatMap
       roiList={roiList}
       roiInfoObject={roiInfoObjectWithNoneCount}
       preTotal={preTotal}
@@ -133,7 +133,7 @@ export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, 
   );
 
   const barGraph = (
-    <RoiBarGraph
+    <NeuronRoiBarGraph
       roiList={roiList}
       roiInfoObject={roiInfoObjectWithNoneCount}
       preTotal={preTotal}
@@ -245,6 +245,18 @@ export function computeSimilarity(inputVector, queriedBodyVector) {
   return { inputScore, outputScore, totalScore };
 }
 
+function createConnectionDetailQueryObject(dataset, bodyIdA, bodyIdB, connectionWeight, roiList) {
+  const cypher = `MATCH (n:\`${dataset}-ConnectionSet\`{datasetBodyIds:"${dataset}:${bodyIdA}:${bodyIdB}"}) RETURN n.roiInfo`;
+  return {
+    bodyIdA,
+    bodyIdB,
+    connectionWeight,
+    roiList,
+    cypher,
+    dataset
+  };
+}
+
 /**
  * Creates a result for a table view of the simpleconnections query.
  *
@@ -253,6 +265,7 @@ export function computeSimilarity(inputVector, queriedBodyVector) {
  * @param {Object} apiResponse
  * @param {Object} actions
  * @param {function} submit
+ * @param {boolean} isInputs // indicates whether or not this is a list of inputs to the queried neuron
  * @param {boolean} includeWeightHP // indicates whether or not the table should include high-precision weights
  * @returns {Object}
  */
@@ -262,11 +275,13 @@ export function createSimpleConnectionsResult(
   apiResponse,
   actions,
   submit,
+  isInputs,
   includeWeightHP = false
 ) {
   let columnNames;
   if (includeWeightHP) {
     columnNames = [
+      'expand',
       'bodyId',
       'name',
       'status',
@@ -280,6 +295,7 @@ export function createSimpleConnectionsResult(
     ];
   } else {
     columnNames = [
+      'expand',
       'bodyId',
       'name',
       'status',
@@ -296,12 +312,14 @@ export function createSimpleConnectionsResult(
 
   /* eslint-disable prefer-destructuring */
   const data = apiResponse.data.map(row => {
+    const bodyIdQueried = row[4];
     const hasSkeleton = row[5];
     const roiInfoObject = JSON.parse(row[7]) || {};
     const roiList = row[11];
     const postTotal = row[10];
     const preTotal = row[9];
     const bodyId = row[2];
+    const connectionWeight = row[3];
 
     // make sure none is added to the rois list.
     roiList.push('none');
@@ -310,10 +328,29 @@ export function createSimpleConnectionsResult(
     if (includeWeightHP) {
       converted[indexOf.connectionWeightHP] = row[12];
     }
+
+    if (isInputs) {
+      converted[indexOf.expand] = createConnectionDetailQueryObject(
+        dataset,
+        bodyId,
+        bodyIdQueried,
+        connectionWeight,
+        roiList
+      );
+    } else {
+      converted[indexOf.expand] = createConnectionDetailQueryObject(
+        dataset,
+        bodyIdQueried,
+        bodyId,
+        connectionWeight,
+        roiList
+      );
+    }
+
     converted[indexOf.bodyId] = getBodyIdForTable(dataset, bodyId, hasSkeleton, actions);
     converted[indexOf.name] = row[1];
     converted[indexOf.status] = row[6];
-    converted[indexOf.connectionWeight] = row[3];
+    converted[indexOf.connectionWeight] = connectionWeight;
     converted[indexOf.size] = row[8];
 
     const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(

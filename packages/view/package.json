@@ -64,7 +64,8 @@
     "immutable": "^4.0.0-rc.12",
     "pouchdb": "^7.0.0",
     "randomcolor": "^0.5.4",
-    "react-select": "^2.1.0"
+    "react-select": "^2.1.0",
+    "colormap": "^2.3.0"
   },
   "gitHead": "7e8a8d98fc5f55d001b8cc2707aee629396f7654"
 }

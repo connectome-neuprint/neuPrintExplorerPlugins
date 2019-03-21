@@ -41,7 +41,7 @@ export class SimpleConnections extends React.Component {
       abbr: pluginAbbrev,
       experimental: true,
       description: 'List inputs or outputs to selected neuron(s)',
-      visType: 'CollapsibleTable'
+      visType: 'SimpleConnectionsView'
     };
   }
 
@@ -60,6 +60,7 @@ export class SimpleConnections extends React.Component {
       includeWeightHP = true;
     }
     const tables = [];
+    const inputs = query.pm.find_inputs;
 
     let currentTable = [];
     let lastBody = -1;
@@ -70,7 +71,7 @@ export class SimpleConnections extends React.Component {
       apiResponse,
       actions,
       submit,
-      pluginName,
+      inputs,
       includeWeightHP
     );
 
@@ -78,7 +79,7 @@ export class SimpleConnections extends React.Component {
       const neuron1Id = row[4];
       if (lastBody !== -1 && neuron1Id !== lastBody) {
         let tableName = `${lastName} id=(${String(lastBody)})`;
-        if (query.pm.find_inputs === false) {
+        if (inputs === false) {
           tableName = `${tableName} => ...`;
         } else {
           tableName = `... => ${tableName}`;
@@ -106,7 +107,7 @@ export class SimpleConnections extends React.Component {
 
     if (lastBody !== -1) {
       let tableName = `${lastName} id=(${String(lastBody)})`;
-      if (query.pm.find_inputs === true) {
+      if (inputs === true) {
         tableName = `${tableName} <= ...`;
       } else {
         tableName = `${tableName} => ...`;
@@ -121,7 +122,7 @@ export class SimpleConnections extends React.Component {
 
     // Title choices.
     const neuronSrc = query.pm.neuron_name || query.pm.neuron_id;
-    const preOrPost = query.pm.find_inputs ? 'pre' : 'post';
+    const preOrPost = inputs ? 'pre' : 'post';
 
     return {
       data: tables,
