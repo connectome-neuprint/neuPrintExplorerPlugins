@@ -19,14 +19,15 @@ class Completeness extends React.Component {
       abbr: pluginAbbrev,
       category: 'recon',
       experimental: true,
-      description: 'Determines the reconstruction completeness of each ROI with respect to the neuron filters',
-      visType: 'SimpleTable',
+      description:
+        'Determines the reconstruction completeness of each ROI with respect to the neuron filters',
+      visType: 'SimpleTable'
     };
   }
 
   static fetchParameters() {
     return {
-      queryString: '/npexplorer/completeness',
+      queryString: '/npexplorer/completeness'
     };
   }
 
@@ -46,7 +47,18 @@ class Completeness extends React.Component {
       debug: apiResponse.debug,
       title: `Coverage percentage of filtered neurons in ${parameters.dataset}`
     };
-  };
+  }
+
+  static processDownload(response) {
+    const headers = ['ROI', '%presyn', 'total presyn', '%postsyn', 'total postsyn'].join(',');
+    const data = response.result.data
+      .map(
+        row =>
+          `${row[0]}, ${(row[1] / row[3]) * 100}, ${row[3]}, ${(row[2] / row[4]) * 100}, ${row[4]}`
+      )
+      .join('\n');
+    return [headers, data].join('\n');
+  }
 
   constructor(props) {
     super(props);
@@ -123,7 +135,7 @@ Completeness.propTypes = {
   neoServerSettings: PropTypes.object.isRequired,
   dataSet: PropTypes.string.isRequired,
   actions: PropTypes.object.isRequired,
-  submit: PropTypes.func.isRequired,
+  submit: PropTypes.func.isRequired
 };
 
 export default Completeness;
