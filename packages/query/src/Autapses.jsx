@@ -1,6 +1,6 @@
 /*
  * Query to find autapses in the volume.
-*/
+ */
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -8,6 +8,8 @@ import Button from '@material-ui/core/Button';
 
 const pluginName = 'Autapses';
 const pluginAbbrev = 'au';
+
+const columnHeaders = ['id', 'name', '#connections'];
 
 class Autapses extends React.Component {
   static get details() {
@@ -24,7 +26,7 @@ class Autapses extends React.Component {
 
   static fetchParameters() {
     return {
-      queryString: '/npexplorer/autapses',
+      queryString: '/npexplorer/autapses'
     };
   }
 
@@ -32,12 +34,18 @@ class Autapses extends React.Component {
     const data = apiResponse.data.map(row => [row[0], row[2], row[1]]);
 
     return {
-      columns: ['id', 'name', '#connections'],
+      columns: columnHeaders,
       data,
       debug: apiResponse.debug,
-      title: `Number of autapses recorded for each neuron in ${query.pm.dataset}`,
+      title: `Number of autapses recorded for each neuron in ${query.pm.dataset}`
     };
-  };
+  }
+
+  static processDownload(response) {
+    const headers = columnHeaders.join(',');
+    const data = response.result.data.map(row => `${row[0]}, ${row[2]}, ${row[1]}`).join('\n');
+    return [headers, data].join('\n');
+  }
 
   // creates query object and sends to callback
   processRequest = () => {
@@ -46,7 +54,7 @@ class Autapses extends React.Component {
       dataSet,
       plugin: pluginName,
       pluginCode: pluginAbbrev,
-      parameters: { dataset: dataSet },
+      parameters: { dataset: dataSet }
     };
     submit(query);
   };
@@ -69,7 +77,7 @@ class Autapses extends React.Component {
 Autapses.propTypes = {
   dataSet: PropTypes.string.isRequired,
   isQuerying: PropTypes.bool.isRequired,
-  submit: PropTypes.func.isRequired,
+  submit: PropTypes.func.isRequired
 };
 
 export default Autapses;
