@@ -50,7 +50,12 @@ class PartnerCompletenessView extends React.Component {
     this.parseResults();
   }
 
-  componentDidUpdate() {}
+  componentDidUpdate(prevProps) {
+    const { query } = this.props;
+    if (query !== prevProps.query) {
+      this.parseResults();
+    }
+  }
 
   queryStatusDefinitions = (neoServer, dataset) => {
     const { actions } = this.props;
