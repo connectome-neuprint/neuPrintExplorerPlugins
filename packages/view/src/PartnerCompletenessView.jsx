@@ -239,7 +239,9 @@ class PartnerCompletenessView extends React.Component {
     }
 
     const inputStats = this.highlightStats(inputData, highlightIndexInput, orphanFilter);
+    const inputPercent = ((inputStats.highconn / inputStats.totalconn) * 100 || 0).toFixed(2);
     const outputStats = this.highlightStats(outputData, highlightIndexOutput, orphanFilter);
+    const outputPercent = ((outputStats.highconn / outputStats.totalconn) * 100 || 0).toFixed(2);
 
     const options = allStatus.map(name => ({
       label: name,
@@ -286,7 +288,7 @@ class PartnerCompletenessView extends React.Component {
         />
         <Typography variant="h6">Inputs</Typography>
         <Typography>
-          {((inputStats.highconn / inputStats.totalconn) * 100).toFixed(2)} percent connections,{' '}
+          {inputPercent} percent connections,{' '}
           {inputStats.numhigh} bodies highlighted out of {inputStats.numbodies}
         </Typography>
         <IndependentTable
@@ -298,7 +300,7 @@ class PartnerCompletenessView extends React.Component {
         />
         <Typography variant="h6">Outputs</Typography>
         <Typography>
-          {((outputStats.highconn / outputStats.totalconn) * 100).toFixed(2)} percent connections,{' '}
+          {outputPercent} percent connections,{' '}
           {outputStats.numhigh} bodies highlighted out of {outputStats.numbodies}
         </Typography>
         <IndependentTable
