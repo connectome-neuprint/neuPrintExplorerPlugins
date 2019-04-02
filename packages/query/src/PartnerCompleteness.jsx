@@ -30,7 +30,7 @@ class PartnerCompleteness extends React.Component {
       experimental: true,
       category: 'recon',
       description: 'Show all connections to and from selected neuron and show reconstruction completeness.',
-      visType: 'SimpleTable'
+      visType: 'PartnerCompletenessView'
     };
   }
 

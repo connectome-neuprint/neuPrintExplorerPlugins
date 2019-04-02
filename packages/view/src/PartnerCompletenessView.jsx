@@ -31,136 +31,26 @@ const styles = theme => ({
 class PartnerCompletenessView extends React.Component {
   constructor(props) {
     super(props);
-    const { index, actions, query } = props;
-    const { visProps = {} } = query;
-    const initialValues = this.getInitialValues();
-
-    const newVisProps = Object.assign({}, visProps, {
-      highlightIndexInput: initialValues.highlightIndexInput,
-      highlightIndexOutput: initialValues.highlightIndexOutput,
-      selectedStatus: initialValues.allStatus,
-      allStatus: initialValues.allStatus,
-      inputTable: initialValues.inputTable,
-      outputTable: initialValues.outputTable,
-      bodyStats: initialValues.bodyStats,
-      inputStats: initialValues.inputStats,
-      outputStats: initialValues.outputStats,
-      statusDefinitions: initialValues.statusDefinitions,
-      orphanFilter: 0
-    });
-
-    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
+    this.state = {
+      inputData: [],
+      outputData: [],
+      searchTarget: {
+        bodyId: null,
+        name: '',
+        pre: 0,
+        post: 0,
+        status: ''
+      },
+      statusDefinitions: '',
+      allStatus: []
+    };
   }
 
-  componentDidUpdate() {
-    const { index, actions, query } = this.props;
-    const { visProps = {} } = query;
-
-    // if this is a new query result, there will be no values stored in visProps so need to calculate initial values
-    if (Object.keys(visProps).length === 0) {
-      const initialValues = this.getInitialValues();
-
-      const newVisProps = Object.assign({}, visProps, {
-        highlightIndexInput: initialValues.highlightIndexInput,
-        highlightIndexOutput: initialValues.highlightIndexOutput,
-        selectedStatus: initialValues.allStatus,
-        allStatus: initialValues.allStatus,
-        inputTable: initialValues.inputTable,
-        outputTable: initialValues.outputTable,
-        bodyStats: initialValues.bodyStats,
-        inputStats: initialValues.inputStats,
-        outputStats: initialValues.outputStats,
-        statusDefinitions: initialValues.statusDefinitions,
-        orphanFilter: 0
-      });
-
-      actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
-    }
+  componentDidMount() {
+    this.parseResults();
   }
 
-  getInitialValues = () => {
-    const { query, neoServer } = this.props;
-    const inputTable = {
-      result: {
-        columns: ['id', 'name', '#connections', 'status', '#pre', '#post'],
-        data: []
-      }
-    };
-    const outputTable = {
-      result: {
-        columns: ['id', 'name', '#connections', 'status', '#pre', '#post'],
-        data: []
-      }
-    };
-
-    const { result } = query;
-
-    const allStatus = new Set();
-    const highlightIndexInput = {};
-    const highlightIndexOutput = {};
-
-    const bodyStats = {
-      bodyId: result.bodyId,
-      name: '',
-      pre: 0,
-      post: 0,
-      status: ''
-    };
-
-    for (let i = 0; i < result.data.length; i += 1) {
-      const arr = [];
-      const status = result.data[i][4];
-      let highlight = false;
-      if (status !== null && status !== '') {
-        highlight = true;
-        allStatus.add(status);
-      }
-
-      /* eslint-disable prefer-destructuring */
-      if (i === 0) {
-        bodyStats.name = result.data[i][7];
-        bodyStats.pre = result.data[i][8];
-        bodyStats.post = result.data[i][9];
-        bodyStats.status = result.data[i][10];
-      }
-      /* eslint-enable prefer-destructuring */
-
-      for (let j = 0; j < 7; j += 1) {
-        if (j !== 2) {
-          arr.push(result.data[i][j]);
-        }
-      }
-      // check if isinput
-      if (result.data[i][2]) {
-        if (highlight) {
-          highlightIndexInput[inputTable.result.data.length] = 'lightblue';
-        }
-        inputTable.result.data.push(arr);
-      } else {
-        if (highlight) {
-          highlightIndexOutput[outputTable.result.data.length] = 'lightblue';
-        }
-        outputTable.result.data.push(arr);
-      }
-    }
-
-    const inputStats = this.highlightStats(inputTable.result.data, highlightIndexInput, 0);
-    const outputStats = this.highlightStats(outputTable.result.data, highlightIndexOutput, 0);
-
-    const statusDefinitions = this.queryStatusDefinitions(neoServer, query.dataSet);
-
-    return {
-      inputTable,
-      outputTable,
-      highlightIndexInput,
-      highlightIndexOutput,
-      allStatus: [...allStatus],
-      bodyStats,
-      inputStats,
-      outputStats,
-      statusDefinitions
-    };
-  };
+  componentDidUpdate() {}
 
   queryStatusDefinitions = (neoServer, dataset) => {
     const { actions } = this.props;
@@ -199,7 +89,7 @@ class PartnerCompletenessView extends React.Component {
           });
         }
 
-        return statusDefinitions;
+        this.setState({ statusDefinitions });
       })
       .catch(error => {
         actions.metaInfoError(error);
@@ -232,82 +122,119 @@ class PartnerCompletenessView extends React.Component {
     };
   };
 
-  highlightRows = filter => selected => {
-    const { actions, query, index } = this.props;
-    const { visProps } = query;
-    const { inputTable, outputTable } = visProps;
-    const currSelected = selected.map(item => item.value);
-    const currSelectedSet = new Set(currSelected);
-    const filterLimit = filter === '' ? 0 : filter;
-
-    const inputHighlight = {};
-    const outputHighlight = {};
-    for (let i = 0; i < inputTable.result.data.length; i += 1) {
-      if (inputTable.result.data[i][2] <= filterLimit) {
-        inputHighlight[i] = 'pink';
-      } else if (currSelectedSet.has(inputTable.result.data[i][3])) {
-        inputHighlight[i] = 'lightblue';
-      }
+  handleChange = event => {
+    const { query, actions, index } = this.props;
+    const { visProps = {} } = query;
+    // only allow numbers or blank line
+    const val = parseInt(event.target.value, 10) || '';
+    if (/^\d+$/.test(val) || val === '') {
+      const newVisProps = Object.assign({}, visProps, { filter: val });
+      const updated = Object.assign({}, query, { visProps: newVisProps });
+      delete updated.result;
+      actions.updateQuery(index, updated);
     }
+  };
 
-    for (let i = 0; i < outputTable.result.data.length; i += 1) {
-      if (outputTable.result.data[i][2] <= filterLimit) {
-        outputHighlight[i] = 'pink';
-      } else if (currSelectedSet.has(outputTable.result.data[i][3])) {
-        outputHighlight[i] = 'lightblue';
+  handleStatusChange = selected => {
+    const { query, actions, index } = this.props;
+    const { visProps = {} } = query;
+
+    const val = selected.map(item => item.value).join(',');
+    const newVisProps = Object.assign({}, visProps, { status: val });
+    const updated = Object.assign({}, query, { visProps: newVisProps });
+    delete updated.result;
+    actions.updateQuery(index, updated);
+  };
+
+  parseResults() {
+    const { query, neoServer } = this.props;
+    const { pm: params, result } = query;
+
+    this.queryStatusDefinitions(neoServer, params.dataSet);
+
+    const allStatus = new Set();
+    const inputData = [];
+    const outputData = [];
+    const searchTarget = {
+      bodyId: params.bodyId,
+      name: result.data[0][7],
+      pre: result.data[0][8],
+      post: result.data[0][9],
+      status: result.data[0][10]
+    };
+
+    const highlightIndexInput = {};
+    const highlightIndexOutput = {};
+
+    result.data.forEach(row => {
+      const status = row[4];
+
+      let highlight = false;
+
+      if (status !== null && status !== '') {
+        highlight = true;
+        allStatus.add(status);
       }
-    }
-
-    const inputStats = this.highlightStats(inputTable.result.data, inputHighlight, filterLimit);
-    const outputStats = this.highlightStats(outputTable.result.data, outputHighlight, filterLimit);
-
-    const newVisProps = Object.assign({}, visProps, {
-      highlightIndexInput: inputHighlight,
-      highlightIndexOutput: outputHighlight,
-      selectedStatus: currSelected,
-      inputTable,
-      outputTable,
-      inputStats,
-      outputStats,
-      orphanFilter: filter
+      const tableData = [];
+      for (let j = 0; j < 7; j += 1) {
+        if (j !== 2) {
+          tableData.push(row[j]);
+        }
+      }
+      // check if is input or output
+      if (row[2]) {
+        if (highlight) {
+          highlightIndexInput[inputData.length] = 'lightblue';
+        }
+        inputData.push(tableData);
+      } else {
+        if (highlight) {
+          highlightIndexOutput[outputData.length] = 'lightblue';
+        }
+        outputData.push(tableData);
+      }
     });
 
-    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
-  };
-
-  handleChange = event => {
-    const { query } = this.props;
-    const { visProps } = query;
-    const { selectedStatus } = visProps;
-    let val = parseInt(event.target.value, 10);
-    if (event.target.value === '' || event.target.value === null) {
-      val = '';
-    }
-    if (/^\d+$/.test(val) || val === '') {
-      const currSelected = selectedStatus.map(name => ({
-        label: name,
-        value: name
-      }));
-      this.highlightRows(val)(currSelected);
-    }
-  };
+    this.setState({
+      searchTarget,
+      allStatus: [...allStatus],
+      inputData,
+      outputData
+    });
+  }
 
   render() {
     const { classes, query } = this.props;
     const { visProps = {} } = query;
-    const {
-      highlightIndexInput = {},
-      highlightIndexOutput = {},
-      selectedStatus = [],
-      allStatus = [],
-      inputTable = { result: { data: [], columns: [] } },
-      outputTable = { result: { data: [], columns: [] } },
-      bodyStats = '',
-      orphanFilter = 0,
-      inputStats = {},
-      outputStats = {},
-      statusDefinitions
-    } = visProps;
+
+    const { filter: orphanFilter = 0, status = '' } = visProps;
+    // split the status string and filter out empty strings
+    const selectedStatus = status.split(',').filter(x => x);
+    const currSelectedSet = new Set(selectedStatus);
+
+    const { inputData, outputData, searchTarget, statusDefinitions, allStatus } = this.state;
+
+    const highlightIndexInput = {};
+    const highlightIndexOutput = {};
+
+    for (let i = 0; i < inputData.length; i += 1) {
+      if (inputData[i][2] <= orphanFilter) {
+        highlightIndexInput[i] = 'pink';
+      } else if (currSelectedSet.has(inputData[i][3])) {
+        highlightIndexInput[i] = 'lightblue';
+      }
+    }
+
+    for (let i = 0; i < outputData.length; i += 1) {
+      if (outputData[i][2] <= orphanFilter) {
+        highlightIndexOutput[i] = 'pink';
+      } else if (currSelectedSet.has(outputData[i][3])) {
+        highlightIndexOutput[i] = 'lightblue';
+      }
+    }
+
+    const inputStats = this.highlightStats(inputData, highlightIndexInput, orphanFilter);
+    const outputStats = this.highlightStats(outputData, highlightIndexOutput, orphanFilter);
 
     const options = allStatus.map(name => ({
       label: name,
@@ -318,13 +245,15 @@ class PartnerCompletenessView extends React.Component {
       value: name
     }));
 
+    const tableColumns = ['id', 'name', '#connections', 'status', '#pre', '#post'];
+
     return (
       <div className={classes.root}>
         <Typography variant="h6">Neuron information</Typography>
-        <Typography>Name: {bodyStats.name}</Typography>
-        <Typography>Status: {bodyStats.status}</Typography>
+        <Typography>Name: {searchTarget.name}</Typography>
+        <Typography>Status: {searchTarget.status}</Typography>
         <Typography>
-          #pre: {bodyStats.pre}, #post: {bodyStats.post}
+          #pre: {searchTarget.pre}, #post: {searchTarget.post}
         </Typography>
         <div style={{ marginTop: '8px', marginBottom: '8px' }}>
           <Typography variant="subtitle1" style={{ display: 'inline-flex' }}>
@@ -337,7 +266,7 @@ class PartnerCompletenessView extends React.Component {
             className={classes.select}
             isMulti
             value={currSelected}
-            onChange={this.highlightRows(orphanFilter)}
+            onChange={this.handleStatusChange}
             options={options}
             closeMenuOnSelect={false}
           />
@@ -356,8 +285,8 @@ class PartnerCompletenessView extends React.Component {
           {inputStats.numhigh} bodies highlighted out of {inputStats.numbodies}
         </Typography>
         <IndependentTable
-          data={inputTable.result.data}
-          columns={inputTable.result.columns}
+          data={inputData}
+          columns={tableColumns}
           rowsPerPage={10}
           disableSort={new Set([0, 1, 2, 3, 4, 5])}
           highlightIndex={highlightIndexInput}
@@ -368,8 +297,8 @@ class PartnerCompletenessView extends React.Component {
           {outputStats.numhigh} bodies highlighted out of {outputStats.numbodies}
         </Typography>
         <IndependentTable
-          data={outputTable.result.data}
-          columns={outputTable.result.columns}
+          data={outputData}
+          columns={tableColumns}
           rowsPerPage={10}
           disableSort={new Set([0, 1, 2, 3, 4, 5])}
           highlightIndex={highlightIndexOutput}
