@@ -11,7 +11,6 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = () => ({
   textField: {
-    width: 300,
     margin: '0 0 1em 0'
   },
   button: {
@@ -36,8 +35,7 @@ export class CustomQuery extends React.Component {
   }
 
   static fetchParameters() {
-    return {
-    };
+    return {};
   }
 
   static processResults(query, apiResponse) {
@@ -57,7 +55,7 @@ export class CustomQuery extends React.Component {
       data: [],
       debug: ''
     };
-  };
+  }
 
   constructor(props) {
     super(props);
@@ -76,19 +74,19 @@ export class CustomQuery extends React.Component {
       plugin: pluginName,
       pluginCode: pluginAbbrev,
       parameters: {
-        cypherQuery: textValue,
+        cypherQuery: textValue
       }
     };
     submit(query);
   };
 
   handleChange = event => {
-    this.setState({textValue: event.target.value});
+    this.setState({ textValue: event.target.value });
   };
 
   catchReturn = event => {
     // submit request if user presses enter
-    if (event.keyCode === 13) {
+    if (event.shiftKey && event.keyCode === 13) {
       event.preventDefault();
       this.processRequest();
     }
@@ -98,16 +96,18 @@ export class CustomQuery extends React.Component {
     const { classes, isQuerying } = this.props;
     const { textValue = '' } = this.state;
     return (
-      <FormControl className={classes.formControl}>
+      <FormControl fullWidth className={classes.formControl}>
         <TextField
           label="Custom Cypher Query"
           multiline
+          fullWidth
           value={textValue}
-          rows={1}
-          rowsMax={4}
+          rows={7}
           className={classes.textField}
           onChange={this.handleChange}
           onKeyDown={this.catchReturn}
+          helperText="[shift] + [Enter] to submit."
+          variant="outlined"
         />
         <Button
           variant="contained"
