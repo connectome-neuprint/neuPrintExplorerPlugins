@@ -82,19 +82,32 @@ class SkeletonView extends React.Component {
     this.createShark();
   }
 
-
   componentDidUpdate(prevProps, prevState) {
     if (!deepEqual(this.props, prevProps)) {
       // only perform actions here that alter the state, no rendering or props changes
       const { query } = this.props;
       const { bodyIds = '', compartments: compartmentIds = '' } = query.pm;
-      const { bodyIds: prevBodyIds = '', compartments: prevCompartmentIds = '' } = prevProps.query.pm;
+      const {
+        bodyIds: prevBodyIds = '',
+        compartments: prevCompartmentIds = ''
+      } = prevProps.query.pm;
 
-      const bodyIdList = bodyIds.toString().split(',').filter(x => x);
-      const prevBodyIdList = prevBodyIds.toString().split(',').filter(x => x);
-      const compartmentIdList = compartmentIds.toString().split(',').filter(x => x);
-      const prevCompartmentIdList = prevCompartmentIds.toString().split(',').filter(x => x);
-
+      const bodyIdList = bodyIds
+        .toString()
+        .split(',')
+        .filter(x => x);
+      const prevBodyIdList = prevBodyIds
+        .toString()
+        .split(',')
+        .filter(x => x);
+      const compartmentIdList = compartmentIds
+        .toString()
+        .split(',')
+        .filter(x => x);
+      const prevCompartmentIdList = prevCompartmentIds
+        .toString()
+        .split(',')
+        .filter(x => x);
 
       // remove bodies that are no longer in props
       const currentBodySet = new Set(bodyIdList);
@@ -104,7 +117,9 @@ class SkeletonView extends React.Component {
       });
       // remove compartments that are no longer in props
       const currentCompartmentSet = new Set(compartmentIdList);
-      const missingCompartments = prevCompartmentIdList.filter(compartmentId => !currentCompartmentSet.has(compartmentId));
+      const missingCompartments = prevCompartmentIdList.filter(
+        compartmentId => !currentCompartmentSet.has(compartmentId)
+      );
       this.removeCompartmentsFromState(missingCompartments);
 
       // load bodies that are new
@@ -114,7 +129,9 @@ class SkeletonView extends React.Component {
 
       // load compartments that are new
       const prevCompartmentSet = new Set(prevCompartmentIdList);
-      const newCompartmentIds = compartmentIdList.filter(compartmentId => !prevCompartmentSet.has(compartmentId));
+      const newCompartmentIds = compartmentIdList.filter(
+        compartmentId => !prevCompartmentSet.has(compartmentId)
+      );
       this.addCompartments(newCompartmentIds);
     }
     if (!deepEqual(this.state, prevState)) {
@@ -124,18 +141,24 @@ class SkeletonView extends React.Component {
 
       // un-render missing bodies
       const currentBodies = new Set(Object.keys(bodies.toJS()));
-      const missingBodies = Object.keys(prevBodies.toJS()).filter(bodyId => !currentBodies.has(bodyId))
+      const missingBodies = Object.keys(prevBodies.toJS()).filter(
+        bodyId => !currentBodies.has(bodyId)
+      );
       missingBodies.forEach(bodyId => {
         this.unloadBody(bodyId);
       });
       // un-render hidden bodies
-      bodies.filter(body => !body.get('visible')).forEach(body => {
-        this.unloadBody(body.get('name'));
-      });
+      bodies
+        .filter(body => !body.get('visible'))
+        .forEach(body => {
+          this.unloadBody(body.get('name'));
+        });
 
       // un-render missing compartments
       const currentCompartments = new Set(Object.keys(compartments.toJS()));
-      const missingCompartments = Object.keys(prevCompartments.toJS()).filter(compId => !currentCompartments.has(compId));
+      const missingCompartments = Object.keys(prevCompartments.toJS()).filter(
+        compId => !currentCompartments.has(compId)
+      );
       missingCompartments.forEach(compId => {
         this.unloadCompartment(compId);
       });
@@ -146,13 +169,17 @@ class SkeletonView extends React.Component {
       this.renderBodies(newBodyIds);
 
       // render bodies made visible again
-      bodies.filter(body => body.get('visible')).forEach(body => {
-        this.renderBodies([body.get('name')]);
-      });
+      bodies
+        .filter(body => body.get('visible'))
+        .forEach(body => {
+          this.renderBodies([body.get('name')]);
+        });
 
       // render new compartments
       const prevCompartmentSet = new Set(Object.keys(prevCompartments.toJS()));
-      const newCompartments = compartments.filter(compartment => !prevCompartmentSet.has(compartment.get('name')));
+      const newCompartments = compartments.filter(
+        compartment => !prevCompartmentSet.has(compartment.get('name'))
+      );
       this.renderCompartments(newCompartments);
     }
   }
@@ -183,74 +210,6 @@ class SkeletonView extends React.Component {
         });
       }
     }
-  }
-
-  unloadBody(id) {
-    const { sharkViewer } = this.state;
-    sharkViewer.unloadNeuron(id);
-    sharkViewer.render();
-    sharkViewer.render();
-    // UGLY: there is a weird bug that means sometimes the scene is rendered blank.
-    // it seems to be some sort of timing issue, and adding a delayed render seems
-    // to fix it.
-    setTimeout(() => {
-      sharkViewer.render();
-    }, 200);
-  }
-
-  unloadCompartment(id) {
-    const { sharkViewer } = this.state;
-    sharkViewer.unloadCompartment(id);
-    sharkViewer.render();
-    sharkViewer.render();
-    // UGLY: there is a weird bug that means sometimes the scene is rendered blank.
-    // it seems to be some sort of timing issue, and adding a delayed render seems
-    // to fix it.
-    setTimeout(() => {
-      sharkViewer.render();
-    }, 200);
-  }
-
-  renderBodies(ids) {
-    const { sharkViewer, bodies } = this.state;
-    ids.forEach(id => {
-      const body = bodies.get(id);
-      const moveCamera = false;
-      // If added, then add them to the scene.
-      const exists = sharkViewer.scene.getObjectByName(body.get('name'));
-      if (!exists) {
-        sharkViewer.loadNeuron(body.get('name'), body.get('color'), body.get('swc'), moveCamera);
-      }
-      // if hidden, then hide them.
-      sharkViewer.setNeuronVisible(body.get('name'), body.get('visible'));
-    });
-    sharkViewer.render();
-    sharkViewer.render();
-    // UGLY: there is a weird bug that means sometimes the scene is rendered blank.
-    // it seems to be some sort of timing issue, and adding a delayed render seems
-    // to fix it.
-    setTimeout(() => {
-      sharkViewer.render();
-    }, 200)
-  }
-
-  renderCompartments(rois) {
-    const { sharkViewer, db } = this.state;
-    const moveCamera = false;
-    rois.forEach(roi => {
-      const exists = sharkViewer.scene.getObjectByName(roi.get('name'));
-      if (!exists) {
-        const reader = new FileReader();
-
-        reader.addEventListener('loadend', () => {
-          sharkViewer.loadCompartment(roi.get('name'), roi.get('color'), reader.result, moveCamera);
-        });
-
-        db.getAttachment(roi.get('name'), 'obj').then(obj => {
-          reader.readAsText(obj);
-        });
-      }
-    });
   }
 
   createShark = (swcs, rois) => {
@@ -328,7 +287,7 @@ class SkeletonView extends React.Component {
   };
 
   addCompartment = id => {
-    if (id === "") {
+    if (id === '') {
       return;
     }
     const { neo4jsettings } = this.props;
@@ -357,6 +316,32 @@ class SkeletonView extends React.Component {
     actions.setQueryString({
       qr: tabData
     });
+  };
+
+  unloadCompartment(id) {
+    const { sharkViewer } = this.state;
+    sharkViewer.unloadCompartment(id);
+    sharkViewer.render();
+    sharkViewer.render();
+    // UGLY: there is a weird bug that means sometimes the scene is rendered blank.
+    // it seems to be some sort of timing issue, and adding a delayed render seems
+    // to fix it.
+    setTimeout(() => {
+      sharkViewer.render();
+    }, 200);
+  }
+
+  unloadBody(id) {
+    const { sharkViewer } = this.state;
+    sharkViewer.unloadNeuron(id);
+    sharkViewer.render();
+    sharkViewer.render();
+    // UGLY: there is a weird bug that means sometimes the scene is rendered blank.
+    // it seems to be some sort of timing issue, and adding a delayed render seems
+    // to fix it.
+    setTimeout(() => {
+      sharkViewer.render();
+    }, 200);
   }
 
   removeCompartmentsFromState(ids) {
@@ -413,7 +398,7 @@ class SkeletonView extends React.Component {
   }
 
   addSkeleton(bodyId, dataSet) {
-    if (bodyId === "") {
+    if (bodyId === '') {
       return;
     }
     // generate the querystring.
@@ -471,19 +456,20 @@ class SkeletonView extends React.Component {
     // check to see if we have a color cached for this neuron.
     // if yes, then return the color,
     // else, generate random color and cache it.
-    db.get(`sk_${id}`).then(doc => {
-      const { color } = doc;
+    db.get(`sk_${id}`)
+      .then(doc => {
+        const { color } = doc;
         this.addSkeletonToState(id, dataSet, data, color);
-    }).catch(() => {
-      const color = randomColor({ luminosity: 'light', hue: 'random' });
-      db.put({
-        _id: `sk_${id}`,
-        color
-      }).then(() => {
-        this.addSkeletonToState(id, dataSet, data, color);
+      })
+      .catch(() => {
+        const color = randomColor({ luminosity: 'light', hue: 'random' });
+        db.put({
+          _id: `sk_${id}`,
+          color
+        }).then(() => {
+          this.addSkeletonToState(id, dataSet, data, color);
+        });
       });
-
-    });
   }
 
   addSkeletonToState(id, dataSet, data, color) {
@@ -507,22 +493,52 @@ class SkeletonView extends React.Component {
     this.setState({ bodies: updated });
   }
 
-  clearAllBodies() {
-    const { bodies } = this.state;
-    const updated = bodies.clear();
-    this.setState({ bodies: updated });
+  renderBodies(ids) {
+    const { sharkViewer, bodies } = this.state;
+    ids.forEach(id => {
+      const body = bodies.get(id);
+      const moveCamera = false;
+      // If added, then add them to the scene.
+      const exists = sharkViewer.scene.getObjectByName(body.get('name'));
+      if (!exists) {
+        sharkViewer.loadNeuron(body.get('name'), body.get('color'), body.get('swc'), moveCamera);
+      }
+      // if hidden, then hide them.
+      sharkViewer.setNeuronVisible(body.get('name'), body.get('visible'));
+    });
+    sharkViewer.render();
+    sharkViewer.render();
+    // UGLY: there is a weird bug that means sometimes the scene is rendered blank.
+    // it seems to be some sort of timing issue, and adding a delayed render seems
+    // to fix it.
+    setTimeout(() => {
+      sharkViewer.render();
+    }, 200);
   }
 
-  clearAllCompartments() {
-    const { compartments } = this.state;
-    const updated = compartments.clear();
-    this.setState({ compartments: updated });
+  renderCompartments(rois) {
+    const { sharkViewer, db } = this.state;
+    const moveCamera = false;
+    rois.forEach(roi => {
+      const exists = sharkViewer.scene.getObjectByName(roi.get('name'));
+      if (!exists) {
+        const reader = new FileReader();
+
+        reader.addEventListener('loadend', () => {
+          sharkViewer.loadCompartment(roi.get('name'), roi.get('color'), reader.result, moveCamera);
+        });
+
+        db.getAttachment(roi.get('name'), 'obj').then(obj => {
+          reader.readAsText(obj);
+        });
+      }
+    });
   }
 
   render() {
     const { classes, query, neo4jsettings } = this.props;
 
-    const {compartments = '' } = query.pm;
+    const { compartments = '' } = query.pm;
 
     const compartmentIds = compartments.split(',').filter(x => x);
 
