@@ -83,9 +83,9 @@ class SkeletonView extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { query } = this.props;
     if (!deepEqual(this.props, prevProps)) {
       // only perform actions here that alter the state, no rendering or props changes
-      const { query } = this.props;
       const { bodyIds = '', compartments: compartmentIds = '' } = query.pm;
       const {
         bodyIds: prevBodyIds = '',
@@ -212,10 +212,8 @@ class SkeletonView extends React.Component {
     }
   }
 
-  createShark = (swcs, rois) => {
+  createShark = () => {
     const { query } = this.props;
-    const { db } = this.state;
-    const moveCamera = false;
     const sharkViewer = new SharkViewer({
       dom_element: 'skeletonviewer',
       WIDTH: this.skelRef.current.clientWidth,
@@ -223,26 +221,6 @@ class SkeletonView extends React.Component {
     });
     sharkViewer.init();
     sharkViewer.animate();
-
-    if (swcs && swcs.size > 0) {
-      swcs.forEach(swc => {
-        sharkViewer.loadNeuron(swc.get('name'), swc.get('color'), swc.get('swc'), moveCamera);
-      });
-    }
-
-    if (rois && rois.size > 0) {
-      rois.forEach(roi => {
-        const reader = new FileReader();
-
-        reader.addEventListener('loadend', () => {
-          sharkViewer.loadCompartment(roi.get('name'), roi.get('color'), reader.result, moveCamera);
-        });
-
-        db.getAttachment(roi.get('name'), 'obj').then(obj => {
-          reader.readAsText(obj);
-        });
-      });
-    }
 
     if (query.pm.coordinates) {
       const coords = query.pm.coordinates.split(',');
