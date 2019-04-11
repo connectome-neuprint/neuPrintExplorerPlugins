@@ -2,62 +2,68 @@
 
 exports[`custom query Plugin renders correctly 1`] = `
 <div
-  className="MuiFormControl-root-1"
+  className="MuiFormControl-root-1 MuiFormControl-fullWidth-4"
 >
   <div
-    className="MuiFormControl-root-1"
+    className="MuiFormControl-root-1 MuiFormControl-fullWidth-4"
     onKeyDown={[Function]}
   >
     <label
-      className="MuiFormLabel-root-16 MuiInputLabel-root-5 MuiInputLabel-formControl-10 MuiInputLabel-animated-13"
+      className="MuiFormLabel-root-16 MuiInputLabel-root-5 MuiInputLabel-formControl-10 MuiInputLabel-animated-13 MuiInputLabel-outlined-15"
       data-shrink={false}
     >
       Custom Cypher Query
     </label>
     <div
-      className="MuiInputBase-root-36 MuiInput-root-23 MuiInput-underline-27 MuiInputBase-formControl-37 MuiInput-formControl-24 MuiInputBase-multiline-44 MuiInput-multiline-29"
+      className="MuiInputBase-root-36 MuiOutlinedInput-root-23 MuiInputBase-fullWidth-45 MuiInputBase-formControl-37 MuiInputBase-multiline-44 MuiOutlinedInput-multiline-29"
       onClick={[Function]}
     >
-      <div
-        className="MuiPrivateTextarea-root-53"
+      <fieldset
+        aria-hidden={true}
+        className="MuiPrivateNotchedOutline-root-53 MuiOutlinedInput-notchedOutline-30"
+        style={
+          Object {
+            "paddingLeft": 8,
+          }
+        }
       >
-        <textarea
-          aria-hidden="true"
-          className="MuiPrivateTextarea-textarea-54 MuiPrivateTextarea-shadow-55"
-          readOnly={true}
-          rows="1"
-          tabIndex={-1}
-          value=""
-        />
-        <textarea
-          aria-hidden="true"
-          className="MuiPrivateTextarea-textarea-54 MuiPrivateTextarea-shadow-55"
-          readOnly={true}
-          rows={1}
-          tabIndex={-1}
-          value=""
-        />
-        <textarea
-          aria-invalid={false}
-          className="MuiPrivateTextarea-textarea-54 MuiInputBase-input-46 MuiInput-input-31 MuiInputBase-inputMultiline-48 MuiInput-inputMultiline-33"
-          disabled={false}
-          onBlur={[Function]}
-          onChange={[Function]}
-          onFocus={[Function]}
-          required={false}
-          rows={1}
+        <legend
+          className="MuiPrivateNotchedOutline-legend-54"
           style={
             Object {
-              "height": 19,
+              "width": 0.01,
             }
           }
-          value=""
-        />
-      </div>
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "&#8203;",
+              }
+            }
+          />
+        </legend>
+      </fieldset>
+      <textarea
+        aria-invalid={false}
+        className="MuiInputBase-input-46 MuiOutlinedInput-input-31 MuiInputBase-inputMultiline-48 MuiOutlinedInput-inputMultiline-33"
+        disabled={false}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        required={false}
+        rows={7}
+        value=""
+      />
     </div>
+    <p
+      className="MuiFormHelperText-root-55 MuiFormHelperText-contained-59"
+    >
+      [shift] + [Enter] to submit.
+    </p>
   </div>
   <button
-    className="MuiButtonBase-root-82 MuiButton-root-56 MuiButton-contained-67 MuiButton-containedPrimary-68 MuiButton-raised-70 MuiButton-raisedPrimary-71"
+    className="MuiButtonBase-root-89 MuiButton-root-63 MuiButton-contained-74 MuiButton-containedPrimary-75 MuiButton-raised-77 MuiButton-raisedPrimary-78"
     disabled={false}
     onBlur={[Function]}
     onClick={[Function]}
@@ -75,12 +81,12 @@ exports[`custom query Plugin renders correctly 1`] = `
     type="button"
   >
     <span
-      className="MuiButton-label-57"
+      className="MuiButton-label-64"
     >
       Submit
     </span>
     <span
-      className="MuiTouchRipple-root-85"
+      className="MuiTouchRipple-root-92"
     />
   </button>
 </div>

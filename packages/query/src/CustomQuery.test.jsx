@@ -74,7 +74,7 @@ describe('custom query Plugin', () => {
     it('should submit request', () => {
       const processRequest = jest.spyOn(wrapper.find('CustomQuery').instance(), 'processRequest');
       const preventDefault = jest.fn();
-      textField.props().onKeyDown({ keyCode: 13, preventDefault });
+      textField.props().onKeyDown({ shiftKey: true, keyCode: 13, preventDefault });
       expect(preventDefault).toHaveBeenCalledTimes(1);
       expect(processRequest).toHaveBeenCalledTimes(1);
       expect(submit).toHaveBeenCalledTimes(1);
