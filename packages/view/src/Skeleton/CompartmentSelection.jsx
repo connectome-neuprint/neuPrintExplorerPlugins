@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import { withStyles } from '@material-ui/core/styles';
+import deepEqual from 'deep-equal';
 
 const styles = () => ({
   select: {
@@ -10,24 +11,24 @@ const styles = () => ({
 });
 
 class CompartmentSelection extends React.Component {
+  shouldComponentUpdate(nextProps) {
+    // if availableROIs or selectedROIs changed, then update.
+    const { availableROIs, selectedROIs } = this.props;
+    if (!deepEqual(nextProps.availableROIs, availableROIs)) {
+      return true;
+    }
+
+    if (!deepEqual(nextProps.selectedROIs, selectedROIs)) {
+      return true;
+    }
+
+    return false;
+  }
+
   handleROIChange = chosen => {
-    const { actions, selectedROIs } = this.props;
+    const {actions} = this.props;
     const chosenList = chosen.map(item => item.value);
-    // loop over the already selected and remove those that
-    // aren't in the chosen list.
-    selectedROIs.keySeq().forEach(roi => {
-      if (!chosenList.includes(roi)) {
-        actions.removeROI(roi);
-      }
-    });
-    // loop over the chosen ROIs
-    // if not in the list of already selected then fire off
-    // an action to load it.
-    chosenList.forEach(choice => {
-      if (!selectedROIs.has(choice)) {
-        actions.addROI(choice);
-      }
-    });
+    actions.setROIs(chosenList);
   };
 
   render() {
@@ -42,7 +43,7 @@ class CompartmentSelection extends React.Component {
       label: roi
     }));
 
-    const selectedValue = selectedROIs.keySeq().map(key => ({
+    const selectedValue = selectedROIs.map(key => ({
       label: key,
       value: key
     }));
@@ -51,7 +52,7 @@ class CompartmentSelection extends React.Component {
       <Select
         isMulti
         className={classes.select}
-        value={selectedValue.toJS()}
+        value={selectedValue}
         onChange={this.handleROIChange}
         options={queryOptions}
         closeMenuOnSelect={false}
@@ -64,7 +65,7 @@ CompartmentSelection.propTypes = {
   actions: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   availableROIs: PropTypes.object.isRequired,
-  selectedROIs: PropTypes.object.isRequired
+  selectedROIs: PropTypes.arrayOf(PropTypes.string).isRequired
 };
 
 export default withStyles(styles, { withTheme: true })(CompartmentSelection);

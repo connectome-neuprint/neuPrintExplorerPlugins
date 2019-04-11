@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import randomColor from 'randomcolor';
 import Immutable from 'immutable';
 import PouchDB from 'pouchdb';
+import deepEqual from 'deep-equal';
 
 import { withStyles } from '@material-ui/core/styles';
 import Chip from '@material-ui/core/Chip';
@@ -81,69 +82,78 @@ class SkeletonView extends React.Component {
     this.createShark();
   }
 
+
   componentDidUpdate(prevProps, prevState) {
-    // have to check here to see if any new ids have been passed in.
-    const { query } = this.props;
-    const { bodyIds = '', compartments: compartmentIds = '' } = query.pm;
-    const { bodyIds: prevBodyIds = '', compartments: prevCompartmentIds = '' } = prevProps.query.pm;
+    if (!deepEqual(this.props, prevProps)) {
+      // only perform actions here that alter the state, no rendering or props changes
+      const { query } = this.props;
+      const { bodyIds = '', compartments: compartmentIds = '' } = query.pm;
+      const { bodyIds: prevBodyIds = '', compartments: prevCompartmentIds = '' } = prevProps.query.pm;
 
-    let moveCamera = false;
+      const bodyIdList = bodyIds.toString().split(',').filter(x => x);
+      const prevBodyIdList = prevBodyIds.toString().split(',').filter(x => x);
+      const compartmentIdList = compartmentIds.toString().split(',').filter(x => x);
+      const prevCompartmentIdList = prevCompartmentIds.toString().split(',').filter(x => x);
 
-    const bodyIdList = bodyIds.toString().split(',');
-    if (bodyIds !== prevBodyIds) {
-      // remove skeletons that are no longer in the query.
-      this.clearAllBodies();
-      this.addSkeletons(bodyIdList, query.pm.dataSet);
-      moveCamera = true;
+
+      // remove bodies that are no longer in props
+      const currentBodySet = new Set(bodyIdList);
+      const missingBodies = prevBodyIdList.filter(bodyId => !currentBodySet.has(bodyId));
+      missingBodies.forEach(missingId => {
+        this.removeSkeleton(missingId);
+      });
+      // remove compartments that are no longer in props
+      const currentCompartmentSet = new Set(compartmentIdList);
+      const missingCompartments = prevCompartmentIdList.filter(compartmentId => !currentCompartmentSet.has(compartmentId));
+      this.removeCompartmentsFromState(missingCompartments);
+
+      // load bodies that are new
+      const prevBodySet = new Set(prevBodyIdList);
+      const newBodyIds = bodyIdList.filter(bodyId => !prevBodySet.has(bodyId));
+      this.addSkeletons(newBodyIds, query.pm.dataSet);
+
+      // load compartments that are new
+      const prevCompartmentSet = new Set(prevCompartmentIdList);
+      const newCompartmentIds = compartmentIdList.filter(compartmentId => !prevCompartmentSet.has(compartmentId));
+      this.addCompartments(newCompartmentIds);
     }
+    if (!deepEqual(this.state, prevState)) {
+      // only perform actions here that update the canvas rendering.
+      const { bodies, compartments } = this.state;
+      const { bodies: prevBodies, compartments: prevCompartments } = prevState;
 
-    if (compartmentIds !== prevCompartmentIds) {
-      const compartmentList = compartmentIds.toString().split(',');
-      // remove compartments that are no longer in the current query
-      this.clearAllCompartments();
-      this.addCompartments(compartmentList, query.pm.dataSet);
-      moveCamera = true;
-    }
-
-    // now check the state to see if that has changed and if so, then load in the
-    // new data.
-    const { bodies, compartments } = this.state;
-    if (bodies !== prevState.bodies || compartments !== prevState.compartments) {
-      const differentBodies = {};
-      const differentCompartments = {};
-      bodies.entrySeq().forEach(entry => {
-        const [key, value] = entry;
-        if (value !== prevState.bodies.get(key)) {
-          differentBodies[key] = value;
-        }
+      // un-render missing bodies
+      const currentBodies = new Set(Object.keys(bodies.toJS()));
+      const missingBodies = Object.keys(prevBodies.toJS()).filter(bodyId => !currentBodies.has(bodyId))
+      missingBodies.forEach(bodyId => {
+        this.unloadBody(bodyId);
       });
-      compartments.entrySeq().forEach(entry => {
-        const [key, value] = entry;
-        if (value !== prevState.compartments.get(key)) {
-          differentCompartments[key] = value;
-        }
-      });
-      // figure out which components/rois were removed
-      const removedNeurons = [];
-      const removedCompartments = [];
-      prevState.bodies.keySeq().forEach(key => {
-        if (!bodies.has(key)) {
-          removedNeurons.push(key);
-        }
+      // un-render hidden bodies
+      bodies.filter(body => !body.get('visible')).forEach(body => {
+        this.unloadBody(body.get('name'));
       });
 
-      prevState.compartments.keySeq().forEach(key => {
-        if (!compartments.has(key)) {
-          removedCompartments.push(key);
-        }
+      // un-render missing compartments
+      const currentCompartments = new Set(Object.keys(compartments.toJS()));
+      const missingCompartments = Object.keys(prevCompartments.toJS()).filter(compId => !currentCompartments.has(compId));
+      missingCompartments.forEach(compId => {
+        this.unloadCompartment(compId);
       });
-      this.loadShark(
-        Immutable.Map(differentBodies),
-        Immutable.Map(differentCompartments),
-        removedNeurons,
-        removedCompartments,
-        moveCamera
-      );
+
+      // render new bodies
+      const prevBodiesSet = new Set(Object.keys(prevBodies.toJS()));
+      const newBodyIds = Object.keys(bodies.toJS()).filter(bodyId => !prevBodiesSet.has(bodyId));
+      this.renderBodies(newBodyIds);
+
+      // render bodies made visible again
+      bodies.filter(body => body.get('visible')).forEach(body => {
+        this.renderBodies([body.get('name')]);
+      });
+
+      // render new compartments
+      const prevCompartmentSet = new Set(Object.keys(prevCompartments.toJS()));
+      const newCompartments = compartments.filter(compartment => !prevCompartmentSet.has(compartment.get('name')));
+      this.renderCompartments(newCompartments);
     }
   }
 
@@ -175,24 +185,58 @@ class SkeletonView extends React.Component {
     }
   }
 
-  loadShark = (swcs, rois, removedSWCs, removedROIs, moveCamera) => {
-    const { sharkViewer, db } = this.state;
+  unloadBody(id) {
+    const { sharkViewer } = this.state;
+    sharkViewer.unloadNeuron(id);
+    sharkViewer.render();
+    sharkViewer.render();
+    // UGLY: there is a weird bug that means sometimes the scene is rendered blank.
+    // it seems to be some sort of timing issue, and adding a delayed render seems
+    // to fix it.
+    setTimeout(() => {
+      sharkViewer.render();
+    }, 200);
+  }
 
-    // check here to see if we have added or removed neurons.
-    const names = {};
-    const roiNames = {};
-    swcs.forEach(swc => {
+  unloadCompartment(id) {
+    const { sharkViewer } = this.state;
+    sharkViewer.unloadCompartment(id);
+    sharkViewer.render();
+    sharkViewer.render();
+    // UGLY: there is a weird bug that means sometimes the scene is rendered blank.
+    // it seems to be some sort of timing issue, and adding a delayed render seems
+    // to fix it.
+    setTimeout(() => {
+      sharkViewer.render();
+    }, 200);
+  }
+
+  renderBodies(ids) {
+    const { sharkViewer, bodies } = this.state;
+    ids.forEach(id => {
+      const body = bodies.get(id);
+      const moveCamera = false;
       // If added, then add them to the scene.
-      const exists = sharkViewer.scene.getObjectByName(swc.get('name'));
+      const exists = sharkViewer.scene.getObjectByName(body.get('name'));
       if (!exists) {
-        sharkViewer.loadNeuron(swc.get('name'), swc.get('color'), swc.get('swc'), moveCamera);
+        sharkViewer.loadNeuron(body.get('name'), body.get('color'), body.get('swc'), moveCamera);
       }
       // if hidden, then hide them.
-      sharkViewer.setNeuronVisible(swc.get('name'), swc.get('visible'));
-      // push name onto lookup for later use;
-      names[swc.get('name')] = 1;
+      sharkViewer.setNeuronVisible(body.get('name'), body.get('visible'));
     });
+    sharkViewer.render();
+    sharkViewer.render();
+    // UGLY: there is a weird bug that means sometimes the scene is rendered blank.
+    // it seems to be some sort of timing issue, and adding a delayed render seems
+    // to fix it.
+    setTimeout(() => {
+      sharkViewer.render();
+    }, 200)
+  }
 
+  renderCompartments(rois) {
+    const { sharkViewer, db } = this.state;
+    const moveCamera = false;
     rois.forEach(roi => {
       const exists = sharkViewer.scene.getObjectByName(roi.get('name'));
       if (!exists) {
@@ -206,27 +250,8 @@ class SkeletonView extends React.Component {
           reader.readAsText(obj);
         });
       }
-      roiNames[roi.get('name')] = 1;
     });
-
-    // If removed, then remove them.
-    removedSWCs.forEach(child => {
-      sharkViewer.unloadNeuron(child);
-    });
-
-    removedROIs.forEach(child => {
-      sharkViewer.unloadCompartment(child);
-    });
-
-    sharkViewer.render();
-    sharkViewer.render();
-    // UGLY: there is a weird bug that means sometimes the scene is rendered blank.
-    // it seems to be some sort of timing issue, and adding a delayed render seems
-    // to fix it.
-    setTimeout(() => {
-      sharkViewer.render();
-    }, 200);
-  };
+  }
 
   createShark = (swcs, rois) => {
     const { query } = this.props;
@@ -297,22 +322,9 @@ class SkeletonView extends React.Component {
 
   handleClick = id => () => {
     const { bodies } = this.state;
-    const newState = !bodies.getIn([id, 'visible']);
-    const updated = bodies.setIn([id, 'visible'], newState);
+    const visible = !bodies.getIn([id, 'visible']);
+    const updated = bodies.setIn([id, 'visible'], visible);
     this.setState({ bodies: updated });
-  };
-
-  removeCompartment = cId => {
-    const { actions, index } = this.props;
-    const updated = this.removeCompartmentFromState(cId);
-
-    // update url query string here
-    const tabData = actions.getQueryObject('qr', []);
-
-    tabData[index].pm.compartments = updated.keySeq().join(',');
-    actions.setQueryString({
-      qr: tabData
-    });
   };
 
   addCompartment = id => {
@@ -338,9 +350,18 @@ class SkeletonView extends React.Component {
       .catch(error => this.setState({ loadingError: error }));
   };
 
-  removeCompartmentFromState(id) {
+  updateCompartments = updated => {
+    const { actions, index } = this.props;
+    const tabData = actions.getQueryObject('qr', []);
+    tabData[index].pm.compartments = updated.join(',');
+    actions.setQueryString({
+      qr: tabData
+    });
+  }
+
+  removeCompartmentsFromState(ids) {
     const { compartments } = this.state;
-    const updated = compartments.delete(id);
+    const updated = compartments.deleteAll(ids);
     this.setState({ compartments: updated });
     return updated;
   }
@@ -365,15 +386,6 @@ class SkeletonView extends React.Component {
     });
   }
 
-  addCompartmentsToQueryString(updated) {
-    const { actions, index } = this.props;
-    const tabData = actions.getQueryObject('qr', []);
-    tabData[index].pm.compartments = updated.keySeq().join(',');
-    actions.setQueryString({
-      qr: tabData
-    });
-  }
-
   skeletonLoadedCompartment(id, result) {
     const { db, compartments } = this.state;
     const compartment = Immutable.Map({
@@ -387,15 +399,11 @@ class SkeletonView extends React.Component {
       .then(() => {
         const updated = compartments.set(id, compartment);
         this.setState({ compartments: updated });
-        // update url query string here
-        this.addCompartmentsToQueryString(updated);
       })
       .catch(err => {
         if (err.name === 'conflict') {
           const updated = compartments.set(id, compartment);
           this.setState({ compartments: updated });
-          // update url query string here
-          this.addCompartmentsToQueryString(updated);
         } else {
           this.setState({
             loadingError: err
@@ -513,7 +521,12 @@ class SkeletonView extends React.Component {
 
   render() {
     const { classes, query, neo4jsettings } = this.props;
-    const { bodies, compartments, loadingError } = this.state;
+
+    const {compartments = '' } = query.pm;
+
+    const compartmentIds = compartments.split(',').filter(x => x);
+
+    const { bodies } = this.state;
 
     const chips = bodies.map(neuron => {
       // gray out the chip if it is not active.
@@ -544,16 +557,14 @@ class SkeletonView extends React.Component {
       // pass action callbacks to add or remove compartments to
       // the compartment selection component.
       const compartmentActions = {
-        addROI: this.addCompartment,
-        removeROI: this.removeCompartment
+        setROIs: this.updateCompartments
       };
 
       compartmentSelection = (
         <CompartmentSelection
           availableROIs={neo4jsettings.get('availableROIs')}
-          selectedROIs={compartments}
+          selectedROIs={compartmentIds}
           actions={compartmentActions}
-          query={query}
         />
       );
     }
@@ -562,7 +573,6 @@ class SkeletonView extends React.Component {
         <div className={classes.floater}>{chipsArray}</div>
         <div className={classes.footer}>{compartmentSelection}</div>
         <div className={classes.skel} ref={this.skelRef} id="skeletonviewer" />
-        <div>{loadingError}</div>
       </div>
     );
   }
