@@ -86,7 +86,7 @@ class SkeletonView extends React.Component {
     const { query } = this.props;
     if (!deepEqual(this.props, prevProps)) {
       // only perform actions here that alter the state, no rendering or props changes
-      const { bodyIds = '', compartments: compartmentIds = '' } = query.pm;
+      const { bodyIds = '', compartments: compartmentIds = '', dataSet } = query.pm;
       const {
         bodyIds: prevBodyIds = '',
         compartments: prevCompartmentIds = ''
@@ -132,7 +132,7 @@ class SkeletonView extends React.Component {
       const newCompartmentIds = compartmentIdList.filter(
         compartmentId => !prevCompartmentSet.has(compartmentId)
       );
-      this.addCompartments(newCompartmentIds);
+      this.addCompartments(newCompartmentIds, dataSet);
     }
     if (!deepEqual(this.state, prevState)) {
       // only perform actions here that update the canvas rendering.
@@ -264,27 +264,29 @@ class SkeletonView extends React.Component {
     this.setState({ bodies: updated });
   };
 
-  addCompartment = id => {
+  addCompartment = (id, dataset) => {
     if (id === '') {
       return;
     }
     const { neo4jsettings } = this.props;
-    const meshHost = neo4jsettings.get('meshInfo').hemibrain;
-    const { uuid } = neo4jsettings.get('datasetInfo').hemibrain;
+    const meshHost = neo4jsettings.get('meshInfo')[dataset];
+    const { uuid } = neo4jsettings.get('datasetInfo')[dataset];
 
-    fetch(`${meshHost}/api/node/${uuid}/rois/key/${id}`, {
-      headers: {
-        'Content-Type': 'text/plain',
-        Accept: 'application/json'
-      },
-      method: 'GET'
-    })
-      .then(result => result.json())
-      .then(result => {
-        const { key } = result['->'];
-        this.fetchMesh(id, key, meshHost, uuid);
+    if (meshHost && uuid) {
+      fetch(`${meshHost}/api/node/${uuid}/rois/key/${id}`, {
+        headers: {
+          'Content-Type': 'text/plain',
+          Accept: 'application/json'
+        },
+        method: 'GET'
       })
-      .catch(error => this.setState({ loadingError: error }));
+        .then(result => result.json())
+        .then(result => {
+          const { key } = result['->'];
+          this.fetchMesh(id, key, meshHost, uuid);
+        })
+        .catch(error => this.setState({ loadingError: error }));
+    }
   };
 
   updateCompartments = updated => {
@@ -545,23 +547,21 @@ class SkeletonView extends React.Component {
 
     const chipsArray = chips.valueSeq().toArray();
 
-    let compartmentSelection = '';
+    // pass action callbacks to add or remove compartments to
+    // the compartment selection component.
+    const compartmentActions = {
+      setROIs: this.updateCompartments
+    };
 
-    if (query.pm.dataSet === 'hemibrain') {
-      // pass action callbacks to add or remove compartments to
-      // the compartment selection component.
-      const compartmentActions = {
-        setROIs: this.updateCompartments
-      };
+    const compartmentSelection = (
+      <CompartmentSelection
+        availableROIs={neo4jsettings.get('availableROIs')}
+        selectedROIs={compartmentIds}
+        dataSet={query.pm.dataSet}
+        actions={compartmentActions}
+      />
+    );
 
-      compartmentSelection = (
-        <CompartmentSelection
-          availableROIs={neo4jsettings.get('availableROIs')}
-          selectedROIs={compartmentIds}
-          actions={compartmentActions}
-        />
-      );
-    }
     return (
       <div className={classes.root}>
         <div className={classes.floater}>{chipsArray}</div>

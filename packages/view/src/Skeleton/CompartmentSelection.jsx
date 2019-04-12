@@ -32,13 +32,9 @@ class CompartmentSelection extends React.Component {
   };
 
   render() {
-    const { classes, availableROIs, selectedROIs } = this.props;
+    const { classes, availableROIs, selectedROIs, dataSet } = this.props;
 
-    if (!availableROIs.hemibrain) {
-      return '';
-    }
-
-    const queryOptions = availableROIs.hemibrain.map(roi => ({
+    const queryOptions = availableROIs[dataSet].map(roi => ({
       value: roi,
       label: roi
     }));
@@ -64,6 +60,7 @@ class CompartmentSelection extends React.Component {
 CompartmentSelection.propTypes = {
   actions: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
+  dataSet: PropTypes.string.isRequired,
   availableROIs: PropTypes.object.isRequired,
   selectedROIs: PropTypes.arrayOf(PropTypes.string).isRequired
 };
