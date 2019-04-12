@@ -27,7 +27,7 @@ class Neuroglancer extends React.Component {
       abbr: pluginAbbrev,
       experimental: true,
       download: false,
-      category: 'other',
+      category: 'visualization',
       description: 'Submit a list of neuron Ids to see them in the neuroglancer view.',
       visType: 'NeuroglancerView'
     };
