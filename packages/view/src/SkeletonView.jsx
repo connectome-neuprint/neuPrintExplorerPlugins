@@ -166,7 +166,10 @@ class SkeletonView extends React.Component {
       // render new bodies
       const prevBodiesSet = new Set(Object.keys(prevBodies.toJS()));
       const newBodyIds = Object.keys(bodies.toJS()).filter(bodyId => !prevBodiesSet.has(bodyId));
-      this.renderBodies(newBodyIds);
+
+      const moveCamera = query.pm.coordinates ? false : true;
+
+      this.renderBodies(newBodyIds, moveCamera);
 
       // render bodies made visible again
       bodies
@@ -473,11 +476,10 @@ class SkeletonView extends React.Component {
     this.setState({ bodies: updated });
   }
 
-  renderBodies(ids) {
+  renderBodies(ids, moveCamera=false) {
     const { sharkViewer, bodies } = this.state;
     ids.forEach(id => {
       const body = bodies.get(id);
-      const moveCamera = false;
       // If added, then add them to the scene.
       const exists = sharkViewer.scene.getObjectByName(body.get('name'));
       if (!exists) {
