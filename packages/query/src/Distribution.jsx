@@ -64,7 +64,6 @@ class Distribution extends React.Component {
       displayName: pluginName,
       abbr: pluginAbbrev,
       category: 'recon',
-      experimental: true,
       description: 'Shows segment size distribution for segments in a given region.',
       visType: 'SimpleTable'
     };

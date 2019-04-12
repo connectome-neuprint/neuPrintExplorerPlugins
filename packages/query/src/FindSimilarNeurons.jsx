@@ -389,7 +389,6 @@ export class FindSimilarNeurons extends React.Component {
       name: pluginName,
       displayName: 'Find similar neurons',
       abbr: pluginAbbrev,
-      experimental: true,
       description:
         'Find neurons that are similar to a neuron of interest in terms of their input and output locations (ROIs).',
       visType: 'SimpleTable'

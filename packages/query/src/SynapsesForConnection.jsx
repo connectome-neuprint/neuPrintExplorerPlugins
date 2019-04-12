@@ -34,7 +34,6 @@ export class SynapsesForConnection extends React.Component {
     return {
       name: pluginName,
       displayName: 'Synapses for connection',
-      experimental: true,
       abbr: pluginAbbrev,
       description: 'Retrieves synapses involved in a connection.',
       visType: 'SimpleTable'

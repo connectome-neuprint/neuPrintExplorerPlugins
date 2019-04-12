@@ -41,7 +41,6 @@ export class RankedTable extends React.Component {
       name: pluginName,
       displayName: 'Ranked Table',
       abbr: pluginAbbrev,
-      experimental: true,
       description: 'Show connections to neuron(s) ranked in order and colored by neuron class',
       visType: 'HeatMapTable'
     };

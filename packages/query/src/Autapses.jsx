@@ -17,7 +17,6 @@ class Autapses extends React.Component {
       name: pluginName,
       displayName: pluginName,
       abbr: pluginAbbrev,
-      experimental: true,
       category: 'recon',
       description: 'Finds all the self connections (loops) in the dataset.',
       visType: 'SimpleTable'

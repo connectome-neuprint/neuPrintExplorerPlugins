@@ -34,7 +34,6 @@ class ConnectivityGraph extends React.Component {
       name: pluginName,
       displayName: 'Connectivity graph',
       abbr: pluginAbbrev,
-      experimental: true,
       description: 'View a graph displaying connectivity between neurons.',
       visType: 'Graph',
     }

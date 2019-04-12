@@ -18,7 +18,6 @@ class Completeness extends React.Component {
       displayName: pluginName,
       abbr: pluginAbbrev,
       category: 'recon',
-      experimental: true,
       description:
         'Determines the reconstruction completeness of each ROI with respect to the neuron filters',
       visType: 'SimpleTable'

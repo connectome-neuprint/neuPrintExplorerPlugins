@@ -39,7 +39,6 @@ export class ShortestPath extends React.Component {
       name: pluginName,
       displayName: 'Shortest paths',
       abbr: pluginAbbrev,
-      experimental: true,
       description: 'Find all neurons along the shortest paths between two neurons.',
       visType: 'Graph'
     };

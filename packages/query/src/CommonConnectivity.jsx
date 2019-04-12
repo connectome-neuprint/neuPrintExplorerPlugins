@@ -34,7 +34,6 @@ class CommonConnectivity extends React.Component {
       name: pluginName,
       displayName: 'Common connectivity',
       abbr: pluginAbbrev,
-      experimental: true,
       description:
         'Finds common inputs/outputs for a group of bodies and weights of their connections to these inputs/outputs.',
       visType: 'SimpleTable',

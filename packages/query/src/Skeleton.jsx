@@ -25,7 +25,6 @@ class Skeleton extends React.Component {
       name: pluginName,
       displayName: pluginName,
       abbr: pluginAbbrev,
-      experimental: true,
       download: false,
       category: 'visualization',
       description: 'Submit a list of neuron Ids to see their skeleton in 3D',

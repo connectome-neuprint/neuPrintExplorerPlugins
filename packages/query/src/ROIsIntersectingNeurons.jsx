@@ -32,7 +32,6 @@ class ROIsIntersectingNeurons extends React.Component {
       name: pluginName,
       displayName: 'ROIs in Neuron',
       abbr: pluginAbbrev,
-      experimental: true,
       description: 'Find ROIs that intersect a given neuron(s).  A putative name is given based on top two ROI inputs and outputs',
       visType: 'CollapsibleTable',
     };

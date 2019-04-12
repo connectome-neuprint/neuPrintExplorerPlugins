@@ -39,7 +39,6 @@ export class SimpleConnections extends React.Component {
       name: pluginName,
       displayName: 'Simple Connections',
       abbr: pluginAbbrev,
-      experimental: true,
       description: 'List inputs or outputs to selected neuron(s)',
       visType: 'SimpleConnectionsView'
     };

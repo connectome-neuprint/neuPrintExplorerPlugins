@@ -27,7 +27,6 @@ class PartnerCompleteness extends React.Component {
       name: pluginName,
       displayName: 'Partner Completeness',
       abbr: pluginAbbrev,
-      experimental: true,
       category: 'recon',
       description: 'Show all connections to and from selected neuron and show reconstruction completeness.',
       visType: 'PartnerCompletenessView'
