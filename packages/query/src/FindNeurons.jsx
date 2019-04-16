@@ -17,7 +17,6 @@ import {
   createSimpleConnectionQueryObject,
   generateRoiHeatMapAndBarGraph,
   getBodyIdForTable,
-  createSimpleConnectionsResult
 } from './shared/pluginhelpers';
 
 const styles = theme => ({
@@ -49,6 +48,44 @@ export class FindNeurons extends React.Component {
     return {
       queryString: '/npexplorer/findneurons'
     };
+  }
+
+   static processDownload(response) {
+    const headers = ['id','neuron','status','#post(inputs)','#pre(outputs)'];
+
+    const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = response.params.pm;
+    const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
+    if (rois.length > 0) {
+      rois.forEach(roi => {
+        headers.push(`${roi} #post`);
+        headers.push(`${roi} #pre`);
+      });
+    }
+
+    headers.push('#voxels');
+
+    const data = response.result.data.map(row => {
+      const bodyId = row[0];
+      const totalPre = row[5];
+      const totalPost = row[6];
+      const voxelCount = row[4];
+      const roiInfoObject = JSON.parse(row[3]);
+
+      const converted = [bodyId, row[1], row[2], totalPost, totalPre];
+      // figure out roi counts.
+      if (rois.length > 0) {
+        rois.forEach(roi => {
+          converted.push(roiInfoObject[roi].post);
+          converted.push(roiInfoObject[roi].pre);
+        });
+      }
+
+      // add voxel count as the last column
+      converted.push(voxelCount);
+
+      return converted;
+    }).join('\n');
+    return [headers, data].join('\n');
   }
 
   // this function will parse the results from the query to the
