@@ -27,8 +27,28 @@ const styles = theme => ({
 const pluginName = 'CommonConnectivity';
 const pluginAbbrev = 'cc';
 
-class CommonConnectivity extends React.Component {
+const groupBy = (inputJson, key) =>
+  inputJson.reduce((accumulator, currentValue) => {
+    // name of the common input/output
+    const { name } = currentValue;
+    // first element of the keys array is X_weight where X is the body id of a queried neuron
+    let weights = Object.keys(currentValue)[0];
+    // in case order of keys changes check that this is true and if not find the correct key
+    if (!weights.endsWith('weight')) {
+      for (let i = 1; i < Object.keys(currentValue).length; i += 1) {
+        if (Object.keys(currentValue)[i].endsWith('weight')) {
+          weights = Object.keys(currentValue)[i];
+          break;
+        }
+      }
+    }
+    (accumulator[currentValue[key]] = accumulator[currentValue[key]] || {})[weights] =
+      currentValue[weights];
+    accumulator[currentValue[key]].name = name;
+    return accumulator;
+  }, {});
 
+class CommonConnectivity extends React.Component {
   static get details() {
     return {
       name: pluginName,
@@ -36,7 +56,7 @@ class CommonConnectivity extends React.Component {
       abbr: pluginAbbrev,
       description:
         'Finds common inputs/outputs for a group of bodies and weights of their connections to these inputs/outputs.',
-      visType: 'SimpleTable',
+      visType: 'SimpleTable'
     };
   }
 
@@ -44,6 +64,46 @@ class CommonConnectivity extends React.Component {
     return {
       queryString: '/npexplorer/commonconnectivity'
     };
+  }
+
+  static processDownload(response) {
+    const { find_inputs, neuron_ids, neuron_names } = response.params.pm;
+
+    const queryKey = find_inputs ? 'input' : 'output';
+    const connectionArray = response.result.data[0][0];
+
+    const columnHeaders = [
+      `${queryKey[0].toUpperCase() + queryKey.substring(1)} ID`,
+      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Name`
+    ];
+
+    const groupedByInputOrOutputId = groupBy(connectionArray, queryKey);
+
+    let selectedNeurons = [];
+    if (neuron_ids.length > 0) {
+      selectedNeurons = neuron_ids;
+    } else {
+      selectedNeurons = neuron_names;
+    }
+
+    const selectedWeightHeadings = selectedNeurons.map(neuron => `${neuron}_weight`);
+    selectedWeightHeadings.forEach(neuronWeightHeading => {
+      columnHeaders.push(neuronWeightHeading);
+    });
+
+    const data = [];
+    Object.keys(groupedByInputOrOutputId).forEach(inputOrOutput => {
+      const singleRow = [parseInt(inputOrOutput, 10), groupedByInputOrOutputId[inputOrOutput].name];
+      selectedWeightHeadings.forEach(selectedWeightHeading => {
+        const selectedWeightValue =
+          groupedByInputOrOutputId[inputOrOutput][selectedWeightHeading] || 0;
+        singleRow.push(parseInt(selectedWeightValue, 10));
+      });
+      data.push(singleRow);
+    });
+
+    return [columnHeaders, data.join('\n')].join('\n');
+
   }
 
   static processResults(query, apiResponse) {
@@ -56,27 +116,6 @@ class CommonConnectivity extends React.Component {
       `${queryKey[0].toUpperCase() + queryKey.substring(1)} ID`,
       `${queryKey[0].toUpperCase() + queryKey.substring(1)} Name`
     ];
-
-    const groupBy = (inputJson, key) =>
-      inputJson.reduce((accumulator, currentValue) => {
-        // name of the common input/output
-        const { name } = currentValue;
-        // first element of the keys array is X_weight where X is the body id of a queried neuron
-        let weights = Object.keys(currentValue)[0];
-        // in case order of keys changes check that this is true and if not find the correct key
-        if (!weights.endsWith('weight')) {
-          for (let i = 1; i < Object.keys(currentValue).length; i += 1) {
-            if (Object.keys(currentValue)[i].endsWith('weight')) {
-              weights = Object.keys(currentValue)[i];
-              break;
-            }
-          }
-        }
-        (accumulator[currentValue[key]] = accumulator[currentValue[key]] || {})[weights] =
-          currentValue[weights];
-        accumulator[currentValue[key]].name = name;
-        return accumulator;
-      }, {});
 
     const groupedByInputOrOutputId = groupBy(connectionArray, queryKey);
 
