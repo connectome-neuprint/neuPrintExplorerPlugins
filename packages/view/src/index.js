@@ -1,8 +1,24 @@
-export { default as CollapsibleTable } from './CollapsibleTable';
-export { default as SimpleConnectionsView } from './SimpleConnectionsView';
-export { default as HeatMapTable } from './HeatMapTable';
-export { default as PartnerCompletenessView } from './PartnerCompletenessView';
-export { default as SimpleTable } from './SimpleTable';
-export { default as Graph } from './Graph';
-export { default as SkeletonView } from './SkeletonView';
-export { default as NeuroglancerView } from './NeuroglancerView';
+const plugins = {};
+
+const pluginList = [
+  'CollapsibleTable',
+  'SimpleConnectionsView',
+  'HeatMapTable',
+  'PartnerCompletenessView',
+  'SimpleTable',
+  'Graph',
+  'SkeletonView'
+];
+
+pluginList.forEach(pluginName => {
+  const plugin = require(`./${pluginName}`); // eslint-disable-line global-require, import/no-dynamic-require
+  plugins[pluginName] = plugin.default;
+});
+
+const gl = document.createElement('canvas').getContext('webgl2');
+if (gl) {
+  const plugin = require('./NeuroglancerView'); // eslint-disable-line global-require
+  plugins.NeuroglancerView = plugin.default;
+}
+
+export { plugins, pluginList };
