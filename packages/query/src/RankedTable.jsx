@@ -199,6 +199,19 @@ export class RankedTable extends React.Component {
                   >
                     {displayName}
                   </Typography>
+                  <Typography
+                    style={{
+                      marginTop: '0px',
+                      marginLeft: '10px',
+                      marginRight: '10px',
+                      textAlign: 'center',
+                      wordBreak: 'break-all'
+                    }}
+                    variant="caption"
+                  >
+                    {body2}
+                  </Typography>
+
                   <div
                     style={{
                       marginTop: 'auto',
