@@ -145,7 +145,7 @@ export class RankedTable extends React.Component {
         // start a new row for each body1.
         if (body1 !== lastBody) {
           data.push(columns);
-          maxColumns = Math.max(columns.length, maxColumns);
+          maxColumns = Math.max(columns.length - 1, maxColumns);
           columns = [`${neuron1 || body1} (${body1})`];
         }
 
@@ -250,10 +250,10 @@ export class RankedTable extends React.Component {
       }
     });
     // make sure the last column is added.
-    maxColumns = Math.max(columns.length, maxColumns);
+    maxColumns = Math.max(columns.length - 1, maxColumns);
     data.push(columns);
 
-    const headings = Array(maxColumns - 1)
+    const headings = Array(maxColumns)
       .fill(0)
       .map((e, i) => `#${i + 1}`);
 
