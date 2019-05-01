@@ -50,7 +50,7 @@ export class FindNeurons extends React.Component {
     };
   }
 
-   static processDownload(response) {
+  static processDownload(response) {
     const headers = ['id','neuron','status','#post(inputs)','#pre(outputs)'];
 
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = response.params.pm;
