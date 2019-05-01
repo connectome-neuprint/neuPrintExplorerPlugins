@@ -50,6 +50,36 @@ export class SimpleConnections extends React.Component {
     };
   }
 
+  static processDownload(response) {
+    const headers = ['id','neuron','status','#connections','#post(inputs)','#pre(outputs)', '#voxels'];
+
+    const roiList = response.result.data[0][11];
+    roiList.sort().forEach(roi => {
+      headers.push(`${roi} post`);
+      headers.push(`${roi} pre`);
+    });
+
+    const data = response.result.data.map(row => {
+      const [queryBodyName, targetBodyName, targetBodyId, connections, queryBodyId, ,traceStatus, roiCounts, voxels, outputs, inputs, rois, highConfConnections ] = row;
+      const roiInfoObject = JSON.parse(roiCounts);
+
+      const converted = [targetBodyId, targetBodyName, traceStatus, connections, inputs, outputs, voxels];
+      // figure out roi counts.
+      if (rois.length > 0) {
+        rois.sort().forEach(roi => {
+          if (roiInfoObject[roi]) {
+            converted.push(roiInfoObject[roi].post);
+            converted.push(roiInfoObject[roi].pre);
+          }
+        });
+      }
+
+      return converted;
+    }).join('\n');
+    return [headers, data].join('\n');
+  }
+
+
   static processResults(query, apiResponse, actions, submit, isPublic) {
     // settings for whether or not the application is in public mode
     let includeWeightHP;
