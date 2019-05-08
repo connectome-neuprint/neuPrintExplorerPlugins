@@ -8,7 +8,6 @@ import deepEqual from 'deep-equal';
 import { withStyles } from '@material-ui/core/styles';
 import Chip from '@material-ui/core/Chip';
 
-import SharkViewer from '@janelia/sharkviewer';
 import CompartmentSelection from './Skeleton/CompartmentSelection';
 
 const styles = theme => ({
@@ -56,9 +55,7 @@ class SkeletonView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      sharkViewer: {
-        animate: () => {}
-      },
+      sharkViewer: null,
       db: new PouchDB('neuprint_compartments'),
       bodies: Immutable.Map({}),
       compartments: Immutable.Map({})
@@ -84,106 +81,109 @@ class SkeletonView extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { query } = this.props;
-    if (!deepEqual(this.props, prevProps)) {
-      // only perform actions here that alter the state, no rendering or props changes
-      const { bodyIds = '', compartments: compartmentIds = '', dataSet } = query.pm;
-      const {
-        bodyIds: prevBodyIds = '',
-        compartments: prevCompartmentIds = ''
-      } = prevProps.query.pm;
+    const { sharkViewer } = this.state;
+    if (sharkViewer) {
+      if (!deepEqual(this.props, prevProps)) {
+        // only perform actions here that alter the state, no rendering or props changes
+        const { bodyIds = '', compartments: compartmentIds = '', dataSet } = query.pm;
+        const {
+          bodyIds: prevBodyIds = '',
+          compartments: prevCompartmentIds = ''
+        } = prevProps.query.pm;
 
-      const bodyIdList = bodyIds
-        .toString()
-        .split(',')
-        .filter(x => x);
-      const prevBodyIdList = prevBodyIds
-        .toString()
-        .split(',')
-        .filter(x => x);
-      const compartmentIdList = compartmentIds
-        .toString()
-        .split(',')
-        .filter(x => x);
-      const prevCompartmentIdList = prevCompartmentIds
-        .toString()
-        .split(',')
-        .filter(x => x);
+        const bodyIdList = bodyIds
+          .toString()
+          .split(',')
+          .filter(x => x);
+        const prevBodyIdList = prevBodyIds
+          .toString()
+          .split(',')
+          .filter(x => x);
+        const compartmentIdList = compartmentIds
+          .toString()
+          .split(',')
+          .filter(x => x);
+        const prevCompartmentIdList = prevCompartmentIds
+          .toString()
+          .split(',')
+          .filter(x => x);
 
-      // remove bodies that are no longer in props
-      const currentBodySet = new Set(bodyIdList);
-      const missingBodies = prevBodyIdList.filter(bodyId => !currentBodySet.has(bodyId));
-      missingBodies.forEach(missingId => {
-        this.removeSkeleton(missingId);
-      });
-      // remove compartments that are no longer in props
-      const currentCompartmentSet = new Set(compartmentIdList);
-      const missingCompartments = prevCompartmentIdList.filter(
-        compartmentId => !currentCompartmentSet.has(compartmentId)
-      );
-      this.removeCompartmentsFromState(missingCompartments);
+        // remove bodies that are no longer in props
+        const currentBodySet = new Set(bodyIdList);
+        const missingBodies = prevBodyIdList.filter(bodyId => !currentBodySet.has(bodyId));
+        missingBodies.forEach(missingId => {
+          this.removeSkeleton(missingId);
+        });
+        // remove compartments that are no longer in props
+        const currentCompartmentSet = new Set(compartmentIdList);
+        const missingCompartments = prevCompartmentIdList.filter(
+          compartmentId => !currentCompartmentSet.has(compartmentId)
+        );
+        this.removeCompartmentsFromState(missingCompartments);
 
-      // load bodies that are new
-      const prevBodySet = new Set(prevBodyIdList);
-      const newBodyIds = bodyIdList.filter(bodyId => !prevBodySet.has(bodyId));
-      this.addSkeletons(newBodyIds, query.pm.dataSet);
+        // load bodies that are new
+        const prevBodySet = new Set(prevBodyIdList);
+        const newBodyIds = bodyIdList.filter(bodyId => !prevBodySet.has(bodyId));
+        this.addSkeletons(newBodyIds, query.pm.dataSet);
 
-      // load compartments that are new
-      const prevCompartmentSet = new Set(prevCompartmentIdList);
-      const newCompartmentIds = compartmentIdList.filter(
-        compartmentId => !prevCompartmentSet.has(compartmentId)
-      );
-      this.addCompartments(newCompartmentIds, dataSet);
-    }
-    if (!deepEqual(this.state, prevState)) {
-      // only perform actions here that update the canvas rendering.
-      const { bodies, compartments } = this.state;
-      const { bodies: prevBodies, compartments: prevCompartments } = prevState;
+        // load compartments that are new
+        const prevCompartmentSet = new Set(prevCompartmentIdList);
+        const newCompartmentIds = compartmentIdList.filter(
+          compartmentId => !prevCompartmentSet.has(compartmentId)
+        );
+        this.addCompartments(newCompartmentIds, dataSet);
+      }
+      if (!deepEqual(this.state, prevState)) {
+        // only perform actions here that update the canvas rendering.
+        const { bodies, compartments } = this.state;
+        const { bodies: prevBodies, compartments: prevCompartments } = prevState;
 
-      // un-render missing bodies
-      const currentBodies = new Set(Object.keys(bodies.toJS()));
-      const missingBodies = Object.keys(prevBodies.toJS()).filter(
-        bodyId => !currentBodies.has(bodyId)
-      );
-      missingBodies.forEach(bodyId => {
-        this.unloadBody(bodyId);
-      });
-      // un-render hidden bodies
-      bodies
-        .filter(body => !body.get('visible'))
-        .forEach(body => {
-          this.unloadBody(body.get('name'));
+        // un-render missing bodies
+        const currentBodies = new Set(Object.keys(bodies.toJS()));
+        const missingBodies = Object.keys(prevBodies.toJS()).filter(
+          bodyId => !currentBodies.has(bodyId)
+        );
+        missingBodies.forEach(bodyId => {
+          this.unloadBody(bodyId);
+        });
+        // un-render hidden bodies
+        bodies
+          .filter(body => !body.get('visible'))
+          .forEach(body => {
+            this.unloadBody(body.get('name'));
+          });
+
+        // un-render missing compartments
+        const currentCompartments = new Set(Object.keys(compartments.toJS()));
+        const missingCompartments = Object.keys(prevCompartments.toJS()).filter(
+          compId => !currentCompartments.has(compId)
+        );
+        missingCompartments.forEach(compId => {
+          this.unloadCompartment(compId);
         });
 
-      // un-render missing compartments
-      const currentCompartments = new Set(Object.keys(compartments.toJS()));
-      const missingCompartments = Object.keys(prevCompartments.toJS()).filter(
-        compId => !currentCompartments.has(compId)
-      );
-      missingCompartments.forEach(compId => {
-        this.unloadCompartment(compId);
-      });
+        // render new bodies
+        const prevBodiesSet = new Set(Object.keys(prevBodies.toJS()));
+        const newBodyIds = Object.keys(bodies.toJS()).filter(bodyId => !prevBodiesSet.has(bodyId));
 
-      // render new bodies
-      const prevBodiesSet = new Set(Object.keys(prevBodies.toJS()));
-      const newBodyIds = Object.keys(bodies.toJS()).filter(bodyId => !prevBodiesSet.has(bodyId));
+        const moveCamera = query.pm.coordinates ? false : true;
 
-      const moveCamera = query.pm.coordinates ? false : true;
+        this.renderBodies(newBodyIds, moveCamera);
 
-      this.renderBodies(newBodyIds, moveCamera);
+        // render bodies made visible again
+        bodies
+          .filter(body => body.get('visible'))
+          .forEach(body => {
+            this.renderBodies([body.get('name')]);
+          });
 
-      // render bodies made visible again
-      bodies
-        .filter(body => body.get('visible'))
-        .forEach(body => {
-          this.renderBodies([body.get('name')]);
-        });
-
-      // render new compartments
-      const prevCompartmentSet = new Set(Object.keys(prevCompartments.toJS()));
-      const newCompartments = compartments.filter(
-        compartment => !prevCompartmentSet.has(compartment.get('name'))
-      );
-      this.renderCompartments(newCompartments);
+        // render new compartments
+        const prevCompartmentSet = new Set(Object.keys(prevCompartments.toJS()));
+        const newCompartments = compartments.filter(
+          compartment => !prevCompartmentSet.has(compartment.get('name'))
+        );
+        this.renderCompartments(newCompartments);
+      }
     }
   }
 
@@ -217,38 +217,40 @@ class SkeletonView extends React.Component {
 
   createShark = () => {
     const { query } = this.props;
-    const sharkViewer = new SharkViewer({
-      dom_element: 'skeletonviewer',
-      WIDTH: this.skelRef.current.clientWidth,
-      HEIGHT: this.skelRef.current.clientHeight
-    });
-    sharkViewer.init();
-    sharkViewer.animate();
+    import('@janelia/sharkviewer').then(SharkViewer => {
+      const sharkViewer = new SharkViewer.default({
+        dom_element: 'skeletonviewer',
+        WIDTH: this.skelRef.current.clientWidth,
+        HEIGHT: this.skelRef.current.clientHeight
+      });
+      sharkViewer.init();
+      sharkViewer.animate();
 
-    if (query.pm.coordinates) {
-      const coords = query.pm.coordinates.split(',');
-      const target = {
-        x: parseFloat(coords[3]),
-        y: parseFloat(coords[4]),
-        z: parseFloat(coords[5])
-      };
-      sharkViewer.restoreView(
-        parseFloat(coords[0]),
-        parseFloat(coords[1]),
-        parseFloat(coords[2]),
-        target
-      );
-    }
+      if (query.pm.coordinates) {
+        const coords = query.pm.coordinates.split(',');
+        const target = {
+          x: parseFloat(coords[3]),
+          y: parseFloat(coords[4]),
+          z: parseFloat(coords[5])
+        };
+        sharkViewer.restoreView(
+          parseFloat(coords[0]),
+          parseFloat(coords[1]),
+          parseFloat(coords[2]),
+          target
+        );
+      }
 
-    sharkViewer.render();
-    sharkViewer.render();
-    this.setState({ sharkViewer });
-    // UGLY: there is a weird bug that means sometimes the scene is rendered blank.
-    // it seems to be some sort of timing issue, and adding a delayed render seems
-    // to fix it.
-    setTimeout(() => {
       sharkViewer.render();
-    }, 200);
+      sharkViewer.render();
+      this.setState({ sharkViewer });
+      // UGLY: there is a weird bug that means sometimes the scene is rendered blank.
+      // it seems to be some sort of timing issue, and adding a delayed render seems
+      // to fix it.
+      setTimeout(() => {
+        sharkViewer.render();
+      }, 200);
+    });
   };
 
   handleDelete = id => () => {
