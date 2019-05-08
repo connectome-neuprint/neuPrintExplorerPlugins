@@ -1,5 +1,4 @@
 import React from 'react';
-import cytoscape from 'cytoscape';
 import PropTypes from 'prop-types';
 // import klay from 'cytoscape-klay';
 
@@ -26,11 +25,13 @@ export default class Cytoscape extends React.Component {
 
   build() {
     const { elements, style, layout } = this.props;
-    this.cy = cytoscape({
-      container: this.cyRef.current,
-      elements,
-      style,
-      layout
+    import('cytoscape').then(cytoscape => {
+      this.cy = cytoscape.default({
+        container: this.cyRef.current,
+        elements,
+        style,
+        layout
+      });
     });
   }
 
