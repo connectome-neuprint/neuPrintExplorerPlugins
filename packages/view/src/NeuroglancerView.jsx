@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import PropTypes from 'prop-types';
 import Immutable from 'immutable';
 
-import Neuroglancer from '@janelia-flyem/react-neuroglancer';
+const Neuroglancer = React.lazy(() => import('@janelia-flyem/react-neuroglancer'));
 
 class NeuroGlancerView extends React.Component {
 	constructor(props) {
@@ -149,7 +149,11 @@ class NeuroGlancerView extends React.Component {
       viewerState.navigation.pose.position.voxelCoordinates = coordinates.toJS();
       // TODO: need to be able to pass in call backs so that removing neurons in the
       // neuroglancer interface will remove them from the component state.
-      return <Neuroglancer perspectiveZoom={80} viewerState={viewerState} />;
+      return (
+        <Suspense fallback={<div>Loading...</div>}>
+          <Neuroglancer perspectiveZoom={80} viewerState={viewerState} />;
+        </Suspense>
+      );
     }
 
     return <div>Loading...</div>;
