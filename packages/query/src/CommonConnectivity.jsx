@@ -163,7 +163,7 @@ class CommonConnectivity extends React.Component {
   }
 
   processRequest = () => {
-    const { dataSet, submit } = this.props;
+    const { dataSet, submit, actions } = this.props;
     const { limitNeurons, preThreshold, postThreshold, statusFilters } = this.state;
     const { bodyIds, typeValue } = this.state;
 
@@ -174,6 +174,11 @@ class CommonConnectivity extends React.Component {
       neuron_ids: bodyIds === '' ? [] : bodyIds.split(',').map(Number),
       all_segments: !limitNeurons
     };
+
+    if (parameters.neuron_ids.length > 100) {
+      actions.metaInfoError('Please limit the list of neuron IDs to 100 or less');
+      return
+    }
 
     if (preThreshold > 0) {
       parameters.pre_threshold = preThreshold;
@@ -235,7 +240,7 @@ class CommonConnectivity extends React.Component {
             value={bodyIds}
             name="bodyIds"
             rowsMax={4}
-            helperText="Separate IDs with commas."
+            helperText="Separate IDs with commas. Max 100"
             onChange={this.addNeuronBodyIds}
             onKeyDown={this.catchReturn}
           />
