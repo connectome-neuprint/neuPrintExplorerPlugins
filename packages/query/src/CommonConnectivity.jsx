@@ -176,7 +176,7 @@ class CommonConnectivity extends React.Component {
     };
 
     if (parameters.neuron_ids.length > 100) {
-      actions.metaInfoError('Please limit the list of neuron IDs to 100 or less');
+      actions.metaInfoError(`You entered ${parameters.neuron_ids.length} Neuron IDs. Please limit the list to 100 or less`);
       return
     }
 
