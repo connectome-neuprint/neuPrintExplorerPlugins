@@ -70,8 +70,10 @@ export class FindNeurons extends React.Component {
       const totalPost = row[6];
       const voxelCount = row[4];
       const roiInfoObject = JSON.parse(row[3]);
+      const bodyName = row[1] || '';
 
-      const converted = [bodyId, row[1], row[2], totalPost, totalPre];
+
+      const converted = [bodyId, bodyName.replace(/[\n\r]/g, ''), row[2], totalPost, totalPre];
       // figure out roi counts.
       if (rois.length > 0) {
         rois.forEach(roi => {
