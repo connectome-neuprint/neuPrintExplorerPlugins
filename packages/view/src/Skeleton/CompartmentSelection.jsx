@@ -34,7 +34,9 @@ class CompartmentSelection extends React.Component {
   render() {
     const { classes, availableROIs, selectedROIs, dataSet } = this.props;
 
-    const queryOptions = availableROIs[dataSet].map(roi => ({
+    const roiList = availableROIs[dataSet] || [];
+
+    const queryOptions = roiList.map(roi => ({
       value: roi,
       label: roi
     }));
