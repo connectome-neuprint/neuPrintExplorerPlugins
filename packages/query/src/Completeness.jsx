@@ -34,9 +34,9 @@ class Completeness extends React.Component {
     const { pm: parameters } = query;
     const data = apiResponse.data.map(row => [
       row[0], // roiname
-      (row[1] / row[3]) * 100, // % pre
+      ((row[1] / row[3]) * 100).toPrecision(4), // % pre
       row[3], // total pre
-      (row[2] / row[4]) * 100, // % post
+      ((row[2] / row[4]) * 100).toPrecision(4), // % post
       row[4] // total post
     ]);
 
