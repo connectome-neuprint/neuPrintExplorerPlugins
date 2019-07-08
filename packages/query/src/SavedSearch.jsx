@@ -5,6 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import dateFns from 'date-fns';
 
 const pluginName = 'SavedSearch';
 const pluginAbbrev = 'sv';
@@ -39,10 +40,7 @@ export class SavedSearch extends React.Component {
   }
 
   static processResults(query, apiResponse, actions, submitFunc, isPublic, originalPlugin) {
-    const title = `${apiResponse.name} - ${apiResponse.timestamp}`;
-
-    // TODO: can we get the processing function from the original plugin
-    // and execute it here, then over write the title with the new one?
+    const title = `${apiResponse.name} - ${dateFns.format(new Date(apiResponse.timestamp), 'MM/DD/YYYY H:mm' )}`;
 
     const intermediateResults = originalPlugin.processResults(
       query,
