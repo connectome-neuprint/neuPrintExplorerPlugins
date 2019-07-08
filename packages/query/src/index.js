@@ -16,3 +16,4 @@ export { default as ConnectivityGraph } from './ConnectivityGraph';
 export { default as SynapsesForConnection } from './SynapsesForConnection';
 export { default as Skeleton } from './Skeleton';
 export { default as Neuroglancer } from './Neuroglancer';
+export { default as SavedSearch } from './SavedSearch';
