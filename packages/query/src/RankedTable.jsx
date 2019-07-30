@@ -277,6 +277,7 @@ export class RankedTable extends React.Component {
     super(props);
     this.state = {
       neuronSrc: '',
+      neuronType: '',
       preOrPost: 'pre',
       useHighConfidence: false
     };
@@ -319,6 +320,10 @@ export class RankedTable extends React.Component {
     this.setState({ neuronSrc: event.target.value });
   };
 
+  addNeuronType = event => {
+    this.setState({ neuronType: event.target.value });
+  };
+
   setDirection = event => {
     this.setState({ preOrPost: event.target.value });
   };
@@ -338,7 +343,7 @@ export class RankedTable extends React.Component {
 
   render() {
     const { classes, isQuerying, isPublic } = this.props;
-    const { neuronSrc, preOrPost, useHighConfidence } = this.state;
+    const { neuronSrc, neuronType, preOrPost, useHighConfidence } = this.state;
     return (
       <div>
         <FormControl className={classes.formControl}>
@@ -355,6 +360,17 @@ export class RankedTable extends React.Component {
               onKeyDown={this.catchReturn}
             />
           </NeuronHelp>
+          <TextField
+              label="Neuron type"
+              multiline
+              fullWidth
+              rows={1}
+              value={neuronType}
+              rowsMax={4}
+              className={classes.textField}
+              onChange={this.addNeuronType}
+              onKeyDown={this.catchReturn}
+          />
         </FormControl>
         <FormControl component="fieldset" required className={classes.formControl}>
           <RadioGroup

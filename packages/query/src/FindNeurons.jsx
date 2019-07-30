@@ -198,7 +198,7 @@ export class FindNeurons extends React.Component {
       statusFilters: [],
       preThreshold: 0,
       postThreshold: 0,
-      neuronName: '',
+      neuronInstance: '',
       inputROIs: [],
       outputROIs: []
     };
@@ -213,7 +213,8 @@ export class FindNeurons extends React.Component {
       limitNeurons,
       preThreshold,
       postThreshold,
-      neuronName,
+      neuronInstance,
+      neuronType,
       inputROIs,
       outputROIs
     } = this.state;
@@ -226,12 +227,16 @@ export class FindNeurons extends React.Component {
       all_segments: !limitNeurons
     };
 
-    if (neuronName !== '') {
-      if (/^\d+$/.test(neuronName)) {
-        parameters.neuron_id = parseInt(neuronName, 10);
+    if (neuronInstance !== '') {
+      if (/^\d+$/.test(neuronInstance)) {
+        parameters.neuron_id = parseInt(neuronInstance, 10);
       } else {
-        parameters.neuron_name = neuronName;
+        parameters.neuron_instance = neuronInstance;
       }
+    }
+
+    if (neuronType !== '') {
+      parameters.neuron_type = neuronType;
     }
 
     if (preThreshold > 0) {
@@ -264,9 +269,14 @@ export class FindNeurons extends React.Component {
     this.setState({ outputROIs: rois });
   };
 
-  addNeuron = event => {
-    const neuronName = event.target.value;
-    this.setState({ neuronName });
+  addNeuronInstance = event => {
+    const neuronInstance = event.target.value;
+    this.setState({ neuronInstance });
+  };
+
+  addNeuronType = event => {
+    const neuronType = event.target.value;
+    this.setState({ neuronType });
   };
 
   loadNeuronFilters = params => {
@@ -290,7 +300,7 @@ export class FindNeurons extends React.Component {
   // validate the variables for your Neo4j query.
   render() {
     const { classes, isQuerying, availableROIs, dataSet, actions, neoServerSettings } = this.props;
-    const { neuronName = '', inputROIs = [], outputROIs = [] } = this.state;
+    const { neuronInstance = '', neuronType = '', inputROIs = [], outputROIs = [] } = this.state;
 
     const inputOptions = availableROIs.map(name => ({
       label: name,
@@ -335,17 +345,29 @@ export class FindNeurons extends React.Component {
         <FormControl fullWidth className={classes.formControl}>
           <NeuronHelp>
             <TextField
-              label="Neuron name or ID (optional)"
+              label="Neuron Instance or ID (optional)"
               multiline
               rows={1}
               fullWidth
-              value={neuronName}
+              value={neuronInstance}
               rowsMax={4}
               className={classes.textField}
-              onChange={this.addNeuron}
+              onChange={this.addNeuronInstance}
               onKeyDown={this.catchReturn}
             />
           </NeuronHelp>
+          <TextField
+              label="Neuron type"
+              multiline
+              rows={1}
+              fullWidth
+              value={neuronType}
+              rowsMax={4}
+              className={classes.textField}
+              onChange={this.addNeuronType}
+              onKeyDown={this.catchReturn}
+            />
+
         </FormControl>
         <NeuronFilter
           callback={this.loadNeuronFilters}

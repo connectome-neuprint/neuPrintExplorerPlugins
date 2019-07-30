@@ -32,11 +32,11 @@ class ROIsIntersectingNeurons extends React.Component {
       name: pluginName,
       displayName: 'ROIs in Neuron',
       abbr: pluginAbbrev,
-      description: 'Find ROIs that intersect a given neuron(s).  A putative name is given based on top two ROI inputs and outputs',
-      visType: 'CollapsibleTable',
+      description:
+        'Find ROIs that intersect a given neuron(s).  A putative name is given based on top two ROI inputs and outputs',
+      visType: 'CollapsibleTable'
     };
   }
-
 
   static fetchParameters() {
     return {
@@ -99,14 +99,15 @@ class ROIsIntersectingNeurons extends React.Component {
     return {
       data: tables,
       debug: apiResponse.debug,
-      title: 'ROIs intersecting neurons',
+      title: 'ROIs intersecting neurons'
     };
-  };
+  }
 
   constructor(props) {
     super(props);
     this.state = {
       neuronsrc: '',
+      neuronType: ''
     };
   }
 
@@ -136,6 +137,10 @@ class ROIsIntersectingNeurons extends React.Component {
     this.setState({ neuronsrc: event.target.value });
   };
 
+  handleNeuronType = event => {
+    this.setState({ neuronType: event.target.value });
+  };
+
   catchReturn = event => {
     // submit request if user presses enter
     if (event.keyCode === 13) {
@@ -146,7 +151,7 @@ class ROIsIntersectingNeurons extends React.Component {
 
   render() {
     const { classes, isQuerying } = this.props;
-    const { neuronsrc } = this.state;
+    const { neuronsrc, neuronType } = this.state;
     return (
       <div>
         <FormControl className={classes.formControl}>
@@ -163,6 +168,17 @@ class ROIsIntersectingNeurons extends React.Component {
               onKeyDown={this.catchReturn}
             />
           </NeuronHelp>
+          <TextField
+            label="Neuron type"
+            multiline
+            fullWidth
+            rows={1}
+            value={neuronType}
+            rowsMax={4}
+            className={classes.textField}
+            onChange={this.handleNeuronType}
+            onKeyDown={this.catchReturn}
+          />
         </FormControl>
         <Button
           color="primary"
