@@ -35,8 +35,8 @@ class ConnectivityGraph extends React.Component {
       displayName: 'Connectivity graph',
       abbr: pluginAbbrev,
       description: 'View a graph displaying connectivity between neurons.',
-      visType: 'Graph',
-    }
+      visType: 'Graph'
+    };
   }
 
   static processResults(query, apiResponse) {
@@ -88,15 +88,15 @@ class ConnectivityGraph extends React.Component {
       data: apiResponse.data,
       graph: { elements: { nodes, edges }, minWeight: minObsWeight, maxWeight: maxObsWeight },
       debug: apiResponse.debug,
-      title: `Connectivity graph for ${bodyIds}`,
+      title: `Connectivity graph for ${bodyIds}`
     };
-  };
+  }
 
   static fetchParameters(params) {
     const { bodyIds, dataset } = params;
     const cypherQuery = `WITH [${bodyIds}] AS input MATCH (n:\`${dataset}-Neuron\`)-[c:ConnectsTo]->(m) WHERE n.bodyId IN input AND m.bodyId IN input RETURN n.bodyId AS start, m.bodyId AS end, c.weight AS weight, n.name AS startName, m.name AS endName`;
     return {
-      cypherQuery,
+      cypherQuery
     };
   }
 
@@ -122,7 +122,7 @@ class ConnectivityGraph extends React.Component {
         dataset: dataSet,
         bodyIds: bodyIds === '' ? [] : bodyIds.split(',').map(Number),
         minWeight,
-        includeAutapses,
+        includeAutapses
       }
     };
     submit(query);
