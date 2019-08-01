@@ -10,6 +10,9 @@ const styles = theme => ({
     right: theme.spacing.unit,
     bottom: theme.spacing.unit,
     zIndex: 100
+  },
+  container: {
+    height: '100%'
   }
 });
 
@@ -69,7 +72,7 @@ class Cytoscape extends React.Component {
   render() {
     const { classes } = this.props;
     return (
-      <div ref={this.cyRef} style={{ height: '60vh' }}>
+      <div ref={this.cyRef} className={classes.container}>
         <Fab
           color="primary"
           className={classes.download}
