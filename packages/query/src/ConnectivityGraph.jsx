@@ -160,12 +160,13 @@ class ConnectivityGraph extends React.Component {
       connectionIncludeFilters,
       connectionExcludeFilters,
       includeAutapses,
-      minWeight
+      minWeight,
+      bodyIds
     } = this.state;
 
     return (
       <div>
-        {/* <FormControl fullWidth className={classes.formControl}>
+        <FormControl fullWidth className={classes.formControl}>
           <TextField
             label="Neuron IDs"
             multiline
@@ -179,7 +180,7 @@ class ConnectivityGraph extends React.Component {
             onChange={this.addNeuronBodyIds}
             onKeyDown={this.catchReturn}
           />
-        </FormControl> */}
+        </FormControl>
         <FormControl component="fieldset" className={classes.formControl}>
           <FormLabel component="legend">Input Filters</FormLabel>
           <TextField
