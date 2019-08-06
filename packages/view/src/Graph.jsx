@@ -62,8 +62,7 @@ const Graph = React.memo(props => {
       elements={elements}
       style={style}
       layout={{
-        // name: 'klay'
-        name: 'breadthfirst',
+        name: 'circle',
         directed: true,
         padding: 10
       }}
