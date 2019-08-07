@@ -48,7 +48,13 @@ const styles = theme => ({
 });
 
 const skeletonQuery =
-  'MATCH (:`YY-Neuron` {bodyId:ZZ})-[:Contains]->(:Skeleton)-[:Contains]->(root :SkelNode) WHERE NOT (root)<-[:LinksTo]-() RETURN root.rowNumber AS rowId, root.location.x AS x, root.location.y AS y, root.location.z AS z, root.radius AS radius, -1 AS link ORDER BY root.rowNumber UNION match (:`YY-Neuron` {bodyId:ZZ})-[:Contains]->(:Skeleton)-[:Contains]->(s :SkelNode)<-[:LinksTo]-(ss :SkelNode) RETURN s.rowNumber AS rowId, s.location.x AS x, s.location.y AS y, s.location.z AS z, s.radius AS radius, ss.rowNumber AS link ORDER BY s.rowNumber';
+  'MATCH (:`<DATASET>-Neuron` {bodyId:<BODYID>})-[:Contains]->(:Skeleton)-[:Contains]->(root :SkelNode) WHERE NOT (root)<-[:LinksTo]-() RETURN root.rowNumber AS rowId, root.location.x AS x, root.location.y AS y, root.location.z AS z, root.radius AS radius, -1 AS link ORDER BY root.rowNumber UNION match (:`<DATASET>-Neuron` {bodyId:<BODYID>})-[:Contains]->(:Skeleton)-[:Contains]->(s :SkelNode)<-[:LinksTo]-(ss :SkelNode) RETURN s.rowNumber AS rowId, s.location.x AS x, s.location.y AS y, s.location.z AS z, s.radius AS radius, ss.rowNumber AS link ORDER BY s.rowNumber';
+
+// output
+const tbarQuery = 'MATCH (n :`<DATASET>-Neuron` {bodyId: <BODYID>})<-[:From]-(cs :ConnectionSet)-[:To]->(m :`<DATASET>-Neuron` {bodyId: <BODYID>}) WITH cs MATCH (cs)-[:Contains]->(s :PreSyn) RETURN s.location.x AS x, s.location.y AS y, s.location.z AS z';
+
+// input
+const psdQuery = 'MATCH (n :`<DATASET>-Neuron` {bodyId: <BODYID>})<-[:To]-(cs :ConnectionSet)-[:From]->(m :`<DATASET>-Neuron` {bodyId: <BODYID>}) WITH cs MATCH (cs)-[:Contains]->(s :PostSyn) RETURN s.location.x AS x, s.location.y AS y, s.location.z AS z';
 
 class SkeletonView extends React.Component {
   constructor(props) {
@@ -57,6 +63,7 @@ class SkeletonView extends React.Component {
       sharkViewer: null,
       db: new PouchDB('neuprint_compartments'),
       bodies: Immutable.Map({}),
+      inputs: Immutable.Map({}),
       compartments: Immutable.Map({})
     };
     this.skelRef = React.createRef();
@@ -69,6 +76,11 @@ class SkeletonView extends React.Component {
       if (query.pm.bodyIds) {
         const bodyIds = query.pm.bodyIds.toString().split(',');
         this.addSkeletons(bodyIds, query.pm.dataSet);
+        this.addInputs(bodyIds, query.pm.dataSet);
+      }
+      if (query.pm.inputs) {
+        const inputIds = query.pm.inputs.toString().split(',');
+        this.addInputs(inputIds, query.pm.dataSet);
       }
       if (query.pm.compartments) {
         const compIds = query.pm.compartments.split(',');
@@ -268,6 +280,13 @@ class SkeletonView extends React.Component {
     this.setState({ bodies: updated });
   };
 
+  handleInputClick = id => () => {
+    const { bodies } = this.state;
+    const visible = !bodies.getIn([id, 'inputs']);
+    const updated = bodies.setIn([id, 'inputs'], visible);
+    this.setState({ bodies: updated });
+  }
+
   addCompartment = (id, dataset) => {
     if (id === '') {
       return;
@@ -381,12 +400,91 @@ class SkeletonView extends React.Component {
       });
   }
 
+  addInput(bodyId, dataSet) {
+    if (bodyId === '') {
+      return;
+    }
+    // generate the querystring.
+    const completeQuery = psdQuery.replace(/<DATASET>/g, dataSet).replace(/<BODYID>/g, bodyId);
+    // fetch swc data
+    // TODO: check if we have a cached copy of the data and skip the fetch if we do.
+    // document key should be sk_<id>
+    //
+    // we can fetch the timestamps with the following neuprint cypher query:
+    // WITH [1,2] AS ids MATCH (n:`mb6-Neuron`)-[:Contains]->(s:Skeleton) WHERE n.bodyId IN ids RETURN n.bodyId,s.timeStamp
+    // That will return the timestamps for each of the neurons, then if it is different or blank,
+    // we fetch the swc data.
+    fetch('/api/custom/custom', {
+      headers: {
+        'content-type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({
+        cypher: completeQuery
+      }),
+      method: 'POST',
+      credentials: 'include'
+    })
+      .then(result => result.json())
+      .then(result => {
+        if ('error' in result) {
+          throw result.error;
+        }
+        this.inputLoaded(bodyId, dataSet, result);
+      })
+      .catch(error => this.setState({ loadingError: error }));
+  }
+
+  addInputs(inputIds, dataSet) {
+    inputIds.forEach(id => {
+      this.addInput(id, dataSet);
+    });
+  }
+
+  inputLoaded(id, dataSet, result) {
+    const { db } = this.state;
+    // parse the result into swc format for skeleton viewer code.
+    const data = {};
+
+    result.data.forEach((row, i) => {
+      data[i + 1] = {
+        x: parseInt(row[0], 10),
+        y: parseInt(row[1], 10),
+        z: parseInt(row[2], 10),
+        radius: 0.2,
+        parent: -1
+      };
+    });
+
+    // check to see if we have a color cached for this.
+    // if yes, then return the color,
+    // else, generate random color and cache it.
+    db.get(`input_${id}`)
+      .then(doc => {
+        const { color } = doc;
+        this.addInputToState(id, dataSet, data, color);
+      })
+      .catch(() => {
+        const color = randomColor({ luminosity: 'light', hue: 'random' });
+        db.put({
+          _id: `input_${id}`,
+          color
+        }).then(() => {
+          this.addInputToState(id, dataSet, data, color);
+        });
+      });
+  }
+
+  addInputToState(id, dataSet, data, color) {
+    console.log(id, dataSet, data, color);
+  }
+
   addSkeleton(bodyId, dataSet) {
     if (bodyId === '') {
       return;
     }
     // generate the querystring.
-    const completeQuery = skeletonQuery.replace(/YY/g, dataSet).replace(/ZZ/g, bodyId);
+    const completeQuery = skeletonQuery.replace(/<DATASET>/g, dataSet).replace(/<BODYID>/g, bodyId);
     // fetch swc data
     // TODO: check if we have a cached copy of the data and skip the fetch if we do.
     // document key should be sk_<id>
@@ -537,14 +635,24 @@ class SkeletonView extends React.Component {
       const name = neuron.get('name');
 
       return (
-        <Chip
-          key={name}
-          label={name}
-          onDelete={this.handleDelete(name)}
-          onClick={this.handleClick(name)}
-          className={classes.chip}
-          style={{ background: currcolor }}
-        />
+        <React.Fragment>
+          <Chip
+            key={name}
+            label={name}
+            onDelete={this.handleDelete(name)}
+            onClick={this.handleClick(name)}
+            className={classes.chip}
+            style={{ background: currcolor }}
+          />
+          <Chip
+            key={`${name}in`}
+            label={`${name} inputs`}
+            onClick={this.handleInputClick(name)}
+            className={classes.chip}
+            style={{ background: currcolor }}
+          />
+
+        </React.Fragment>
       );
     });
 
