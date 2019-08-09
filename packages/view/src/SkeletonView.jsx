@@ -7,6 +7,7 @@ import deepEqual from 'deep-equal';
 
 import { withStyles } from '@material-ui/core/styles';
 import Chip from '@material-ui/core/Chip';
+import ActionMenu from './Skeleton/ActionMenu';
 
 import CompartmentSelection from './Skeleton/CompartmentSelection';
 
@@ -15,7 +16,7 @@ const styles = theme => ({
     position: 'relative',
     flex: 1,
     backgroundColor: 'white',
-    overflow:'hidden'
+    overflow: 'hidden'
   },
   floater: {
     zIndex: 2,
@@ -51,10 +52,12 @@ const skeletonQuery =
   'MATCH (:`<DATASET>-Neuron` {bodyId:<BODYID>})-[:Contains]->(:Skeleton)-[:Contains]->(root :SkelNode) WHERE NOT (root)<-[:LinksTo]-() RETURN root.rowNumber AS rowId, root.location.x AS x, root.location.y AS y, root.location.z AS z, root.radius AS radius, -1 AS link ORDER BY root.rowNumber UNION match (:`<DATASET>-Neuron` {bodyId:<BODYID>})-[:Contains]->(:Skeleton)-[:Contains]->(s :SkelNode)<-[:LinksTo]-(ss :SkelNode) RETURN s.rowNumber AS rowId, s.location.x AS x, s.location.y AS y, s.location.z AS z, s.radius AS radius, ss.rowNumber AS link ORDER BY s.rowNumber';
 
 // output
-const tbarQuery = 'MATCH (n :`<DATASET>-Neuron` {bodyId: <BODYID>})<-[:From]-(cs :ConnectionSet)-[:To]->(m :`<DATASET>-Neuron` {bodyId: <BODYID>}) WITH cs MATCH (cs)-[:Contains]->(s :PreSyn) RETURN s.location.x AS x, s.location.y AS y, s.location.z AS z';
+const tbarQuery =
+  'MATCH (n :`<DATASET>-Neuron` {bodyId: <OTHERBODYID>})<-[:From]-(cs :ConnectionSet)-[:To]->(m :`<DATASET>-Neuron` {bodyId: <TARGETBODYID>}) WITH cs MATCH (cs)-[:Contains]->(s :PreSyn) RETURN s.location.x AS x, s.location.y AS y, s.location.z AS z';
 
 // input
-const psdQuery = 'MATCH (n :`<DATASET>-Neuron` {bodyId: <BODYID>})<-[:To]-(cs :ConnectionSet)-[:From]->(m :`<DATASET>-Neuron` {bodyId: <BODYID>}) WITH cs MATCH (cs)-[:Contains]->(s :PostSyn) RETURN s.location.x AS x, s.location.y AS y, s.location.z AS z';
+const psdQuery =
+  'MATCH (n :`<DATASET>-Neuron` {bodyId: <OTHERBODYID>})<-[:To]-(cs :ConnectionSet)-[:From]->(m :`<DATASET>-Neuron` {bodyId: <TARGETBODYID>}) WITH cs MATCH (cs)-[:Contains]->(s :PostSyn) RETURN s.location.x AS x, s.location.y AS y, s.location.z AS z';
 
 class SkeletonView extends React.Component {
   constructor(props) {
@@ -188,6 +191,13 @@ class SkeletonView extends React.Component {
             this.renderBodies([body.get('name')]);
           });
 
+        // render bodies that changed color
+        bodies
+          .filter(body => body.get('color') !== prevBodies.getIn([body.get('name'), 'color']))
+          .forEach(body => {
+            this.renderBodies([body.get('name')], false, true);
+          });
+
         // render new compartments
         const prevCompartmentSet = new Set(Object.keys(prevCompartments.toJS()));
         const newCompartments = compartments.filter(
@@ -273,19 +283,40 @@ class SkeletonView extends React.Component {
     // action passed in from Results that removes id from the url
   };
 
-  handleClick = id => () => {
+  handleClick = (id) => {
     const { bodies } = this.state;
     const visible = !bodies.getIn([id, 'visible']);
     const updated = bodies.setIn([id, 'visible'], visible);
     this.setState({ bodies: updated });
   };
 
-  handleInputClick = id => () => {
+  handleInputClick = (id) => {
     const { bodies } = this.state;
     const visible = !bodies.getIn([id, 'inputs']);
     const updated = bodies.setIn([id, 'inputs'], visible);
     this.setState({ bodies: updated });
+  };
+
+  handleOutputClick = (id) => {
+    const { bodies } = this.state;
+    const visible = !bodies.getIn([id, 'outputs']);
+    const updated = bodies.setIn([id, 'outputs'], visible);
+    this.setState({ bodies: updated });
+  };
+
+  handleChangeColor = (id, color) => {
+    const { db, bodies } = this.state;
+    db.get(`sk_${id}`).then((doc) => {
+      doc.color = color;
+      return db.put(doc);
+    }).then(() => {
+      // update the skeleton color in the state
+      const updated = bodies.setIn([id, 'color'], color);
+      this.setState({bodies: updated});
+    });
+
   }
+
 
   addCompartment = (id, dataset) => {
     if (id === '') {
@@ -407,13 +438,6 @@ class SkeletonView extends React.Component {
     // generate the querystring.
     const completeQuery = psdQuery.replace(/<DATASET>/g, dataSet).replace(/<BODYID>/g, bodyId);
     // fetch swc data
-    // TODO: check if we have a cached copy of the data and skip the fetch if we do.
-    // document key should be sk_<id>
-    //
-    // we can fetch the timestamps with the following neuprint cypher query:
-    // WITH [1,2] AS ids MATCH (n:`mb6-Neuron`)-[:Contains]->(s:Skeleton) WHERE n.bodyId IN ids RETURN n.bodyId,s.timeStamp
-    // That will return the timestamps for each of the neurons, then if it is different or blank,
-    // we fetch the swc data.
     fetch('/api/custom/custom', {
       headers: {
         'content-type': 'application/json',
@@ -575,13 +599,17 @@ class SkeletonView extends React.Component {
     this.setState({ bodies: updated });
   }
 
-  renderBodies(ids, moveCamera=false) {
+  renderBodies(ids, moveCamera = false, colorChange = false) {
     const { sharkViewer, bodies } = this.state;
     ids.forEach(id => {
       const body = bodies.get(id);
       // If added, then add them to the scene.
       const exists = sharkViewer.scene.getObjectByName(body.get('name'));
       if (!exists) {
+        sharkViewer.loadNeuron(body.get('name'), body.get('color'), body.get('swc'), moveCamera);
+      }
+      if (colorChange) {
+        this.unloadBody(body.get('name'));
         sharkViewer.loadNeuron(body.get('name'), body.get('color'), body.get('swc'), moveCamera);
       }
       // if hidden, then hide them.
@@ -635,24 +663,15 @@ class SkeletonView extends React.Component {
       const name = neuron.get('name');
 
       return (
-        <React.Fragment>
-          <Chip
-            key={name}
-            label={name}
-            onDelete={this.handleDelete(name)}
-            onClick={this.handleClick(name)}
-            className={classes.chip}
-            style={{ background: currcolor }}
-          />
-          <Chip
-            key={`${name}in`}
-            label={`${name} inputs`}
-            onClick={this.handleInputClick(name)}
-            className={classes.chip}
-            style={{ background: currcolor }}
-          />
-
-        </React.Fragment>
+        <ActionMenu
+          color={currcolor}
+          name={name}
+          handleDelete={this.handleDelete}
+          handleClick={this.handleClick}
+          handleInputClick={this.handleInputClick}
+          handleOutputClick={this.handleOutputClick}
+          handleChangeColor={this.handleChangeColor}
+        />
       );
     });
 
