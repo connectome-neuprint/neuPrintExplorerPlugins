@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { SketchPicker } from 'react-color';
 import Chip from '@material-ui/core/Chip';
 import Menu from '@material-ui/core/Menu';
+import Popover from '@material-ui/core/Popover';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -22,7 +23,7 @@ class ActionMenu extends React.Component {
       anchorEl: null,
       inputs: [],
       outputs: [],
-      colorPicker: false
+      colorPicker: null
     };
   }
 
@@ -39,6 +40,14 @@ class ActionMenu extends React.Component {
   handleClick = (event) => {
     this.setState({ anchorEl: event.currentTarget });
   };
+
+  handleClose = () => {
+    this.setState({ anchorEl: null });
+  }
+
+  handleColorClose = () => {
+    this.setState({ colorPicker: null });
+  }
 
   handleVisible = () => {
     const { handleClick, name } = this.props;
@@ -62,18 +71,16 @@ class ActionMenu extends React.Component {
   handleChangeColor = (newColor) => {
     const { handleChangeColor, name } = this.props;
     handleChangeColor(name, newColor.hex);
-    this.setState({ anchorEl: null });
   }
 
-  toggleColorPicker = () => {
-    this.setState({colorPicker: true});
+  toggleColorPicker = (event) => {
+    this.setState({colorPicker: event.currentTarget});
     this.setState({ anchorEl: null });
   }
 
   render() {
     const { classes, name, color, handleDelete } = this.props;
-    const { inputs, outputs, colorPicker } = this.state;
-    const { anchorEl } = this.state;
+    const { inputs, outputs, colorPicker, anchorEl } = this.state;
 
     const inputMenuItems = inputs.map(input => <MenuItem onClick={() => this.handleInputToggle(input)}>Show Inputs for {input}</MenuItem>);
     const outputMenuItems = outputs.map(output => <MenuItem onClick={() => this.handleOutputToggle(output)}>Show Outputs for {output}</MenuItem>);
@@ -100,7 +107,9 @@ class ActionMenu extends React.Component {
           {inputMenuItems}
           {outputMenuItems}
         </Menu>
-        { colorPicker && <SketchPicker color={color} onChangeComplete={this.handleChangeColor} />}
+        <Popover onClose={this.handleColorClose} anchorEl={colorPicker} key={`${name}_color`} open={Boolean(colorPicker)} >
+          <SketchPicker color={color} onChangeComplete={this.handleChangeColor} />
+        </Popover>
       </React.Fragment>
     );
   }

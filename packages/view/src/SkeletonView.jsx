@@ -6,7 +6,6 @@ import PouchDB from 'pouchdb';
 import deepEqual from 'deep-equal';
 
 import { withStyles } from '@material-ui/core/styles';
-import Chip from '@material-ui/core/Chip';
 import ActionMenu from './Skeleton/ActionMenu';
 
 import CompartmentSelection from './Skeleton/CompartmentSelection';
