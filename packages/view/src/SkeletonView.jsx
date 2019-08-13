@@ -663,7 +663,9 @@ class SkeletonView extends React.Component {
 
       return (
         <ActionMenu
+          key={name}
           color={currcolor}
+          dataSet={query.pm.dataSet}
           name={name}
           handleDelete={this.handleDelete}
           handleClick={this.handleClick}

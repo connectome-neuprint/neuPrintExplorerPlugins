@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SketchPicker } from 'react-color';
+import randomColor from 'randomcolor';
 import Chip from '@material-ui/core/Chip';
 import Menu from '@material-ui/core/Menu';
 import Popover from '@material-ui/core/Popover';
@@ -16,6 +17,12 @@ const styles = theme => ({
 
 const cypherQuery =
   'MATCH (n :`<DATASET>-Neuron` {bodyId: <BODYID>})-[x :ConnectsTo]-(m) RETURN x.weight, startnode(x).bodyId, endnode(x).bodyId ORDER BY x.weight DESC';
+
+const presetColors = [];
+for (let i = 0; i < 15; i += 1) {
+  presetColors[i] = randomColor({ luminosity: 'light', hue: 'random' });
+}
+
 
 class ActionMenu extends React.Component {
   constructor(props) {
@@ -126,7 +133,11 @@ class ActionMenu extends React.Component {
           key={`${name}_color`}
           open={Boolean(colorPicker)}
         >
-          <SketchPicker color={color} onChangeComplete={this.handleChangeColor} />
+          <SketchPicker
+            color={color}
+            onChangeComplete={this.handleChangeColor}
+            presetColors={presetColors}
+          />
         </Popover>
       </React.Fragment>
     );
