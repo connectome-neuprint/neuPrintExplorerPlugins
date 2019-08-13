@@ -6,6 +6,7 @@ import Menu from '@material-ui/core/Menu';
 import Popover from '@material-ui/core/Popover';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
+import { pickTextColorBasedOnBgColorAdvanced } from '@neuprint/support';
 
 const styles = theme => ({
   chip: {
@@ -13,8 +14,8 @@ const styles = theme => ({
   }
 });
 
-const cypherQuery = 'MATCH (n :`<DATASET>-Neuron` {bodyId: <BODYID>})-[x :ConnectsTo]-(m) RETURN x.weight, startnode(x).bodyId, endnode(x).bodyId ORDER BY x.weight DESC';
-
+const cypherQuery =
+  'MATCH (n :`<DATASET>-Neuron` {bodyId: <BODYID>})-[x :ConnectsTo]-(m) RETURN x.weight, startnode(x).bodyId, endnode(x).bodyId ORDER BY x.weight DESC';
 
 class ActionMenu extends React.Component {
   constructor(props) {
@@ -31,69 +32,81 @@ class ActionMenu extends React.Component {
     const { name, dataSet } = this.props;
     const finalQuery = cypherQuery.replace(/<DATASET>/, dataSet).replace(/<NAME>/, name);
     fetch(finalQuery)
-      .then((res) => res.json())
+      .then(res => res.json())
       .then(json => {
-          this.setState({inputs: json.inputs, outputs: json.outputs});
-      })
+        this.setState({ inputs: json.inputs, outputs: json.outputs });
+      });
   }
 
-  handleClick = (event) => {
+  handleClick = event => {
     this.setState({ anchorEl: event.currentTarget });
   };
 
   handleClose = () => {
     this.setState({ anchorEl: null });
-  }
+  };
 
   handleColorClose = () => {
     this.setState({ colorPicker: null });
-  }
+  };
 
   handleVisible = () => {
     const { handleClick, name } = this.props;
     handleClick(name);
     this.setState({ anchorEl: null });
-  }
+  };
 
-  handleInputToggle = (inputFrom) => {
+  handleDelete = () => {
+    const { handleDelete, name } = this.props;
+    handleDelete(name);
+    this.setState({ anchorEl: null });
+  };
+
+  handleInputToggle = inputFrom => {
     const { handleInputClick, name } = this.props;
     handleInputClick(name, inputFrom);
     this.setState({ anchorEl: null });
-  }
+  };
 
-  handleOutputToggle = (outputTo) => {
+  handleOutputToggle = outputTo => {
     const { handleOutputClick, name } = this.props;
     handleOutputClick(name, outputTo);
     this.setState({ anchorEl: null });
-  }
+  };
 
-
-  handleChangeColor = (newColor) => {
+  handleChangeColor = newColor => {
     const { handleChangeColor, name } = this.props;
     handleChangeColor(name, newColor.hex);
-  }
+  };
 
-  toggleColorPicker = (event) => {
-    this.setState({colorPicker: event.currentTarget});
+  toggleColorPicker = event => {
+    this.setState({ colorPicker: event.currentTarget });
     this.setState({ anchorEl: null });
-  }
+  };
 
   render() {
-    const { classes, name, color, handleDelete } = this.props;
+    const { classes, name, color } = this.props;
     const { inputs, outputs, colorPicker, anchorEl } = this.state;
 
-    const inputMenuItems = inputs.map(input => <MenuItem onClick={() => this.handleInputToggle(input)}>Show Inputs for {input}</MenuItem>);
-    const outputMenuItems = outputs.map(output => <MenuItem onClick={() => this.handleOutputToggle(output)}>Show Outputs for {output}</MenuItem>);
+    const inputMenuItems = inputs.map(input => (
+      <MenuItem onClick={() => this.handleInputToggle(input)}>Show Inputs for {input}</MenuItem>
+    ));
+    const outputMenuItems = outputs.map(output => (
+      <MenuItem onClick={() => this.handleOutputToggle(output)}>Show Outputs for {output}</MenuItem>
+    ));
 
     return (
       <React.Fragment>
         <Chip
           key={name}
           label={name}
-          onDelete={() => handleDelete(name)}
+          onDelete={this.handleDelete}
           onClick={this.handleClick}
           className={classes.chip}
-          style={{ background: color }}
+          style={{
+            background: color,
+            color: pickTextColorBasedOnBgColorAdvanced(color, '#fff', '#000')
+          }}
         />
         <Menu
           key={`${name}_menu`}
@@ -107,7 +120,12 @@ class ActionMenu extends React.Component {
           {inputMenuItems}
           {outputMenuItems}
         </Menu>
-        <Popover onClose={this.handleColorClose} anchorEl={colorPicker} key={`${name}_color`} open={Boolean(colorPicker)} >
+        <Popover
+          onClose={this.handleColorClose}
+          anchorEl={colorPicker}
+          key={`${name}_color`}
+          open={Boolean(colorPicker)}
+        >
           <SketchPicker color={color} onChangeComplete={this.handleChangeColor} />
         </Popover>
       </React.Fragment>

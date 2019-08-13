@@ -273,7 +273,7 @@ class SkeletonView extends React.Component {
     });
   };
 
-  handleDelete = id => () => {
+  handleDelete = (id) => {
     const { actions, query, index } = this.props;
     const { bodies } = this.state;
     const updated = bodies.delete(id);
