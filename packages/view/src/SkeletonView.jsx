@@ -78,7 +78,6 @@ class SkeletonView extends React.Component {
       if (query.pm.bodyIds) {
         const bodyIds = query.pm.bodyIds.toString().split(',');
         this.addSkeletons(bodyIds, query.pm.dataSet);
-        this.addInputs(bodyIds, query.pm.dataSet);
       }
       if (query.pm.inputs) {
         const inputIds = query.pm.inputs.toString().split(',');
@@ -666,7 +665,7 @@ class SkeletonView extends React.Component {
           key={name}
           color={currcolor}
           dataSet={query.pm.dataSet}
-          name={name}
+          bodyId={parseInt(name, 10)}
           handleDelete={this.handleDelete}
           handleClick={this.handleClick}
           handleInputClick={this.handleInputClick}

@@ -16,7 +16,7 @@ const styles = theme => ({
 });
 
 const cypherQuery =
-  'MATCH (n :`<DATASET>-Neuron` {bodyId: <BODYID>})-[x :ConnectsTo]-(m) RETURN x.weight, startnode(x).bodyId, endnode(x).bodyId ORDER BY x.weight DESC';
+  'MATCH (n :`<DATASET>-Neuron` {bodyId: <BODYID>})-[x :ConnectsTo]-(m) RETURN x.weight AS weight, startnode(x).bodyId AS startId, startnode(x).type AS startType, endnode(x).bodyId AS endBody, endnode(x).type AS endType ORDER BY x.weight DESC';
 
 const presetColors = [];
 for (let i = 0; i < 15; i += 1) {
@@ -36,13 +36,27 @@ class ActionMenu extends React.Component {
   }
 
   componentDidMount() {
-    const { name, dataSet } = this.props;
-    const finalQuery = cypherQuery.replace(/<DATASET>/, dataSet).replace(/<NAME>/, name);
-    fetch(finalQuery)
-      .then(res => res.json())
-      .then(json => {
-        this.setState({ inputs: json.inputs, outputs: json.outputs });
-      });
+    const { bodyId, dataSet } = this.props;
+    const finalQuery = cypherQuery.replace(/<DATASET>/, dataSet).replace(/<BODYID>/, bodyId);
+    fetch('/api/custom/custom', {
+      headers: {
+        'content-type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({
+        cypher: finalQuery
+      }),
+      method: 'POST',
+      credentials: 'include'
+    })
+      .then(result => result.json())
+      .then(result => {
+        if ('error' in result) {
+          throw result.error;
+        }
+        this.synapsesLoaded(result);
+      })
+      .catch(error => this.setState({ loadingError: error }));
   }
 
   handleClick = event => {
@@ -58,32 +72,32 @@ class ActionMenu extends React.Component {
   };
 
   handleVisible = () => {
-    const { handleClick, name } = this.props;
-    handleClick(name);
+    const { handleClick, bodyId } = this.props;
+    handleClick(bodyId.toString());
     this.setState({ anchorEl: null });
   };
 
   handleDelete = () => {
-    const { handleDelete, name } = this.props;
-    handleDelete(name);
+    const { handleDelete, bodyId } = this.props;
+    handleDelete(bodyId.toString());
     this.setState({ anchorEl: null });
   };
 
   handleInputToggle = inputFrom => {
-    const { handleInputClick, name } = this.props;
-    handleInputClick(name, inputFrom);
+    const { handleInputClick, bodyId } = this.props;
+    handleInputClick(bodyId.toString(), inputFrom);
     this.setState({ anchorEl: null });
   };
 
   handleOutputToggle = outputTo => {
-    const { handleOutputClick, name } = this.props;
-    handleOutputClick(name, outputTo);
+    const { handleOutputClick, bodyId } = this.props;
+    handleOutputClick(bodyId.toString(), outputTo);
     this.setState({ anchorEl: null });
   };
 
   handleChangeColor = newColor => {
-    const { handleChangeColor, name } = this.props;
-    handleChangeColor(name, newColor.hex);
+    const { handleChangeColor, bodyId } = this.props;
+    handleChangeColor(bodyId.toString(), newColor.hex);
   };
 
   toggleColorPicker = event => {
@@ -91,22 +105,43 @@ class ActionMenu extends React.Component {
     this.setState({ anchorEl: null });
   };
 
+  synapsesLoaded(result) {
+    const { bodyId } = this.props;
+    // loop over the data and pull out the inputs vs the outputs.
+    // store them as separate arrays in the state. They will be used later
+    // for the menu when picking which ones to display.
+    // inputs are anything where the start node is not the current bodyid
+    const inputs = new Set();
+    // outputs are anything where the end node is not the current bodyid
+    const outputs = new Set();
+    // must account for autapses.
+    result.data.forEach(synapse => {
+      if (synapse[1] !== bodyId) {
+        inputs.add(synapse[1]);
+      } else if (synapse[3] !== bodyId) {
+        outputs.add(synapse[3]);
+      }
+    });
+
+    this.setState({inputs, outputs});
+  }
+
   render() {
-    const { classes, name, color } = this.props;
+    const { classes, bodyId, color } = this.props;
     const { inputs, outputs, colorPicker, anchorEl } = this.state;
 
-    const inputMenuItems = inputs.map(input => (
-      <MenuItem onClick={() => this.handleInputToggle(input)}>Show Inputs for {input}</MenuItem>
+    const inputMenuItems = [...inputs].map(input => (
+      <MenuItem key={input} onClick={() => this.handleInputToggle(input)}>Label Inputs from {input}</MenuItem>
     ));
-    const outputMenuItems = outputs.map(output => (
-      <MenuItem onClick={() => this.handleOutputToggle(output)}>Show Outputs for {output}</MenuItem>
+    const outputMenuItems = [...outputs].map(output => (
+      <MenuItem key={output} onClick={() => this.handleOutputToggle(output)}>Label Outputs to {output}</MenuItem>
     ));
 
     return (
       <React.Fragment>
         <Chip
-          key={name}
-          label={name}
+          key={bodyId}
+          label={bodyId}
           onDelete={this.handleDelete}
           onClick={this.handleClick}
           className={classes.chip}
@@ -116,7 +151,7 @@ class ActionMenu extends React.Component {
           }}
         />
         <Menu
-          key={`${name}_menu`}
+          key={`${bodyId}_menu`}
           id="simple-menu"
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
@@ -130,7 +165,7 @@ class ActionMenu extends React.Component {
         <Popover
           onClose={this.handleColorClose}
           anchorEl={colorPicker}
-          key={`${name}_color`}
+          key={`${bodyId}_color`}
           open={Boolean(colorPicker)}
         >
           <SketchPicker
@@ -145,7 +180,7 @@ class ActionMenu extends React.Component {
 }
 
 ActionMenu.propTypes = {
-  name: PropTypes.string.isRequired,
+  bodyId: PropTypes.number.isRequired,
   dataSet: PropTypes.string.isRequired,
   color: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
