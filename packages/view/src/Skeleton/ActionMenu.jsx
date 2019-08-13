@@ -15,8 +15,9 @@ const styles = theme => ({
   }
 });
 
-const cypherQuery =
+/* const cypherQuery =
   'MATCH (n :`<DATASET>-Neuron` {bodyId: <BODYID>})-[x :ConnectsTo]-(m) RETURN x.weight AS weight, startnode(x).bodyId AS startId, startnode(x).type AS startType, endnode(x).bodyId AS endBody, endnode(x).type AS endType ORDER BY x.weight DESC';
+*/
 
 const presetColors = [];
 for (let i = 0; i < 15; i += 1) {
@@ -29,13 +30,13 @@ class ActionMenu extends React.Component {
     super(props);
     this.state = {
       anchorEl: null,
-      inputs: [],
-      outputs: [],
+      // inputs: [],
+      // outputs: [],
       colorPicker: null
     };
   }
 
-  componentDidMount() {
+  /*  componentDidMount() {
     const { bodyId, dataSet } = this.props;
     const finalQuery = cypherQuery.replace(/<DATASET>/, dataSet).replace(/<BODYID>/, bodyId);
     fetch('/api/custom/custom', {
@@ -57,7 +58,7 @@ class ActionMenu extends React.Component {
         this.synapsesLoaded(result);
       })
       .catch(error => this.setState({ loadingError: error }));
-  }
+  } */
 
   handleClick = event => {
     this.setState({ anchorEl: event.currentTarget });
@@ -105,7 +106,7 @@ class ActionMenu extends React.Component {
     this.setState({ anchorEl: null });
   };
 
-  synapsesLoaded(result) {
+  /* synapsesLoaded(result) {
     const { bodyId } = this.props;
     // loop over the data and pull out the inputs vs the outputs.
     // store them as separate arrays in the state. They will be used later
@@ -124,18 +125,19 @@ class ActionMenu extends React.Component {
     });
 
     this.setState({inputs, outputs});
-  }
+  } */
 
   render() {
     const { classes, bodyId, color } = this.props;
-    const { inputs, outputs, colorPicker, anchorEl } = this.state;
+    const { colorPicker, anchorEl } = this.state;
+    // const { inputs, outputs, colorPicker, anchorEl } = this.state;
 
-    const inputMenuItems = [...inputs].map(input => (
+    /* const inputMenuItems = [...inputs].map(input => (
       <MenuItem key={input} onClick={() => this.handleInputToggle(input)}>Label Inputs from {input}</MenuItem>
     ));
     const outputMenuItems = [...outputs].map(output => (
       <MenuItem key={output} onClick={() => this.handleOutputToggle(output)}>Label Outputs to {output}</MenuItem>
-    ));
+    )); */
 
     return (
       <React.Fragment>
@@ -159,8 +161,8 @@ class ActionMenu extends React.Component {
         >
           <MenuItem onClick={this.handleVisible}>Toggle Visible</MenuItem>
           <MenuItem onClick={this.toggleColorPicker}>Change Color</MenuItem>
-          {inputMenuItems}
-          {outputMenuItems}
+          {/* inputMenuItems */}
+          {/* outputMenuItems */}
         </Menu>
         <Popover
           onClose={this.handleColorClose}
@@ -181,7 +183,7 @@ class ActionMenu extends React.Component {
 
 ActionMenu.propTypes = {
   bodyId: PropTypes.number.isRequired,
-  dataSet: PropTypes.string.isRequired,
+  // dataSet: PropTypes.string.isRequired,
   color: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
   handleDelete: PropTypes.func.isRequired,
