@@ -8,6 +8,8 @@ import Grid from '@material-ui/core/Grid';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Popover from '@material-ui/core/Popover';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import { pickTextColorBasedOnBgColorAdvanced } from '@neuprint/support';
@@ -26,6 +28,11 @@ const styles = theme => ({
   },
   popoverTitle: {
     margin: '1em'
+  },
+  visToggle: {
+    position: 'absolute',
+    top: '5px',
+    right: '5px'
   }
 });
 
@@ -88,7 +95,6 @@ class ActionMenu extends React.Component {
   handleVisible = () => {
     const { handleClick, bodyId } = this.props;
     handleClick(bodyId.toString());
-    this.setState({ anchorEl: null });
   };
 
   handleDelete = () => {
@@ -141,7 +147,7 @@ class ActionMenu extends React.Component {
   }
 
   render() {
-    const { classes, bodyId, color } = this.props;
+    const { classes, bodyId, color, isVisible } = this.props;
     const { inputs, outputs, anchorEl } = this.state;
 
     const inputMenuItems = [...inputs].map(input => (
@@ -175,6 +181,17 @@ class ActionMenu extends React.Component {
           open={Boolean(anchorEl)}
         >
           <Typography variant="h5" className={classes.popoverTitle}>Modify body {bodyId}</Typography>
+          <FormControlLabel
+            className={classes.visToggle}
+            control={
+              <Switch
+                onChange={this.handleVisible}
+                checked={isVisible}
+                color="primary"
+              />
+            }
+            label="Toggle Visible"
+          />
           <Grid
             container
             spacing={24}
@@ -212,6 +229,7 @@ ActionMenu.propTypes = {
   dataSet: PropTypes.string.isRequired,
   color: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
+  isVisible: PropTypes.bool.isRequired,
   handleDelete: PropTypes.func.isRequired,
   handleClick: PropTypes.func.isRequired,
   handleInputClick: PropTypes.func.isRequired,

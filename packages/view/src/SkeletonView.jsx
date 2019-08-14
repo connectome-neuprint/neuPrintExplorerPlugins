@@ -665,6 +665,7 @@ class SkeletonView extends React.Component {
           key={name}
           color={currcolor}
           dataSet={query.pm.dataSet}
+          isVisible={neuron.get('visible')}
           bodyId={parseInt(name, 10)}
           handleDelete={this.handleDelete}
           handleClick={this.handleClick}
