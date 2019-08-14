@@ -3,15 +3,29 @@ import PropTypes from 'prop-types';
 import { SketchPicker } from 'react-color';
 import randomColor from 'randomcolor';
 import Chip from '@material-ui/core/Chip';
-import Menu from '@material-ui/core/Menu';
+import List from '@material-ui/core/List';
+import Grid from '@material-ui/core/Grid';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 import Popover from '@material-ui/core/Popover';
-import MenuItem from '@material-ui/core/MenuItem';
+import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import { pickTextColorBasedOnBgColorAdvanced } from '@neuprint/support';
 
 const styles = theme => ({
   chip: {
     margin: theme.spacing.unit / 2
+  },
+  popover: {
+    width: '800px',
+    overflow: 'hidden'
+  },
+  synapseList: {
+    height: '320px',
+    overflow: 'auto'
+  },
+  popoverTitle: {
+    margin: '1em'
   }
 });
 
@@ -128,13 +142,17 @@ class ActionMenu extends React.Component {
 
   render() {
     const { classes, bodyId, color } = this.props;
-    const { inputs, outputs, colorPicker, anchorEl } = this.state;
+    const { inputs, outputs, anchorEl } = this.state;
 
     const inputMenuItems = [...inputs].map(input => (
-      <MenuItem key={input} onClick={() => this.handleInputToggle(input)}>Label Inputs from {input}</MenuItem>
+      <ListItem button key={input} onClick={() => this.handleInputToggle(input)}>
+        <ListItemText>{input}</ListItemText>
+      </ListItem>
     ));
     const outputMenuItems = [...outputs].map(output => (
-      <MenuItem key={output} onClick={() => this.handleOutputToggle(output)}>Label Outputs to {output}</MenuItem>
+      <ListItem button key={output} onClick={() => this.handleOutputToggle(output)}>
+        <ListItemText>{output}</ListItemText>
+      </ListItem>
     ));
 
     return (
@@ -150,29 +168,39 @@ class ActionMenu extends React.Component {
             color: pickTextColorBasedOnBgColorAdvanced(color, '#fff', '#000')
           }}
         />
-        <Menu
-          key={`${bodyId}_menu`}
-          id="simple-menu"
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={this.handleClose}
-        >
-          <MenuItem onClick={this.handleVisible}>Toggle Visible</MenuItem>
-          <MenuItem onClick={this.toggleColorPicker}>Change Color</MenuItem>
-          {inputMenuItems}
-          {outputMenuItems}
-        </Menu>
         <Popover
-          onClose={this.handleColorClose}
-          anchorEl={colorPicker}
-          key={`${bodyId}_color`}
-          open={Boolean(colorPicker)}
+          onClose={this.handleClose}
+          anchorEl={anchorEl}
+          key={`${bodyId}_popover`}
+          open={Boolean(anchorEl)}
         >
-          <SketchPicker
-            color={color}
-            onChangeComplete={this.handleChangeColor}
-            presetColors={presetColors}
-          />
+          <Typography variant="h5" className={classes.popoverTitle}>Modify body {bodyId}</Typography>
+          <Grid
+            container
+            spacing={24}
+            className={classes.popover}
+          >
+            <Grid item xs={4}>
+              <Typography variant="subtitle2">Inputs:</Typography>
+              <List className={classes.synapseList}>
+                {inputMenuItems}
+              </List>
+            </Grid>
+            <Grid item xs={4}>
+              <Typography variant="subtitle2">Outputs:</Typography>
+              <List className={classes.synapseList}>
+                {outputMenuItems}
+              </List>
+            </Grid>
+            <Grid item xs={3}>
+              <Typography variant="subtitle2">Change Color:</Typography>
+              <SketchPicker
+                color={color}
+                onChangeComplete={this.handleChangeColor}
+                presetColors={presetColors}
+              />
+            </Grid>
+          </Grid>
         </Popover>
       </React.Fragment>
     );
