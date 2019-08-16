@@ -3,16 +3,15 @@ import PropTypes from 'prop-types';
 import { SketchPicker } from 'react-color';
 import randomColor from 'randomcolor';
 import Chip from '@material-ui/core/Chip';
-import List from '@material-ui/core/List';
 import Grid from '@material-ui/core/Grid';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import Popover from '@material-ui/core/Popover';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import { pickTextColorBasedOnBgColorAdvanced } from '@neuprint/support';
+
+import SynapseSelection from './SynapseSelection';
 
 const styles = theme => ({
   chip: {
@@ -36,9 +35,6 @@ const styles = theme => ({
   }
 });
 
-const cypherQuery =
-  'MATCH (n :`<DATASET>-Neuron` {bodyId: <BODYID>})-[x :ConnectsTo]-(m) RETURN x.weight AS weight, startnode(x).bodyId AS startId, startnode(x).type AS startType, endnode(x).bodyId AS endBody, endnode(x).type AS endType ORDER BY x.weight DESC';
-
 const presetColors = [];
 for (let i = 0; i < 15; i += 1) {
   presetColors[i] = randomColor({ luminosity: 'light', hue: 'random' });
@@ -50,34 +46,7 @@ class ActionMenu extends React.Component {
     super(props);
     this.state = {
       anchorEl: null,
-      inputs: [],
-      outputs: [],
-      colorPicker: null
     };
-  }
-
-  componentDidMount() {
-    const { bodyId, dataSet } = this.props;
-    const finalQuery = cypherQuery.replace(/<DATASET>/, dataSet).replace(/<BODYID>/, bodyId);
-    fetch('/api/custom/custom', {
-      headers: {
-        'content-type': 'application/json',
-        Accept: 'application/json'
-      },
-      body: JSON.stringify({
-        cypher: finalQuery
-      }),
-      method: 'POST',
-      credentials: 'include'
-    })
-      .then(result => result.json())
-      .then(result => {
-        if ('error' in result) {
-          throw result.error;
-        }
-        this.synapsesLoaded(result);
-      })
-      .catch(error => this.setState({ loadingError: error }));
   }
 
   handleClick = event => {
@@ -86,10 +55,6 @@ class ActionMenu extends React.Component {
 
   handleClose = () => {
     this.setState({ anchorEl: null });
-  };
-
-  handleColorClose = () => {
-    this.setState({ colorPicker: null });
   };
 
   handleVisible = () => {
@@ -120,46 +85,9 @@ class ActionMenu extends React.Component {
     handleChangeColor(bodyId.toString(), newColor.hex);
   };
 
-  toggleColorPicker = event => {
-    this.setState({ colorPicker: event.currentTarget });
-    this.setState({ anchorEl: null });
-  };
-
-  synapsesLoaded(result) {
-    const { bodyId } = this.props;
-    // loop over the data and pull out the inputs vs the outputs.
-    // store them as separate arrays in the state. They will be used later
-    // for the menu when picking which ones to display.
-    // inputs are anything where the start node is not the current bodyid
-    const inputs = new Set();
-    // outputs are anything where the end node is not the current bodyid
-    const outputs = new Set();
-    // must account for autapses.
-    result.data.forEach(synapse => {
-      if (synapse[1] !== bodyId) {
-        inputs.add(synapse[1]);
-      } else if (synapse[3] !== bodyId) {
-        outputs.add(synapse[3]);
-      }
-    });
-
-    this.setState({inputs, outputs});
-  }
-
   render() {
-    const { classes, bodyId, color, isVisible } = this.props;
-    const { inputs, outputs, anchorEl } = this.state;
-
-    const inputMenuItems = [...inputs].map(input => (
-      <ListItem button key={input} onClick={() => this.handleInputToggle(input)}>
-        <ListItemText>{input}</ListItemText>
-      </ListItem>
-    ));
-    const outputMenuItems = [...outputs].map(output => (
-      <ListItem button key={output} onClick={() => this.handleOutputToggle(output)}>
-        <ListItemText>{output}</ListItemText>
-      </ListItem>
-    ));
+    const { classes, bodyId, color, isVisible, dataSet } = this.props;
+    const { anchorEl } = this.state;
 
     return (
       <React.Fragment>
@@ -198,16 +126,10 @@ class ActionMenu extends React.Component {
             className={classes.popover}
           >
             <Grid item xs={4}>
-              <Typography variant="subtitle2">Inputs:</Typography>
-              <List className={classes.synapseList}>
-                {inputMenuItems}
-              </List>
+              <SynapseSelection isInput bodyId={bodyId} dataSet={dataSet} />
             </Grid>
             <Grid item xs={4}>
-              <Typography variant="subtitle2">Outputs:</Typography>
-              <List className={classes.synapseList}>
-                {outputMenuItems}
-              </List>
+              <SynapseSelection isInput={false} bodyId={bodyId} dataSet={dataSet} />
             </Grid>
             <Grid item xs={3}>
               <Typography variant="subtitle2">Change Color:</Typography>
