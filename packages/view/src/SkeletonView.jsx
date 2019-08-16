@@ -210,26 +210,27 @@ class SkeletonView extends React.Component {
     const { sharkViewer } = this.state;
     const { actions, query, index } = this.props;
 
-    const bodyIds = query.pm.bodyIds.toString().split(',');
+    if (query.pm && query.pm.bodyIds) {
+      const bodyIds = query.pm.bodyIds.toString().split(',');
+      // Set the correct query string to store the camera position.
+      // TODO: we need to do this every time the camera position is changed,
+      // otherwise camera position will be lost on page refresh.
+      if (bodyIds.length > 0) {
+        const coords = sharkViewer.cameraCoords();
+        const target = sharkViewer.cameraTarget();
 
-    // Set the correct query string to store the camera position.
-    // TODO: we need to do this every time the camera position is changed,
-    // otherwise camera position will be lost on page refresh.
-    if (bodyIds.length > 0) {
-      const coords = sharkViewer.cameraCoords();
-      const target = sharkViewer.cameraTarget();
-
-      const coordinateString = `${coords.x},${coords.y},${coords.z},${target.x},${target.y},${
-        target.z
-      }`;
-      const tabData = actions.getQueryObject('qr', []);
-      // if we have switched tabs and not removed the skeleton tab then we
-      // need to keep track of the camera position.
-      if (tabData[index]) {
-        tabData[index].pm.coordinates = coordinateString;
-        actions.setQueryString({
-          qr: tabData
-        });
+        const coordinateString = `${coords.x},${coords.y},${coords.z},${target.x},${target.y},${
+          target.z
+        }`;
+        const tabData = actions.getQueryObject('qr', []);
+        // if we have switched tabs and not removed the skeleton tab then we
+        // need to keep track of the camera position.
+        if (tabData[index]) {
+          tabData[index].pm.coordinates = coordinateString;
+          actions.setQueryString({
+            qr: tabData
+          });
+        }
       }
     }
   }
