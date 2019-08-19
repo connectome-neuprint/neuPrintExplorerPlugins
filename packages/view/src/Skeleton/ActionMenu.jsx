@@ -86,7 +86,7 @@ class ActionMenu extends React.Component {
   };
 
   render() {
-    const { classes, bodyId, color, isVisible, dataSet } = this.props;
+    const { classes, bodyId, color, isVisible, dataSet, actions } = this.props;
     const { anchorEl } = this.state;
 
     return (
@@ -126,10 +126,10 @@ class ActionMenu extends React.Component {
             className={classes.popover}
           >
             <Grid item xs={4}>
-              <SynapseSelection isInput bodyId={bodyId} dataSet={dataSet} />
+              <SynapseSelection isInput bodyId={bodyId} dataSet={dataSet} actions={actions} />
             </Grid>
             <Grid item xs={4}>
-              <SynapseSelection isInput={false} bodyId={bodyId} dataSet={dataSet} />
+              <SynapseSelection isInput={false} bodyId={bodyId} dataSet={dataSet} actions={actions} />
             </Grid>
             <Grid item xs={3}>
               <Typography variant="subtitle2">Change Color:</Typography>
@@ -156,7 +156,8 @@ ActionMenu.propTypes = {
   handleClick: PropTypes.func.isRequired,
   handleInputClick: PropTypes.func.isRequired,
   handleOutputClick: PropTypes.func.isRequired,
-  handleChangeColor: PropTypes.func.isRequired
+  handleChangeColor: PropTypes.func.isRequired,
+  actions: PropTypes.object.isRequired
 };
 
 export default withStyles(styles)(ActionMenu);

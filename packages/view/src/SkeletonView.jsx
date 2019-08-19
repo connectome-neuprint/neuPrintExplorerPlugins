@@ -644,7 +644,7 @@ class SkeletonView extends React.Component {
   }
 
   render() {
-    const { classes, query, neo4jsettings } = this.props;
+    const { classes, query, neo4jsettings, actions } = this.props;
 
     const { compartments = '' } = query.pm;
 
@@ -673,6 +673,7 @@ class SkeletonView extends React.Component {
           handleInputClick={this.handleInputClick}
           handleOutputClick={this.handleOutputClick}
           handleChangeColor={this.handleChangeColor}
+          actions={actions}
         />
       );
     });

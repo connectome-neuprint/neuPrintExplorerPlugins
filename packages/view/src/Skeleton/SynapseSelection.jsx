@@ -4,6 +4,8 @@ import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import Switch from '@material-ui/core/Switch';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = () => ({
@@ -49,6 +51,13 @@ class SynapseSelection extends React.Component {
       .catch(error => this.setState({ loadingError: error }));
   }
 
+  handleToggle = (id) => {
+    const { actions, bodyId, isInput } = this.props;
+    // decide if this input/output
+    const query = actions.getQueryObject();
+    // set the state to show that the id has been selected.
+  }
+
   synapsesLoaded(result) {
     const { bodyId, isInput } = this.props;
     // loop over the data and pull out the inputs vs the outputs.
@@ -85,9 +94,16 @@ class SynapseSelection extends React.Component {
     }
 
     const inputMenuItems = [...ids].map(id => {
+      const { checked } = this.state;
       return (
-        <ListItem button key={id} onClick={() => this.handleOutputToggle(id)}>
+        <ListItem key={id}>
           <ListItemText>{id}</ListItemText>
+          <ListItemSecondaryAction>
+            <Switch
+              onChange={() => this.handleToggle(id)}
+              checked={false}
+            />
+          </ListItemSecondaryAction>
         </ListItem>
       );
     });
@@ -107,7 +123,8 @@ SynapseSelection.propTypes = {
   isInput: PropTypes.bool.isRequired,
   classes: PropTypes.object.isRequired,
   bodyId: PropTypes.number.isRequired,
-  dataSet: PropTypes.string.isRequired
+  dataSet: PropTypes.string.isRequired,
+  actions: PropTypes.object.isRequired
 };
 
 export default withStyles(styles)(SynapseSelection);
