@@ -7,7 +7,6 @@ const pluginList = [
   'PartnerCompletenessView',
   'SimpleTable',
   'Graph',
-  'SkeletonView'
 ];
 
 pluginList.forEach(pluginName => {
