@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/queries",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "description": "Query plugins used by the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
@@ -74,7 +74,7 @@
     "react-select": "^2.1.0"
   },
   "dependencies": {
-    "@neuprint/support": "^0.1.3",
+    "@neuprint/support": "^0.2.0",
     "colormap": "^2.3.0",
     "date-fns": "^1.30.1",
     "deepmerge": "^2.2.1",
