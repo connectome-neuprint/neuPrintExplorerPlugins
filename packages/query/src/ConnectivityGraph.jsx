@@ -181,7 +181,7 @@ class ConnectivityGraph extends React.Component {
             onKeyDown={this.catchReturn}
           />
         </FormControl>
-        <FormControl component="fieldset" className={classes.formControl}>
+        {/* <FormControl component="fieldset" className={classes.formControl}>
           <FormLabel component="legend">Input Filters</FormLabel>
           <TextField
             label="Include"
@@ -257,7 +257,7 @@ class ConnectivityGraph extends React.Component {
             variant="outlined"
           />
           <p>Pre + Post Synaptic Filters</p>
-        </FormControl>
+        </FormControl> */}
         <FormControl className={classes.formControl}>
           <TextField
             label="minimum weight"
