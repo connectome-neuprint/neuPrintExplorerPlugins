@@ -17,7 +17,7 @@ import {
   setColumnIndices,
   createSimpleConnectionQueryObject,
   generateRoiHeatMapAndBarGraph,
-  getBodyIdForTable,
+  getBodyIdForTable
 } from './shared/pluginhelpers';
 
 const styles = theme => ({
@@ -55,7 +55,7 @@ export class FindNeurons extends React.Component {
   }
 
   static processDownload(response) {
-    const headers = ['id','neuron','status','#post(inputs)','#pre(outputs)'];
+    const headers = ['id', 'neuron', 'status', '#post(inputs)', '#pre(outputs)'];
 
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = response.params.pm;
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
@@ -68,29 +68,30 @@ export class FindNeurons extends React.Component {
 
     headers.push('#voxels');
 
-    const data = response.result.data.map(row => {
-      const bodyId = row[0];
-      const totalPre = row[5];
-      const totalPost = row[6];
-      const voxelCount = row[4];
-      const roiInfoObject = JSON.parse(row[3]);
-      const bodyName = row[1] || '';
+    const data = response.result.data
+      .map(row => {
+        const bodyId = row[0];
+        const totalPre = row[6];
+        const totalPost = row[7];
+        const voxelCount = row[5];
+        const roiInfoObject = JSON.parse(row[4]);
+        const bodyName = row[1] || '';
 
+        const converted = [bodyId, bodyName.replace(/[\n\r]/g, ''), row[3], totalPost, totalPre];
+        // figure out roi counts.
+        if (rois.length > 0) {
+          rois.forEach(roi => {
+            converted.push(roiInfoObject[roi].post);
+            converted.push(roiInfoObject[roi].pre);
+          });
+        }
 
-      const converted = [bodyId, bodyName.replace(/[\n\r]/g, ''), row[2], totalPost, totalPre];
-      // figure out roi counts.
-      if (rois.length > 0) {
-        rois.forEach(roi => {
-          converted.push(roiInfoObject[roi].post);
-          converted.push(roiInfoObject[roi].pre);
-        });
-      }
+        // add voxel count as the last column
+        converted.push(voxelCount);
 
-      // add voxel count as the last column
-      converted.push(voxelCount);
-
-      return converted;
-    }).join('\n');
+        return converted;
+      })
+      .join('\n');
     return [headers, data].join('\n');
   }
 
@@ -98,12 +99,11 @@ export class FindNeurons extends React.Component {
   // Neo4j server and place them in the correct format for the
   // visualization plugin.
   static processResults(query, apiResponse, actions, submit) {
-
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = query.pm;
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
 
     // assigns data properties to column indices for convenient access/modification
-    const columnIds = ['bodyId', 'name', 'status', 'post', 'pre'];
+    const columnIds = ['bodyId', 'instance', 'type', 'status', 'post', 'pre'];
     if (rois.length > 0) {
       rois.forEach(roi => {
         columnIds.push(`${roi}Post`);
@@ -116,18 +116,19 @@ export class FindNeurons extends React.Component {
     const data = apiResponse.data.map(row => {
       const hasSkeleton = row[8];
       const bodyId = row[0];
-      const roiList = row[7];
-      const totalPre = row[5];
-      const totalPost = row[6];
-      const roiInfoObject = JSON.parse(row[3]);
+      const roiList = row[8];
+      const totalPre = row[6];
+      const totalPost = row[7];
+      const roiInfoObject = JSON.parse(row[4]);
 
       const converted = [];
       converted[indexOf.bodyId] = getBodyIdForTable(query.ds, bodyId, hasSkeleton, actions);
-      converted[indexOf.name] = row[1];
-      converted[indexOf.status] = row[2];
+      converted[indexOf.instance] = row[1];
+      converted[indexOf.type] = row[2];
+      converted[indexOf.status] = row[3];
       converted[indexOf.post] = '-'; // empty unless roiInfoObject present
       converted[indexOf.pre] = '-';
-      converted[indexOf.size] = row[4];
+      converted[indexOf.size] = row[5];
       converted[indexOf.roiHeatMap] = '';
       converted[indexOf.roiBarGraph] = '';
 
@@ -168,7 +169,8 @@ export class FindNeurons extends React.Component {
     });
     const columns = [];
     columns[indexOf.bodyId] = 'id';
-    columns[indexOf.name] = 'neuron';
+    columns[indexOf.instance] = 'instance';
+    columns[indexOf.type] = 'type';
     columns[indexOf.status] = 'status';
     columns[indexOf.post] = '#post (inputs)';
     columns[indexOf.pre] = '#pre (outputs)';
@@ -236,7 +238,7 @@ export class FindNeurons extends React.Component {
       if (/^\d+$/.test(neuronInstance)) {
         parameters.neuron_id = parseInt(neuronInstance, 10);
       } else {
-        parameters.neuron_instance = neuronInstance;
+        parameters.neuron_name = neuronInstance;
       }
     }
 
@@ -355,7 +357,7 @@ export class FindNeurons extends React.Component {
         <FormControl fullWidth className={classes.formControl}>
           <NeuronHelp>
             <TextField
-              label="Neuron Instance or ID (optional)"
+              label="Neuron Instance, Type or BodyID (optional)"
               multiline
               rows={1}
               fullWidth
