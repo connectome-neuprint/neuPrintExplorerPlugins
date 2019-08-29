@@ -74,7 +74,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
   let queriedBodyIdIndex;
 
   // store super-level rois
-  const roiList = apiResponse.data[0][6];
+  const roiList = apiResponse.data[0][7];
   roiList.push('none');
   const numberOfRois = roiList.length;
 
@@ -84,7 +84,8 @@ function processSimilarResults(query, apiResponse, actions, submit) {
 
   const basicColumns = [
     'bodyId',
-    'name',
+    'instance',
+    'type',
     'status',
     'pre',
     'post',
@@ -92,7 +93,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
     'roiHeatMap',
     'subLevelRoiHeatMap'
   ];
-  // column names
+  // column instances
   const columns = [];
   // set basic columns
   let indexOf = setColumnIndices([
@@ -106,7 +107,8 @@ function processSimilarResults(query, apiResponse, actions, submit) {
   columns[indexOf.outputSimScore] = 'output similarity score';
 
   columns[indexOf.bodyId] = 'bodyId';
-  columns[indexOf.name] = 'name';
+  columns[indexOf.instance] = 'instance';
+  columns[indexOf.type] = 'type';
   columns[indexOf.status] = 'status';
   columns[indexOf.pre] = 'pre';
   columns[indexOf.post] = 'post';
@@ -120,12 +122,13 @@ function processSimilarResults(query, apiResponse, actions, submit) {
 
   data = apiResponse.data.map((row, index) => {
     const bodyId = row[0];
-    const name = row[1];
-    const status = row[2];
-    const totalPre = row[3];
-    const totalPost = row[4];
-    const hasSkeleton = row[8];
-    const roiInfoObject = JSON.parse(row[5]);
+    const instance = row[1];
+    const type = row[2];
+    const status = row[3];
+    const totalPre = row[4];
+    const totalPost = row[5];
+    const hasSkeleton = row[9];
+    const roiInfoObject = JSON.parse(row[6]);
 
     // get index of queried body id so can move this data to top of table
     if (bodyId === parseInt(parameters.bodyId, 10)) {
@@ -134,7 +137,8 @@ function processSimilarResults(query, apiResponse, actions, submit) {
 
     const converted = [];
     converted[indexOf.bodyId] = getBodyIdForTable(query.pm.dataset, bodyId, hasSkeleton, actions);
-    converted[indexOf.name] = name;
+    converted[indexOf.instance] = instance;
+    converted[indexOf.type] = type;
     converted[indexOf.status] = status;
     const postQuery = createSimpleConnectionQueryObject(
       parameters.dataset,
@@ -227,10 +231,10 @@ function processSimilarResults(query, apiResponse, actions, submit) {
     columns[indexOf.subLevelSimScore] = 'sub-level roi similarity score';
 
     apiResponse.data.forEach((row, index) => {
-      const roiInfo = row[5];
+      const roiInfo = row[6];
       const roiInfoObject = JSON.parse(roiInfo);
-      const totalPre = row[3];
-      const totalPost = row[4];
+      const totalPre = row[4];
+      const totalPost = row[5];
       const subLevelRoiList = Array.from(subLevelRois);
 
       // sub-level roi vector
@@ -403,7 +407,7 @@ export class FindSimilarNeurons extends React.Component {
 
     if (bodyId) {
       // similarity query
-      cypherQuery = `MATCH (m:Meta{dataset:'${dataset}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataset}-Neuron\`{bodyId:${bodyId}}) WITH n.clusterName AS cn, rois MATCH (n:\`${dataset}-Neuron\`{clusterName:cn}) RETURN n.bodyId, n.name, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
+      cypherQuery = `MATCH (m:Meta{dataset:'${dataset}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataset}-Neuron\`{bodyId:${bodyId}}) WITH n.clusterName AS cn, rois MATCH (n:\`${dataset}-Neuron\`{clusterName:cn}) RETURN n.bodyId, n.instance, n.type, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
     } else if (rois) {
       // rois query
       let roiPredicate = '';
@@ -413,9 +417,9 @@ export class FindSimilarNeurons extends React.Component {
       cypherQuery = `MATCH (m:Meta{dataset:'${dataset}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataset}-Neuron\`) WHERE (${roiPredicate.slice(
         0,
         -4
-      )}) RETURN n.bodyId, n.name, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
+      )}) RETURN n.bodyId, n.instance, n.type, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
     } else if (clusterName) {
-      cypherQuery = `MATCH (m:Meta{dataset:'${dataset}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataset}-Neuron\`{clusterName:'${clusterName}'}) RETURN n.bodyId, n.name, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
+      cypherQuery = `MATCH (m:Meta{dataset:'${dataset}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataset}-Neuron\`{clusterName:'${clusterName}'}) RETURN n.bodyId, n.instance, n.type, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
     }
 
     return {
