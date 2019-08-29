@@ -8,6 +8,7 @@ import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 
 import { ColorLegend } from './visualization/MiniRoiHeatMap';
 import NeuronHelp from './shared/NeuronHelp';
@@ -26,6 +27,9 @@ const styles = theme => ({
   },
   clickable: {
     cursor: 'pointer'
+  },
+  regexWarning: {
+    fontSize: '0.9em'
   }
 });
 
@@ -200,7 +204,8 @@ export class FindNeurons extends React.Component {
       postThreshold: 0,
       neuronInstance: '',
       inputROIs: [],
-      outputROIs: []
+      outputROIs: [],
+      regexMatch: false
     };
   }
 
@@ -271,7 +276,12 @@ export class FindNeurons extends React.Component {
 
   addNeuronInstance = event => {
     const neuronInstance = event.target.value;
-    this.setState({ neuronInstance });
+    // If the string contains a '(' show the special regex message.
+    let regexMatch = false;
+    if (neuronInstance.match(`[\\(\\)]`)) {
+      regexMatch = true;
+    }
+    this.setState({ neuronInstance, regexMatch });
   };
 
   addNeuronType = event => {
@@ -300,7 +310,7 @@ export class FindNeurons extends React.Component {
   // validate the variables for your Neo4j query.
   render() {
     const { classes, isQuerying, availableROIs, dataSet, actions, neoServerSettings } = this.props;
-    const { neuronInstance = '', neuronType = '', inputROIs = [], outputROIs = [] } = this.state;
+    const { neuronInstance = '', inputROIs = [], outputROIs = [], regexMatch } = this.state;
 
     const inputOptions = availableROIs.map(name => ({
       label: name,
@@ -356,18 +366,11 @@ export class FindNeurons extends React.Component {
               onKeyDown={this.catchReturn}
             />
           </NeuronHelp>
-          <TextField
-              label="Neuron type"
-              multiline
-              rows={1}
-              fullWidth
-              value={neuronType}
-              rowsMax={4}
-              className={classes.textField}
-              onChange={this.addNeuronType}
-              onKeyDown={this.catchReturn}
-            />
-
+          {regexMatch && (
+            <Typography color="error" className={classes.regexWarning}>
+              Warning!! This is a regular expression search and characters like &#39;&#40;&#39; must be escaped. eg: to search for &#39;c(SFS)_R&#39; you would need to type &#39;c\\(SFS\\)_R&#39; For more details on how to write regular expressions, please see <a href="https://www.regular-expressions.info/">https://www.regular-expressions.info/</a>
+            </Typography>
+          )}
         </FormControl>
         <NeuronFilter
           callback={this.loadNeuronFilters}
