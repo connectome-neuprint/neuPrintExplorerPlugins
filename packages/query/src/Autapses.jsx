@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 const pluginName = 'Autapses';
 const pluginAbbrev = 'au';
 
-const columnHeaders = ['id', 'name', '#connections'];
+const columnHeaders = ['id', 'instance', 'type', '#connections'];
 
 class Autapses extends React.Component {
   static get details() {
@@ -30,7 +30,7 @@ class Autapses extends React.Component {
   }
 
   static processResults(query, apiResponse) {
-    const data = apiResponse.data.map(row => [row[0], row[2], row[1]]);
+    const data = apiResponse.data.map(row => [row[0], row[2], row[3], row[1]]);
 
     return {
       columns: columnHeaders,
@@ -42,7 +42,7 @@ class Autapses extends React.Component {
 
   static processDownload(response) {
     const headers = columnHeaders.join(',');
-    const data = response.result.data.map(row => `${row[0]}, ${row[2]}, ${row[1]}`).join('\n');
+    const data = response.result.data.map(row => `${row[0]}, ${row[2]}, ${row[3]}, ${row[1]}`).join('\n');
     return [headers, data].join('\n');
   }
 
