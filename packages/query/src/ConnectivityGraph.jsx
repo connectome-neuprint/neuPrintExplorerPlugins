@@ -47,14 +47,14 @@ class ConnectivityGraph extends React.Component {
     let minObsWeight;
 
     const edges = [];
-    const bodyIdToName = {};
+    const bodyIdToInstance = {};
 
     apiResponse.data.forEach(row => {
       const start = row[0];
       const end = row[1];
       const weight = row[2];
-      const startName = row[3];
-      const endName = row[4];
+      const startInstance = row[3];
+      const endInstance = row[4];
 
       if (maxObsWeight === undefined || maxObsWeight < weight) {
         maxObsWeight = weight;
@@ -68,24 +68,24 @@ class ConnectivityGraph extends React.Component {
         });
       }
 
-      if (!bodyIdToName[start]) {
-        bodyIdToName[start] = startName;
+      if (!bodyIdToInstance[start]) {
+        bodyIdToInstance[start] = startInstance;
       }
-      if (!bodyIdToName[end]) {
-        bodyIdToName[end] = endName;
+      if (!bodyIdToInstance[end]) {
+        bodyIdToInstance[end] = endInstance;
       }
     });
 
     const nodes = query.pm.bodyIds.map(bodyId => {
       const label =
-        bodyIdToName[bodyId] && bodyIdToName[bodyId] !== null
-          ? `${bodyIdToName[bodyId]}\n(${bodyId})`
+        bodyIdToInstance[bodyId] && bodyIdToInstance[bodyId] !== null
+          ? `${bodyIdToInstance[bodyId]}\n(${bodyId})`
           : bodyId;
       return { data: { id: bodyId, label } };
     });
 
     return {
-      columns: ['start', 'end', 'weight', 'startName', 'endName'],
+      columns: ['start', 'end', 'weight', 'startInstance', 'endInstance', 'startType', 'endType'],
       data: apiResponse.data,
       graph: { elements: { nodes, edges }, minWeight: minObsWeight, maxWeight: maxObsWeight },
       debug: apiResponse.debug,
@@ -95,7 +95,7 @@ class ConnectivityGraph extends React.Component {
 
   static fetchParameters(params) {
     const { bodyIds, dataset } = params;
-    const cypherQuery = `WITH [${bodyIds}] AS input MATCH (n:\`${dataset}-Neuron\`)-[c:ConnectsTo]->(m) WHERE n.bodyId IN input AND m.bodyId IN input RETURN n.bodyId AS start, m.bodyId AS end, c.weight AS weight, n.name AS startName, m.name AS endName`;
+    const cypherQuery = `WITH [${bodyIds}] AS input MATCH (n:\`${dataset}-Neuron\`)-[c:ConnectsTo]->(m) WHERE n.bodyId IN input AND m.bodyId IN input RETURN n.bodyId AS start, m.bodyId AS end, c.weight AS weight, n.instance AS startInstance, m.instance AS endInstance, n.type as startType, m.type as endType`;
     return {
       cypherQuery
     };
