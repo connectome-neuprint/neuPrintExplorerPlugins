@@ -30,7 +30,7 @@ const pluginAbbrev = 'cc';
 const groupBy = (inputJson, key) =>
   inputJson.reduce((accumulator, currentValue) => {
     // name of the common input/output
-    const { name } = currentValue;
+    const { name, type } = currentValue;
     // first element of the keys array is X_weight where X is the body id of a queried neuron
     let weights = Object.keys(currentValue)[0];
     // in case order of keys changes check that this is true and if not find the correct key
@@ -45,6 +45,7 @@ const groupBy = (inputJson, key) =>
     (accumulator[currentValue[key]] = accumulator[currentValue[key]] || {})[weights] =
       currentValue[weights];
     accumulator[currentValue[key]].name = name;
+    accumulator[currentValue[key]].type = type;
     return accumulator;
   }, {});
 
@@ -74,7 +75,8 @@ class CommonConnectivity extends React.Component {
 
     const columnHeaders = [
       `${queryKey[0].toUpperCase() + queryKey.substring(1)} ID`,
-      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Name`
+      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Name`,
+      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Type`
     ];
 
     const groupedByInputOrOutputId = groupBy(connectionArray, queryKey);
@@ -93,7 +95,7 @@ class CommonConnectivity extends React.Component {
 
     const data = [];
     Object.keys(groupedByInputOrOutputId).forEach(inputOrOutput => {
-      const singleRow = [parseInt(inputOrOutput, 10), groupedByInputOrOutputId[inputOrOutput].name];
+      const singleRow = [parseInt(inputOrOutput, 10), groupedByInputOrOutputId[inputOrOutput].name, groupedByInputOrOutputId[inputOrOutput].type];
       selectedWeightHeadings.forEach(selectedWeightHeading => {
         const selectedWeightValue =
           groupedByInputOrOutputId[inputOrOutput][selectedWeightHeading] || 0;
@@ -114,7 +116,8 @@ class CommonConnectivity extends React.Component {
 
     const columns = [
       `${queryKey[0].toUpperCase() + queryKey.substring(1)} ID`,
-      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Name`
+      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Name`,
+      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Type`
     ];
 
     const groupedByInputOrOutputId = groupBy(connectionArray, queryKey);
@@ -133,7 +136,7 @@ class CommonConnectivity extends React.Component {
 
     const data = [];
     Object.keys(groupedByInputOrOutputId).forEach(inputOrOutput => {
-      const singleRow = [parseInt(inputOrOutput, 10), groupedByInputOrOutputId[inputOrOutput].name];
+      const singleRow = [parseInt(inputOrOutput, 10), groupedByInputOrOutputId[inputOrOutput].name, groupedByInputOrOutputId[inputOrOutput].type];
       selectedWeightHeadings.forEach(selectedWeightHeading => {
         const selectedWeightValue =
           groupedByInputOrOutputId[inputOrOutput][selectedWeightHeading] || 0;
