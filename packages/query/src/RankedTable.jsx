@@ -91,7 +91,7 @@ export class RankedTable extends React.Component {
     }
 
     apiResponse.data.forEach(row => {
-      const [, , weight, body2, , , mId, nId, preId, body1, weightHP] = row;
+      const [, , , , weight, body2, mId, nId, preId, body1, weightHP] = row;
 
       if (
         (find_inputs === false && (preId !== mId || nId === mId)) ||
@@ -109,11 +109,11 @@ export class RankedTable extends React.Component {
     apiResponse.data.forEach((row, index) => {
       const [
         neuron1,
+        ,
         neuron2,
+        neuron2Type,
         weight,
         body2,
-        ,
-        neuron2Type,
         mId,
         nId,
         preId,
@@ -277,7 +277,6 @@ export class RankedTable extends React.Component {
     super(props);
     this.state = {
       neuronSrc: '',
-      neuronType: '',
       preOrPost: 'pre',
       useHighConfidence: false
     };
@@ -320,10 +319,6 @@ export class RankedTable extends React.Component {
     this.setState({ neuronSrc: event.target.value });
   };
 
-  addNeuronType = event => {
-    this.setState({ neuronType: event.target.value });
-  };
-
   setDirection = event => {
     this.setState({ preOrPost: event.target.value });
   };
@@ -343,7 +338,7 @@ export class RankedTable extends React.Component {
 
   render() {
     const { classes, isQuerying, isPublic } = this.props;
-    const { neuronSrc, neuronType, preOrPost, useHighConfidence } = this.state;
+    const { neuronSrc, preOrPost, useHighConfidence } = this.state;
     return (
       <div>
         <FormControl className={classes.formControl}>
@@ -360,17 +355,6 @@ export class RankedTable extends React.Component {
               onKeyDown={this.catchReturn}
             />
           </NeuronHelp>
-          <TextField
-              label="Neuron type"
-              multiline
-              fullWidth
-              rows={1}
-              value={neuronType}
-              rowsMax={4}
-              className={classes.textField}
-              onChange={this.addNeuronType}
-              onKeyDown={this.catchReturn}
-          />
         </FormControl>
         <FormControl component="fieldset" required className={classes.formControl}>
           <RadioGroup
