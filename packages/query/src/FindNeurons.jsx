@@ -55,7 +55,7 @@ export class FindNeurons extends React.Component {
   }
 
   static processDownload(response) {
-    const headers = ['id', 'neuron', 'status', '#post(inputs)', '#pre(outputs)'];
+    const headers = ['id', 'instance', 'type', 'status', '#post(inputs)', '#pre(outputs)'];
 
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = response.params.pm;
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
@@ -76,8 +76,9 @@ export class FindNeurons extends React.Component {
         const voxelCount = row[5];
         const roiInfoObject = JSON.parse(row[4]);
         const bodyName = row[1] || '';
+        const bodyType = row[2] || '';
 
-        const converted = [bodyId, bodyName.replace(/[\n\r]/g, ''), row[3], totalPost, totalPre];
+        const converted = [bodyId, bodyName.replace(/[\n\r]/g, ''), bodyType, row[3], totalPost, totalPre];
         // figure out roi counts.
         if (rois.length > 0) {
           rois.forEach(roi => {
