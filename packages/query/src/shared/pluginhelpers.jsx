@@ -279,6 +279,7 @@ export function createSimpleConnectionsResult(
   includeWeightHP = false
 ) {
   let columnNames;
+
   if (includeWeightHP) {
     columnNames = [
       'expand',
@@ -312,21 +313,21 @@ export function createSimpleConnectionsResult(
 
   /* eslint-disable prefer-destructuring */
   const data = apiResponse.data.map(row => {
-    const bodyIdQueried = row[4];
-    const hasSkeleton = row[5];
-    const roiInfoObject = JSON.parse(row[7]) || {};
-    const roiList = row[11];
-    const postTotal = row[10];
-    const preTotal = row[9];
-    const bodyId = row[2];
-    const connectionWeight = row[3];
+    const bodyIdQueried = row[6];
+    const hasSkeleton = true;
+    const roiInfoObject = JSON.parse(row[8]) || {};
+    const roiList = row[12];
+    const postTotal = row[11];
+    const preTotal = row[10];
+    const bodyId = row[4];
+    const connectionWeight = row[5];
 
     // make sure none is added to the rois list.
     roiList.push('none');
 
     const converted = [];
     if (includeWeightHP) {
-      converted[indexOf.connectionWeightHP] = row[12];
+      converted[indexOf.connectionWeightHP] = row[13];
     }
 
     if (isInputs) {
@@ -348,10 +349,10 @@ export function createSimpleConnectionsResult(
     }
 
     converted[indexOf.bodyId] = getBodyIdForTable(dataset, bodyId, hasSkeleton, actions);
-    converted[indexOf.name] = row[1];
-    converted[indexOf.status] = row[6];
+    converted[indexOf.name] = row[2];
+    converted[indexOf.status] = row[7];
     converted[indexOf.connectionWeight] = connectionWeight;
-    converted[indexOf.size] = row[8];
+    converted[indexOf.size] = row[9];
 
     const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
       roiInfoObject,

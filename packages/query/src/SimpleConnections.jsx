@@ -61,7 +61,7 @@ export class SimpleConnections extends React.Component {
       '#voxels'
     ];
 
-    const roiList = response.result.data[0][11];
+    const roiList = response.result.data[0][12];
     roiList.sort().forEach(roi => {
       headers.push(`${roi} post`);
       headers.push(`${roi} pre`);
@@ -70,19 +70,20 @@ export class SimpleConnections extends React.Component {
     const data = response.result.data
       .map(row => {
         const [
-          queryBodyName,
+          , // queryBodyName
+          , // queryBodyType
           targetBodyName,
+          , // targetBodyType
           targetBodyId,
           connections,
-          queryBodyId,
-          ,
+          , // queryBodyId
           traceStatus,
           roiCounts,
           voxels,
           outputs,
           inputs,
           rois,
-          highConfConnections
+          , // highConfConnections
         ] = row;
         const roiInfoObject = JSON.parse(roiCounts);
 
@@ -136,7 +137,7 @@ export class SimpleConnections extends React.Component {
     );
 
     apiResponse.data.forEach((row, index) => {
-      const neuron1Id = row[4];
+      const neuron1Id = row[6];
       if (lastBody !== -1 && neuron1Id !== lastBody) {
         let tableName = `${lastName} id=(${String(lastBody)})`;
         if (inputs === false) {
@@ -156,11 +157,6 @@ export class SimpleConnections extends React.Component {
       lastBody = neuron1Id;
       [lastName] = row;
 
-      // let neuron2Name = row[1];
-      // if (neuron2Name === null) {
-      //   neuron2Name = '';
-      // }
-      // currentTable.push([row[2], neuron2Name, row[3]]);
       currentTable.push(data[index]);
       //
     });
@@ -195,7 +191,6 @@ export class SimpleConnections extends React.Component {
     super(props);
     this.state = {
       neuronName: '',
-      neuronType: '',
       preOrPost: 'post'
     };
   }
@@ -234,10 +229,6 @@ export class SimpleConnections extends React.Component {
     this.setState({ neuronName: event.target.value });
   };
 
-  handleNeuronType = event => {
-    this.setState({ neuronType: event.target.value });
-  };
-
   handleDirection = event => {
     this.setState({ preOrPost: event.target.value });
   };
@@ -252,7 +243,7 @@ export class SimpleConnections extends React.Component {
 
   render() {
     const { classes, isQuerying } = this.props;
-    const { preOrPost, neuronName, neuronType } = this.state;
+    const { preOrPost, neuronName } = this.state;
     return (
       <div>
         <FormControl className={classes.formControl}>
@@ -266,17 +257,6 @@ export class SimpleConnections extends React.Component {
               rowsMax={4}
               className={classes.textField}
               onChange={this.handleNeuronName}
-              onKeyDown={this.catchReturn}
-            />
-            <TextField
-              label="Neuron type"
-              multiline
-              fullWidth
-              rows={1}
-              value={neuronType}
-              rowsMax={4}
-              className={classes.textField}
-              onChange={this.handleNeuronType}
               onKeyDown={this.catchReturn}
             />
           </NeuronHelp>
