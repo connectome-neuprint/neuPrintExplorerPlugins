@@ -49,7 +49,7 @@ class ROIsIntersectingNeurons extends React.Component {
     const tables = [];
 
     apiResponse.data.forEach(row => {
-      const [bodyId, bodyName, roiInfo] = row;
+      const [bodyId, bodyName, bodyType, roiInfo] = row;
       const decodedROIs = JSON.parse(roiInfo);
 
       const largestPre = [['', -Infinity], ['', -Infinity]];
@@ -92,7 +92,7 @@ class ROIsIntersectingNeurons extends React.Component {
       tables.push({
         columns: columnNames,
         data,
-        name: `${postTitle}=>${preTitle} | ${bodyName}=(${bodyId})`
+        name: `${postTitle}=>${preTitle} | ${bodyName}=(${bodyType},${bodyId})`
       });
     });
 
@@ -106,8 +106,7 @@ class ROIsIntersectingNeurons extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      neuronsrc: '',
-      neuronType: ''
+      neuronsrc: ''
     };
   }
 
@@ -137,10 +136,6 @@ class ROIsIntersectingNeurons extends React.Component {
     this.setState({ neuronsrc: event.target.value });
   };
 
-  handleNeuronType = event => {
-    this.setState({ neuronType: event.target.value });
-  };
-
   catchReturn = event => {
     // submit request if user presses enter
     if (event.keyCode === 13) {
@@ -151,7 +146,7 @@ class ROIsIntersectingNeurons extends React.Component {
 
   render() {
     const { classes, isQuerying } = this.props;
-    const { neuronsrc, neuronType } = this.state;
+    const { neuronsrc } = this.state;
     return (
       <div>
         <FormControl className={classes.formControl}>
@@ -168,17 +163,6 @@ class ROIsIntersectingNeurons extends React.Component {
               onKeyDown={this.catchReturn}
             />
           </NeuronHelp>
-          <TextField
-            label="Neuron type"
-            multiline
-            fullWidth
-            rows={1}
-            value={neuronType}
-            rowsMax={4}
-            className={classes.textField}
-            onChange={this.handleNeuronType}
-            onKeyDown={this.catchReturn}
-          />
         </FormControl>
         <Button
           color="primary"
