@@ -107,14 +107,14 @@ class PartnerCompletenessView extends React.Component {
     let numbodies = 0;
     let numhigh = 0;
     for (let i = 0; i < table.length; i += 1) {
-      if (table[i][2] <= filter) {
+      if (table[i][3] <= filter) {
         break;
       }
 
-      totalconn += table[i][2];
+      totalconn += table[i][3];
       numbodies += 1;
       if (i.toString() in selected) {
-        highconn += table[i][2];
+        highconn += table[i][3];
         numhigh += 1;
       }
     }
@@ -162,17 +162,17 @@ class PartnerCompletenessView extends React.Component {
     const outputData = [];
     const searchTarget = {
       bodyId: params.bodyId,
-      name: result.data[0][7],
-      pre: result.data[0][8],
-      post: result.data[0][9],
-      status: result.data[0][10]
+      name: result.data[0][8],
+      pre: result.data[0][9],
+      post: result.data[0][10],
+      status: result.data[0][11]
     };
 
     const highlightIndexInput = {};
     const highlightIndexOutput = {};
 
     result.data.forEach(row => {
-      const status = row[4];
+      const status = row[5];
 
       let highlight = false;
 
@@ -181,13 +181,13 @@ class PartnerCompletenessView extends React.Component {
         allStatus.add(status);
       }
       const tableData = [];
-      for (let j = 0; j < 7; j += 1) {
-        if (j !== 2) {
+      for (let j = 0; j < 8; j += 1) {
+        if (j !== 3) {
           tableData.push(row[j]);
         }
       }
       // check if is input or output
-      if (row[2]) {
+      if (row[3]) {
         if (highlight) {
           highlightIndexInput[inputData.length] = 'lightblue';
         }
@@ -223,17 +223,17 @@ class PartnerCompletenessView extends React.Component {
     const highlightIndexOutput = {};
 
     for (let i = 0; i < inputData.length; i += 1) {
-      if (inputData[i][2] <= orphanFilter) {
+      if (inputData[i][3] <= orphanFilter) {
         highlightIndexInput[i] = 'pink';
-      } else if (currSelectedSet.has(inputData[i][3])) {
+      } else if (currSelectedSet.has(inputData[i][4])) {
         highlightIndexInput[i] = 'lightblue';
       }
     }
 
     for (let i = 0; i < outputData.length; i += 1) {
-      if (outputData[i][2] <= orphanFilter) {
+      if (outputData[i][3] <= orphanFilter) {
         highlightIndexOutput[i] = 'pink';
-      } else if (currSelectedSet.has(outputData[i][3])) {
+      } else if (currSelectedSet.has(outputData[i][4])) {
         highlightIndexOutput[i] = 'lightblue';
       }
     }
@@ -252,7 +252,7 @@ class PartnerCompletenessView extends React.Component {
       value: name
     }));
 
-    const tableColumns = ['id', 'name', '#connections', 'status', '#pre', '#post'];
+    const tableColumns = ['id', 'instance', 'type', '#connections', 'status', '#pre', '#post'];
 
     return (
       <div className={classes.root}>

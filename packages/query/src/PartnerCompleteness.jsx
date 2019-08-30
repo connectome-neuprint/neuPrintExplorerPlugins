@@ -28,44 +28,46 @@ class PartnerCompleteness extends React.Component {
       displayName: 'Partner Completeness',
       abbr: pluginAbbrev,
       category: 'recon',
-      description: 'Show all connections to and from selected neuron and show reconstruction completeness.',
+      description:
+        'Show all connections to and from selected neuron and show reconstruction completeness.',
       visType: 'PartnerCompletenessView'
     };
   }
 
   static fetchParameters(params) {
-
     const { dataSet, bodyId } = params;
-    const cypherQuery = `MATCH (n :\`${dataSet}-Segment\` {bodyId: ${bodyId}})-[x:ConnectsTo]-(m) RETURN m.bodyId, m.name, CASE WHEN startnode(x).bodyId = ${bodyId} THEN false ELSE true END, x.weight, m.status, m.pre, m.post, n.name, n.pre, n.post, n.status ORDER BY x.weight DESC`;
+    const cypherQuery = `MATCH (n :\`${dataSet}-Segment\` {bodyId: ${bodyId}})-[x:ConnectsTo]-(m) RETURN m.bodyId, m.instance, m.type, CASE WHEN startnode(x).bodyId = ${bodyId} THEN false ELSE true END, x.weight, m.status, m.pre, m.post, n.instance, n.pre, n.post, n.status, n.type ORDER BY x.weight DESC`;
     return {
       cypherQuery,
-      queryString: '/custom/custom',
+      queryString: '/custom/custom'
     };
   }
 
   static processResults(query, apiResponse) {
     const data = apiResponse.data.map(row => [
-      row[0],
-      row[1],
-      row[2],
-      row[3],
-      row[4],
-      row[5],
-      row[6],
-      row[7],
-      row[8],
-      row[9],
-      row[10]
+      row[0], // bodyId
+      row[1], // instance
+      row[2], // type
+      row[3], // isinput
+      row[4], // weight
+      row[5], // status
+      row[6], // pre
+      row[7], // post
+      row[8], // instance
+      row[9], // pre
+      row[10], // post
+      row[11], // status
+      row[12] // type
     ]);
 
     return {
-      columns: ['id', 'name', 'isinput', '#connections', 'status', '#pre', '#post'],
+      columns: ['id', 'instance', 'type', 'isinput', '#connections', 'status', '#pre', '#post'], // TODO: these are wrong or missing.
       data,
       debug: apiResponse.debug,
       bodyId: apiResponse.bodyId,
-      title: `Tracing completeness of connections to/from ${query.pm.bodyId}`,
+      title: `Tracing completeness of connections to/from ${data[0][8]} (${query.pm.bodyId}) `
     };
-  };
+  }
 
   constructor(props) {
     super(props);
@@ -83,7 +85,7 @@ class PartnerCompleteness extends React.Component {
       dataSet,
       plugin: pluginName,
       pluginCode: pluginAbbrev,
-      parameters: { dataSet, bodyId },
+      parameters: { dataSet, bodyId }
     };
     submit(query);
   };
