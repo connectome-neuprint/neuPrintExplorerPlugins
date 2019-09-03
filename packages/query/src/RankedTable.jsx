@@ -8,7 +8,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import randomColor from 'randomcolor';
 
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import Radio from '@material-ui/core/Radio';
@@ -20,6 +19,7 @@ import Icon from '@material-ui/core/Icon';
 
 import ColorBox from './visualization/ColorBox';
 import NeuronHelp from './shared/NeuronHelp';
+import NeuronInputField from './shared/NeuronInputField';
 import HPWeightSlider from './shared/HPWeightSlider';
 
 const squareSize = 100;
@@ -315,8 +315,8 @@ export class RankedTable extends React.Component {
     }
   };
 
-  addNeuron = event => {
-    this.setState({ neuronSrc: event.target.value });
+  addNeuron = neuronSrc => {
+    this.setState({ neuronSrc });
   };
 
   setDirection = event => {
@@ -328,14 +328,6 @@ export class RankedTable extends React.Component {
     this.setState({ useHighConfidence: !useHighConfidence });
   };
 
-  catchReturn = event => {
-    // submit request if user presses enter
-    if (event.keyCode === 13) {
-      event.preventDefault();
-      this.processRequest();
-    }
-  };
-
   render() {
     const { classes, isQuerying, isPublic } = this.props;
     const { neuronSrc, preOrPost, useHighConfidence } = this.state;
@@ -343,16 +335,9 @@ export class RankedTable extends React.Component {
       <div>
         <FormControl className={classes.formControl}>
           <NeuronHelp>
-            <TextField
-              label="Neuron name"
-              multiline
-              fullWidth
-              rows={1}
-              value={neuronSrc}
-              rowsMax={4}
-              className={classes.textField}
+            <NeuronInputField
               onChange={this.addNeuron}
-              onKeyDown={this.catchReturn}
+              value={neuronSrc}
             />
           </NeuronHelp>
         </FormControl>

@@ -4,7 +4,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
@@ -14,6 +13,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { withStyles } from '@material-ui/core/styles';
 
 import NeuronHelp from './shared/NeuronHelp';
+import NeuronInputField from './shared/NeuronInputField';
 import { createSimpleConnectionsResult } from './shared/pluginhelpers';
 
 const styles = () => ({
@@ -225,8 +225,8 @@ export class SimpleConnections extends React.Component {
     return {};
   };
 
-  handleNeuronName = event => {
-    this.setState({ neuronName: event.target.value });
+  handleNeuronName = neuronName => {
+    this.setState({ neuronName });
   };
 
   handleDirection = event => {
@@ -248,16 +248,9 @@ export class SimpleConnections extends React.Component {
       <div>
         <FormControl className={classes.formControl}>
           <NeuronHelp>
-            <TextField
-              label="Neuron name"
-              multiline
-              fullWidth
-              rows={1}
-              value={neuronName}
-              rowsMax={4}
-              className={classes.textField}
+            <NeuronInputField
               onChange={this.handleNeuronName}
-              onKeyDown={this.catchReturn}
+              value={neuronName}
             />
           </NeuronHelp>
         </FormControl>

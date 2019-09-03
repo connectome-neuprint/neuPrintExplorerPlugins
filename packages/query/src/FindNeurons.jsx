@@ -7,11 +7,11 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
-import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
 import { ColorLegend } from './visualization/MiniRoiHeatMap';
 import NeuronHelp from './shared/NeuronHelp';
+import NeuronInputField from './shared/NeuronInputField';
 import NeuronFilter from './shared/NeuronFilter';
 import {
   setColumnIndices,
@@ -277,14 +277,8 @@ export class FindNeurons extends React.Component {
     this.setState({ outputROIs: rois });
   };
 
-  addNeuronInstance = event => {
-    const neuronInstance = event.target.value;
-    // If the string contains a '(' show the special regex message.
-    let regexMatch = false;
-    if (neuronInstance.match(`[\\(\\)]`)) {
-      regexMatch = true;
-    }
-    this.setState({ neuronInstance, regexMatch });
+  addNeuronInstance = neuronInstance => {
+    this.setState({ neuronInstance });
   };
 
   addNeuronType = event => {
@@ -299,14 +293,6 @@ export class FindNeurons extends React.Component {
       preThreshold: parseInt(params.preThreshold, 10),
       postThreshold: parseInt(params.postThreshold, 10)
     });
-  };
-
-  catchReturn = event => {
-    // submit request if user presses enter
-    if (event.keyCode === 13) {
-      event.preventDefault();
-      this.processRequest();
-    }
   };
 
   // use this function to generate the form that will accept and
@@ -357,16 +343,9 @@ export class FindNeurons extends React.Component {
         />
         <FormControl fullWidth className={classes.formControl}>
           <NeuronHelp>
-            <TextField
-              label="Neuron Instance, Type or BodyID (optional)"
-              multiline
-              rows={1}
-              fullWidth
-              value={neuronInstance}
-              rowsMax={4}
-              className={classes.textField}
+            <NeuronInputField
               onChange={this.addNeuronInstance}
-              onKeyDown={this.catchReturn}
+              value={neuronInstance}
             />
           </NeuronHelp>
           {regexMatch && (

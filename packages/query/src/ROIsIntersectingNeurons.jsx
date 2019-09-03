@@ -4,12 +4,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import { withStyles } from '@material-ui/core/styles';
 
 import NeuronHelp from './shared/NeuronHelp';
+import NeuronInputField from './shared/NeuronInputField';
 
 const styles = () => ({
   textField: {},
@@ -132,8 +132,8 @@ class ROIsIntersectingNeurons extends React.Component {
     }
   };
 
-  handleClick = event => {
-    this.setState({ neuronsrc: event.target.value });
+  handleClick = neuronsrc => {
+    this.setState({ neuronsrc });
   };
 
   catchReturn = event => {
@@ -151,16 +151,9 @@ class ROIsIntersectingNeurons extends React.Component {
       <div>
         <FormControl className={classes.formControl}>
           <NeuronHelp>
-            <TextField
-              label="Neuron name"
-              multiline
-              fullWidth
-              rows={1}
-              value={neuronsrc}
-              rowsMax={4}
-              className={classes.textField}
+            <NeuronInputField
               onChange={this.handleClick}
-              onKeyDown={this.catchReturn}
+              value={neuronsrc}
             />
           </NeuronHelp>
         </FormControl>
