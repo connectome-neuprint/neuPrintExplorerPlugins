@@ -53,7 +53,8 @@ export class SimpleConnections extends React.Component {
   static processDownload(response) {
     const headers = [
       'id',
-      'neuron',
+      'type',
+      'instance',
       'status',
       '#connections',
       '#post(inputs)',
@@ -73,7 +74,7 @@ export class SimpleConnections extends React.Component {
           , // queryBodyName
           , // queryBodyType
           targetBodyName,
-          , // targetBodyType
+          targetBodyType,
           targetBodyId,
           connections,
           , // queryBodyId
@@ -89,6 +90,7 @@ export class SimpleConnections extends React.Component {
 
         const converted = [
           targetBodyId,
+          targetBodyType,
           targetBodyName,
           traceStatus,
           connections,

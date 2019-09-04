@@ -284,6 +284,7 @@ export function createSimpleConnectionsResult(
     columnNames = [
       'expand',
       'bodyId',
+      'type',
       'name',
       'status',
       'connectionWeight',
@@ -298,6 +299,7 @@ export function createSimpleConnectionsResult(
     columnNames = [
       'expand',
       'bodyId',
+      'type',
       'name',
       'status',
       'connectionWeight',
@@ -350,6 +352,7 @@ export function createSimpleConnectionsResult(
 
     converted[indexOf.bodyId] = getBodyIdForTable(dataset, bodyId, hasSkeleton, actions);
     converted[indexOf.name] = row[2];
+    converted[indexOf.type] = row[3];
     converted[indexOf.status] = row[7];
     converted[indexOf.connectionWeight] = connectionWeight;
     converted[indexOf.size] = row[9];
@@ -383,7 +386,8 @@ export function createSimpleConnectionsResult(
     columns[indexOf.connectionWeightHP] = '#connections (high-confidence)';
   }
   columns[indexOf.bodyId] = 'id';
-  columns[indexOf.name] = 'neuron';
+  columns[indexOf.type] = 'type';
+  columns[indexOf.name] = 'instance';
   columns[indexOf.status] = 'status';
   columns[indexOf.connectionWeight] = '#connections';
   columns[indexOf.post] = '#post (inputs)';
