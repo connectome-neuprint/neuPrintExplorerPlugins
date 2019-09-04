@@ -75,6 +75,11 @@ class SimpleConnectionsView extends React.Component {
     let { rowsPerPage = 5 } = visProps;
     const { paginate = true, page = 0, paginateExpansion = false } = visProps;
 
+    // if there is only one result, then we don't need pagination or the expansion panels.
+    if (query.result.data.length === 1) {
+      return this.renderSingle();
+    }
+
     const emptyRows =
       rowsPerPage - Math.min(rowsPerPage, query.result.data.length - page * rowsPerPage);
 
@@ -145,6 +150,31 @@ class SimpleConnectionsView extends React.Component {
         ) : null}
       </div>
     );
+  }
+
+  renderSingle() {
+    const { query, classes } = this.props;
+    const row = query.result.data[0];
+    return (
+      <div className={classes.root}>
+        <Typography className={classes.expansionText}>{row.name}</Typography>
+        <div className={classes.scroll}>
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell className={classes.cellborder} padding="none">
+                  <SimpleConnectionsTable
+                    data={row.data}
+                    columns={row.columns}
+                  />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    );
+
   }
 }
 
