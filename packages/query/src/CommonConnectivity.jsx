@@ -95,7 +95,11 @@ class CommonConnectivity extends React.Component {
 
     const data = [];
     Object.keys(groupedByInputOrOutputId).forEach(inputOrOutput => {
-      const singleRow = [parseInt(inputOrOutput, 10), groupedByInputOrOutputId[inputOrOutput].name, groupedByInputOrOutputId[inputOrOutput].type];
+      const singleRow = [
+        parseInt(inputOrOutput, 10),
+        groupedByInputOrOutputId[inputOrOutput].name,
+        groupedByInputOrOutputId[inputOrOutput].type
+      ];
       selectedWeightHeadings.forEach(selectedWeightHeading => {
         const selectedWeightValue =
           groupedByInputOrOutputId[inputOrOutput][selectedWeightHeading] || 0;
@@ -105,7 +109,6 @@ class CommonConnectivity extends React.Component {
     });
 
     return [columnHeaders, data.join('\n')].join('\n');
-
   }
 
   static processResults(query, apiResponse) {
@@ -136,7 +139,11 @@ class CommonConnectivity extends React.Component {
 
     const data = [];
     Object.keys(groupedByInputOrOutputId).forEach(inputOrOutput => {
-      const singleRow = [parseInt(inputOrOutput, 10), groupedByInputOrOutputId[inputOrOutput].name, groupedByInputOrOutputId[inputOrOutput].type];
+      const singleRow = [
+        parseInt(inputOrOutput, 10),
+        groupedByInputOrOutputId[inputOrOutput].name,
+        groupedByInputOrOutputId[inputOrOutput].type
+      ];
       selectedWeightHeadings.forEach(selectedWeightHeading => {
         const selectedWeightValue =
           groupedByInputOrOutputId[inputOrOutput][selectedWeightHeading] || 0;
@@ -179,8 +186,12 @@ class CommonConnectivity extends React.Component {
     };
 
     if (parameters.neuron_ids.length > 100) {
-      actions.metaInfoError(`You entered ${parameters.neuron_ids.length} Neuron IDs. Please limit the list to 100 or less`);
-      return
+      actions.metaInfoError(
+        `You entered ${
+          parameters.neuron_ids.length
+        } Neuron IDs. Please limit the list to 100 or less`
+      );
+      return;
     }
 
     if (preThreshold > 0) {
