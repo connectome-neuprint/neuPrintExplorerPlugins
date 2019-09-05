@@ -93,6 +93,8 @@ class CommonConnectivity extends React.Component {
       columnHeaders.push(neuronWeightHeading);
     });
 
+    columnHeaders.push('Total Weight');
+
     const data = [];
     Object.keys(groupedByInputOrOutputId).forEach(inputOrOutput => {
       const singleRow = [
@@ -100,11 +102,16 @@ class CommonConnectivity extends React.Component {
         groupedByInputOrOutputId[inputOrOutput].name,
         groupedByInputOrOutputId[inputOrOutput].type
       ];
+
+      let totalWeight = 0;
       selectedWeightHeadings.forEach(selectedWeightHeading => {
         const selectedWeightValue =
           groupedByInputOrOutputId[inputOrOutput][selectedWeightHeading] || 0;
         singleRow.push(parseInt(selectedWeightValue, 10));
+        totalWeight += parseInt(selectedWeightValue, 10);
       });
+      // calculate the total weight for this row.
+      singleRow.push(totalWeight);
       data.push(singleRow);
     });
 
@@ -137,6 +144,8 @@ class CommonConnectivity extends React.Component {
       columns.push(neuronWeightHeading);
     });
 
+    columns.push('Total Weight');
+
     const data = [];
     Object.keys(groupedByInputOrOutputId).forEach(inputOrOutput => {
       const singleRow = [
@@ -144,11 +153,15 @@ class CommonConnectivity extends React.Component {
         groupedByInputOrOutputId[inputOrOutput].name,
         groupedByInputOrOutputId[inputOrOutput].type
       ];
+      let totalWeight = 0;
       selectedWeightHeadings.forEach(selectedWeightHeading => {
         const selectedWeightValue =
           groupedByInputOrOutputId[inputOrOutput][selectedWeightHeading] || 0;
         singleRow.push(parseInt(selectedWeightValue, 10));
+        totalWeight += parseInt(selectedWeightValue, 10);
       });
+      // calculate the total weight for this row.
+      singleRow.push(totalWeight);
       data.push(singleRow);
     });
 
