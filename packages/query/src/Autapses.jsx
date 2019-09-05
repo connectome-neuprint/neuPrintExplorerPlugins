@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 
 import Button from '@material-ui/core/Button';
 
+import { getBodyIdForTable } from './shared/pluginhelpers';
+
 const pluginName = 'Autapses';
 const pluginAbbrev = 'au';
 
@@ -29,8 +31,13 @@ class Autapses extends React.Component {
     };
   }
 
-  static processResults(query, apiResponse) {
-    const data = apiResponse.data.map(row => [row[0], row[2], row[3], row[1]]);
+  static processResults(query, apiResponse, actions) {
+    const data = apiResponse.data.map(row => [
+      getBodyIdForTable(query.ds, row[0], true, actions),
+      row[2],
+      row[3],
+      row[1]
+    ]);
 
     return {
       columns: columnHeaders,
@@ -42,7 +49,9 @@ class Autapses extends React.Component {
 
   static processDownload(response) {
     const headers = columnHeaders.join(',');
-    const data = response.result.data.map(row => `${row[0]}, ${row[2]}, ${row[3]}, ${row[1]}`).join('\n');
+    const data = response.result.data
+      .map(row => `${row[0]}, ${row[2]}, ${row[3]}, ${row[1]}`)
+      .join('\n');
     return [headers, data].join('\n');
   }
 
