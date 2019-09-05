@@ -8,6 +8,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
+import { getBodyIdForTable } from './shared/pluginhelpers';
+
 const styles = theme => ({
   select: {
     fontFamily: theme.typography.fontFamily,
@@ -43,9 +45,9 @@ class PartnerCompleteness extends React.Component {
     };
   }
 
-  static processResults(query, apiResponse) {
+  static processResults(query, apiResponse, actions) {
     const data = apiResponse.data.map(row => [
-      row[0], // bodyId
+      getBodyIdForTable(query.ds, row[0], true, actions), // bodyId
       row[1], // instance
       row[2], // type
       row[3], // isinput
