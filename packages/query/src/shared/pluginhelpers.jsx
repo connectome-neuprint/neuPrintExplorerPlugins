@@ -1,22 +1,9 @@
 import React from 'react';
-import Icon from '@material-ui/core/Icon';
 import * as math from 'mathjs';
 import NeuronRoiHeatMap, { ColorLegend } from '../visualization/MiniRoiHeatMap';
 import NeuronRoiBarGraph from '../visualization/MiniRoiBarGraph';
-import SelectAndCopyText from './SelectAndCopyText';
 import { SimpleConnections } from '../SimpleConnections';
-
-/**
- * Launches actions for opening the skeleton viewer and neuroglancer.
- *
- * @param {string} id
- * @param {string} dataset
- * @param {Object} actions
- */
-function showSkeleton(id, dataset, actions) {
-  actions.neuroglancerAddandOpen(id, dataset);
-  actions.skeletonAddandOpen(id, dataset);
-}
+import BodyId from '../visualization/BodyId';
 
 /**
  * Creates a map of column identifier to column index. Column indices
@@ -155,30 +142,8 @@ export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, 
  * @returns {Object}
  */
 export function getBodyIdForTable(dataset, bodyId, hasSkeleton, actions) {
-  const selectableId = <SelectAndCopyText text={bodyId} actions={actions} />;
   return {
-    value: hasSkeleton ? (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row'
-        }}
-      >
-        {selectableId}
-        <div style={{ margin: '3px' }} />
-        <Icon
-          style={{
-            cursor: 'pointer'
-          }}
-          onClick={() => showSkeleton(bodyId, dataset, actions)}
-          fontSize="inherit"
-        >
-          visibility
-        </Icon>
-      </div>
-    ) : (
-      selectableId
-    ),
+    value: <BodyId dataSet={dataset} actions={actions}>{bodyId}</BodyId>,
     sortBy: bodyId
   };
 }

@@ -13,6 +13,8 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import TextField from '@material-ui/core/TextField';
 
 import NeuronFilter from './shared/NeuronFilter';
+import { getBodyIdForTable } from './shared/pluginhelpers';
+
 
 const styles = theme => ({
   formControl: {
@@ -118,7 +120,7 @@ class CommonConnectivity extends React.Component {
     return [columnHeaders, data.join('\n')].join('\n');
   }
 
-  static processResults(query, apiResponse) {
+  static processResults(query, apiResponse, actions) {
     const { pm: parameters } = query;
 
     const queryKey = parameters.find_inputs ? 'input' : 'output';
@@ -149,7 +151,7 @@ class CommonConnectivity extends React.Component {
     const data = [];
     Object.keys(groupedByInputOrOutputId).forEach(inputOrOutput => {
       const singleRow = [
-        parseInt(inputOrOutput, 10),
+        getBodyIdForTable(query.ds, parseInt(inputOrOutput, 10), true, actions),
         groupedByInputOrOutputId[inputOrOutput].name,
         groupedByInputOrOutputId[inputOrOutput].type
       ];
