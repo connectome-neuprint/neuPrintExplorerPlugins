@@ -139,7 +139,7 @@ class SimpleTable extends React.Component {
                   if (highlightIndex && currspot.toString() in highlightIndex) {
                     rowStyle = { backgroundColor: highlightIndex[currspot.toString()] };
                   }
-                  const key = row.id ? row.id : index;
+                  const key = row.id || index;
                   return (
                     <TableRow hover key={key} style={rowStyle}>
                       {row.map((cell, i) => {
