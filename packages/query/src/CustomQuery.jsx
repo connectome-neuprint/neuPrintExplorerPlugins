@@ -9,6 +9,13 @@ import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import { withStyles } from '@material-ui/core/styles';
 
+import { Controlled as CodeMirror } from 'react-codemirror2';
+
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/material.css';
+
+require('codemirror/mode/cypher/cypher.js');
+
 const styles = () => ({
   textField: {
     margin: '0 0 1em 0'
@@ -108,6 +115,15 @@ export class CustomQuery extends React.Component {
           onKeyDown={this.catchReturn}
           helperText="[shift] + [Enter] to submit."
           variant="outlined"
+        />
+        <CodeMirror
+          value={textValue}
+          options={{
+            lineWrapping: true,
+          }}
+          onBeforeChange={(editor, data, value) => {
+            this.setState({ textValue: value });
+          }}
         />
         <Button
           variant="contained"

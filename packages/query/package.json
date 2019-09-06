@@ -75,11 +75,13 @@
   },
   "dependencies": {
     "@neuprint/support": "^0.2.0",
+    "codemirror": "^5.48.4",
     "colormap": "^2.3.0",
     "date-fns": "^1.30.1",
     "deepmerge": "^2.2.1",
     "mathjs": "^5.2.3",
-    "randomcolor": "^0.5.3"
+    "randomcolor": "^0.5.3",
+    "react-codemirror2": "^6.0.0"
   },
   "jest": {
     "transform": {
