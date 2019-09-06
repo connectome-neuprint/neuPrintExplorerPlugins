@@ -113,6 +113,8 @@ export class CustomQuery extends React.Component {
           value={textValue}
           options={{
             lineWrapping: true,
+            lineNumbers: true,
+            smartIndent: false,
           }}
           onBeforeChange={(editor, data, value) => {
             this.setState({ textValue: value });
