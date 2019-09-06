@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import { withStyles } from '@material-ui/core/styles';
@@ -18,7 +18,10 @@ require('codemirror/mode/cypher/cypher.js');
 
 const styles = () => ({
   textField: {
-    margin: '0 0 1em 0'
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    margin: '0 0 1em 0',
+    padding: '5px'
   },
   button: {
     margin: 4,
@@ -91,7 +94,7 @@ export class CustomQuery extends React.Component {
     this.setState({ textValue: event.target.value });
   };
 
-  catchReturn = event => {
+  catchReturn = (editor, event) => {
     // submit request if user presses enter
     if (event.shiftKey && event.keyCode === 13) {
       event.preventDefault();
@@ -104,19 +107,9 @@ export class CustomQuery extends React.Component {
     const { textValue = '' } = this.state;
     return (
       <FormControl fullWidth className={classes.formControl}>
-        <TextField
-          label="Custom Cypher Query"
-          multiline
-          fullWidth
-          value={textValue}
-          rows={7}
-          className={classes.textField}
-          onChange={this.handleChange}
-          onKeyDown={this.catchReturn}
-          helperText="[shift] + [Enter] to submit."
-          variant="outlined"
-        />
+        <Typography>Custom Cypher Query</Typography>
         <CodeMirror
+          className={classes.textField}
           value={textValue}
           options={{
             lineWrapping: true,
@@ -124,7 +117,9 @@ export class CustomQuery extends React.Component {
           onBeforeChange={(editor, data, value) => {
             this.setState({ textValue: value });
           }}
+          onKeyDown={this.catchReturn}
         />
+        <Typography variant="caption">[shift] + [Enter] to submit.</Typography>
         <Button
           variant="contained"
           className={classes.button}
