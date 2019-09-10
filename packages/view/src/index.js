@@ -21,3 +21,7 @@ if (gl) {
 }
 
 export { plugins, pluginList };
+
+
+export { default as HeatMapTable } from "./HeatMapTable";
+export { default as SimpleTable } from "./SimpleTable";
