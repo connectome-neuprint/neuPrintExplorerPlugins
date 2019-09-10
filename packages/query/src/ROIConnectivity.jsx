@@ -41,14 +41,15 @@ class ROIConnectivity extends React.Component {
     };
   }
 
-  static fetchParameters() {
+  static fetchParameters(params) {
+    const { dataset } = params;
     return {
-      queryString: '/npexplorer/roiconnectivity',
+      queryString: `/cached/roiconnectivity?dataset=${dataset}`,
+      method: 'GET'
     };
   }
 
   static processResults(query, apiResponse, actions, submit) {
-    const bodyInputCountsPerRoi = {};
     const { squareSize } = query.visProps;
     const { pm: parameters } = query;
     const { rois } = parameters;
@@ -63,102 +64,40 @@ class ROIConnectivity extends React.Component {
       pluginCode: 'fn',
     });
 
-    // get set of all rois included in this query
-    const roisInQuery = new Set();
+    // get set of all rois included in this query, if we are filtering.
+    // if not, the set is all values returned by the server.
+    const roiNames = apiResponse.roi_names.filter((roi) => rois.indexOf(roi) > 0) || apiResponse.roi_names;
 
-    apiResponse.data.forEach(row => {
-      const bodyId = row[0];
-      const roiInfoObject = row[1] ? JSON.parse(row[1]) : '{}';
+    let maxWeight = 0;
+    let maxCount = 0;
 
-      Object.entries(roiInfoObject).forEach(roi => {
-        const [name, data] = roi;
-        roisInQuery.add(name);
-        if (data.post > 0) {
-          if (!(bodyId in bodyInputCountsPerRoi)) {
-            bodyInputCountsPerRoi[bodyId] = [[name, data.post]];
-          } else {
-            bodyInputCountsPerRoi[bodyId].push([name, data.post]);
-          }
-        }
-      });
-    });
-
-    const roiRoiWeight = {};
-    const roiRoiCount = {};
-    let maxValue = 1;
-
-    // grab output and add table entry
-    apiResponse.data.forEach(row => {
-      const bodyId = row[0];
-      const roiInfoObject = row[1] ? JSON.parse(row[1]) : '{}';
-
-      Object.entries(roiInfoObject).forEach(roi => {
-        const [outputRoi, data] = roi;
-        // create roi2roi based on input distribution
-        const numOutputsInRoi = data.pre;
-        // if body has pre in this roi and has post in any roi
-        if (numOutputsInRoi > 0 && bodyId in bodyInputCountsPerRoi) {
-          let totalInputs = 0;
-          for (let i = 0; i < bodyInputCountsPerRoi[bodyId].length; i += 1) {
-            totalInputs += bodyInputCountsPerRoi[bodyId][i][1];
-          }
-
-          for (let i = 0; i < bodyInputCountsPerRoi[bodyId].length; i += 1) {
-            const inputRoi = bodyInputCountsPerRoi[bodyId][i][0];
-            if (inputRoi !== '' && totalInputs !== 0) {
-              const connectivityValueForBody =
-                (numOutputsInRoi * bodyInputCountsPerRoi[bodyId][i][1] * 1.0) / totalInputs;
-              const connectionName = `${inputRoi}=>${outputRoi}`;
-              if (connectionName in roiRoiWeight) {
-                roiRoiWeight[connectionName] += connectivityValueForBody;
-                roiRoiCount[connectionName] += 1;
-              } else {
-                roiRoiWeight[connectionName] = connectivityValueForBody;
-                roiRoiCount[connectionName] = 1;
-              }
-              const currentValue = roiRoiWeight[connectionName];
-              if (currentValue > maxValue) {
-                maxValue = currentValue;
-              }
-            }
-          }
-        }
+    // loop over to set weight color thresholds
+    roiNames.forEach(input => {
+      roiNames.forEach(output => {
+        const connectionName = `${input}=>${output}`;
+        const connectivityValue = apiResponse.weights[connectionName] ? apiResponse.weights[connectionName].weight : 0;
+        const connectivityCount = apiResponse.weights[connectionName] ? apiResponse.weights[connectionName].count : 0;
+        maxWeight = Math.max(connectivityValue, maxWeight);
+        maxCount = Math.max(connectivityCount, maxCount);
       });
     });
 
     // make data table
     const data = [];
-
-    let sortedRoisInQuery = Array.from(roisInQuery)
-      .sort(sortRois);
-
-    // if rois list is > 0 then filter, otherwise show everything
-    if (rois && rois.length > 0) {
-      sortedRoisInQuery = sortedRoisInQuery.filter(roi => rois.includes(roi));
-    }
-
-    for (let i = 0; i < sortedRoisInQuery.length; i += 1) {
-      const inputRoiName = sortedRoisInQuery[i];
+    roiNames.forEach(input => {
       const row = [];
-      row.push(inputRoiName);
-      for (let j = 0; j < sortedRoisInQuery.length; j += 1) {
-        const outputRoiName = sortedRoisInQuery[j];
-        let connectivityValue = 0;
-        let connectivityCount = 0;
-        const connectionName = `${inputRoiName}=>${outputRoiName}`;
-        if (connectionName in roiRoiWeight) {
-          connectivityValue = parseInt(roiRoiWeight[connectionName].toFixed(), 10);
-          connectivityCount = roiRoiCount[connectionName];
-        }
+      // set the row title
+      row.push(input);
 
-        let scaleFactor = 0;
-        if (connectivityValue > 0) {
-          scaleFactor = Math.log(connectivityValue) / Math.log(maxValue);
-        }
-        const weightColor = `rgba(${WEIGHTCOLOR}${scaleFactor.toString()})`;
+      // fill out the data blocks for each column
+      roiNames.forEach(output => {
+        const neuronsQuery = neuronsInRoisQuery(input, output);
+        const connectionName = `${input}=>${output}`;
+        const connectivityValue = apiResponse.weights[connectionName] ? apiResponse.weights[connectionName].weight : 0;
+        const connectivityCount = apiResponse.weights[connectionName] ? apiResponse.weights[connectionName].count : 0;
 
-        const neuronsQuery = neuronsInRoisQuery(inputRoiName, outputRoiName);
-
+        const scaleFactor =  Math.log(connectivityValue) / Math.log(maxWeight);
+        const weightColor = `rgba(${WEIGHTCOLOR}${scaleFactor})`;
         row.push({
           value: (
             <button
@@ -175,25 +114,25 @@ class ROIConnectivity extends React.Component {
                 key={connectionName}
                 text={
                   <div>
-                    <Typography>{connectivityValue} </Typography>
+                    <Typography>{Math.round(connectivityValue, 0)}</Typography>
                     <Typography variant="caption">{connectivityCount}</Typography>
                   </div>
                 }
               />
             </button>
           ),
-          sortBy: { rowValue: inputRoiName, columeValue: outputRoiName },
+          sortBy: { rowValue: input, columeValue: output },
           csvValue: connectivityValue,
           uniqueId: connectionName
         });
-      }
+      });
       data.push(row);
-    }
+    });
 
     return {
-      columns: ['', ...sortedRoisInQuery],
+      columns: ['', ...roiNames],
       data,
-      debug: apiResponse.debug,
+      debug: 'No cypher query for this plugin',
       title: 'ROI Connectivity (column: inputs, row: outputs)',
     };
   };
