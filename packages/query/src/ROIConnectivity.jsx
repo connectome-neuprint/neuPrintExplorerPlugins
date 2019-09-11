@@ -66,7 +66,7 @@ class ROIConnectivity extends React.Component {
 
     // get set of all rois included in this query, if we are filtering.
     // if not, the set is all values returned by the server.
-    const roiNames = apiResponse.roi_names.filter((roi) => rois.indexOf(roi) > 0) || apiResponse.roi_names;
+    const roiNames = apiResponse.roi_names.filter((roi) => rois.includes(roi)) || apiResponse.roi_names;
 
     let maxWeight = 0;
     let maxCount = 0;
