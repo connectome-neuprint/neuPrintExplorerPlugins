@@ -111,7 +111,7 @@ export class FindNeurons extends React.Component {
         columnIds.push(`${roi}Pre`);
       });
     }
-    columnIds.push('size', 'roiHeatMap', 'roiBarGraph');
+    columnIds.push('size', 'roiBarGraph', 'roiHeatMap');
     const indexOf = setColumnIndices(columnIds);
 
     const data = apiResponse.data.map(row => {
@@ -208,7 +208,7 @@ export class FindNeurons extends React.Component {
       neuronInstance: '',
       inputROIs: [],
       outputROIs: [],
-      regexMatch: false
+      regexMatch: false,
     };
   }
 
