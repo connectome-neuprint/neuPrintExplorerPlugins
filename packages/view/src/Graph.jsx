@@ -20,7 +20,7 @@ function areEqual(prevProps, nextProps) {
 const Graph = React.memo(props => {
   const { query } = props;
   const { graph = {} } = query.result;
-  const { elements = { nodes: [], edges: [] }, minWeight = 1, maxWeight = 1 } = graph;
+  const { elements = { nodes: [], edges: [] }, minWeight = 1, maxWeight = 1, layout='circle' } = graph;
 
   const style = [
     // the stylesheet for the graph
@@ -62,7 +62,7 @@ const Graph = React.memo(props => {
       elements={elements}
       style={style}
       layout={{
-        name: 'breadthfirst',
+        name: layout,
         directed: true,
         padding: 10
       }}

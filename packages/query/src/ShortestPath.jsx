@@ -49,12 +49,11 @@ export class ShortestPath extends React.Component {
     const { dataset, bodyId1, bodyId2, minWeight } = params;
     const shortestPathQuery = `MATCH (a:\`${dataset}-Neuron\`{bodyId:${bodyId1}}), (b:\`${dataset}-Neuron\`{bodyId:${bodyId2}}) CALL analysis.getShortestPathWithMinWeight(a, b, 'ConnectsTo>', 'prop', 'weight', 1, ${minWeight}) YIELD path,weight WITH extract(n IN nodes(path) | [n.bodyId,n.name]) AS ids,extract(rst IN rels(path) | rst.weight) AS weights, path RETURN length(path), ids, weights`;
     return {
-       cypherQuery: shortestPathQuery
+      cypherQuery: shortestPathQuery
     };
   }
 
   static processResults(query, apiResponse, actions) {
-
     if (apiResponse.data.length === 0) {
       actions.pluginResponseError('No path found.');
       return {
@@ -138,11 +137,16 @@ export class ShortestPath extends React.Component {
     return {
       columns: apiResponse.columns,
       data: apiResponse.data,
-      graph: { elements: { nodes, edges }, minWeight: minObsWeight, maxWeight: maxObsWeight },
+      graph: {
+        layout: 'breadthfirst',
+        elements: { nodes, edges },
+        minWeight: minObsWeight,
+        maxWeight: maxObsWeight
+      },
       debug: apiResponse.debug,
-      title 
+      title
     };
-  };
+  }
 
   constructor(props) {
     super(props);
@@ -166,7 +170,7 @@ export class ShortestPath extends React.Component {
         dataset: dataSet,
         minWeight,
         bodyId1,
-        bodyId2,
+        bodyId2
       }
     };
     submit(query);
