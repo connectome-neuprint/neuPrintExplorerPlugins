@@ -21,6 +21,8 @@ const styles = theme => ({
     width: '100%'
   },
   clickable: {
+    textDecoration: 'underline',
+    color: theme.palette.primary.main,
     cursor: 'pointer'
   },
   scroll: {
