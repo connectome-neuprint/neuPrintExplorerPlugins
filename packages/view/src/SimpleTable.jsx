@@ -15,6 +15,7 @@ import { withStyles } from '@material-ui/core/styles';
 import TablePaginationActions from '@neuprint/support';
 
 import { stableSort, getSorting } from './shared/vishelpers';
+import ColumnSelection from './shared/ColumnSelection';
 
 const styles = theme => ({
   root: {
@@ -33,6 +34,17 @@ const styles = theme => ({
 });
 
 class SimpleTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      visibleColumns: []
+    };
+    if (props.query && props.query.result && props.query.result.columns) {
+      this.state.visibleColumns = props.query.result.columns.map(name => [name, true]);
+    }
+
+  }
+
   shouldComponentUpdate(nextProps, nextState) {
     const { query } = this.props;
     if (
@@ -93,8 +105,16 @@ class SimpleTable extends React.Component {
     actions.updateQuery(index, updated);
   };
 
+  handleColumnChange = index => {
+    const { visibleColumns } = this.state;
+    const updatedColumns = visibleColumns;
+    updatedColumns[index][1] = !updatedColumns[index][1];
+    this.setState({visibleColumns: updatedColumns});
+  };
+
   render() {
     const { query, classes } = this.props;
+    const { visibleColumns } = this.state;
     const { visProps = {}, result } = query;
     let { rowsPerPage = 5 } = visProps;
     const { paginate = true, page = 0, orderBy = '', order = 'asc' } = visProps;
@@ -110,16 +130,34 @@ class SimpleTable extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.scroll}>
+          <ColumnSelection columns={visibleColumns} onChange={(index) => this.handleColumnChange(index)} />
+          {paginate ? (
+            <TablePagination
+              component="div"
+              count={result.data.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={this.handleChangePage}
+              onChangeRowsPerPage={this.handleChangeRowsPerPage}
+              rowsPerPageOptions={[5, 10, 25, 50, 100]}
+              ActionsComponent={TablePaginationActions}
+            />
+          ) : null}
+
           <Table padding="dense">
             <TableHead>
               <TableRow>
-                {result.columns.map((header, index) => {
+                {result.columns.filter((column, i) => visibleColumns[i][1]).map((header, index) => {
                   const headerKey = header;
                   if ('disableSort' in result && result.disableSort.has(index)) {
                     return <TableCell key={headerKey}>{header}</TableCell>;
                   }
                   return (
-                    <TableCell key={headerKey} sortDirection={orderBy === index ? order : false}>
+                    <TableCell
+                      padding="dense"
+                      key={headerKey}
+                      sortDirection={orderBy === index ? order : false}
+                    >
                       <TableSortLabel
                         active={orderBy === index}
                         direction={order}
@@ -144,12 +182,13 @@ class SimpleTable extends React.Component {
                   const key = row.id || index;
                   return (
                     <TableRow hover key={key} style={rowStyle}>
-                      {row.map((cell, i) => {
+                      {row.filter((column, i) => visibleColumns[i][1]).map((cell, i) => {
                         const cellKey = i;
                         if (cell && typeof cell === 'object' && 'value' in cell) {
                           if ('action' in cell) {
                             return (
                               <TableCell
+                                padding="dense"
                                 className={classes.clickable}
                                 key={cellKey}
                                 onClick={this.handleCellClick(cell.action)}
@@ -173,18 +212,6 @@ class SimpleTable extends React.Component {
             </TableBody>
           </Table>
         </div>
-        {paginate ? (
-          <TablePagination
-            component="div"
-            count={result.data.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onChangePage={this.handleChangePage}
-            onChangeRowsPerPage={this.handleChangeRowsPerPage}
-            rowsPerPageOptions={[5, 10, 25, 50, 100]}
-            ActionsComponent={TablePaginationActions}
-          />
-        ) : null}
       </div>
     );
   }
