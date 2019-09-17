@@ -35,6 +35,13 @@ class NeuronMeta extends React.Component {
     };
   }
 
+  static getColumnHeaders(query) {
+    if (query.pm.key_name) {
+      return [{ name: 'Property Value', status: true }];
+    }
+    return [{ name: 'Property Name', status: true }];
+  }
+
   static fetchParameters(params) {
     // return the cypher Query and the api end point based on the parameters
     // received.

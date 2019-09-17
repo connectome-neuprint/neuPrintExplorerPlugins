@@ -75,6 +75,16 @@ class Distribution extends React.Component {
     };
   }
 
+  static getColumnHeaders(query) {
+    const { pm: parameters } = query;
+
+    const typeHeader = parameters.is_pre ? 'Number of pre-synapses' : 'Number of post-synapses';
+
+    const columnIds = [ 'percentage', 'num segments', typeHeader ];
+
+    return columnIds.map(column => ({name: column, status: true}));
+  }
+
   static processResults(query, apiResponse) {
     const data = processData(apiResponse.data);
     const { pm: parameters } = query;

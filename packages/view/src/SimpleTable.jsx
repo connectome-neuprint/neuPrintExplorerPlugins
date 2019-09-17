@@ -113,6 +113,11 @@ class SimpleTable extends React.Component {
 
     const { highlightIndex } = result;
 
+    const columns =
+      visibleColumns.size === 0
+        ? result.columns
+        : result.columns.filter((column, i) => visibleColumns.getIn([i, 'status']));
+
     return (
       <div className={classes.root}>
         <div className={classes.scroll}>
@@ -136,29 +141,27 @@ class SimpleTable extends React.Component {
           <Table padding="dense">
             <TableHead>
               <TableRow>
-                {result.columns
-                  .filter((column, i) => visibleColumns.getIn([i, 'status']))
-                  .map((header, index) => {
-                    const headerKey = header;
-                    if ('disableSort' in result && result.disableSort.has(index)) {
-                      return <TableCell key={headerKey}>{header}</TableCell>;
-                    }
-                    return (
-                      <TableCell
-                        padding="dense"
-                        key={headerKey}
-                        sortDirection={orderBy === index ? order : false}
+                {columns.map((header, index) => {
+                  const headerKey = header;
+                  if ('disableSort' in result && result.disableSort.has(index)) {
+                    return <TableCell key={headerKey}>{header}</TableCell>;
+                  }
+                  return (
+                    <TableCell
+                      padding="dense"
+                      key={headerKey}
+                      sortDirection={orderBy === index ? order : false}
+                    >
+                      <TableSortLabel
+                        active={orderBy === index}
+                        direction={order}
+                        onClick={this.handleRequestSort(index)}
                       >
-                        <TableSortLabel
-                          active={orderBy === index}
-                          direction={order}
-                          onClick={this.handleRequestSort(index)}
-                        >
-                          {header}
-                        </TableSortLabel>
-                      </TableCell>
-                    );
-                  })}
+                        {header}
+                      </TableSortLabel>
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -171,29 +174,31 @@ class SimpleTable extends React.Component {
                     rowStyle = { backgroundColor: highlightIndex[currspot.toString()] };
                   }
                   const key = row.id || index;
+                  const filteredRow =
+                    visibleColumns.size === 0
+                      ? row
+                      : row.filter((column, i) => visibleColumns.getIn([i, 'status']));
                   return (
                     <TableRow hover key={key} style={rowStyle}>
-                      {row
-                        .filter((column, i) => visibleColumns.getIn([i, 'status']))
-                        .map((cell, i) => {
-                          const cellKey = i;
-                          if (cell && typeof cell === 'object' && 'value' in cell) {
-                            if ('action' in cell) {
-                              return (
-                                <TableCell
-                                  padding="dense"
-                                  className={classes.clickable}
-                                  key={cellKey}
-                                  onClick={this.handleCellClick(cell.action)}
-                                >
-                                  {cell.value}
-                                </TableCell>
-                              );
-                            }
-                            return <TableCell key={cellKey}>{cell.value}</TableCell>;
+                      {filteredRow.map((cell, i) => {
+                        const cellKey = i;
+                        if (cell && typeof cell === 'object' && 'value' in cell) {
+                          if ('action' in cell) {
+                            return (
+                              <TableCell
+                                padding="dense"
+                                className={classes.clickable}
+                                key={cellKey}
+                                onClick={this.handleCellClick(cell.action)}
+                              >
+                                {cell.value}
+                              </TableCell>
+                            );
                           }
-                          return <TableCell key={cellKey}>{cell}</TableCell>;
-                        })}
+                          return <TableCell key={cellKey}>{cell.value}</TableCell>;
+                        }
+                        return <TableCell key={cellKey}>{cell}</TableCell>;
+                      })}
                     </TableRow>
                   );
                 })}

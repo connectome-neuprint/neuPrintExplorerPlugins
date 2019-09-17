@@ -78,7 +78,14 @@ export class FindNeurons extends React.Component {
         const bodyName = row[1] || '';
         const bodyType = row[2] || '';
 
-        const converted = [bodyId, bodyName.replace(/[\n\r]/g, ''), bodyType, row[3], totalPost, totalPre];
+        const converted = [
+          bodyId,
+          bodyName.replace(/[\n\r]/g, ''),
+          bodyType,
+          row[3],
+          totalPost,
+          totalPre
+        ];
         // figure out roi counts.
         if (rois.length > 0) {
           rois.forEach(roi => {
@@ -96,20 +103,31 @@ export class FindNeurons extends React.Component {
     return [headers, data].join('\n');
   }
 
-
   static getColumnHeaders(query) {
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = query.pm;
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
 
-    const columnIds = ['bodyId', 'instance', 'type', 'status', 'post', 'pre'];
+    const columnIds = [
+      { name: 'id', status: true },
+      { name: 'instance', status: false },
+      { name: 'type', status: true },
+      { name: 'status', status: true },
+      { name: '#post (inputs)', status: true },
+      { name: '#pre (outputs)', status: true }
+    ];
+
     if (rois.length > 0) {
       rois.forEach(roi => {
-        columnIds.push(`${roi}Post`);
-        columnIds.push(`${roi}Pre`);
+        columnIds.push({ name: `${roi} #post`, status: true });
+        columnIds.push({ name: `${roi} #pre`, status: true });
       });
     }
-    columnIds.push('size', 'roiBarGraph', 'roiHeatMap');
-    return columnIds.map(column => ({name:column, status: true}));
+    columnIds.push(
+      { name: '#voxels', status: false },
+      { name: 'roi breakdown', status: true },
+      { name: 'roi heatmap', status: false }
+    );
+    return columnIds;
   }
 
   // this function will parse the results from the query to the
@@ -225,7 +243,7 @@ export class FindNeurons extends React.Component {
       neuronInstance: '',
       inputROIs: [],
       outputROIs: [],
-      regexMatch: false,
+      regexMatch: false
     };
   }
 
@@ -360,14 +378,17 @@ export class FindNeurons extends React.Component {
         />
         <FormControl fullWidth className={classes.formControl}>
           <NeuronHelp>
-            <NeuronInputField
-              onChange={this.addNeuronInstance}
-              value={neuronInstance}
-            />
+            <NeuronInputField onChange={this.addNeuronInstance} value={neuronInstance} />
           </NeuronHelp>
           {regexMatch && (
             <Typography color="error" className={classes.regexWarning}>
-              Warning!! This is a regular expression search and characters like &#39;&#40;&#39; must be escaped. eg: to search for &#39;c(SFS)_R&#39; you would need to type &#39;c\\(SFS\\)_R&#39; For more details on how to write regular expressions, please see <a href="https://www.regular-expressions.info/">https://www.regular-expressions.info/</a>
+              Warning!! This is a regular expression search and characters like &#39;&#40;&#39; must
+              be escaped. eg: to search for &#39;c(SFS)_R&#39; you would need to type
+              &#39;c\\(SFS\\)_R&#39; For more details on how to write regular expressions, please
+              see{' '}
+              <a href="https://www.regular-expressions.info/">
+                https://www.regular-expressions.info/
+              </a>
             </Typography>
           )}
         </FormControl>

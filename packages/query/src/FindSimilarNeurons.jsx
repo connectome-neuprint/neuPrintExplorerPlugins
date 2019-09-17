@@ -399,6 +399,33 @@ export class FindSimilarNeurons extends React.Component {
     };
   }
 
+  static getColumnHeaders(query) {
+    const columnIds = [];
+
+    const { pm: parameters } = query;
+    if (parameters && (parameters.rois || parameters.bodyId || parameters.clusterName)) {
+      columnIds.push(
+        { name: 'bodyId', status: true },
+        { name: 'instance', status: true },
+        { name: 'type', status: true },
+        { name: 'status', status: true },
+        { name: 'pre', status: true },
+        { name: 'post', status: true },
+        { name: 'roi breakdown', status: true },
+        { name: 'roi heatmap', status: true },
+        { name: 'sub-level roi heatmap', status: true },
+        { name: 'total similarity score', status: true },
+        { name: 'input similarity score', status: true },
+        { name: 'output similarity score', status: true },
+        { name: 'sub-level roi similarity score', status: true }
+      );
+    } else {
+      columnIds.push({ name: 'cluster name', status: true });
+    }
+
+    return columnIds;
+  }
+
   static fetchParameters(params) {
     const { dataset, bodyId, rois, clusterName } = params;
 

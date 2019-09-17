@@ -11,6 +11,9 @@ import NeuronFilter from './shared/NeuronFilter';
 const pluginName = 'Completeness';
 const pluginAbbrev = 'co';
 
+
+const columnHeaders = ['ROI', '%presyn', 'total presyn', '%postsyn', 'total postsyn'];
+
 class Completeness extends React.Component {
   static get details() {
     return {
@@ -22,6 +25,10 @@ class Completeness extends React.Component {
         'Determines the reconstruction completeness of each ROI with respect to the neuron filters',
       visType: 'SimpleTable'
     };
+  }
+
+  static getColumnHeaders() {
+    return columnHeaders.map(column => ({name: column, status: true}));
   }
 
   static fetchParameters() {
@@ -41,7 +48,7 @@ class Completeness extends React.Component {
     ]);
 
     return {
-      columns: ['ROI', '%presyn', 'total presyn', '%postsyn', 'total postsyn'],
+      columns: columnHeaders,
       data,
       debug: apiResponse.debug,
       title: `Coverage percentage of filtered neurons in ${parameters.dataset}`

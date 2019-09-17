@@ -25,6 +25,10 @@ class Autapses extends React.Component {
     };
   }
 
+  static getColumnHeaders() {
+    return columnHeaders.map(column => ({name: column, status: true}));
+  }
+
   static fetchParameters() {
     return {
       queryString: '/npexplorer/autapses'

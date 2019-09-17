@@ -22,6 +22,12 @@ class ColumnSelection extends React.Component {
 
   render() {
     const { columns, onChange } = this.props;
+
+    // if we don't have any columns to chose from, then don't show the menu.
+    if (columns.size === 0) {
+      return null;
+    }
+
     const { menuVisible } = this.state;
     const columnTotal = columns.size;
     const columnsVisible = columns.filter(column => column.status).size;

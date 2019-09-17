@@ -40,6 +40,11 @@ export class SynapsesForConnection extends React.Component {
     };
   }
 
+  static getColumnHeaders() {
+    const columnIds = ['type', 'location', 'confidence', 'rois'];
+    return columnIds.map(column => ({name: column, status: true}));
+  }
+
   static fetchParameters(params) {
     const {dataSet, bodyId1 = '', bodyId2 = '', rois = [] } = params;
 

@@ -63,6 +63,34 @@ class CommonConnectivity extends React.Component {
     };
   }
 
+  static getColumnHeaders(query) {
+    const { pm: parameters } = query;
+
+    const queryKey = parameters.find_inputs ? 'input' : 'output';
+
+    const columns = [
+      `${queryKey[0].toUpperCase() + queryKey.substring(1)} ID`,
+      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Instance`,
+      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Type`
+    ];
+
+    let selectedNeurons = [];
+    if (parameters.neuron_ids.length > 0) {
+      selectedNeurons = parameters.neuron_ids;
+    } else {
+      selectedNeurons = parameters.neuron_names;
+    }
+
+    const selectedWeightHeadings = selectedNeurons.map(neuron => `${neuron}_weight`);
+    selectedWeightHeadings.forEach(neuronWeightHeading => {
+      columns.push(neuronWeightHeading);
+    });
+
+    columns.push('Total Weight');
+
+    return columns.map(column => ({name: column, status: true}));
+  }
+
   static fetchParameters() {
     return {
       queryString: '/npexplorer/commonconnectivity'
@@ -77,7 +105,7 @@ class CommonConnectivity extends React.Component {
 
     const columnHeaders = [
       `${queryKey[0].toUpperCase() + queryKey.substring(1)} ID`,
-      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Name`,
+      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Instance`,
       `${queryKey[0].toUpperCase() + queryKey.substring(1)} Type`
     ];
 
@@ -128,7 +156,7 @@ class CommonConnectivity extends React.Component {
 
     const columns = [
       `${queryKey[0].toUpperCase() + queryKey.substring(1)} ID`,
-      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Name`,
+      `${queryKey[0].toUpperCase() + queryKey.substring(1)} Instance`,
       `${queryKey[0].toUpperCase() + queryKey.substring(1)} Type`
     ];
 
