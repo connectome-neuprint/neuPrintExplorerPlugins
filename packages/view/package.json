@@ -42,18 +42,18 @@
     "jest": "^23.6.0",
     "prettier": "^1.15.3",
     "prop-types": "^15.6.2",
-    "react": "^16.6.0",
-    "react-dom": "^16.3.3",
-    "react-redux": "^5.0.7",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-redux": "^7.1.0",
     "redux": "^3.7.2"
   },
   "peerDependencies": {
     "@material-ui/core": "^3.2.0",
     "@material-ui/icons": "^3.0.1",
     "prop-types": "^15.6.2",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0",
-    "react-redux": "^5.0.7",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-redux": "^7.1.0",
     "redux": "^3.7.2"
   },
   "dependencies": {

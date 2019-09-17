@@ -53,11 +53,11 @@
     "jest-fetch-mock": "^2.1.0",
     "prettier": "^1.15.3",
     "prop-types": "^15.6.2",
-    "react": "^16.6.0",
-    "react-dom": "^16.3.3",
-    "react-redux": "^5.0.7",
-    "react-router": "^4.2.0",
-    "react-router-dom": "^4.3.1",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-redux": "^7.1.0",
+    "react-router": "^5.0.0",
+    "react-router-dom": "^5.0.0",
     "react-select": "^2.1.0",
     "react-test-renderer": "^16.7.0",
     "regenerator-runtime": "^0.13.1"
@@ -65,12 +65,12 @@
   "peerDependencies": {
     "@material-ui/core": "^3.2.0",
     "@material-ui/icons": "^3.0.1",
-    "immutable": "^3.8.2",
+    "immutable": "^4.0.0-rc.12.8.2",
     "prop-types": "^15.6.2",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.6",
-    "react-redux": "^5.0.7",
-    "react-router": "^4.2.0",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.9",
+    "react-redux": "^7.1.0",
+    "react-router": "^5.0.0",
     "react-select": "^2.1.0"
   },
   "dependencies": {
@@ -91,5 +91,5 @@
       "./setupJest.js"
     ]
   },
-  "gitHead": "2c47ecdbb6f7f791040e94fe18e715bc59a68fa5"
+  "gitHead": "ea2951a05c928261cc0478e66ca3da86b9977389"
 }
