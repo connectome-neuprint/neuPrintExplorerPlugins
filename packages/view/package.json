@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/views",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "description": "View plugins used by the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
@@ -69,5 +69,5 @@
     "react-color": "^2.17.3",
     "react-select": "^2.1.0"
   },
-  "gitHead": "7e8a8d98fc5f55d001b8cc2707aee629396f7654"
+  "gitHead": "2c47ecdbb6f7f791040e94fe18e715bc59a68fa5"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/queries",
-  "version": "3.5.0",
+  "version": "4.0.0",
   "description": "Query plugins used by the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
@@ -91,5 +91,5 @@
       "./setupJest.js"
     ]
   },
-  "gitHead": "7e8a8d98fc5f55d001b8cc2707aee629396f7654"
+  "gitHead": "2c47ecdbb6f7f791040e94fe18e715bc59a68fa5"
 }
