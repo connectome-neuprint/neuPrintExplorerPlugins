@@ -23,8 +23,8 @@ class ColumnSelection extends React.Component {
   render() {
     const { columns, onChange } = this.props;
     const { menuVisible } = this.state;
-    const columnTotal = columns.length;
-    const columnsVisible = columns.filter(column => column[1]).length;
+    const columnTotal = columns.size;
+    const columnsVisible = columns.filter(column => column.status).size;
     const labelText = `Columns Visible ${columnsVisible} / ${columnTotal}`;
 
     return (
@@ -46,7 +46,7 @@ class ColumnSelection extends React.Component {
 }
 
 ColumnSelection.propTypes = {
-  columns: PropTypes.arrayOf(PropTypes.array).isRequired,
+  columns: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired
 };
 

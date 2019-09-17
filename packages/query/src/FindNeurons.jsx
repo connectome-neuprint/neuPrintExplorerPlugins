@@ -96,6 +96,22 @@ export class FindNeurons extends React.Component {
     return [headers, data].join('\n');
   }
 
+
+  static getColumnHeaders(query) {
+    const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = query.pm;
+    const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
+
+    const columnIds = ['bodyId', 'instance', 'type', 'status', 'post', 'pre'];
+    if (rois.length > 0) {
+      rois.forEach(roi => {
+        columnIds.push(`${roi}Post`);
+        columnIds.push(`${roi}Pre`);
+      });
+    }
+    columnIds.push('size', 'roiBarGraph', 'roiHeatMap');
+    return columnIds.map(column => ({name:column, status: true}));
+  }
+
   // this function will parse the results from the query to the
   // Neo4j server and place them in the correct format for the
   // visualization plugin.
@@ -112,6 +128,7 @@ export class FindNeurons extends React.Component {
       });
     }
     columnIds.push('size', 'roiBarGraph', 'roiHeatMap');
+
     const indexOf = setColumnIndices(columnIds);
 
     const data = apiResponse.data.map(row => {

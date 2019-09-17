@@ -30,13 +30,13 @@ class ConfirmationDialog extends React.Component {
     }
 
     const options = columns.map((column, index) => (
-      <ListItem key={column[0]} button onClick={() => this.handleToggle(index)}>
-          <ListItemText primary={`${column[0]}`} />
+      <ListItem key={column.name} button onClick={() => this.handleToggle(index)}>
+          <ListItemText primary={`${column.name}`} />
           <ListItemSecondaryAction>
             <Checkbox
               color="primary"
               onChange={() => this.handleToggle(index)}
-              checked={column[1]}
+              checked={column.status}
             />
           </ListItemSecondaryAction>
         </ListItem>
@@ -67,7 +67,7 @@ class ConfirmationDialog extends React.Component {
 
 ConfirmationDialog.propTypes = {
   open: PropTypes.bool.isRequired,
-  columns: PropTypes.arrayOf(PropTypes.array).isRequired,
+  columns: PropTypes.object.isRequired,
   onConfirm: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired
 };

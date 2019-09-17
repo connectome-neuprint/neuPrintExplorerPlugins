@@ -34,17 +34,6 @@ const styles = theme => ({
 });
 
 class SimpleTable extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      visibleColumns: []
-    };
-    if (props.query && props.query.result && props.query.result.columns) {
-      this.state.visibleColumns = props.query.result.columns.map(name => [name, true]);
-    }
-
-  }
-
   shouldComponentUpdate(nextProps, nextState) {
     const { query } = this.props;
     if (
@@ -105,16 +94,13 @@ class SimpleTable extends React.Component {
     actions.updateQuery(index, updated);
   };
 
-  handleColumnChange = index => {
-    const { visibleColumns } = this.state;
-    const updatedColumns = visibleColumns;
-    updatedColumns[index][1] = !updatedColumns[index][1];
-    this.setState({visibleColumns: updatedColumns});
+  handleColumnChange = columnIndex => {
+    const { actions, index, visibleColumns } = this.props;
+    actions.setColumnStatus(index, columnIndex, !visibleColumns.getIn([columnIndex, 'status']));
   };
 
   render() {
-    const { query, classes } = this.props;
-    const { visibleColumns } = this.state;
+    const { query, classes, visibleColumns } = this.props;
     const { visProps = {}, result } = query;
     let { rowsPerPage = 5 } = visProps;
     const { paginate = true, page = 0, orderBy = '', order = 'asc' } = visProps;
@@ -130,7 +116,10 @@ class SimpleTable extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.scroll}>
-          <ColumnSelection columns={visibleColumns} onChange={(index) => this.handleColumnChange(index)} />
+          <ColumnSelection
+            columns={visibleColumns}
+            onChange={index => this.handleColumnChange(index)}
+          />
           {paginate ? (
             <TablePagination
               component="div"
@@ -147,27 +136,29 @@ class SimpleTable extends React.Component {
           <Table padding="dense">
             <TableHead>
               <TableRow>
-                {result.columns.filter((column, i) => visibleColumns[i][1]).map((header, index) => {
-                  const headerKey = header;
-                  if ('disableSort' in result && result.disableSort.has(index)) {
-                    return <TableCell key={headerKey}>{header}</TableCell>;
-                  }
-                  return (
-                    <TableCell
-                      padding="dense"
-                      key={headerKey}
-                      sortDirection={orderBy === index ? order : false}
-                    >
-                      <TableSortLabel
-                        active={orderBy === index}
-                        direction={order}
-                        onClick={this.handleRequestSort(index)}
+                {result.columns
+                  .filter((column, i) => visibleColumns.getIn([i, 'status']))
+                  .map((header, index) => {
+                    const headerKey = header;
+                    if ('disableSort' in result && result.disableSort.has(index)) {
+                      return <TableCell key={headerKey}>{header}</TableCell>;
+                    }
+                    return (
+                      <TableCell
+                        padding="dense"
+                        key={headerKey}
+                        sortDirection={orderBy === index ? order : false}
                       >
-                        {header}
-                      </TableSortLabel>
-                    </TableCell>
-                  );
-                })}
+                        <TableSortLabel
+                          active={orderBy === index}
+                          direction={order}
+                          onClick={this.handleRequestSort(index)}
+                        >
+                          {header}
+                        </TableSortLabel>
+                      </TableCell>
+                    );
+                  })}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -182,25 +173,27 @@ class SimpleTable extends React.Component {
                   const key = row.id || index;
                   return (
                     <TableRow hover key={key} style={rowStyle}>
-                      {row.filter((column, i) => visibleColumns[i][1]).map((cell, i) => {
-                        const cellKey = i;
-                        if (cell && typeof cell === 'object' && 'value' in cell) {
-                          if ('action' in cell) {
-                            return (
-                              <TableCell
-                                padding="dense"
-                                className={classes.clickable}
-                                key={cellKey}
-                                onClick={this.handleCellClick(cell.action)}
-                              >
-                                {cell.value}
-                              </TableCell>
-                            );
+                      {row
+                        .filter((column, i) => visibleColumns.getIn([i, 'status']))
+                        .map((cell, i) => {
+                          const cellKey = i;
+                          if (cell && typeof cell === 'object' && 'value' in cell) {
+                            if ('action' in cell) {
+                              return (
+                                <TableCell
+                                  padding="dense"
+                                  className={classes.clickable}
+                                  key={cellKey}
+                                  onClick={this.handleCellClick(cell.action)}
+                                >
+                                  {cell.value}
+                                </TableCell>
+                              );
+                            }
+                            return <TableCell key={cellKey}>{cell.value}</TableCell>;
                           }
-                          return <TableCell key={cellKey}>{cell.value}</TableCell>;
-                        }
-                        return <TableCell key={cellKey}>{cell}</TableCell>;
-                      })}
+                          return <TableCell key={cellKey}>{cell}</TableCell>;
+                        })}
                     </TableRow>
                   );
                 })}
@@ -221,7 +214,8 @@ SimpleTable.propTypes = {
   query: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired
+  index: PropTypes.number.isRequired,
+  visibleColumns: PropTypes.object.isRequired
 };
 
 export default withStyles(styles)(SimpleTable);
