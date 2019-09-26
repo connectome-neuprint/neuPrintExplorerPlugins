@@ -61,6 +61,7 @@ class ROIConnectivity extends React.Component {
         input_ROIs: [inputRoi],
         output_ROIs: [outputRoi]
       },
+      visProps: { rowsPerPage: 25 },
       pluginCode: 'fn',
     });
 
