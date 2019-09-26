@@ -10,8 +10,6 @@ import Typography from '@material-ui/core/Typography';
 import InputLabel from '@material-ui/core/InputLabel';
 import { withStyles } from '@material-ui/core/styles';
 
-import { sortRois } from '@neuprint/support';
-
 import ColorBox from './visualization/ColorBox';
 
 const styles = theme => ({
