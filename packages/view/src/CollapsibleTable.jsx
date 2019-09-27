@@ -16,6 +16,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // eslint-disable-next-line import/no-unresolved
 import TablePaginationActions from '@neuprint/support';
 import IndependentTable from './visualization/IndependentTable';
+import ColumnSelection from './shared/ColumnSelection';
 
 const styles = theme => ({
   root: {},
@@ -117,6 +118,10 @@ class CollapsibleTable extends React.Component {
                             <Typography className={classes.expansionText}>{row.name}</Typography>
                           </ExpansionPanelSummary>
                           <ExpansionPanelDetails className={classes.nopad}>
+                            <ColumnSelection
+                              columns={row.columns}
+                              onChange={columnIndex => this.handleColumnChange(columnIndex)}
+                            />
                             <IndependentTable
                               data={row.data}
                               columns={row.columns}
@@ -163,6 +168,10 @@ class CollapsibleTable extends React.Component {
             <TableBody>
               <TableRow>
                 <TableCell className={classes.cellborder} padding="none">
+                  <ColumnSelection
+                    columns={row.columns}
+                    onChange={columnIndex => this.handleColumnChange(columnIndex)}
+                  />
                   <IndependentTable
                     data={row.data}
                     columns={row.columns}

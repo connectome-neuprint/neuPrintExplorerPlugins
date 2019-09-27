@@ -17,7 +17,7 @@ class ConfirmationDialog extends React.Component {
     onConfirm();
   };
 
-  handleToggle = (index) => {
+  handleToggle = index => {
     const { onChange } = this.props;
     onChange(index);
   };
@@ -29,8 +29,12 @@ class ConfirmationDialog extends React.Component {
       return null;
     }
 
-    const options = columns.map((column, index) => (
-      <ListItem key={column.name} button onClick={() => this.handleToggle(index)}>
+    const options = columns.map((column, index) => {
+      if (column.hidden) {
+        return null;
+      }
+      return (
+        <ListItem key={column.name} button onClick={() => this.handleToggle(index)}>
           <ListItemText primary={`${column.name}`} />
           <ListItemSecondaryAction>
             <Checkbox
@@ -40,7 +44,8 @@ class ConfirmationDialog extends React.Component {
             />
           </ListItemSecondaryAction>
         </ListItem>
-    ));
+      );
+    });
 
     return (
       <Dialog
@@ -51,9 +56,7 @@ class ConfirmationDialog extends React.Component {
       >
         <DialogTitle id="confirmation-dialog-title">Column Selection</DialogTitle>
         <DialogContent>
-          <List>
-            {options}
-          </List>
+          <List>{options}</List>
         </DialogContent>
         <DialogActions>
           <Button onClick={this.handleOk} color="primary">

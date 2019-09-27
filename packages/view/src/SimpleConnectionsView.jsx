@@ -16,6 +16,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // eslint-disable-next-line import/no-unresolved
 import TablePaginationActions from '@neuprint/support';
 import SimpleConnectionsTable from './visualization/SimpleConnectionsTable';
+import ColumnSelection from './shared/ColumnSelection';
 
 const styles = theme => ({
   root: {},
@@ -69,8 +70,13 @@ class SimpleConnectionsView extends React.Component {
     action();
   };
 
+  handleColumnChange = columnIndex => {
+    const { actions, index, visibleColumns } = this.props;
+    actions.setColumnStatus(index, columnIndex, !visibleColumns.getIn([columnIndex, 'status']));
+  };
+
   render() {
-    const { query, classes } = this.props;
+    const { query, classes, visibleColumns } = this.props;
     const { visProps = {} } = query;
     let { rowsPerPage = 5 } = visProps;
     const { paginate = true, page = 0, paginateExpansion = false } = visProps;
@@ -118,6 +124,7 @@ class SimpleConnectionsView extends React.Component {
                           </ExpansionPanelSummary>
                           <ExpansionPanelDetails className={classes.nopad}>
                             <SimpleConnectionsTable
+                              visibleColumns={visibleColumns}
                               data={row.data}
                               columns={row.columns}
                               paginate={paginateExpansion.valueOf()}
@@ -153,17 +160,22 @@ class SimpleConnectionsView extends React.Component {
   }
 
   renderSingle() {
-    const { query, classes } = this.props;
+    const { query, classes, visibleColumns } = this.props;
     const row = query.result.data[0];
     return (
       <div className={classes.root}>
         <Typography className={classes.expansionText}>{row.name}</Typography>
+        <ColumnSelection
+          columns={visibleColumns}
+          onChange={columnIndex => this.handleColumnChange(columnIndex)}
+        />
         <div className={classes.scroll}>
           <Table>
             <TableBody>
               <TableRow>
                 <TableCell className={classes.cellborder} padding="none">
                   <SimpleConnectionsTable
+                    visibleColumns={visibleColumns}
                     data={row.data}
                     columns={row.columns}
                   />
@@ -182,7 +194,8 @@ SimpleConnectionsView.propTypes = {
   query: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired
+  index: PropTypes.number.isRequired,
+  visibleColumns: PropTypes.object.isRequired
 };
 
 export default withStyles(styles)(SimpleConnectionsView);

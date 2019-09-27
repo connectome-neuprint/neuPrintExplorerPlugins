@@ -119,7 +119,7 @@ class SimpleConnectionsTable extends React.Component {
   };
 
   render() {
-    const { data = [], columns = [], disableSort, classes } = this.props;
+    const { data = [], columns = [], disableSort, classes, visibleColumns } = this.props;
     let { rowsPerPage } = this.state;
     const { paginate, orderBy, order, page, isExpanded, expansionPanels } = this.state;
 
@@ -131,6 +131,11 @@ class SimpleConnectionsTable extends React.Component {
     }
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
 
+    const filteredColumns =
+      visibleColumns.size === 0
+        ? columns
+        : columns.filter((column, i) => visibleColumns.getIn([i, 'status']));
+
     return (
       <div className={classes.root}>
         <div className={classes.scroll}>
@@ -138,7 +143,7 @@ class SimpleConnectionsTable extends React.Component {
             <TableHead>
               <TableRow>
                 <TableCell key="expansionHeader" />
-                {columns.map((header, index) => {
+                {filteredColumns.map((header, index) => {
                   const headerKey = `${header}${index}`;
                   numCols += 1;
                   if (disableSort.size > 0 && disableSort.has(index)) {
@@ -163,10 +168,14 @@ class SimpleConnectionsTable extends React.Component {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map(row => {
                   const bodyId = row[1].sortBy.toString(); // should be body id
+                  const filteredRow =
+                    visibleColumns.size === 0
+                      ? row
+                      : row.filter((column, i) => visibleColumns.getIn([i, 'status']));
                   return (
                     <React.Fragment key={bodyId}>
                       <TableRow hover key={bodyId}>
-                        {row.map((cell, i) => {
+                        {filteredRow.map((cell, i) => {
                           if (cell && typeof cell === 'object' && 'value' in cell) {
                             const cellKey = `${i}${cell.value}`;
                             if ('action' in cell) {
@@ -250,7 +259,8 @@ SimpleConnectionsTable.propTypes = {
   order: PropTypes.string,
   rowsPerPage: PropTypes.number,
   classes: PropTypes.object.isRequired,
-  disableSort: PropTypes.object
+  disableSort: PropTypes.object,
+  visibleColumns: PropTypes.object.isRequired
 };
 
 SimpleConnectionsTable.defaultProps = {

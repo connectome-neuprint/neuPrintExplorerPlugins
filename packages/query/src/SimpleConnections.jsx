@@ -50,6 +50,26 @@ export class SimpleConnections extends React.Component {
     };
   }
 
+  static getColumnHeaders() {
+
+    const columnIds = [
+      { name: 'expansion', status: true, hidden: true },
+      { name: 'id', status: true },
+      { name: 'type', status: true },
+      { name: 'instance', status: false },
+      { name: 'status', status: true },
+      { name: '#connections', status: true },
+      { name: '#connections (high confidence)', status: true },
+      { name: '#post (inputs)', status: true },
+      { name: '#pre (outputs)', status: true },
+      { name: '#voxels', status: false },
+      { name: 'roi heatmap', status: false },
+      { name: 'roi breakdown', status: true }
+    ];
+    return columnIds;
+  }
+
+
   static processDownload(response) {
     const headers = [
       'id',

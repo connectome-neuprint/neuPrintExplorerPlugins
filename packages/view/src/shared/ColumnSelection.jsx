@@ -13,11 +13,11 @@ class ColumnSelection extends React.Component {
 
   handleMenuToggle = () => {
     const { menuVisible } = this.state;
-    this.setState({menuVisible: !menuVisible });
+    this.setState({ menuVisible: !menuVisible });
   };
 
   handleClose = () => {
-    this.setState({menuVisible: false });
+    this.setState({ menuVisible: false });
   };
 
   render() {
@@ -29,14 +29,15 @@ class ColumnSelection extends React.Component {
     }
 
     const { menuVisible } = this.state;
-    const columnTotal = columns.size;
-    const columnsVisible = columns.filter(column => column.status).size;
+    const columnTotal = columns.filter(column => !column.hidden).size;
+    const columnsVisible = columns.filter(column => !column.hidden).filter(column => column.status)
+      .size;
     const labelText = `Columns Visible ${columnsVisible} / ${columnTotal}`;
 
     return (
       <React.Fragment>
         <Chip
-          style={{margin: '0.5em 0.5em', float: 'left'}}
+          style={{ margin: '0.5em 0.5em', float: 'left' }}
           label={labelText}
           onClick={this.handleMenuToggle}
         />
