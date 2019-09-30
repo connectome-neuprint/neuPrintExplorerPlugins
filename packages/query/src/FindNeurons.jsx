@@ -37,6 +37,17 @@ const styles = theme => ({
 const pluginName = 'FindNeurons';
 const pluginAbbrev = 'fn';
 
+function rejectRowCheck(type, roiInfo, roisToCheck) {
+  // if roi is in any of the check locations then return false
+  for (let i = 0; i < roisToCheck.length; i += 1) {
+    const roi = roisToCheck[i];
+    if (roiInfo[roi][type] > 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export class FindNeurons extends React.Component {
   static get details() {
     return {
@@ -157,6 +168,14 @@ export class FindNeurons extends React.Component {
       const totalPost = row[7];
       const roiInfoObject = JSON.parse(row[4]);
 
+      // filter out the rows that don't have the selected inputs or outputs.
+      if (rejectRowCheck('post', roiInfoObject, inputROIs)) {
+        return null;
+      }
+      if (rejectRowCheck('pre', roiInfoObject, outputROIs)) {
+        return null;
+      }
+
       const converted = [];
       converted[indexOf.bodyId] = getBodyIdForTable(query.ds, bodyId, hasSkeleton, actions);
       converted[indexOf.instance] = row[1];
@@ -170,7 +189,6 @@ export class FindNeurons extends React.Component {
 
       // make sure none is added to the rois list.
       roiList.push('none');
-
       if (roiInfoObject) {
         const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
           roiInfoObject,
@@ -202,7 +220,7 @@ export class FindNeurons extends React.Component {
       }
 
       return converted;
-    });
+    }).filter(row => row !== null);
     const columns = [];
     columns[indexOf.bodyId] = 'id';
     columns[indexOf.instance] = 'instance';
