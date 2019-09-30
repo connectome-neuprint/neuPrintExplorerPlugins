@@ -89,6 +89,15 @@ export class FindNeurons extends React.Component {
         const bodyName = row[1] || '';
         const bodyType = row[2] || '';
 
+        // filter out the rows that don't have the selected inputs or outputs.
+        if (rejectRowCheck('post', roiInfoObject, inputROIs)) {
+          return null;
+        }
+        if (rejectRowCheck('pre', roiInfoObject, outputROIs)) {
+          return null;
+        }
+
+
         const converted = [
           bodyId,
           bodyName.replace(/[\n\r]/g, ''),
@@ -110,6 +119,7 @@ export class FindNeurons extends React.Component {
 
         return converted;
       })
+      .filter(row => row !== null)
       .join('\n');
     return [headers, data].join('\n');
   }
