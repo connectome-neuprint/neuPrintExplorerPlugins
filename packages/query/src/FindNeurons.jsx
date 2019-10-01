@@ -101,7 +101,6 @@ export class FindNeurons extends React.Component {
           return null;
         }
 
-
         const converted = [
           bodyId,
           bodyName.replace(/[\n\r]/g, ''),
@@ -174,67 +173,70 @@ export class FindNeurons extends React.Component {
 
     const indexOf = setColumnIndices(columnIds);
 
-    const data = apiResponse.data.map(row => {
-      const hasSkeleton = row[8];
-      const bodyId = row[0];
-      const roiList = row[8];
-      const totalPre = row[6];
-      const totalPost = row[7];
-      const roiInfoObject = JSON.parse(row[4]);
+    const data = apiResponse.data
+      // .sort((b, a) => Math.min(a[6], a[7]) - Math.min(b[6], b[7]))
+      .map(row => {
+        const hasSkeleton = row[8];
+        const bodyId = row[0];
+        const roiList = row[8];
+        const totalPre = row[6];
+        const totalPost = row[7];
+        const roiInfoObject = JSON.parse(row[4]);
 
-      // filter out the rows that don't have the selected inputs or outputs.
-      if (rejectRowCheck('post', roiInfoObject, inputROIs)) {
-        return null;
-      }
-      if (rejectRowCheck('pre', roiInfoObject, outputROIs)) {
-        return null;
-      }
-
-      const converted = [];
-      converted[indexOf.bodyId] = getBodyIdForTable(query.ds, bodyId, hasSkeleton, actions);
-      converted[indexOf.instance] = row[1];
-      converted[indexOf.type] = row[2];
-      converted[indexOf.status] = row[3];
-      converted[indexOf.post] = '-'; // empty unless roiInfoObject present
-      converted[indexOf.pre] = '-';
-      converted[indexOf.size] = row[5];
-      converted[indexOf.roiHeatMap] = '';
-      converted[indexOf.roiBarGraph] = '';
-
-      // make sure none is added to the rois list.
-      roiList.push('none');
-      if (roiInfoObject) {
-        const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
-          roiInfoObject,
-          roiList,
-          totalPre,
-          totalPost
-        );
-        converted[indexOf.roiHeatMap] = heatMap;
-        converted[indexOf.roiBarGraph] = barGraph;
-
-        const postQuery = createSimpleConnectionQueryObject(query.ds, true, bodyId, pluginAbbrev);
-        converted[indexOf.post] = {
-          value: totalPost,
-          action: () => submit(postQuery)
-        };
-
-        const preQuery = createSimpleConnectionQueryObject(query.ds, false, bodyId, pluginAbbrev);
-        converted[indexOf.pre] = {
-          value: totalPre,
-          action: () => submit(preQuery)
-        };
-
-        if (rois.length > 0) {
-          rois.forEach(roi => {
-            converted[indexOf[`${roi}Post`]] = roiInfoObject[roi].post;
-            converted[indexOf[`${roi}Pre`]] = roiInfoObject[roi].pre;
-          });
+        // filter out the rows that don't have the selected inputs or outputs.
+        if (rejectRowCheck('post', roiInfoObject, inputROIs)) {
+          return null;
         }
-      }
+        if (rejectRowCheck('pre', roiInfoObject, outputROIs)) {
+          return null;
+        }
 
-      return converted;
-    }).filter(row => row !== null);
+        const converted = [];
+        converted[indexOf.bodyId] = getBodyIdForTable(query.ds, bodyId, hasSkeleton, actions);
+        converted[indexOf.instance] = row[1];
+        converted[indexOf.type] = row[2];
+        converted[indexOf.status] = row[3];
+        converted[indexOf.post] = '-'; // empty unless roiInfoObject present
+        converted[indexOf.pre] = '-';
+        converted[indexOf.size] = row[5];
+        converted[indexOf.roiHeatMap] = '';
+        converted[indexOf.roiBarGraph] = '';
+
+        // make sure none is added to the rois list.
+        roiList.push('none');
+        if (roiInfoObject) {
+          const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
+            roiInfoObject,
+            roiList,
+            totalPre,
+            totalPost
+          );
+          converted[indexOf.roiHeatMap] = heatMap;
+          converted[indexOf.roiBarGraph] = barGraph;
+
+          const postQuery = createSimpleConnectionQueryObject(query.ds, true, bodyId, pluginAbbrev);
+          converted[indexOf.post] = {
+            value: totalPost,
+            action: () => submit(postQuery)
+          };
+
+          const preQuery = createSimpleConnectionQueryObject(query.ds, false, bodyId, pluginAbbrev);
+          converted[indexOf.pre] = {
+            value: totalPre,
+            action: () => submit(preQuery)
+          };
+
+          if (rois.length > 0) {
+            rois.forEach(roi => {
+              converted[indexOf[`${roi}Post`]] = roiInfoObject[roi].post;
+              converted[indexOf[`${roi}Pre`]] = roiInfoObject[roi].pre;
+            });
+          }
+        }
+
+        return converted;
+      })
+      .filter(row => row !== null);
     const columns = [];
     columns[indexOf.bodyId] = 'id';
     columns[indexOf.instance] = 'instance';
