@@ -270,7 +270,7 @@ SimpleConnectionsTable.defaultProps = {
   page: 0,
   orderBy: '',
   order: 'asc',
-  rowsPerPage: 5,
+  rowsPerPage: 25,
   disableSort: new Set([])
 };
 
