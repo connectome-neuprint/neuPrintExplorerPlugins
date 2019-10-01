@@ -131,10 +131,29 @@ class SimpleConnectionsTable extends React.Component {
     }
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
 
+    const columnCells = columns.map((header, index) => {
+      const headerKey = `${header}${index}`;
+      numCols += 1;
+      if (disableSort.size > 0 && disableSort.has(index)) {
+        return <TableCell key={headerKey}>{header}</TableCell>;
+      }
+      return (
+        <TableCell key={headerKey} sortDirection={orderBy === index ? order : false}>
+          <TableSortLabel
+            active={orderBy === index}
+            direction={order}
+            onClick={this.handleRequestSort(index)}
+          >
+            {header}
+          </TableSortLabel>
+        </TableCell>
+      );
+    });
+
     const filteredColumns =
       visibleColumns.size === 0
-        ? columns
-        : columns.filter((column, i) => visibleColumns.getIn([i, 'status']));
+        ? columnCells
+        : columnCells.filter((column, i) => visibleColumns.getIn([i, 'status']));
 
     return (
       <div className={classes.root}>
@@ -143,24 +162,7 @@ class SimpleConnectionsTable extends React.Component {
             <TableHead>
               <TableRow>
                 <TableCell key="expansionHeader" />
-                {filteredColumns.map((header, index) => {
-                  const headerKey = `${header}${index}`;
-                  numCols += 1;
-                  if (disableSort.size > 0 && disableSort.has(index)) {
-                    return <TableCell key={headerKey}>{header}</TableCell>;
-                  }
-                  return (
-                    <TableCell key={headerKey} sortDirection={orderBy === index ? order : false}>
-                      <TableSortLabel
-                        active={orderBy === index}
-                        direction={order}
-                        onClick={this.handleRequestSort(index)}
-                      >
-                        {header}
-                      </TableSortLabel>
-                    </TableCell>
-                  );
-                })}
+                {filteredColumns}
               </TableRow>
             </TableHead>
             <TableBody>
