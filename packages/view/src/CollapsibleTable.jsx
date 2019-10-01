@@ -71,7 +71,7 @@ class CollapsibleTable extends React.Component {
   };
 
   render() {
-    const { query, classes } = this.props;
+    const { query, classes, visibleColumns } = this.props;
     const { visProps = {} } = query;
     let { rowsPerPage = 5 } = visProps;
     const { paginate = true, page = 0, paginateExpansion = false } = visProps;
@@ -119,7 +119,7 @@ class CollapsibleTable extends React.Component {
                           </ExpansionPanelSummary>
                           <ExpansionPanelDetails className={classes.nopad}>
                             <ColumnSelection
-                              columns={row.columns}
+                              columns={visibleColumns}
                               onChange={columnIndex => this.handleColumnChange(columnIndex)}
                             />
                             <IndependentTable
@@ -158,7 +158,7 @@ class CollapsibleTable extends React.Component {
   }
 
   renderSingle() {
-    const { query, classes } = this.props;
+    const { query, classes, visibleColumns } = this.props;
     const row = query.result.data[0];
     return (
       <div className={classes.root}>
@@ -169,7 +169,7 @@ class CollapsibleTable extends React.Component {
               <TableRow>
                 <TableCell className={classes.cellborder} padding="none">
                   <ColumnSelection
-                    columns={row.columns}
+                    columns={visibleColumns}
                     onChange={columnIndex => this.handleColumnChange(columnIndex)}
                   />
                   <IndependentTable
@@ -192,7 +192,8 @@ CollapsibleTable.propTypes = {
   query: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired
+  index: PropTypes.number.isRequired,
+  visibleColumns: PropTypes.object.isRequired
 };
 
 export default withStyles(styles)(CollapsibleTable);
