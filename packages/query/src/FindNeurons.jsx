@@ -190,7 +190,6 @@ export class FindNeurons extends React.Component {
         // determine the columns we need
         const aValue = findMinSortValue(a, inputROIs, outputROIs);
         const bValue = findMinSortValue(b, inputROIs, outputROIs);
-        console.log(aValue, bValue);
         // return the result
         return aValue - bValue
       })
