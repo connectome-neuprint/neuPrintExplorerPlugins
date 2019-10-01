@@ -52,6 +52,17 @@ function rejectRowCheck(type, roiInfo, roisToCheck) {
   return true;
 }
 
+function findMinSortValue(row, inputROIs, outputROIs) {
+  const counts = [];
+  const roiInfoObject = JSON.parse(row[4]);
+  // get pre for all outputs
+  outputROIs.forEach(roi => counts.push(roiInfoObject[roi].pre));
+  // get post for all inputs
+  inputROIs.forEach(roi => counts.push(roiInfoObject[roi].post));
+  // return min value
+  return Math.min(...counts);
+}
+
 export class FindNeurons extends React.Component {
   static get details() {
     return {
@@ -174,7 +185,15 @@ export class FindNeurons extends React.Component {
     const indexOf = setColumnIndices(columnIds);
 
     const data = apiResponse.data
-      // .sort((b, a) => Math.min(a[6], a[7]) - Math.min(b[6], b[7]))
+      // sort based on inputs and outputs selected.
+      .sort((b, a) => {
+        // determine the columns we need
+        const aValue = findMinSortValue(a, inputROIs, outputROIs);
+        const bValue = findMinSortValue(b, inputROIs, outputROIs);
+        console.log(aValue, bValue);
+        // return the result
+        return aValue - bValue
+      })
       .map(row => {
         const hasSkeleton = row[8];
         const bodyId = row[0];
