@@ -38,6 +38,10 @@ const pluginName = 'FindNeurons';
 const pluginAbbrev = 'fn';
 
 function rejectRowCheck(type, roiInfo, roisToCheck) {
+  // if no ROIs were selected to filter, then return
+  if (roisToCheck.length === 0) {
+    return false;
+  }
   // if roi is in any of the check locations then return false
   for (let i = 0; i < roisToCheck.length; i += 1) {
     const roi = roisToCheck[i];
