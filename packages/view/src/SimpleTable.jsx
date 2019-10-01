@@ -113,10 +113,32 @@ class SimpleTable extends React.Component {
 
     const { highlightIndex } = result;
 
-    const columns =
+    const columns = result.columns.map((header, index) => {
+      const headerKey = header;
+      if ('disableSort' in result && result.disableSort.has(index)) {
+        return <TableCell key={headerKey}>{header}</TableCell>;
+      }
+      return (
+        <TableCell
+          padding="dense"
+          key={headerKey}
+          sortDirection={orderBy === index ? order : false}
+        >
+          <TableSortLabel
+            active={orderBy === index}
+            direction={order}
+            onClick={this.handleRequestSort(index)}
+          >
+            {header}
+          </TableSortLabel>
+        </TableCell>
+      );
+    });
+
+    const filteredColumns =
       visibleColumns.size === 0
-        ? result.columns
-        : result.columns.filter((column, i) => visibleColumns.getIn([i, 'status']));
+        ? columns
+        : columns.filter((column, i) => visibleColumns.getIn([i, 'status']));
 
     return (
       <div className={classes.root}>
@@ -140,29 +162,7 @@ class SimpleTable extends React.Component {
 
           <Table padding="dense">
             <TableHead>
-              <TableRow>
-                {columns.map((header, index) => {
-                  const headerKey = header;
-                  if ('disableSort' in result && result.disableSort.has(index)) {
-                    return <TableCell key={headerKey}>{header}</TableCell>;
-                  }
-                  return (
-                    <TableCell
-                      padding="dense"
-                      key={headerKey}
-                      sortDirection={orderBy === index ? order : false}
-                    >
-                      <TableSortLabel
-                        active={orderBy === index}
-                        direction={order}
-                        onClick={this.handleRequestSort(index)}
-                      >
-                        {header}
-                      </TableSortLabel>
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
+              <TableRow>{filteredColumns}</TableRow>
             </TableHead>
             <TableBody>
               {stableSort(result.data, getSorting(order, orderBy))
