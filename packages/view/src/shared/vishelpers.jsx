@@ -123,16 +123,17 @@ export function getRoiBarChartForConnection(
   csRoiInfoObject,
   roiList,
   connectionWeight,
-  postTotal,
-  preTotal,
   bodyIdA,
   bodyIdB
 ) {
-  const csRoiInfoObjectWithNoneCount = getCSRoiInfoObjectWithNoneCount(
+  /* const csRoiInfoObjectWithNoneCount = getCSRoiInfoObjectWithNoneCount(
     csRoiInfoObject,
     roiList,
     connectionWeight // total number of psds for the connection is the weight of the connection
-  );
+  ); */
+
+  const postTotal = Object.values(csRoiInfoObject).reduce((total, current) => total + current.post, 0);
+  const preTotal = Object.values(csRoiInfoObject).reduce((total, current) => total + current.pre, 0);
 
   return (
     <div style={{ display: 'inline-flex' }}>
@@ -143,7 +144,7 @@ export function getRoiBarChartForConnection(
       <div style={{ display: 'block', paddingLeft: '30px' }}>
           <NeuronRoiBarGraph
             roiList={roiList}
-            roiInfoObject={csRoiInfoObjectWithNoneCount}
+            roiInfoObject={csRoiInfoObject}
             preTotal={preTotal}
             postTotal={postTotal}
           />

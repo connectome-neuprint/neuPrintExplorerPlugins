@@ -17,7 +17,7 @@ import { withStyles } from '@material-ui/core/styles';
 // eslint-disable-next-line import/no-unresolved
 import TablePaginationActions from '@neuprint/support';
 
-import { stableSort, getSorting, getRoiHeatMapForConnection } from '../shared/vishelpers';
+import { stableSort, getSorting, getRoiBarChartForConnection } from '../shared/vishelpers';
 
 const styles = theme => ({
   root: {
@@ -100,7 +100,7 @@ class SimpleConnectionsTable extends React.Component {
           }
           const csRoiInfo = JSON.parse(resp.data[0][0]) || {};
 
-          newExpansionPanels[key] = getRoiHeatMapForConnection(
+          newExpansionPanels[key] = getRoiBarChartForConnection(
             csRoiInfo,
             roiList,
             connectionWeight,
