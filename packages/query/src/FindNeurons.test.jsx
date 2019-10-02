@@ -1,5 +1,5 @@
 import { FindNeurons } from './FindNeurons';
-import { ColorLegend } from './visualization/MiniRoiHeatMap';
+import { ColorLegend } from '@neuprint/miniroiheatmap';
 
 let wrapper;
 let button;

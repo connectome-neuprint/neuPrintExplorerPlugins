@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ColorBox uses correct color 1`] = `
+<div
+  style={
+    Object {
+      "alignItems": "center",
+      "backgroundColor": "#fff",
+      "color": "#000",
+      "display": "inline-flex",
+      "flexDirection": "column",
+      "height": "20px",
+      "justifyContent": "center",
+      "margin": "0px",
+      "minHeight": "20px",
+      "minWidth": "10px",
+      "overflow": "visible",
+      "width": "10px",
+    }
+  }
+  title="100%"
+>
+  alt text
+</div>
+`;

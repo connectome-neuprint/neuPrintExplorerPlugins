@@ -11,8 +11,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { withStyles } from '@material-ui/core/styles';
 
-// eslint-disable-next-line import/no-unresolved
-import TablePaginationActions from '@neuprint/support';
+import { TablePaginationActions } from '@neuprint/support';
 
 import { stableSort, getSorting } from './shared/vishelpers';
 import ColumnSelection from './shared/ColumnSelection';

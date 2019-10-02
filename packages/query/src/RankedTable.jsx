@@ -17,7 +17,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 
-import ColorBox from './visualization/ColorBox';
+import ColorBox from '@neuprint/colorbox';
 import NeuronHelp from './shared/NeuronHelp';
 import NeuronInputField from './shared/NeuronInputField';
 import HPWeightSlider from './shared/HPWeightSlider';

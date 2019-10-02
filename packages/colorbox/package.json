@@ -1,0 +1,59 @@
+{
+  "name": "@neuprint/colorbox",
+  "version": "0.0.1",
+  "description": "Draws a colored box around some text",
+  "author": "Jody Clements <jody@neomorphic.co.uk>",
+  "homepage": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/tree/master/packages/colorbox#readme",
+  "license": "MIT",
+  "main": "lib/colorbox.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "scripts": {
+    "test": "jest --coverage",
+    "prebuild": "rimraf build",
+    "build": "NODE_ENV=production npx babel ./src --out-dir ./lib --ignore '**/*.test.jsx' --ignore '**/*.test.js'",
+    "dev": "NODE_ENV=development npx babel ./src --out-dir ./lib --ignore '**/*.test.jsx' --ignore '**/*.test.js' --source-maps --watch --verbose",
+    "prepublishOnly": "npm run-script build"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/connectome-neuprint/neuPrintExplorerPlugins.git"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.2.3",
+    "@babel/polyfill": "^7.2.5",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/preset-react": "^7.0.0",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^23.6.0",
+    "eslint": "^5.11.1",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-config-react-app": "^3.0.6",
+    "eslint-plugin-flowtype": "^3.2.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.12.2",
+    "jest": "^23.6.0",
+    "prettier": "^1.15.3",
+    "prop-types": "^15.6.2",
+    "react": "^16.6.0",
+    "react-dom": "^16.3.3",
+    "react-test-renderer": "^16.7.0"
+  },
+  "peerDependencies": {
+    "prop-types": "^15.6.2",
+    "react": "^16.6.0",
+    "react-dom": "^16.3.3"
+  },
+  "bugs": {
+    "url": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/issues"
+  }
+}

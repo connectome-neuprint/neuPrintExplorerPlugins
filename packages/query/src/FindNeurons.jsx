@@ -9,7 +9,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Typography from '@material-ui/core/Typography';
 
-import { ColorLegend } from './visualization/MiniRoiHeatMap';
+import { ColorLegend } from '@neuprint/miniroiheatmap';
 import NeuronHelp from './shared/NeuronHelp';
 import NeuronInputField from './shared/NeuronInputField';
 import NeuronFilter from './shared/NeuronFilter';

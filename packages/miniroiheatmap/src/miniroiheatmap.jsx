@@ -1,6 +1,6 @@
 import React from 'react';
 import colormap from 'colormap';
-import ColorBox from './ColorBox';
+import ColorBox from '@neuprint/colorbox';
 
 const viridisColorMap = colormap({
   colormap: 'viridis',
@@ -98,7 +98,7 @@ export default ({ roiList, roiInfoObject, preTotal, postTotal }) => {
         roiInfoObjectKey="post"
         sumOfValues={postTotal}
       />
-      inputs
+      inputs*
     </div>
   );
   const hmPre = (
@@ -109,7 +109,7 @@ export default ({ roiList, roiInfoObject, preTotal, postTotal }) => {
         roiInfoObjectKey="pre"
         sumOfValues={preTotal}
       />
-      outputs
+      outputs*
     </div>
   );
   return [text, hmPost, hmPre];

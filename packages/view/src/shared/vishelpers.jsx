@@ -1,5 +1,5 @@
 import React from 'react';
-import { RoiHeatMap, HeatMapLabels } from '../visualization/MiniRoiHeatMap';
+import { RoiHeatMap, HeatMapLabels } from '@neuprint/miniroiheatmap';
 
 function desc(a, b, orderBy) {
   let aVal = a[orderBy];

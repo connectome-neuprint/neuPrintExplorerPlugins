@@ -75,6 +75,8 @@
   },
   "dependencies": {
     "@neuprint/support": "^0.2.0",
+    "@neuprint/colorbox": "^0.0.1",
+    "@neuprint/miniroiheatmap": "^0.0.1",
     "codemirror": "^5.48.4",
     "colormap": "^2.3.0",
     "date-fns": "^1.30.1",

@@ -15,7 +15,7 @@ import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 
 import { round } from 'mathjs';
-import NeuronRoiHeatMap, { ColorLegend } from './visualization/MiniRoiHeatMap';
+import NeuronRoiHeatMap, { ColorLegend } from '@neuprint/miniroiheatmap';
 import {
   setColumnIndices,
   createSimpleConnectionQueryObject,

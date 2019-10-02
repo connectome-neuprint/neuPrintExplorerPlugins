@@ -1,6 +1,6 @@
 import React from 'react';
 import { pickTextColorBasedOnBgColorAdvanced } from '@neuprint/support';
-import ColorBox from './ColorBox';
+import ColorBox from '@neuprint/colorbox';
 
 const colorArray = [
   '#4e79a7',
@@ -16,7 +16,7 @@ const colorArray = [
 let usedColorIndex = 0;
 const roiToColorMap = {};
 
-function BarGraph({ listOfRoisToUse, roiInfoObject, roiInfoObjectKey, sumOfValues }) {
+function MiniROIBarGraph({ listOfRoisToUse, roiInfoObject, roiInfoObjectKey, sumOfValues }) {
   const type = roiInfoObjectKey;
   const total = Math.max(sumOfValues, 0.01);
 
@@ -72,7 +72,7 @@ export default ({ roiList, roiInfoObject, preTotal, postTotal }) => {
 
   const inputBar = (
     <div key="post" style={styles}>
-      <BarGraph
+      <MiniROIBarGraph
         roiInfoObject={roiInfoObject}
         listOfRoisToUse={roiList}
         roiInfoObjectKey="post"
@@ -83,7 +83,7 @@ export default ({ roiList, roiInfoObject, preTotal, postTotal }) => {
   );
   const outputBar = (
     <div key="pre" style={styles}>
-      <BarGraph
+      <MiniROIBarGraph
         roiInfoObject={roiInfoObject}
         listOfRoisToUse={roiList}
         roiInfoObjectKey="pre"

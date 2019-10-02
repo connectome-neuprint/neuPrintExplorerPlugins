@@ -1,25 +1,29 @@
 {
-  "name": "@neuprint/support",
-  "version": "0.2.0",
-  "description": "Support methods used by plugins for the neuPrintExplorer website",
-  "main": "build/index.js",
-  "scripts": {
-    "test": "jest --coverage",
-    "prebuild": "rimraf build",
-    "build": "NODE_ENV=production npx babel ./src --out-dir ./build --ignore '**/*.test.jsx' --ignore '**/*.test.js'",
-    "dev": "NODE_ENV=development npx babel ./src --out-dir ./build --ignore '**/*.test.jsx' --ignore '**/*.test.js' --source-maps --watch --verbose",
-    "prepublishOnly": "npm run-script build"
+  "name": "@neuprint/miniroiheatmap",
+  "version": "0.0.1",
+  "description": "horizontal heatmaps showing ROI connectivity",
+  "author": "Jody Clements <jody@neomorphic.co.uk>",
+  "homepage": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/tree/master/packages/miniroiheatmap#readme",
+  "license": "MIT",
+  "main": "lib/miniroiheatmap.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
   },
+  "files": [
+    "lib"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/connectome-neuprint/neuPrintExplorerPlugins.git"
   },
-  "author": "neuPrint Team",
-  "license": "SEE LICENSE IN LICENSE.txt",
-  "bugs": {
-    "url": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/issues"
+  "scripts": {
+    "test": "jest --coverage",
+    "prebuild": "rimraf build",
+    "build": "NODE_ENV=production npx babel ./src --out-dir ./lib --ignore '**/*.test.jsx' --ignore '**/*.test.js'",
+    "dev": "NODE_ENV=development npx babel ./src --out-dir ./lib --ignore '**/*.test.jsx' --ignore '**/*.test.js' --source-maps --watch --verbose",
+    "prepublishOnly": "npm run-script build"
   },
-  "homepage": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins#readme",
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
@@ -45,21 +49,18 @@
     "prettier": "^1.15.3",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
-    "react-dom": "^16.3.3",
-    "react-test-renderer": "^16.7.0",
-    "regenerator-runtime": "^0.13.1",
-    "sinon": "^7.2.2"
+    "react-dom": "^16.3.3"
   },
   "peerDependencies": {
-    "@material-ui/core": "^3.2.0",
-    "@material-ui/icons": "^3.0.1",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
     "react-dom": "^16.3.3"
   },
-  "gitHead": "7e8a8d98fc5f55d001b8cc2707aee629396f7654",
   "dependencies": {
     "@neuprint/colorbox": "^0.0.1",
     "colormap": "^2.3.1"
+  },
+  "bugs": {
+    "url": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/issues"
   }
 }

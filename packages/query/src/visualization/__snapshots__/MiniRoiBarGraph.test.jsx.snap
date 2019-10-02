@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MiniRoiBarGraph can render 1`] = `
+Array [
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flexDirection": "row",
+        "margin": "5px",
+      }
+    }
+  >
+    inputs
+  </div>,
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flexDirection": "row",
+        "margin": "5px",
+      }
+    }
+  >
+    outputs
+  </div>,
+]
+`;
