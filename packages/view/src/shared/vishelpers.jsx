@@ -1,5 +1,6 @@
 import React from 'react';
 import { RoiHeatMap, HeatMapLabels } from '@neuprint/miniroiheatmap';
+import NeuronRoiBarGraph from '@neuprint/miniroibargraph';
 
 function desc(a, b, orderBy) {
   let aVal = a[orderBy];
@@ -117,6 +118,40 @@ export function getRoiHeatMapForConnection(
     </div>
   );
 }
+
+export function getRoiBarChartForConnection(
+  csRoiInfoObject,
+  roiList,
+  connectionWeight,
+  postTotal,
+  preTotal,
+  bodyIdA,
+  bodyIdB
+) {
+  const csRoiInfoObjectWithNoneCount = getCSRoiInfoObjectWithNoneCount(
+    csRoiInfoObject,
+    roiList,
+    connectionWeight // total number of psds for the connection is the weight of the connection
+  );
+
+  return (
+    <div style={{ display: 'inline-flex' }}>
+      <div style={{ display: 'block' }}>
+        <b>Connection details</b>
+        <div>{`${bodyIdA} to ${bodyIdB}`}</div>
+      </div>
+      <div style={{ display: 'block', paddingLeft: '30px' }}>
+          <NeuronRoiBarGraph
+            roiList={roiList}
+            roiInfoObject={csRoiInfoObjectWithNoneCount}
+            preTotal={preTotal}
+            postTotal={postTotal}
+          />
+      </div>
+    </div>
+  );
+}
+
 
 export default {
   stableSort,

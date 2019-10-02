@@ -1,0 +1,221 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MiniRoiHeatMap can render 1`] = `
+Array [
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flexDirection": "row",
+        "margin": "5px",
+      }
+    }
+  >
+    <div
+      style={
+        Object {
+          "display": "inline-flex",
+          "flexDirection": "row",
+          "fontSize": "10px",
+          "height": "40px",
+          "margin": "0px",
+          "overflow": "visible",
+          "transform": "rotate(-90deg) translateX(-40px)",
+          "transformOrigin": "left top 0",
+          "whiteSpace": "nowrap",
+          "width": "10px",
+        }
+      }
+      title="ME"
+    >
+      ME
+    </div>
+    <div
+      style={
+        Object {
+          "display": "inline-flex",
+          "flexDirection": "row",
+          "fontSize": "10px",
+          "height": "40px",
+          "margin": "0px",
+          "overflow": "visible",
+          "transform": "rotate(-90deg) translateX(-40px)",
+          "transformOrigin": "left top 0",
+          "whiteSpace": "nowrap",
+          "width": "10px",
+        }
+      }
+      title="VES"
+    >
+      VES
+    </div>
+    <div
+      style={
+        Object {
+          "display": "inline-flex",
+          "flexDirection": "row",
+          "fontSize": "10px",
+          "height": "40px",
+          "margin": "0px",
+          "overflow": "visible",
+          "transform": "rotate(-90deg) translateX(-40px)",
+          "transformOrigin": "left top 0",
+          "whiteSpace": "nowrap",
+          "width": "10px",
+        }
+      }
+      title="dACA"
+    >
+      dACA
+    </div>
+  </div>,
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flexDirection": "row",
+        "margin": "5px",
+      }
+    }
+  >
+    <div
+      style={
+        Object {
+          "alignItems": "center",
+          "backgroundColor": "#fde725",
+          "color": "#000",
+          "display": "inline-flex",
+          "flexDirection": "column",
+          "height": "20px",
+          "justifyContent": "center",
+          "margin": "0px",
+          "minHeight": "20px",
+          "minWidth": "10px",
+          "overflow": "visible",
+          "width": "10px",
+        }
+      }
+      title="ME 100%"
+    >
+      
+    </div>
+    <div
+      style={
+        Object {
+          "alignItems": "center",
+          "backgroundColor": "#440154",
+          "color": "#000",
+          "display": "inline-flex",
+          "flexDirection": "column",
+          "height": "20px",
+          "justifyContent": "center",
+          "margin": "0px",
+          "minHeight": "20px",
+          "minWidth": "10px",
+          "overflow": "visible",
+          "width": "10px",
+        }
+      }
+      title="VES 0%"
+    >
+      
+    </div>
+    <div
+      style={
+        Object {
+          "alignItems": "center",
+          "backgroundColor": "#440154",
+          "color": "#000",
+          "display": "inline-flex",
+          "flexDirection": "column",
+          "height": "20px",
+          "justifyContent": "center",
+          "margin": "0px",
+          "minHeight": "20px",
+          "minWidth": "10px",
+          "overflow": "visible",
+          "width": "10px",
+        }
+      }
+      title="dACA 0%"
+    >
+      
+    </div>
+    inputs*
+  </div>,
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flexDirection": "row",
+        "margin": "5px",
+      }
+    }
+  >
+    <div
+      style={
+        Object {
+          "alignItems": "center",
+          "backgroundColor": "#fde725",
+          "color": "#000",
+          "display": "inline-flex",
+          "flexDirection": "column",
+          "height": "20px",
+          "justifyContent": "center",
+          "margin": "0px",
+          "minHeight": "20px",
+          "minWidth": "10px",
+          "overflow": "visible",
+          "width": "10px",
+        }
+      }
+      title="ME 100%"
+    >
+      
+    </div>
+    <div
+      style={
+        Object {
+          "alignItems": "center",
+          "backgroundColor": "#440154",
+          "color": "#000",
+          "display": "inline-flex",
+          "flexDirection": "column",
+          "height": "20px",
+          "justifyContent": "center",
+          "margin": "0px",
+          "minHeight": "20px",
+          "minWidth": "10px",
+          "overflow": "visible",
+          "width": "10px",
+        }
+      }
+      title="VES 0%"
+    >
+      
+    </div>
+    <div
+      style={
+        Object {
+          "alignItems": "center",
+          "backgroundColor": "#440154",
+          "color": "#000",
+          "display": "inline-flex",
+          "flexDirection": "column",
+          "height": "20px",
+          "justifyContent": "center",
+          "margin": "0px",
+          "minHeight": "20px",
+          "minWidth": "10px",
+          "overflow": "visible",
+          "width": "10px",
+        }
+      }
+      title="dACA 0%"
+    >
+      
+    </div>
+    outputs*
+  </div>,
+]
+`;

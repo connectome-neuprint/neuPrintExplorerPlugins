@@ -75,6 +75,36 @@ class SimpleConnectionsView extends React.Component {
     actions.setColumnStatus(index, columnIndex, !visibleColumns.getIn([columnIndex, 'status']));
   };
 
+  renderSingle() {
+    const { query, classes, visibleColumns } = this.props;
+    const row = query.result.data[0];
+    return (
+      <div className={classes.root}>
+        <Typography className={classes.expansionText}>{row.name}</Typography>
+        <ColumnSelection
+          columns={visibleColumns}
+          onChange={columnIndex => this.handleColumnChange(columnIndex)}
+        />
+        <div className={classes.scroll}>
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell className={classes.cellborder} padding="none">
+                  <SimpleConnectionsTable
+                    visibleColumns={visibleColumns}
+                    data={row.data}
+                    columns={row.columns}
+                  />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    );
+
+  }
+
   render() {
     const { query, classes, visibleColumns } = this.props;
     const { visProps = {} } = query;
@@ -159,35 +189,6 @@ class SimpleConnectionsView extends React.Component {
     );
   }
 
-  renderSingle() {
-    const { query, classes, visibleColumns } = this.props;
-    const row = query.result.data[0];
-    return (
-      <div className={classes.root}>
-        <Typography className={classes.expansionText}>{row.name}</Typography>
-        <ColumnSelection
-          columns={visibleColumns}
-          onChange={columnIndex => this.handleColumnChange(columnIndex)}
-        />
-        <div className={classes.scroll}>
-          <Table>
-            <TableBody>
-              <TableRow>
-                <TableCell className={classes.cellborder} padding="none">
-                  <SimpleConnectionsTable
-                    visibleColumns={visibleColumns}
-                    data={row.data}
-                    columns={row.columns}
-                  />
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-    );
-
-  }
 }
 
 SimpleConnectionsView.propTypes = {

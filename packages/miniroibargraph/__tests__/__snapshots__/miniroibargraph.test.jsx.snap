@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MiniRoiBarGraph can render 1`] = `
+Array [
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flexDirection": "row",
+        "margin": "5px",
+      }
+    }
+  >
+    <div
+      style={
+        Object {
+          "alignItems": "center",
+          "backgroundColor": "#4e79a7",
+          "color": "#000",
+          "display": "inline-flex",
+          "flexDirection": "column",
+          "height": "20px",
+          "justifyContent": "center",
+          "margin": "0px",
+          "minHeight": "20px",
+          "minWidth": "400px",
+          "overflow": "visible",
+          "width": "400px",
+        }
+      }
+      title="ME 100%"
+    >
+      ME 100%
+    </div>
+    inputs
+  </div>,
+  <div
+    style={
+      Object {
+        "display": "flex",
+        "flexDirection": "row",
+        "margin": "5px",
+      }
+    }
+  >
+    <div
+      style={
+        Object {
+          "alignItems": "center",
+          "backgroundColor": "#4e79a7",
+          "color": "#000",
+          "display": "inline-flex",
+          "flexDirection": "column",
+          "height": "20px",
+          "justifyContent": "center",
+          "margin": "0px",
+          "minHeight": "20px",
+          "minWidth": "400px",
+          "overflow": "visible",
+          "width": "400px",
+        }
+      }
+      title="ME 100%"
+    >
+      ME 100%
+    </div>
+    outputs
+  </div>,
+]
+`;

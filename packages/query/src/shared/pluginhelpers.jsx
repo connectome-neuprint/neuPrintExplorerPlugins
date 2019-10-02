@@ -1,7 +1,7 @@
 import React from 'react';
 import * as math from 'mathjs';
 import NeuronRoiHeatMap, { ColorLegend } from '@neuprint/miniroiheatmap';
-import NeuronRoiBarGraph from '../visualization/MiniRoiBarGraph';
+import NeuronRoiBarGraph from '@neuprint/miniroibargraph';
 import { SimpleConnections } from '../SimpleConnections';
 import BodyId from '../visualization/BodyId';
 

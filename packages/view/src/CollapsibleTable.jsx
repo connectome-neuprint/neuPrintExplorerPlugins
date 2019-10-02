@@ -70,6 +70,35 @@ class CollapsibleTable extends React.Component {
     action();
   };
 
+  renderSingle() {
+    const { query, classes, visibleColumns } = this.props;
+    const row = query.result.data[0];
+    return (
+      <div className={classes.root}>
+        <Typography className={classes.expansionText}>{row.name}</Typography>
+        <div className={classes.scroll}>
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell className={classes.cellborder} padding="none">
+                  <ColumnSelection
+                    columns={visibleColumns}
+                    onChange={columnIndex => this.handleColumnChange(columnIndex)}
+                  />
+                  <IndependentTable
+                    data={row.data}
+                    columns={row.columns}
+                  />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    );
+
+  }
+
   render() {
     const { query, classes, visibleColumns } = this.props;
     const { visProps = {} } = query;
@@ -156,36 +185,6 @@ class CollapsibleTable extends React.Component {
       </div>
     );
   }
-
-  renderSingle() {
-    const { query, classes, visibleColumns } = this.props;
-    const row = query.result.data[0];
-    return (
-      <div className={classes.root}>
-        <Typography className={classes.expansionText}>{row.name}</Typography>
-        <div className={classes.scroll}>
-          <Table>
-            <TableBody>
-              <TableRow>
-                <TableCell className={classes.cellborder} padding="none">
-                  <ColumnSelection
-                    columns={visibleColumns}
-                    onChange={columnIndex => this.handleColumnChange(columnIndex)}
-                  />
-                  <IndependentTable
-                    data={row.data}
-                    columns={row.columns}
-                  />
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-    );
-
-  }
-
 }
 
 CollapsibleTable.propTypes = {

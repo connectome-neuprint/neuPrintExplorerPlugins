@@ -1,11 +1,11 @@
 {
-  "name": "@neuprint/miniroiheatmap",
+  "name": "@neuprint/miniroibargraph",
   "version": "0.0.1",
-  "description": "horizontal heatmaps showing ROI connectivity",
+  "description": "Generates condensed bar graph of ROI connectivity %",
   "author": "Jody Clements <jody@neomorphic.co.uk>",
-  "homepage": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/tree/master/packages/miniroiheatmap#readme",
+  "homepage": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/tree/master/packages/miniroibargraph#readme",
   "license": "MIT",
-  "main": "lib/miniroiheatmap.js",
+  "main": "lib/miniroibargraph.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -13,16 +13,19 @@
   "files": [
     "lib"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/connectome-neuprint/neuPrintExplorerPlugins.git"
-  },
   "scripts": {
-    "test": "jest --coverage",
+   "test": "jest --coverage",
     "prebuild": "rimraf build",
     "build": "NODE_ENV=production npx babel ./src --out-dir ./lib --ignore '**/*.test.jsx' --ignore '**/*.test.js'",
     "dev": "NODE_ENV=development npx babel ./src --out-dir ./lib --ignore '**/*.test.jsx' --ignore '**/*.test.js' --source-maps --watch --verbose",
     "prepublishOnly": "npm run-script build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/connectome-neuprint/neuPrintExplorerPlugins.git"
+  },
+  "bugs": {
+    "url": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/issues"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
@@ -31,12 +34,8 @@
     "@babel/polyfill": "^7.2.5",
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0",
-    "@material-ui/core": "^3.2.0",
-    "@material-ui/icons": "^3.0.1",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^23.6.0",
-    "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.7.1",
     "eslint": "^5.11.1",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^3.3.0",
@@ -59,9 +58,6 @@
   },
   "dependencies": {
     "@neuprint/colorbox": "^0.0.1",
-    "colormap": "^2.3.1"
-  },
-  "bugs": {
-    "url": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/issues"
+    "@neuprint/support": "^0.2.0"
   }
 }

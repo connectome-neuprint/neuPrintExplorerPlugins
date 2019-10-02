@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import MiniRoiBarGraph from './MiniRoiBarGraph';
+import MiniRoiBarGraph from '../lib/miniroibargraph';
 
 test('MiniRoiBarGraph can render', () => {
   const roiList = ["ME", "VES", "dACA"];
@@ -13,7 +13,6 @@ test('MiniRoiBarGraph can render', () => {
   const raw = <MiniRoiBarGraph roiList={roiList} preTotal={21} postTotal={34} roiInfoObject={roiInfoObject} />;
   const component = renderer.create(raw);
   const tree = component.toJSON();
-  console.log(tree);
   expect(tree).toMatchSnapshot();
 });
 
