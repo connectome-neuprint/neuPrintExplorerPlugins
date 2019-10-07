@@ -1,6 +1,6 @@
 import React from 'react';
 import { RoiHeatMap, HeatMapLabels } from '@neuprint/miniroiheatmap';
-import NeuronRoiBarGraph from '@neuprint/miniroibargraph';
+import { MiniROIBarGraph} from '@neuprint/miniroibargraph';
 
 function desc(a, b, orderBy) {
   let aVal = a[orderBy];
@@ -133,7 +133,7 @@ export function getRoiBarChartForConnection(
   ); */
 
   const postTotal = Object.values(csRoiInfoObject).reduce((total, current) => total + current.post, 0);
-  const preTotal = Object.values(csRoiInfoObject).reduce((total, current) => total + current.pre, 0);
+  // const preTotal = Object.values(csRoiInfoObject).reduce((total, current) => total + current.pre, 0);
 
   return (
     <div style={{ display: 'inline-flex' }}>
@@ -142,11 +142,11 @@ export function getRoiBarChartForConnection(
         <div>{`${bodyIdA} to ${bodyIdB}`}</div>
       </div>
       <div style={{ display: 'block', paddingLeft: '30px' }}>
-          <NeuronRoiBarGraph
-            roiList={roiList}
+          <MiniROIBarGraph
             roiInfoObject={csRoiInfoObject}
-            preTotal={preTotal}
-            postTotal={postTotal}
+            listOfRoisToUse={roiList}
+            roiInfoObjectKey="post"
+            sumOfValues={postTotal}
           />
       </div>
     </div>

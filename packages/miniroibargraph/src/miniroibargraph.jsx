@@ -16,7 +16,7 @@ const colorArray = [
 let usedColorIndex = 0;
 const roiToColorMap = {};
 
-function MiniROIBarGraph({ listOfRoisToUse, roiInfoObject, roiInfoObjectKey, sumOfValues }) {
+export function MiniROIBarGraph({ listOfRoisToUse, roiInfoObject, roiInfoObjectKey, sumOfValues }) {
   const type = roiInfoObjectKey;
   const total = Math.max(sumOfValues, 0.01);
 
