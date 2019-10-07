@@ -72,9 +72,9 @@ class SimpleConnectionsTable extends React.Component {
     this.setState({ order: newOrder, orderBy: newOrderBy });
   };
 
-  toggleExpandPanel = (key, parameters) => {
+  toggleExpandPanel = (key, parameters, connectionWeight) => {
     const { isExpanded, expansionPanels } = this.state;
-    const { roiList, connectionWeight, bodyIdA, bodyIdB } = parameters;
+    const { roiList, bodyIdA, bodyIdB } = parameters;
     const newIsExpanded = { ...isExpanded };
     const newExpansionPanels = { ...expansionPanels };
     if (isExpanded[key]) {
@@ -198,7 +198,7 @@ class SimpleConnectionsTable extends React.Component {
                               <TableCell key="expansionButton">
                                 <IconButton
                                   aria-label="Expand"
-                                  onClick={() => this.toggleExpandPanel(bodyId, cell)}
+                                  onClick={() => this.toggleExpandPanel(bodyId, cell, row[5])}
                                 >
                                   {isExpanded[bodyId] ? (
                                     <RemoveIcon style={{ width: '.75em', height: '.75em' }} />

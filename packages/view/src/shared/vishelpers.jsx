@@ -132,7 +132,7 @@ export function getRoiBarChartForConnection(
     connectionWeight // total number of psds for the connection is the weight of the connection
   ); */
 
-  const postTotal = Object.values(csRoiInfoObject).reduce((total, current) => total + current.post, 0);
+  // const postTotal = Object.values(csRoiInfoObject).reduce((total, current) => total + current.post, 0);
   // const preTotal = Object.values(csRoiInfoObject).reduce((total, current) => total + current.pre, 0);
 
   return (
@@ -146,7 +146,7 @@ export function getRoiBarChartForConnection(
             roiInfoObject={csRoiInfoObject}
             listOfRoisToUse={roiList}
             roiInfoObjectKey="post"
-            sumOfValues={postTotal}
+            sumOfValues={connectionWeight}
           />
       </div>
     </div>
