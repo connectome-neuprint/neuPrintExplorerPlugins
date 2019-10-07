@@ -16,9 +16,20 @@ function ColorBox({ margin, width, height, backgroundColor, title, text, color }
     alignItems: 'center',
     flexDirection: 'column'
   };
+
+  let displayText = text;
+
+  // check here if text string is empty and replace it with a '.' and
+  // change the text color to match the background color.
+  // Do this to prevent weird rendering of the divs where the empty one
+  // is positioned above the one with text in it.
+  if (text === '') {
+    styles.color = backgroundColor;
+    displayText = '.';
+  }
   return (
     <div style={styles} title={title}>
-      {text}
+      {displayText}
     </div>
   );
 }
