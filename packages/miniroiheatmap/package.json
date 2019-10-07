@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/miniroiheatmap",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "horizontal heatmaps showing ROI connectivity",
   "author": "Jody Clements <jody@neomorphic.co.uk>",
   "homepage": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/tree/master/packages/miniroiheatmap#readme",
@@ -58,7 +58,7 @@
     "react-dom": "^16.3.3"
   },
   "dependencies": {
-    "@neuprint/colorbox": "^0.0.1",
+    "@neuprint/colorbox": "^1.0.0",
     "colormap": "^2.3.1"
   },
   "bugs": {
