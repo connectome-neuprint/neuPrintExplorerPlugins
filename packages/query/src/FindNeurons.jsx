@@ -30,6 +30,9 @@ const styles = theme => ({
   },
   regexWarning: {
     fontSize: '0.9em'
+  },
+  formControl: {
+    marginBottom: '1em'
   }
 });
 
@@ -410,6 +413,22 @@ export class FindNeurons extends React.Component {
 
     return (
       <div>
+        <FormControl fullWidth className={classes.formControl}>
+          <NeuronHelp>
+            <NeuronInputField onChange={this.addNeuronInstance} value={neuronInstance} />
+          </NeuronHelp>
+          {regexMatch && (
+            <Typography color="error" className={classes.regexWarning}>
+              Warning!! This is a regular expression search and characters like &#39;&#40;&#39; must
+              be escaped. eg: to search for &#39;c(SFS)_R&#39; you would need to type
+              &#39;c\\(SFS\\)_R&#39; For more details on how to write regular expressions, please
+              see{' '}
+              <a href="https://www.regular-expressions.info/">
+                https://www.regular-expressions.info/
+              </a>
+            </Typography>
+          )}
+        </FormControl>
         <InputLabel htmlFor="select-multiple-chip">Input ROIs</InputLabel>
         <Select
           className={classes.select}
@@ -428,23 +447,7 @@ export class FindNeurons extends React.Component {
           options={outputOptions}
           closeMenuOnSelect={false}
         />
-        <FormControl fullWidth className={classes.formControl}>
-          <NeuronHelp>
-            <NeuronInputField onChange={this.addNeuronInstance} value={neuronInstance} />
-          </NeuronHelp>
-          {regexMatch && (
-            <Typography color="error" className={classes.regexWarning}>
-              Warning!! This is a regular expression search and characters like &#39;&#40;&#39; must
-              be escaped. eg: to search for &#39;c(SFS)_R&#39; you would need to type
-              &#39;c\\(SFS\\)_R&#39; For more details on how to write regular expressions, please
-              see{' '}
-              <a href="https://www.regular-expressions.info/">
-                https://www.regular-expressions.info/
-              </a>
-            </Typography>
-          )}
-        </FormControl>
-        <NeuronFilter
+       <NeuronFilter
           callback={this.loadNeuronFilters}
           datasetstr={dataSet}
           actions={actions}
