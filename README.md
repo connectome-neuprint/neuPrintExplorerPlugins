@@ -5,17 +5,20 @@
 Query and View plugins used by the neuPrintExplorer site to generate reusable
 query forms and visualisations.
 
-  Query plugins generate a form to take user input and query the neuPrint
+  **Query** plugins generate a form to take user input and query the neuPrint
 cypher api to fetch data from the server. The resulting data is then passed
 on to a selected view plugin for display.
 
-  View plugins take data from the query plugins and format them in a specific way
+  **View** plugins take data from the query plugins and format them in a specific way
 for display on the site. This could be a table, graphic, or chart.
 
 ## Writing a Plugin
-  Please read below to see how to create your own plugin.
+  This is a mono repo managed with lerna, so you will need to install that first. Please see the [lerna docs](https://lerna.js.org/) for more information.
 
 ### Getting started
+
+     % git clone git@github.com:connectome-neuprint/neuPrintExplorerPlugins.git
+     % cd neuPrintExplorerPlugins
 
 An example template for the plugins can be found at
 
@@ -41,10 +44,13 @@ checkout, run the build, and it will be automatically included in the site. For 
 steps to add a query plugin.
 
    1. copy the plugin into the correct location
-      - cp Plugin.jsx &lt;neuPrintExplorer&gt;/plugins/Plugin.jsx
+
+    % cp Plugin.jsx <neuPrintExplorer>/plugins/Plugin.jsx
+
    2. build the explorer.
-      - cd &lt;path to your neuPrintExplorer checkout&gt;
-      - npm run build
+
+    % cd <path to your neuPrintExplorer checkout>
+    % npm run dev
 
 The process for installing View plugins is almost identical. Just change the directory
 that the files are placed in to the view-plugins directory in neuPrintExplorer.
@@ -68,6 +74,21 @@ An example of this can be seen in the example test file at:
 
 
 ### Contributing a core plugin.
+
+Setup the plugins to rebuild when modified
+
+    % lerna bootstrap
+    % lerna exec npm link
+    % lerna link
+    % lerna exec --parallel -- npm run dev
+
+Make your changes.
+
+To test the new plugins in your local copy of neuPrintExplorer:
+
+    % cd neuPrintExplorer
+    % npm link @neuprint/queries @neuprint/views @neuprint/support
+
 
 Once you are happy that your plugin is working as intended, you can issue a
 [pull request](https://help.github.com/articles/about-pull-requests/) to have the plugin included
