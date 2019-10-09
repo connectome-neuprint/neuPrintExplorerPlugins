@@ -48,8 +48,7 @@
     "react-dom": "^16.3.3"
   },
   "dependencies": {
-    "rimraf": "^2.6.2",
-    "@neuprint/colorbox": "^0.0.1"
+    "rimraf": "^2.6.2"
   },
   "prettier": {
     "printWidth": 100,
