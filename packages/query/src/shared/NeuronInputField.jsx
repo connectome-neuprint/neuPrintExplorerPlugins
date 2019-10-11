@@ -69,7 +69,7 @@ class NeuronInputField extends React.Component {
 
 NeuronInputField.propTypes = {
   classes: PropTypes.object.isRequired,
-  handleSubmit: PropTypes.object.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
   onChange: PropTypes.func,
   value: PropTypes.string
 };
