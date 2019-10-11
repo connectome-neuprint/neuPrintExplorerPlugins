@@ -338,6 +338,7 @@ export class RankedTable extends React.Component {
             <NeuronInputField
               onChange={this.addNeuron}
               value={neuronSrc}
+              handleSubmit={this.processRequest}
             />
           </NeuronHelp>
         </FormControl>

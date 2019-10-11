@@ -154,6 +154,7 @@ class ROIsIntersectingNeurons extends React.Component {
             <NeuronInputField
               onChange={this.handleClick}
               value={neuronsrc}
+              handleSubmit={this.processRequest}
             />
           </NeuronHelp>
         </FormControl>

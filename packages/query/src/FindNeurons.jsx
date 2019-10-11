@@ -194,7 +194,7 @@ export class FindNeurons extends React.Component {
         const aValue = findMinSortValue(a, inputROIs, outputROIs);
         const bValue = findMinSortValue(b, inputROIs, outputROIs);
         // return the result
-        return aValue - bValue
+        return aValue - bValue;
       })
       .map(row => {
         const hasSkeleton = row[8];
@@ -415,7 +415,11 @@ export class FindNeurons extends React.Component {
       <div>
         <FormControl fullWidth className={classes.formControl}>
           <NeuronHelp>
-            <NeuronInputField onChange={this.addNeuronInstance} value={neuronInstance} />
+            <NeuronInputField
+              onChange={this.addNeuronInstance}
+              value={neuronInstance}
+              handleSubmit={this.processRequest}
+            />
           </NeuronHelp>
           {regexMatch && (
             <Typography color="error" className={classes.regexWarning}>
@@ -447,7 +451,7 @@ export class FindNeurons extends React.Component {
           options={outputOptions}
           closeMenuOnSelect={false}
         />
-       <NeuronFilter
+        <NeuronFilter
           callback={this.loadNeuronFilters}
           datasetstr={dataSet}
           actions={actions}

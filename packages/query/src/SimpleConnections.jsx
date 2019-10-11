@@ -273,6 +273,7 @@ export class SimpleConnections extends React.Component {
             <NeuronInputField
               onChange={this.handleNeuronName}
               value={neuronName}
+              handleSubmit={this.processRequest}
             />
           </NeuronHelp>
         </FormControl>

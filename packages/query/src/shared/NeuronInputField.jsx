@@ -32,10 +32,11 @@ class NeuronInputField extends React.Component {
   };
 
   handleKeyDown = event => {
+    const { handleSubmit } = this.props;
     // submit request if user presses enter
     if (event.keyCode === 13) {
       event.preventDefault();
-      this.processRequest();
+      handleSubmit();
     }
   };
 
@@ -68,6 +69,7 @@ class NeuronInputField extends React.Component {
 
 NeuronInputField.propTypes = {
   classes: PropTypes.object.isRequired,
+  handleSubmit: PropTypes.object.isRequired,
   onChange: PropTypes.func,
   value: PropTypes.string
 };
