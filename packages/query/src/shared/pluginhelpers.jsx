@@ -143,7 +143,11 @@ export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, 
  */
 export function getBodyIdForTable(dataset, bodyId, hasSkeleton, actions) {
   return {
-    value: <BodyId dataSet={dataset} actions={actions}>{bodyId}</BodyId>,
+    value: (
+      <BodyId dataSet={dataset} actions={actions}>
+        {bodyId}
+      </BodyId>
+    ),
     sortBy: bodyId
   };
 }
@@ -278,23 +282,32 @@ export function createSimpleConnectionsResult(
 
   const indexOf = setColumnIndices(columnNames);
 
-  /* eslint-disable prefer-destructuring */
   const data = apiResponse.data.map(row => {
-    const bodyIdQueried = row[6];
+    const [
+      ,
+      ,
+      name,
+      type,
+      bodyId,
+      connectionWeight,
+      bodyIdQueried,
+      status,
+      roiInfoObjectJSON,
+      size,
+      preTotal,
+      postTotal,
+      roiList,
+      connectionWeightHP
+    ] = row;
     const hasSkeleton = true;
-    const roiInfoObject = JSON.parse(row[8]) || {};
-    const roiList = row[12];
-    const postTotal = row[11];
-    const preTotal = row[10];
-    const bodyId = row[4];
-    const connectionWeight = row[5];
+    const roiInfoObject = JSON.parse(roiInfoObjectJSON) || {};
 
     // make sure none is added to the rois list.
     roiList.push('none');
 
     const converted = [];
     if (includeWeightHP) {
-      converted[indexOf.connectionWeightHP] = row[13];
+      converted[indexOf.connectionWeightHP] = connectionWeightHP;
     }
 
     if (isInputs) {
@@ -316,11 +329,11 @@ export function createSimpleConnectionsResult(
     }
 
     converted[indexOf.bodyId] = getBodyIdForTable(dataset, bodyId, hasSkeleton, actions);
-    converted[indexOf.name] = row[2];
-    converted[indexOf.type] = row[3];
-    converted[indexOf.status] = row[7];
+    converted[indexOf.name] = name;
+    converted[indexOf.type] = type;
+    converted[indexOf.status] = status;
     converted[indexOf.connectionWeight] = connectionWeight;
-    converted[indexOf.size] = row[9];
+    converted[indexOf.size] = size;
 
     const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
       roiInfoObject,
