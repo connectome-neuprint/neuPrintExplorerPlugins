@@ -282,6 +282,11 @@ export function createSimpleConnectionsResult(
 
   const indexOf = setColumnIndices(columnNames);
 
+  // Get the total number of connections, by running a reduce over the
+  // data array.
+  // TODO: Probably should have total for high confidence as well.
+  const totalConnections = apiResponse.data.reduce((acc, row) => acc + row[5], 0);
+
   const data = apiResponse.data.map(row => {
     const [
       ,
@@ -328,11 +333,16 @@ export function createSimpleConnectionsResult(
       );
     }
 
+    const connectionPercentage = ((connectionWeight * 100) / totalConnections).toFixed(2);
+
     converted[indexOf.bodyId] = getBodyIdForTable(dataset, bodyId, hasSkeleton, actions);
     converted[indexOf.name] = name;
     converted[indexOf.type] = type;
     converted[indexOf.status] = status;
-    converted[indexOf.connectionWeight] = connectionWeight;
+    converted[indexOf.connectionWeight] = {
+      value: `${connectionWeight} (${connectionPercentage}%)`,
+      sortBy: connectionWeight
+    };
     converted[indexOf.size] = size;
 
     const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
@@ -367,7 +377,7 @@ export function createSimpleConnectionsResult(
   columns[indexOf.type] = 'type';
   columns[indexOf.name] = 'instance';
   columns[indexOf.status] = 'status';
-  columns[indexOf.connectionWeight] = '#connections';
+  columns[indexOf.connectionWeight] = '#connections (% of total)';
   columns[indexOf.post] = '#post (inputs)';
   columns[indexOf.pre] = '#pre (outputs)';
   columns[indexOf.size] = '#voxels';
