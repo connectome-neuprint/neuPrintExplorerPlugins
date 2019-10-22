@@ -236,6 +236,7 @@ function createConnectionDetailQueryObject(dataset, bodyIdA, bodyIdB, connection
  * @param {function} submit
  * @param {boolean} isInputs // indicates whether or not this is a list of inputs to the queried neuron
  * @param {boolean} includeWeightHP // indicates whether or not the table should include high-precision weights
+ * @param {boolean} combinedType // indicates whether to combine all rows based on their type.
  * @returns {Object}
  */
 // TODO: explicitly pass required actions to prevent future bugs
@@ -245,7 +246,8 @@ export function createSimpleConnectionsResult(
   actions,
   submit,
   isInputs,
-  includeWeightHP = false
+  includeWeightHP = false,
+  combinedType = true
 ) {
   let columnNames;
 
@@ -287,7 +289,26 @@ export function createSimpleConnectionsResult(
   // TODO: Probably should have total for high confidence as well.
   const totalConnections = apiResponse.data.reduce((acc, row) => acc + row[5], 0);
 
-  const data = apiResponse.data.map(row => {
+  // TODO: Need to combine all the rows that share the same type, if the combinedType
+  // option is selected. This will be an issue for the roiInfoObjectJSON, so a simple
+  // reducer probably wont work.
+  let combined = [];
+  if (combinedType) {
+    const combinedLookup = {};
+    apiResponse.data.forEach(row => {
+      // get the type
+      const type = row[3];
+      // add all values to the existing lookup
+      combinedLookup[type] = row;
+      // What do we do with the JSON?
+    });
+    combined = Object.values(combinedLookup);
+  } else {
+    combined = apiResponse.data;
+  }
+  // combined = apiResponse.data;
+
+  const data = combined.map(row => {
     const [
       ,
       ,
@@ -365,6 +386,10 @@ export function createSimpleConnectionsResult(
       value: preTotal,
       action: () => submit(preQuery)
     };
+
+    // put the queried id at the beginning of the column so that we can use
+    // it for later filtering/sorting
+    converted.unshift(bodyIdQueried);
 
     return converted;
   });

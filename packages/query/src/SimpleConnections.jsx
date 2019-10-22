@@ -158,8 +158,8 @@ export class SimpleConnections extends React.Component {
       includeWeightHP
     );
 
-    apiResponse.data.forEach((row, index) => {
-      const neuron1Id = row[6];
+    data.forEach((row) => {
+      const neuron1Id = row[0];
       if (lastBody !== -1 && neuron1Id !== lastBody) {
         let tableName = `${lastName} id=(${String(lastBody)})`;
         if (inputs === false) {
@@ -179,7 +179,7 @@ export class SimpleConnections extends React.Component {
       lastBody = neuron1Id;
       [lastName] = row;
 
-      currentTable.push(data[index]);
+      currentTable.push(row.slice(1));
       //
     });
 
