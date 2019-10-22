@@ -44,7 +44,8 @@ class NeuroGlancerView extends React.Component {
         Accept: 'application/json'
       },
       body: JSON.stringify({
-        cypher: coordinatesQuery
+        cypher: coordinatesQuery,
+        dataset: dataSet
       }),
       method: 'POST',
       credentials: 'include'
@@ -79,7 +80,8 @@ class NeuroGlancerView extends React.Component {
         Accept: 'application/json'
       },
       body: JSON.stringify({
-        cypher: neuroglancerLayerQuery
+        cypher: neuroglancerLayerQuery,
+        dataset: dataSet
       }),
       method: 'POST',
       credentials: 'include'
