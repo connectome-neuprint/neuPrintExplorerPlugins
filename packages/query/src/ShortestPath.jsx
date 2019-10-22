@@ -47,7 +47,7 @@ export class ShortestPath extends React.Component {
 
   static fetchParameters(params) {
     const { dataset, bodyId1, bodyId2, minWeight } = params;
-    const shortestPathQuery = `MATCH (a:\`${dataset}-Neuron\`{bodyId:${bodyId1}}), (b:\`${dataset}-Neuron\`{bodyId:${bodyId2}}) CALL analysis.getShortestPathWithMinWeight(a, b, 'ConnectsTo>', 'prop', 'weight', 1, ${minWeight}) YIELD path,weight WITH extract(n IN nodes(path) | [n.bodyId,n.name]) AS ids,extract(rst IN rels(path) | rst.weight) AS weights, path RETURN length(path), ids, weights`;
+    const shortestPathQuery = `MATCH (a:Neuron{bodyId:${bodyId1}}), (b:Neuron{bodyId:${bodyId2}}) CALL analysis.getShortestPathWithMinWeight(a, b, 'ConnectsTo>', 'prop', 'weight', 1, ${minWeight}) YIELD path,weight WITH extract(n IN nodes(path) | [n.bodyId,n.name]) AS ids,extract(rst IN rels(path) | rst.weight) AS weights, path RETURN length(path), ids, weights`;
     return {
       cypherQuery: shortestPathQuery
     };

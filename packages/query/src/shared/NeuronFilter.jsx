@@ -133,7 +133,7 @@ class NeuronFilter extends React.Component {
       },
       body: JSON.stringify({
         dataset,
-        cypher: `MATCH (n:Meta{dataset:"${dataset}"}) RETURN n.statusDefinitions`
+        cypher: `MATCH (n:Meta) RETURN n.statusDefinitions`
       }),
       method: 'POST',
       credentials: 'include'

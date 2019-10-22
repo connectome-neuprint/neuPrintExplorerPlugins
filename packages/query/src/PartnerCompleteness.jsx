@@ -38,7 +38,7 @@ class PartnerCompleteness extends React.Component {
 
   static fetchParameters(params) {
     const { dataSet, bodyId } = params;
-    const cypherQuery = `MATCH (n :\`${dataSet}-Segment\` {bodyId: ${bodyId}})-[x:ConnectsTo]-(m) RETURN m.bodyId, m.instance, m.type, CASE WHEN startnode(x).bodyId = ${bodyId} THEN false ELSE true END, x.weight, m.status, m.pre, m.post, n.instance, n.pre, n.post, n.status, n.type ORDER BY x.weight DESC`;
+    const cypherQuery = `MATCH (n :Segment {bodyId: ${bodyId}})-[x:ConnectsTo]-(m) RETURN m.bodyId, m.instance, m.type, CASE WHEN startnode(x).bodyId = ${bodyId} THEN false ELSE true END, x.weight, m.status, m.pre, m.post, n.instance, n.pre, n.post, n.status, n.type ORDER BY x.weight DESC`;
     return {
       cypherQuery,
       queryString: '/custom/custom'

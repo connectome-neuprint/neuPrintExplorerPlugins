@@ -95,7 +95,7 @@ class ConnectivityGraph extends React.Component {
 
   static fetchParameters(params) {
     const { bodyIds, dataset } = params;
-    const cypherQuery = `WITH [${bodyIds}] AS input MATCH (n:\`${dataset}-Neuron\`)-[c:ConnectsTo]->(m) WHERE n.bodyId IN input AND m.bodyId IN input RETURN n.bodyId AS start, m.bodyId AS end, c.weight AS weight, n.instance AS startInstance, m.instance AS endInstance, n.type as startType, m.type as endType`;
+    const cypherQuery = `WITH [${bodyIds}] AS input MATCH (n:Neuron)-[c:ConnectsTo]->(m) WHERE n.bodyId IN input AND m.bodyId IN input RETURN n.bodyId AS start, m.bodyId AS end, c.weight AS weight, n.instance AS startInstance, m.instance AS endInstance, n.type as startType, m.type as endType`;
     return {
       cypherQuery
     };

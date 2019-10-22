@@ -58,7 +58,7 @@ export class SynapsesForConnection extends React.Component {
       roiPredicate += ')';
     }
 
-    const cypherQuery = `MATCH (a:\`${dataSet}-Neuron\`{bodyId:${bodyId1}})<-[:From]-(c:ConnectionSet)-[:To]->(b{bodyId:${bodyId2}}), (c)-[:Contains]->(s:Synapse)${roiPredicate} RETURN s.type, s.location.x ,s.location.y ,s.location.z, s.confidence, keys(s)`;
+    const cypherQuery = `MATCH (a:Neuron{bodyId:${bodyId1}})<-[:From]-(c:ConnectionSet)-[:To]->(b{bodyId:${bodyId2}}), (c)-[:Contains]->(s:Synapse)${roiPredicate} RETURN s.type, s.location.x ,s.location.y ,s.location.z, s.confidence, keys(s)`;
 
     return {
       cypherQuery

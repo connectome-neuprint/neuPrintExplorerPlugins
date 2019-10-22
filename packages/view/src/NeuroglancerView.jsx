@@ -72,7 +72,7 @@ class NeuroGlancerView extends React.Component {
   addLayer(dataSet) {
     const { layers } = this.state;
     // TODO: fetch the layer information and store it in the state.
-     const neuroglancerLayerQuery = `MATCH (n:Meta:${dataSet}) WITH apoc.convert.fromJsonMap(n.neuroglancerInfo) as nInfo, n.uuid AS uuid RETURN nInfo.segmentation.host AS segmentationHost, uuid AS segmentationUuid, nInfo.segmentation.dataType AS segmentationDataType, nInfo.grayscale.host AS grayscaleHost, nInfo.grayscale.uuid AS grayscaleUuid, nInfo.grayscale.dataType AS grayscaleDataType`;
+     const neuroglancerLayerQuery = `MATCH (n:Meta) WITH apoc.convert.fromJsonMap(n.neuroglancerInfo) as nInfo, n.uuid AS uuid RETURN nInfo.segmentation.host AS segmentationHost, uuid AS segmentationUuid, nInfo.segmentation.dataType AS segmentationDataType, nInfo.grayscale.host AS grayscaleHost, nInfo.grayscale.uuid AS grayscaleUuid, nInfo.grayscale.dataType AS grayscaleDataType`;
     // fetch swc data
     return fetch('/api/custom/custom', {
       headers: {

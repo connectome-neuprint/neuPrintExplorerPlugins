@@ -430,23 +430,23 @@ export class FindSimilarNeurons extends React.Component {
     const { dataset, bodyId, rois, clusterName } = params;
 
     // by default this is a groups query
-    let cypherQuery = `MATCH (n:\`${dataset}-Neuron\`) RETURN DISTINCT n.clusterName`;
+    let cypherQuery = `MATCH (n:Neuron) RETURN DISTINCT n.clusterName`;
 
     if (bodyId) {
       // similarity query
-      cypherQuery = `MATCH (m:Meta{dataset:'${dataset}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataset}-Neuron\`{bodyId:${bodyId}}) WITH n.clusterName AS cn, rois MATCH (n:\`${dataset}-Neuron\`{clusterName:cn}) RETURN n.bodyId, n.instance, n.type, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
+      cypherQuery = `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (n:Neuron{bodyId:${bodyId}}) WITH n.clusterName AS cn, rois MATCH (n:Neuron{clusterName:cn}) RETURN n.bodyId, n.instance, n.type, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
     } else if (rois) {
       // rois query
       let roiPredicate = '';
       rois.forEach(roi => {
         roiPredicate += `exists(n.\`${roi}\`) AND `;
       });
-      cypherQuery = `MATCH (m:Meta{dataset:'${dataset}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataset}-Neuron\`) WHERE (${roiPredicate.slice(
+      cypherQuery = `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (n:Neuron) WHERE (${roiPredicate.slice(
         0,
         -4
       )}) RETURN n.bodyId, n.instance, n.type, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
     } else if (clusterName) {
-      cypherQuery = `MATCH (m:Meta{dataset:'${dataset}'}) WITH m.superLevelRois AS rois MATCH (n:\`${dataset}-Neuron\`{clusterName:'${clusterName}'}) RETURN n.bodyId, n.instance, n.type, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
+      cypherQuery = `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (n:Neuron{clusterName:'${clusterName}'}) RETURN n.bodyId, n.instance, n.type, n.status, n.pre, n.post, n.roiInfo, rois, n.clusterName, exists((n)-[:Contains]->(:Skeleton)) AS hasSkeleton`;
     }
 
     return {
