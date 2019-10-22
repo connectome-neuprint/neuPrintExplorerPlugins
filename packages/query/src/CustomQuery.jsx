@@ -84,7 +84,8 @@ export class CustomQuery extends React.Component {
       plugin: pluginName,
       pluginCode: pluginAbbrev,
       parameters: {
-        cypherQuery: textValue
+        cypherQuery: textValue,
+        dataset: dataSet
       }
     };
     submit(query);

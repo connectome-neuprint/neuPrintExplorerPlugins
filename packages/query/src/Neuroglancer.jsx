@@ -61,7 +61,7 @@ class Neuroglancer extends React.Component {
       plugin: pluginName,
       pluginCode: pluginAbbrev,
       parameters: {
-        dataSet,
+        dataset: dataSet,
         skip: true, // skip the data fetching in Requests.
         bodyIds
       },

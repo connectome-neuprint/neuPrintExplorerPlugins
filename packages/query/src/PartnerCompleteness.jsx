@@ -87,7 +87,7 @@ class PartnerCompleteness extends React.Component {
       dataSet,
       plugin: pluginName,
       pluginCode: pluginAbbrev,
-      parameters: { dataSet, bodyId }
+      parameters: { dataset: dataSet, bodyId }
     };
     submit(query);
   };

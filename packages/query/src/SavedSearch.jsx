@@ -61,7 +61,7 @@ export class SavedSearch extends React.Component {
       plugin: pluginName,
       pluginCode: pluginAbbrev,
       parameters: {
-        dataSet,
+        dataset: dataSet,
         bodyIds
       }
     };

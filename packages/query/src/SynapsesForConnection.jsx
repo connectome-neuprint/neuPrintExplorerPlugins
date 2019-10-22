@@ -139,7 +139,7 @@ export class SynapsesForConnection extends React.Component {
       plugin: pluginName,
       pluginCode: pluginAbbrev,
       parameters: {
-        dataSet,
+        dataset: dataSet,
         bodyId1,
         bodyId2,
         rois,
