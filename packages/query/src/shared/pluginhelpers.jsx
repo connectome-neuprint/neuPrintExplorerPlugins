@@ -226,6 +226,24 @@ function createConnectionDetailQueryObject(dataset, bodyIdA, bodyIdB, connection
   };
 }
 
+function combineRowsByType(rows, shouldCombine) {
+  if (!shouldCombine) {
+    return rows;
+  }
+  // TODO: Need to combine all the rows that share the same type, if the combinedByType
+  // option is selected. This will be an issue for the roiInfoObjectJSON, so a simple
+  // reducer probably wont work.
+  const combinedLookup = {};
+  rows.forEach(row => {
+    // get the type
+    const type = row[3];
+    // add all values to the existing lookup
+    combinedLookup[type] = row;
+    // What do we do with the JSON?
+  });
+  return Object.values(combinedLookup);
+}
+
 /**
  * Creates a result for a table view of the simpleconnections query.
  *
@@ -236,7 +254,7 @@ function createConnectionDetailQueryObject(dataset, bodyIdA, bodyIdB, connection
  * @param {function} submit
  * @param {boolean} isInputs // indicates whether or not this is a list of inputs to the queried neuron
  * @param {boolean} includeWeightHP // indicates whether or not the table should include high-precision weights
- * @param {boolean} combinedType // indicates whether to combine all rows based on their type.
+ * @param {boolean} combinedByType // indicates whether to combine all rows based on their type.
  * @returns {Object}
  */
 // TODO: explicitly pass required actions to prevent future bugs
@@ -247,7 +265,7 @@ export function createSimpleConnectionsResult(
   submit,
   isInputs,
   includeWeightHP = false,
-  combinedType = true
+  combinedByType = true
 ) {
   let columnNames;
 
@@ -284,29 +302,12 @@ export function createSimpleConnectionsResult(
 
   const indexOf = setColumnIndices(columnNames);
 
+  const combined = combineRowsByType(apiResponse.data, combinedByType);
+
   // Get the total number of connections, by running a reduce over the
   // data array.
   // TODO: Probably should have total for high confidence as well.
-  const totalConnections = apiResponse.data.reduce((acc, row) => acc + row[5], 0);
-
-  // TODO: Need to combine all the rows that share the same type, if the combinedType
-  // option is selected. This will be an issue for the roiInfoObjectJSON, so a simple
-  // reducer probably wont work.
-  let combined = [];
-  if (combinedType) {
-    const combinedLookup = {};
-    apiResponse.data.forEach(row => {
-      // get the type
-      const type = row[3];
-      // add all values to the existing lookup
-      combinedLookup[type] = row;
-      // What do we do with the JSON?
-    });
-    combined = Object.values(combinedLookup);
-  } else {
-    combined = apiResponse.data;
-  }
-  // combined = apiResponse.data;
+  const totalConnections = combined.reduce((acc, row) => acc + row[5], 0);
 
   const data = combined.map(row => {
     const [
