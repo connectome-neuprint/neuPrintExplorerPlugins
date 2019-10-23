@@ -142,6 +142,11 @@ export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, 
  * @returns {Object}
  */
 export function getBodyIdForTable(dataset, bodyId, hasSkeleton, actions) {
+  // don't create the link if the bodyid is not a number.
+  if (bodyId === '-') {
+    return bodyId;
+  }
+
   return {
     value: (
       <BodyId dataSet={dataset} actions={actions}>
@@ -226,6 +231,49 @@ function createConnectionDetailQueryObject(dataset, bodyIdA, bodyIdB, connection
   };
 }
 
+export function combineROIJSONStrings(original, added) {
+  const originalObject = JSON.parse(original) || {};
+  const addedObject = JSON.parse(added) || {};
+  const combined = {}// ??????
+  // loop over all keys in both the original and the addition.
+  // for each pre & post, combine the numbers
+  Object.entries(originalObject).forEach(([key, value]) => {
+    if (!combined[key]) {
+      combined[key] = {};
+    }
+
+    if (!combined[key].pre) {
+      combined[key].pre = value.pre;
+    } else {
+      combined[key].pre += value.pre;
+    }
+    if (!combined[key].post) {
+      combined[key].post = value.post;
+    } else {
+      combined[key].post += value.post;
+    }
+  });
+
+  Object.entries(addedObject).forEach(([key, value]) => {
+    if (!combined[key]) {
+      combined[key] = {};
+    }
+
+    if (!combined[key].pre) {
+      combined[key].pre = value.pre;
+    } else {
+      combined[key].pre += value.pre;
+    }
+    if (!combined[key].post) {
+      combined[key].post = value.post;
+    } else {
+      combined[key].post += value.post;
+    }
+  });
+
+  return JSON.stringify(combined);
+}
+
 function combineRowsByType(rows, shouldCombine) {
   if (!shouldCombine) {
     return rows;
@@ -238,10 +286,23 @@ function combineRowsByType(rows, shouldCombine) {
     // get the type
     const type = row[3];
     // add all values to the existing lookup
-    combinedLookup[type] = row;
+    if (!combinedLookup[type]) {
+      combinedLookup[type] = row;
+      combinedLookup[type][2] = '-';
+      combinedLookup[type][4] = '-';
+      combinedLookup[type][7] = '-';
+    } else {
+      combinedLookup[type][5] += row[5];
+      combinedLookup[type][9] += row[9];
+      combinedLookup[type][8] = combineROIJSONStrings(combinedLookup[type][8], row[8]);
+      combinedLookup[type][10] += row[10];
+      combinedLookup[type][11] += row[11];
+      combinedLookup[type][13] += row[13];
+
+    }
     // What do we do with the JSON?
   });
-  return Object.values(combinedLookup);
+  return Object.values(combinedLookup).sort((a,b) => b[5] - a[5]);
 }
 
 /**

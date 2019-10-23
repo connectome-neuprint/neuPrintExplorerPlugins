@@ -1,4 +1,4 @@
-import { createSimpleConnectionsResult, computeSimilarity } from './pluginhelpers';
+import { createSimpleConnectionsResult, computeSimilarity, combineROIJSONStrings } from './pluginhelpers';
 
 const { actions, submit } = global;
 
@@ -21,6 +21,7 @@ describe('createSimpleConnectionsResult', () => {
       ],
       data: [
         [
+          null,
           'FB-SMP',
           '(iPB)_L',
           5813046674,
@@ -35,6 +36,7 @@ describe('createSimpleConnectionsResult', () => {
           ['a', 'b', 'c', 'd']
         ],
         [
+          null,
           'FB-SMP',
           null,
           204276668,
@@ -49,6 +51,7 @@ describe('createSimpleConnectionsResult', () => {
           ['a', 'b', 'c', 'd']
         ],
         [
+          null,
           'FB-SMP',
           '(iPB)_L',
           203253253,
@@ -76,9 +79,9 @@ describe('createSimpleConnectionsResult', () => {
     );
     const { columns, data, debug } = result;
     expect(debug).toEqual(apiResponse.debug);
-    expect(columns.length).toBe(11);
+    expect(columns.length).toBe(12);
     expect(data.length).toBe(3);
-    expect(data[0].length).toBe(11);
+    expect(data[0].length).toBe(13);
 
     const resultPublic = createSimpleConnectionsResult(
       'test',
@@ -89,9 +92,9 @@ describe('createSimpleConnectionsResult', () => {
       false // testing public version
     );
     expect(resultPublic.debug).toEqual(apiResponse.debug);
-    expect(resultPublic.columns.length).toBe(10);
+    expect(resultPublic.columns.length).toBe(11);
     expect(resultPublic.data.length).toBe(3);
-    expect(resultPublic.data[0].length).toBe(10);
+    expect(resultPublic.data[0].length).toBe(12);
   });
 });
 
@@ -117,5 +120,22 @@ describe('computeSimilarity', () => {
     expect(() => {
       computeSimilarity([0, 1], [0, NaN]);
     }).toThrow();
+  });
+});
+
+describe('combineROIJSONStrings', () => {
+  it('should combine two ROI JSON strings together correctly', () => {
+    const original = '{"a": {"pre": 2, "post": 3}}';
+    const added = '{"a": {"pre": 3, "post": 3},"b": {"pre": 1, "post": 2}}';
+    const expected = JSON.stringify({
+      "a":{
+        "pre":5,"post":6
+      },
+      "b":{
+        "pre":1,"post":2
+      }
+    });
+    const combined = combineROIJSONStrings(original, added);
+    expect(combined).toEqual(expected);
   });
 });
