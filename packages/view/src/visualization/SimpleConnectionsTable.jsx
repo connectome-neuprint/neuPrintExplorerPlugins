@@ -171,14 +171,15 @@ class SimpleConnectionsTable extends React.Component {
               {stableSort(data, getSorting(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map(row => {
-                  const bodyId = row[1].sortBy.toString(); // should be body id
+                  const bodyId = (row[1].sortBy) ? row[1].sortBy.toString() : row[1]; // should be body id
                   const filteredRow =
                     visibleColumns.size === 0
                       ? row
                       : row.filter((column, i) => visibleColumns.getIn([i, 'status']));
+                  const keyId = `${bodyId}_${row[2]}_${row[4]}_${row[5]}`;
                   return (
-                    <React.Fragment key={bodyId}>
-                      <TableRow hover key={bodyId}>
+                    <React.Fragment key={keyId}>
+                      <TableRow hover key={keyId}>
                         {filteredRow.map((cell, i) => {
                           if (cell && typeof cell === 'object' && 'value' in cell) {
                             const cellKey = `${i}${cell.value}`;
@@ -216,11 +217,11 @@ class SimpleConnectionsTable extends React.Component {
                         })}
                       </TableRow>
                       {isExpanded[bodyId] && (
-                        <TableRow key={`${bodyId}panel`} className={classes.expansionRow}>
+                        <TableRow key={`${keyId}panel`} className={classes.expansionRow}>
                           <TableCell
                             colSpan={numCols}
                             style={{ paddingLeft: '10px' }}
-                            key={`${bodyId}panelcell`}
+                            key={`${keyId}panelcell`}
                           >
                             {expansionPanels[bodyId]}
                           </TableCell>
