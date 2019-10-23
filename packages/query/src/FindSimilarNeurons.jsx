@@ -427,7 +427,7 @@ export class FindSimilarNeurons extends React.Component {
   }
 
   static fetchParameters(params) {
-    const { dataset, bodyId, rois, clusterName } = params;
+    const { bodyId, rois, clusterName } = params;
 
     // by default this is a groups query
     let cypherQuery = `MATCH (n:Neuron) RETURN DISTINCT n.clusterName`;

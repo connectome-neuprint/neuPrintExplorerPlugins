@@ -4,7 +4,6 @@ import { withStyles } from '@material-ui/core/styles';
 
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
@@ -94,7 +93,7 @@ class ConnectivityGraph extends React.Component {
   }
 
   static fetchParameters(params) {
-    const { bodyIds, dataset } = params;
+    const { bodyIds } = params;
     const cypherQuery = `WITH [${bodyIds}] AS input MATCH (n:Neuron)-[c:ConnectsTo]->(m) WHERE n.bodyId IN input AND m.bodyId IN input RETURN n.bodyId AS start, m.bodyId AS end, c.weight AS weight, n.instance AS startInstance, m.instance AS endInstance, n.type as startType, m.type as endType`;
     return {
       cypherQuery
@@ -153,12 +152,12 @@ class ConnectivityGraph extends React.Component {
   render() {
     const { isQuerying, classes } = this.props;
     const {
-      inputIncludeFilters,
+      /* inputIncludeFilters,
       inputExcludeFilters,
       outputIncludeFilters,
       outputExcludeFilters,
       connectionIncludeFilters,
-      connectionExcludeFilters,
+      connectionExcludeFilters, */
       includeAutapses,
       minWeight,
       bodyIds

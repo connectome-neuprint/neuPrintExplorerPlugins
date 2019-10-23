@@ -46,7 +46,7 @@ export class SynapsesForConnection extends React.Component {
   }
 
   static fetchParameters(params) {
-    const {dataSet, bodyId1 = '', bodyId2 = '', rois = [] } = params;
+    const {bodyId1 = '', bodyId2 = '', rois = [] } = params;
 
     let roiPredicate = '';
     if (rois.length > 0) {
