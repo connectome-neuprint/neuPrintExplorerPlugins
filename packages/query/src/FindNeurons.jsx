@@ -235,13 +235,20 @@ export class FindNeurons extends React.Component {
           converted[indexOf.roiHeatMap] = heatMap;
           converted[indexOf.roiBarGraph] = barGraph;
 
-          const postQuery = createSimpleConnectionQueryObject(query.ds, true, bodyId, pluginAbbrev);
+          const postQuery = createSimpleConnectionQueryObject({
+            dataSet: query.ds,
+            isPost: true,
+            queryId: bodyId,
+          });
           converted[indexOf.post] = {
             value: totalPost,
             action: () => submit(postQuery)
           };
 
-          const preQuery = createSimpleConnectionQueryObject(query.ds, false, bodyId, pluginAbbrev);
+          const preQuery = createSimpleConnectionQueryObject({
+            dataSet: query.ds,
+            queryId: bodyId
+          });
           converted[indexOf.pre] = {
             value: totalPre,
             action: () => submit(preQuery)

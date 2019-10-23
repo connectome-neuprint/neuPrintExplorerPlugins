@@ -71,8 +71,8 @@ function getRoiInfoObjectWithNoneCount(roiInfoObject, roiList, preTotal, postTot
  * @param {number} bodyId
  * @returns {Object}
  */
-export function createSimpleConnectionQueryObject(dataSet, isPost, bodyId) {
-  return {
+export function createSimpleConnectionQueryObject({dataSet, isPost = false, queryId, queryName}) {
+ const query = {
     dataSet, // <string> for the data set selected
     pluginCode: SimpleConnections.details.abbr,
     pluginName: SimpleConnections.details.name,
@@ -80,9 +80,16 @@ export function createSimpleConnectionQueryObject(dataSet, isPost, bodyId) {
     parameters: {
       dataset: dataSet,
       find_inputs: isPost,
-      neuron_id: bodyId
     }
   };
+  if (queryId) {
+    query.parameters.neuron_id = queryId;
+  } else if (queryName && queryName !== '') {
+    query.parameters.neuron_name = queryName;
+  } else {
+    return null;
+  }
+  return query;
 }
 
 /**
@@ -437,17 +444,55 @@ export function createSimpleConnectionsResult(
     converted[indexOf.roiHeatMap] = heatMap;
     converted[indexOf.roiBarGraph] = barGraph;
 
-    const postQuery = createSimpleConnectionQueryObject(dataset, true, bodyId, includeWeightHP);
-    converted[indexOf.post] = {
-      value: postTotal,
-      action: () => submit(postQuery)
-    };
+    if (combinedByType) {
+      const postQuery = createSimpleConnectionQueryObject({
+        dataSet: dataset,
+        isPost: true,
+        queryName: type
+      });
 
-    const preQuery = createSimpleConnectionQueryObject(dataset, false, bodyId, includeWeightHP);
-    converted[indexOf.pre] = {
-      value: preTotal,
-      action: () => submit(preQuery)
-    };
+      if (postQuery) {
+        converted[indexOf.post] = {
+          value: postTotal,
+          action: () => submit(postQuery)
+        };
+      } else {
+        converted[indexOf.post] = postTotal;
+      }
+
+      const preQuery = createSimpleConnectionQueryObject({
+        dataSet: dataset,
+        queryName: type,
+      });
+
+      if (preQuery) {
+        converted[indexOf.pre] = {
+          value: preTotal,
+          action: () => submit(preQuery)
+        };
+      } else {
+        converted[indexOf.pre] = preTotal;
+      }
+    } else {
+      const postQuery = createSimpleConnectionQueryObject({
+        dataSet: dataset,
+        isPost: true,
+        queryId: bodyId
+      });
+      converted[indexOf.post] = {
+        value: postTotal,
+        action: () => submit(postQuery)
+      };
+
+      const preQuery = createSimpleConnectionQueryObject({
+        dataSet: dataset,
+        queryId: bodyId
+      });
+      converted[indexOf.pre] = {
+        value: preTotal,
+        action: () => submit(preQuery)
+      };
+    }
 
     // put the queried id at the beginning of the column so that we can use
     // it for later filtering/sorting

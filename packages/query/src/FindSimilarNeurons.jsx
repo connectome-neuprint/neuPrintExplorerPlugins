@@ -140,23 +140,20 @@ function processSimilarResults(query, apiResponse, actions, submit) {
     converted[indexOf.instance] = instance;
     converted[indexOf.type] = type;
     converted[indexOf.status] = status;
-    const postQuery = createSimpleConnectionQueryObject(
-      parameters.dataset,
-      true,
-      bodyId,
-      pluginAbbrev
-    );
+    const postQuery = createSimpleConnectionQueryObject({
+      dataSet: parameters.dataset,
+      isPost: true,
+      queryId: bodyId
+    });
     converted[indexOf.post] = {
       value: totalPost,
       action: () => submit(postQuery)
     };
 
-    const preQuery = createSimpleConnectionQueryObject(
-      parameters.dataset,
-      false,
-      bodyId,
-      pluginAbbrev
-    );
+    const preQuery = createSimpleConnectionQueryObject({
+      dataSet: parameters.dataset,
+      queryId: bodyId
+     });
     converted[indexOf.pre] = {
       value: totalPre,
       action: () => submit(preQuery)
