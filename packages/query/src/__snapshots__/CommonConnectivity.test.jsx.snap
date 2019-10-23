@@ -60,7 +60,7 @@ exports[`Common Connectivity Plugin renders correct defaults should render 1`] =
       <p
         className="MuiFormHelperText-root-58"
       >
-        Separate IDs with commas.
+        Separate IDs with commas. Max 100
       </p>
     </div>
   </div>

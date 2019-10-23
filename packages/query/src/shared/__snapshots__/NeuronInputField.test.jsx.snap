@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NeuronInputField renders correctly 1`] = `
+<div
+  className="MuiFormControl-root-2 MuiFormControl-fullWidth-5"
+  onKeyDown={[Function]}
+>
+  <label
+    className="MuiFormLabel-root-17 MuiFormLabel-filled-21 MuiInputLabel-root-6 MuiInputLabel-formControl-11 MuiInputLabel-animated-14 MuiInputLabel-shrink-13"
+    data-shrink={true}
+  >
+    Neuron Instance, Type or BodyID (optional)
+  </label>
+  <div
+    className="MuiInputBase-root-37 MuiInput-root-24 MuiInput-underline-28 MuiInputBase-fullWidth-46 MuiInput-fullWidth-31 MuiInputBase-formControl-38 MuiInput-formControl-25 MuiInputBase-multiline-45 MuiInput-multiline-30"
+    onClick={[Function]}
+  >
+    <div
+      className="MuiPrivateTextarea-root-54"
+    >
+      <textarea
+        aria-hidden="true"
+        className="MuiPrivateTextarea-textarea-55 MuiPrivateTextarea-shadow-56"
+        readOnly={true}
+        rows="1"
+        tabIndex={-1}
+        value=""
+      />
+      <textarea
+        aria-hidden="true"
+        className="MuiPrivateTextarea-textarea-55 MuiPrivateTextarea-shadow-56"
+        readOnly={true}
+        rows={1}
+        tabIndex={-1}
+        value="test"
+      />
+      <textarea
+        aria-invalid={false}
+        className="MuiPrivateTextarea-textarea-55 MuiInputBase-input-47 MuiInput-input-32 MuiInputBase-inputMultiline-49 MuiInput-inputMultiline-34"
+        disabled={false}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        required={false}
+        rows={1}
+        style={
+          Object {
+            "height": 19,
+          }
+        }
+        value="test"
+      />
+    </div>
+  </div>
+</div>
+`;

@@ -11,21 +11,21 @@ exports[`RankedTable Plugin renders correctly 1`] = `
         onKeyDown={[Function]}
       >
         <label
-          className="MuiFormLabel-root-17 MuiInputLabel-root-6 MuiInputLabel-formControl-11 MuiInputLabel-animated-14"
+          className="MuiFormLabel-root-18 MuiInputLabel-root-7 MuiInputLabel-formControl-12 MuiInputLabel-animated-15"
           data-shrink={false}
         >
-          Neuron name
+          Neuron Instance, Type or BodyID (optional)
         </label>
         <div
-          className="MuiInputBase-root-37 MuiInput-root-24 MuiInput-underline-28 MuiInputBase-fullWidth-46 MuiInput-fullWidth-31 MuiInputBase-formControl-38 MuiInput-formControl-25 MuiInputBase-multiline-45 MuiInput-multiline-30"
+          className="MuiInputBase-root-38 MuiInput-root-25 MuiInput-underline-29 MuiInputBase-fullWidth-47 MuiInput-fullWidth-32 MuiInputBase-formControl-39 MuiInput-formControl-26 MuiInputBase-multiline-46 MuiInput-multiline-31"
           onClick={[Function]}
         >
           <div
-            className="MuiPrivateTextarea-root-54"
+            className="MuiPrivateTextarea-root-55"
           >
             <textarea
               aria-hidden="true"
-              className="MuiPrivateTextarea-textarea-55 MuiPrivateTextarea-shadow-56"
+              className="MuiPrivateTextarea-textarea-56 MuiPrivateTextarea-shadow-57"
               readOnly={true}
               rows="1"
               tabIndex={-1}
@@ -33,7 +33,7 @@ exports[`RankedTable Plugin renders correctly 1`] = `
             />
             <textarea
               aria-hidden="true"
-              className="MuiPrivateTextarea-textarea-55 MuiPrivateTextarea-shadow-56"
+              className="MuiPrivateTextarea-textarea-56 MuiPrivateTextarea-shadow-57"
               readOnly={true}
               rows={1}
               tabIndex={-1}
@@ -41,7 +41,7 @@ exports[`RankedTable Plugin renders correctly 1`] = `
             />
             <textarea
               aria-invalid={false}
-              className="MuiPrivateTextarea-textarea-55 MuiInputBase-input-47 MuiInput-input-32 MuiInputBase-inputMultiline-49 MuiInput-inputMultiline-34"
+              className="MuiPrivateTextarea-textarea-56 MuiInputBase-input-48 MuiInput-input-33 MuiInputBase-inputMultiline-50 MuiInput-inputMultiline-35"
               disabled={false}
               onBlur={[Function]}
               onChange={[Function]}
@@ -60,7 +60,7 @@ exports[`RankedTable Plugin renders correctly 1`] = `
       </div>
       <p
         aria-describedby={null}
-        className="MuiTypography-root-65 MuiTypography-body1-74 MuiTypography-colorError-99 NeuronHelp-badge-5"
+        className="MuiTypography-root-66 MuiTypography-body1-75 MuiTypography-colorError-100 NeuronHelp-badge-5"
         onBlur={[Function]}
         onFocus={[Function]}
         onMouseLeave={[Function]}
@@ -78,14 +78,14 @@ exports[`RankedTable Plugin renders correctly 1`] = `
   >
     <div
       aria-label="preorpost"
-      className="MuiFormGroup-root-100"
+      className="MuiFormGroup-root-101"
       role="radiogroup"
     >
       <label
-        className="MuiFormControlLabel-root-102"
+        className="MuiFormControlLabel-root-103"
       >
         <span
-          className="MuiButtonBase-root-123 MuiIconButton-root-117 MuiPrivateSwitchBase-root-113 MuiRadio-root-108 MuiRadio-colorPrimary-111 MuiPrivateSwitchBase-checked-114 MuiRadio-checked-109"
+          className="MuiButtonBase-root-124 MuiIconButton-root-118 MuiPrivateSwitchBase-root-114 MuiRadio-root-109 MuiRadio-colorPrimary-112 MuiPrivateSwitchBase-checked-115 MuiRadio-checked-110"
           onBlur={[Function]}
           onContextMenu={[Function]}
           onFocus={[Function]}
@@ -100,11 +100,11 @@ exports[`RankedTable Plugin renders correctly 1`] = `
           tabIndex={null}
         >
           <span
-            className="MuiIconButton-label-122"
+            className="MuiIconButton-label-123"
           >
             <svg
               aria-hidden="true"
-              className="MuiSvgIcon-root-126"
+              className="MuiSvgIcon-root-127"
               focusable="false"
               role="presentation"
               viewBox="0 0 24 24"
@@ -115,7 +115,7 @@ exports[`RankedTable Plugin renders correctly 1`] = `
             </svg>
             <input
               checked={true}
-              className="MuiPrivateSwitchBase-input-116"
+              className="MuiPrivateSwitchBase-input-117"
               disabled={false}
               name="preorpost"
               onChange={[Function]}
@@ -124,20 +124,20 @@ exports[`RankedTable Plugin renders correctly 1`] = `
             />
           </span>
           <span
-            className="MuiTouchRipple-root-170"
+            className="MuiTouchRipple-root-171"
           />
         </span>
         <span
-          className="MuiTypography-root-65 MuiTypography-body1-74 MuiFormControlLabel-label-107"
+          className="MuiTypography-root-66 MuiTypography-body1-75 MuiFormControlLabel-label-108"
         >
           Rank outputs
         </span>
       </label>
       <label
-        className="MuiFormControlLabel-root-102"
+        className="MuiFormControlLabel-root-103"
       >
         <span
-          className="MuiButtonBase-root-123 MuiIconButton-root-117 MuiPrivateSwitchBase-root-113 MuiRadio-root-108 MuiRadio-colorPrimary-111"
+          className="MuiButtonBase-root-124 MuiIconButton-root-118 MuiPrivateSwitchBase-root-114 MuiRadio-root-109 MuiRadio-colorPrimary-112"
           onBlur={[Function]}
           onContextMenu={[Function]}
           onFocus={[Function]}
@@ -152,11 +152,11 @@ exports[`RankedTable Plugin renders correctly 1`] = `
           tabIndex={null}
         >
           <span
-            className="MuiIconButton-label-122"
+            className="MuiIconButton-label-123"
           >
             <svg
               aria-hidden="true"
-              className="MuiSvgIcon-root-126"
+              className="MuiSvgIcon-root-127"
               focusable="false"
               role="presentation"
               viewBox="0 0 24 24"
@@ -167,7 +167,7 @@ exports[`RankedTable Plugin renders correctly 1`] = `
             </svg>
             <input
               checked={false}
-              className="MuiPrivateSwitchBase-input-116"
+              className="MuiPrivateSwitchBase-input-117"
               disabled={false}
               name="preorpost"
               onChange={[Function]}
@@ -176,11 +176,11 @@ exports[`RankedTable Plugin renders correctly 1`] = `
             />
           </span>
           <span
-            className="MuiTouchRipple-root-170"
+            className="MuiTouchRipple-root-171"
           />
         </span>
         <span
-          className="MuiTypography-root-65 MuiTypography-body1-74 MuiFormControlLabel-label-107"
+          className="MuiTypography-root-66 MuiTypography-body1-75 MuiFormControlLabel-label-108"
         >
           Rank inputs
         </span>
@@ -191,13 +191,13 @@ exports[`RankedTable Plugin renders correctly 1`] = `
     className="MuiFormControl-root-1 formControlClass"
   >
     <label
-      className="MuiFormControlLabel-root-102"
+      className="MuiFormControlLabel-root-103"
     >
       <span
-        className="MuiSwitch-root-135"
+        className="MuiSwitch-root-136"
       >
         <span
-          className="MuiButtonBase-root-123 MuiIconButton-root-117 MuiPrivateSwitchBase-root-113 MuiSwitch-switchBase-138 MuiSwitch-colorPrimary-140"
+          className="MuiButtonBase-root-124 MuiIconButton-root-118 MuiPrivateSwitchBase-root-114 MuiSwitch-switchBase-139 MuiSwitch-colorPrimary-141"
           onBlur={[Function]}
           onContextMenu={[Function]}
           onFocus={[Function]}
@@ -212,32 +212,32 @@ exports[`RankedTable Plugin renders correctly 1`] = `
           tabIndex={null}
         >
           <span
-            className="MuiIconButton-label-122"
+            className="MuiIconButton-label-123"
           >
             <span
-              className="MuiSwitch-icon-136"
+              className="MuiSwitch-icon-137"
             />
             <input
               checked={false}
-              className="MuiPrivateSwitchBase-input-116"
+              className="MuiPrivateSwitchBase-input-117"
               disabled={false}
               onChange={[Function]}
               type="checkbox"
             />
           </span>
           <span
-            className="MuiTouchRipple-root-170"
+            className="MuiTouchRipple-root-171"
           />
         </span>
         <span
-          className="MuiSwitch-bar-143"
+          className="MuiSwitch-bar-144"
         />
       </span>
       <span
-        className="MuiTypography-root-65 MuiTypography-body1-74 MuiFormControlLabel-label-107"
+        className="MuiTypography-root-66 MuiTypography-body1-75 MuiFormControlLabel-label-108"
       >
         <p
-          className="MuiTypography-root-65 MuiTypography-body1-74"
+          className="MuiTypography-root-66 MuiTypography-body1-75"
           style={
             Object {
               "display": "inline-flex",
@@ -250,7 +250,7 @@ exports[`RankedTable Plugin renders correctly 1`] = `
     </label>
   </div>
   <button
-    className="MuiButtonBase-root-123 MuiButton-root-144 MuiButton-contained-155 MuiButton-containedPrimary-156 MuiButton-raised-158 MuiButton-raisedPrimary-159"
+    className="MuiButtonBase-root-124 MuiButton-root-145 MuiButton-contained-156 MuiButton-containedPrimary-157 MuiButton-raised-159 MuiButton-raisedPrimary-160"
     disabled={false}
     onBlur={[Function]}
     onClick={[Function]}
@@ -268,12 +268,12 @@ exports[`RankedTable Plugin renders correctly 1`] = `
     type="button"
   >
     <span
-      className="MuiButton-label-145"
+      className="MuiButton-label-146"
     >
       Submit
     </span>
     <span
-      className="MuiTouchRipple-root-170"
+      className="MuiTouchRipple-root-171"
     />
   </button>
 </div>
@@ -290,21 +290,21 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
         onKeyDown={[Function]}
       >
         <label
-          className="MuiFormLabel-root-17 MuiInputLabel-root-6 MuiInputLabel-formControl-11 MuiInputLabel-animated-14"
+          className="MuiFormLabel-root-18 MuiInputLabel-root-7 MuiInputLabel-formControl-12 MuiInputLabel-animated-15"
           data-shrink={false}
         >
-          Neuron name
+          Neuron Instance, Type or BodyID (optional)
         </label>
         <div
-          className="MuiInputBase-root-37 MuiInput-root-24 MuiInput-underline-28 MuiInputBase-fullWidth-46 MuiInput-fullWidth-31 MuiInputBase-formControl-38 MuiInput-formControl-25 MuiInputBase-multiline-45 MuiInput-multiline-30"
+          className="MuiInputBase-root-38 MuiInput-root-25 MuiInput-underline-29 MuiInputBase-fullWidth-47 MuiInput-fullWidth-32 MuiInputBase-formControl-39 MuiInput-formControl-26 MuiInputBase-multiline-46 MuiInput-multiline-31"
           onClick={[Function]}
         >
           <div
-            className="MuiPrivateTextarea-root-54"
+            className="MuiPrivateTextarea-root-55"
           >
             <textarea
               aria-hidden="true"
-              className="MuiPrivateTextarea-textarea-55 MuiPrivateTextarea-shadow-56"
+              className="MuiPrivateTextarea-textarea-56 MuiPrivateTextarea-shadow-57"
               readOnly={true}
               rows="1"
               tabIndex={-1}
@@ -312,7 +312,7 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
             />
             <textarea
               aria-hidden="true"
-              className="MuiPrivateTextarea-textarea-55 MuiPrivateTextarea-shadow-56"
+              className="MuiPrivateTextarea-textarea-56 MuiPrivateTextarea-shadow-57"
               readOnly={true}
               rows={1}
               tabIndex={-1}
@@ -320,7 +320,7 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
             />
             <textarea
               aria-invalid={false}
-              className="MuiPrivateTextarea-textarea-55 MuiInputBase-input-47 MuiInput-input-32 MuiInputBase-inputMultiline-49 MuiInput-inputMultiline-34"
+              className="MuiPrivateTextarea-textarea-56 MuiInputBase-input-48 MuiInput-input-33 MuiInputBase-inputMultiline-50 MuiInput-inputMultiline-35"
               disabled={false}
               onBlur={[Function]}
               onChange={[Function]}
@@ -339,7 +339,7 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
       </div>
       <p
         aria-describedby={null}
-        className="MuiTypography-root-65 MuiTypography-body1-74 MuiTypography-colorError-99 NeuronHelp-badge-5"
+        className="MuiTypography-root-66 MuiTypography-body1-75 MuiTypography-colorError-100 NeuronHelp-badge-5"
         onBlur={[Function]}
         onFocus={[Function]}
         onMouseLeave={[Function]}
@@ -357,14 +357,14 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
   >
     <div
       aria-label="preorpost"
-      className="MuiFormGroup-root-100"
+      className="MuiFormGroup-root-101"
       role="radiogroup"
     >
       <label
-        className="MuiFormControlLabel-root-102"
+        className="MuiFormControlLabel-root-103"
       >
         <span
-          className="MuiButtonBase-root-123 MuiIconButton-root-117 MuiPrivateSwitchBase-root-113 MuiRadio-root-108 MuiRadio-colorPrimary-111 MuiPrivateSwitchBase-checked-114 MuiRadio-checked-109"
+          className="MuiButtonBase-root-124 MuiIconButton-root-118 MuiPrivateSwitchBase-root-114 MuiRadio-root-109 MuiRadio-colorPrimary-112 MuiPrivateSwitchBase-checked-115 MuiRadio-checked-110"
           onBlur={[Function]}
           onContextMenu={[Function]}
           onFocus={[Function]}
@@ -379,11 +379,11 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
           tabIndex={null}
         >
           <span
-            className="MuiIconButton-label-122"
+            className="MuiIconButton-label-123"
           >
             <svg
               aria-hidden="true"
-              className="MuiSvgIcon-root-126"
+              className="MuiSvgIcon-root-127"
               focusable="false"
               role="presentation"
               viewBox="0 0 24 24"
@@ -394,7 +394,7 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
             </svg>
             <input
               checked={true}
-              className="MuiPrivateSwitchBase-input-116"
+              className="MuiPrivateSwitchBase-input-117"
               disabled={false}
               name="preorpost"
               onChange={[Function]}
@@ -403,20 +403,20 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
             />
           </span>
           <span
-            className="MuiTouchRipple-root-170"
+            className="MuiTouchRipple-root-171"
           />
         </span>
         <span
-          className="MuiTypography-root-65 MuiTypography-body1-74 MuiFormControlLabel-label-107"
+          className="MuiTypography-root-66 MuiTypography-body1-75 MuiFormControlLabel-label-108"
         >
           Rank outputs
         </span>
       </label>
       <label
-        className="MuiFormControlLabel-root-102"
+        className="MuiFormControlLabel-root-103"
       >
         <span
-          className="MuiButtonBase-root-123 MuiIconButton-root-117 MuiPrivateSwitchBase-root-113 MuiRadio-root-108 MuiRadio-colorPrimary-111"
+          className="MuiButtonBase-root-124 MuiIconButton-root-118 MuiPrivateSwitchBase-root-114 MuiRadio-root-109 MuiRadio-colorPrimary-112"
           onBlur={[Function]}
           onContextMenu={[Function]}
           onFocus={[Function]}
@@ -431,11 +431,11 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
           tabIndex={null}
         >
           <span
-            className="MuiIconButton-label-122"
+            className="MuiIconButton-label-123"
           >
             <svg
               aria-hidden="true"
-              className="MuiSvgIcon-root-126"
+              className="MuiSvgIcon-root-127"
               focusable="false"
               role="presentation"
               viewBox="0 0 24 24"
@@ -446,7 +446,7 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
             </svg>
             <input
               checked={false}
-              className="MuiPrivateSwitchBase-input-116"
+              className="MuiPrivateSwitchBase-input-117"
               disabled={false}
               name="preorpost"
               onChange={[Function]}
@@ -455,11 +455,11 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
             />
           </span>
           <span
-            className="MuiTouchRipple-root-170"
+            className="MuiTouchRipple-root-171"
           />
         </span>
         <span
-          className="MuiTypography-root-65 MuiTypography-body1-74 MuiFormControlLabel-label-107"
+          className="MuiTypography-root-66 MuiTypography-body1-75 MuiFormControlLabel-label-108"
         >
           Rank inputs
         </span>
@@ -468,7 +468,7 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
   </fieldset>
   
   <button
-    className="MuiButtonBase-root-123 MuiButton-root-144 MuiButton-contained-155 MuiButton-containedPrimary-156 MuiButton-raised-158 MuiButton-raisedPrimary-159"
+    className="MuiButtonBase-root-124 MuiButton-root-145 MuiButton-contained-156 MuiButton-containedPrimary-157 MuiButton-raised-159 MuiButton-raisedPrimary-160"
     disabled={false}
     onBlur={[Function]}
     onClick={[Function]}
@@ -486,12 +486,12 @@ exports[`RankedTable Plugin renders correctly in public mode 1`] = `
     type="button"
   >
     <span
-      className="MuiButton-label-145"
+      className="MuiButton-label-146"
     >
       Submit
     </span>
     <span
-      className="MuiTouchRipple-root-170"
+      className="MuiTouchRipple-root-171"
     />
   </button>
 </div>

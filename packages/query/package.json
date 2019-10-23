@@ -90,6 +90,9 @@
     "transform": {
       "^.+\\.jsx?$": "./babel-jest-wrapper.js"
     },
+    "moduleNameMapper": {
+      "\\.css$": "<rootDir>/__mocks__/styleMock.js"
+    },
     "setupFiles": [
       "./setupJest.js"
     ]

@@ -88,6 +88,7 @@ describe('find similar neurons Plugin', () => {
         columns: [],
         data: [
           [
+            null,
             123,
             'name1',
             'status1',
@@ -105,15 +106,16 @@ describe('find similar neurons Plugin', () => {
         apiResponseOneNeuron,
         actions
       );
-      expect(processedResults.data[0].length).toBe(12);
-      expect(processedResults.columns.length).toBe(12);
-      expect(processedResults.data[0].slice(8, 12)).toEqual([0, 0, 0, 0]);
+      expect(processedResults.data[0].length).toBe(13);
+      expect(processedResults.columns.length).toBe(13);
+      expect(processedResults.data[0].slice(9, 12)).toEqual([0, 0, 0]);
 
       // single result without sub-rois
       const apiResponseOneNeuronNoSub = {
         columns: [],
         data: [
           [
+            null,
             123,
             'name1',
             'status1',
@@ -131,9 +133,9 @@ describe('find similar neurons Plugin', () => {
         apiResponseOneNeuronNoSub,
         actions
       );
-      expect(processedResults.data[0].length).toBe(11);
-      expect(processedResults.data[0][7]).toEqual('N/A');
-      expect(processedResults.columns.length).toBe(11);
+      expect(processedResults.data[0].length).toBe(12);
+      expect(processedResults.data[0][8]).toEqual('N/A');
+      expect(processedResults.columns.length).toBe(12);
 
       const queryMultNeurons = {
         pm: {
@@ -150,6 +152,7 @@ describe('find similar neurons Plugin', () => {
           [
             123,
             'name1',
+            'name1',
             'status1',
             1000,
             2000,
@@ -160,6 +163,7 @@ describe('find similar neurons Plugin', () => {
           ],
           [
             456,
+            'name2',
             'name2',
             'status1',
             3000,
@@ -176,10 +180,10 @@ describe('find similar neurons Plugin', () => {
         apiResponseMultNeurons,
         actions
       );
-      expect(processedResults.data[0].length).toBe(12);
+      expect(processedResults.data[0].length).toBe(13);
       expect(processedResults.data[0][0].sortBy).toBe(456);
       expect(processedResults.data.length).toBe(2);
-      expect(processedResults.columns.length).toBe(12);
+      expect(processedResults.columns.length).toBe(13);
 
       // multiple result without sub-rois
       const apiResponseMultNeuronsNoSub = {
@@ -187,6 +191,7 @@ describe('find similar neurons Plugin', () => {
         data: [
           [
             123,
+            'name1',
             'name1',
             'status1',
             1000,
@@ -198,6 +203,7 @@ describe('find similar neurons Plugin', () => {
           ],
           [
             456,
+            'name2',
             'name2',
             'status1',
             3000,
@@ -214,10 +220,10 @@ describe('find similar neurons Plugin', () => {
         apiResponseMultNeuronsNoSub,
         actions
       );
-      expect(processedResults.data[0].length).toBe(11);
+      expect(processedResults.data[0].length).toBe(12);
       expect(processedResults.data[0][0].sortBy).toBe(456);
       expect(processedResults.data.length).toBe(2);
-      expect(processedResults.columns.length).toBe(11);
+      expect(processedResults.columns.length).toBe(12);
 
       // roi result with sub-rois
       const queryRoi = {
@@ -231,10 +237,10 @@ describe('find similar neurons Plugin', () => {
         apiResponseMultNeurons,
         actions
       );
-      expect(processedResults.data[0].length).toBe(12);
+      expect(processedResults.data[0].length).toBe(13);
       expect(processedResults.data[0][0].sortBy).toBe(123);
       expect(processedResults.data.length).toBe(2);
-      expect(processedResults.columns.length).toBe(12);
+      expect(processedResults.columns.length).toBe(13);
 
       // roi result without sub-rois
       processedResults = FindSimilarNeurons.processResults(
@@ -242,10 +248,10 @@ describe('find similar neurons Plugin', () => {
         apiResponseMultNeuronsNoSub,
         actions
       );
-      expect(processedResults.data[0].length).toBe(11);
+      expect(processedResults.data[0].length).toBe(12);
       expect(processedResults.data[0][0].sortBy).toBe(123);
       expect(processedResults.data.length).toBe(2);
-      expect(processedResults.columns.length).toBe(11);
+      expect(processedResults.columns.length).toBe(12);
 
       // cluster query (result of clicking cluster name in "explore groups" result) results with sub-rois
       const queryGroup = {
@@ -259,10 +265,10 @@ describe('find similar neurons Plugin', () => {
         apiResponseMultNeurons,
         actions
       );
-      expect(processedResults.data[0].length).toBe(12);
+      expect(processedResults.data[0].length).toBe(13);
       expect(processedResults.data[0][0].sortBy).toBe(123);
       expect(processedResults.data.length).toBe(2);
-      expect(processedResults.columns.length).toBe(12);
+      expect(processedResults.columns.length).toBe(13);
 
       // cluster query (result of clicking cluster name in "explore groups" result) results without sub-rois
       processedResults = FindSimilarNeurons.processResults(
@@ -270,10 +276,10 @@ describe('find similar neurons Plugin', () => {
         apiResponseMultNeuronsNoSub,
         actions
       );
-      expect(processedResults.data[0].length).toBe(11);
+      expect(processedResults.data[0].length).toBe(12);
       expect(processedResults.data[0][0].sortBy).toBe(123);
       expect(processedResults.data.length).toBe(2);
-      expect(processedResults.columns.length).toBe(11);
+      expect(processedResults.columns.length).toBe(12);
 
       // no results
       processedResults = FindSimilarNeurons.processResults({ pm: {} }, { data: [] }, actions);

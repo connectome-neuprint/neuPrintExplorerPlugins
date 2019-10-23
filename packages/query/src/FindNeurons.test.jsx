@@ -1,5 +1,5 @@
-import { FindNeurons } from './FindNeurons';
 import { ColorLegend } from '@neuprint/miniroiheatmap';
+import { FindNeurons } from './FindNeurons';
 
 let wrapper;
 let button;
@@ -54,6 +54,8 @@ describe('find neurons Plugin', () => {
     const pluginView = renderer.create(component).toJSON();
     expect(pluginView).toMatchSnapshot();
   });
+
+
   describe('when user clicks submit', () => {
     it('should return a query object and submit', () => {
       expect(button.props().onClick()).toEqual(undefined);
@@ -79,58 +81,67 @@ describe('find neurons Plugin', () => {
 
       expect(submit).toHaveBeenCalledTimes(5);
     });
+
+    const query = {
+      dataSet: 'test',
+      queryString: '/npexplorer/findneurons',
+      visType: 'SimpleTable',
+      plugin: 'FindNeurons',
+      visProps: { rowsPerPage: 25 },
+      pm: {
+        dataset: 'test',
+        input_ROIs: [],
+        output_ROIs: [],
+        all_segments: false,
+        statuses: []
+      },
+      title: 'Neurons with inputs in [] and outputs in []'
+    };
+
+    const apiResponse = {
+      data: [
+        [
+          null,
+          1,
+          'KC-s',
+          'Traced',
+          '{"roiA":{"pre":22,"post":28},"roiB":{"pre":23,"post":31},"roiC":{"pre":45,"post":61}}',
+          37325787,
+          90,
+          120,
+          ['roiA', 'roiB', 'roiC'],
+          true
+        ]
+      ],
+      columns: [],
+      debug: 'test'
+    };
+
     it('should process returned results into data object', () => {
-      const query = {
-        dataSet: 'test',
-        queryString: '/npexplorer/findneurons',
-        visType: 'SimpleTable',
-        plugin: 'FindNeurons',
-        visProps: { rowsPerPage: 25 },
-        pm: {
-          dataset: 'test',
-          input_ROIs: [],
-          output_ROIs: [],
-          all_segments: false,
-          statuses: []
-        },
-        title: 'Neurons with inputs in [] and outputs in []'
-      };
-      const apiResponse = {
-        data: [
-          [
-            1,
-            'KC-s',
-            'Traced',
-            '{"roiA":{"pre":22,"post":28},"roiB":{"pre":23,"post":31},"roiC":{"pre":45,"post":61}}',
-            37325787,
-            90,
-            120,
-            ['roiA', 'roiB', 'roiC'],
-            true
-          ]
-        ],
-        columns: [],
-        debug: 'test'
-      };
+
       const processedResults = FindNeurons.processResults(query, apiResponse, actions, submit);
       expect(processedResults).toEqual(
         expect.objectContaining({
           columns: [
             'id',
-            'neuron',
+            'instance',
+            'type',
             'status',
             '#post (inputs)',
             '#pre (outputs)',
             '#voxels',
+            'roi breakdown',
             <div>
               roi heatmap <ColorLegend />
-            </div>,
-            'roi breakdown'
+            </div>
           ],
           data: expect.arrayContaining([]),
           debug: 'test'
         })
       );
+    });
+
+    it('should return nothing if no data returned', () => {
 
       // if no data returned
       const processedResultsEmpty = FindNeurons.processResults(
@@ -146,15 +157,16 @@ describe('find neurons Plugin', () => {
       expect(processedResultsEmpty).toEqual({
         columns: [
           'id',
-          'neuron',
+          'instance',
+          'type',
           'status',
           '#post (inputs)',
           '#pre (outputs)',
           '#voxels',
+          'roi breakdown',
           <div>
             roi heatmap <ColorLegend />
           </div>,
-          'roi breakdown'
         ],
         data: [],
         debug: 'test',
@@ -186,7 +198,8 @@ describe('find neurons Plugin', () => {
         expect.objectContaining({
           columns: [
             'id',
-            'neuron',
+            'instance',
+            'type',
             'status',
             '#post (inputs)',
             '#pre (outputs)',
@@ -195,10 +208,10 @@ describe('find neurons Plugin', () => {
             'roiB #post',
             'roiB #pre',
             '#voxels',
+            'roi breakdown',
             <div>
               roi heatmap <ColorLegend />
-            </div>,
-            'roi breakdown'
+            </div>
           ],
           data: expect.arrayContaining([]),
           debug: 'test'
@@ -206,13 +219,12 @@ describe('find neurons Plugin', () => {
       );
     });
   });
+
   describe('when user hits enter key', () => {
     it('should submit request', () => {
-      const processRequest = jest.spyOn(wrapper.instance(), 'processRequest');
       const preventDefault = jest.fn();
       textField.props().onKeyDown({ keyCode: 13, preventDefault });
       expect(preventDefault).toHaveBeenCalledTimes(1);
-      expect(processRequest).toHaveBeenCalledTimes(1);
       expect(submit).toHaveBeenCalledTimes(1);
     });
   });
@@ -222,7 +234,7 @@ describe('find neurons Plugin', () => {
 
       // neuron name input
       textField.props().onChange({ target: { value: 'abc' } });
-      expect(wrapper.find('FindNeurons').state('neuronName')).toBe('abc');
+      expect(wrapper.find('FindNeurons').state('neuronInstance')).toBe('abc');
 
       // input rois
       inputSelect.props().onChange([{ value: 'roiA' }, { value: 'roiB' }]);
