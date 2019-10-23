@@ -15,7 +15,6 @@ import TextField from '@material-ui/core/TextField';
 import NeuronFilter from './shared/NeuronFilter';
 import { getBodyIdForTable } from './shared/pluginhelpers';
 
-
 const styles = theme => ({
   formControl: {
     margin: theme.spacing.unit
@@ -88,7 +87,7 @@ class CommonConnectivity extends React.Component {
 
     columns.push('Total Weight');
 
-    return columns.map(column => ({name: column, status: true}));
+    return columns.map(column => ({ name: column, status: true }));
   }
 
   static fetchParameters() {
@@ -98,9 +97,13 @@ class CommonConnectivity extends React.Component {
   }
 
   static processDownload(response) {
-    const { find_inputs, neuron_ids, neuron_names } = response.params.pm;
+    const {
+      find_inputs: findInputs,
+      neuron_ids: neuronIds,
+      neuron_names: neuronNames
+    } = response.params.pm;
 
-    const queryKey = find_inputs ? 'input' : 'output';
+    const queryKey = findInputs ? 'input' : 'output';
     const connectionArray = response.result.data[0][0];
 
     const columnHeaders = [
@@ -112,10 +115,10 @@ class CommonConnectivity extends React.Component {
     const groupedByInputOrOutputId = groupBy(connectionArray, queryKey);
 
     let selectedNeurons = [];
-    if (neuron_ids.length > 0) {
-      selectedNeurons = neuron_ids;
+    if (neuronIds.length > 0) {
+      selectedNeurons = neuronIds;
     } else {
-      selectedNeurons = neuron_names;
+      selectedNeurons = neuronNames;
     }
 
     const selectedWeightHeadings = selectedNeurons.map(neuron => `${neuron}_weight`);
