@@ -201,9 +201,9 @@ class SimpleConnectionsTable extends React.Component {
                               <TableCell key="expansionButton">
                                 <IconButton
                                   aria-label="Expand"
-                                  onClick={() => this.toggleExpandPanel(bodyId, cell, row[5])}
+                                  onClick={() => this.toggleExpandPanel(keyId, cell, row[5])}
                                 >
-                                  {isExpanded[bodyId] ? (
+                                  {isExpanded[keyId] ? (
                                     <RemoveIcon style={{ width: '.75em', height: '.75em' }} />
                                   ) : (
                                     <AddIcon style={{ width: '.75em', height: '.75em' }} />
@@ -216,7 +216,7 @@ class SimpleConnectionsTable extends React.Component {
                           return <TableCell key={cellKey}>{cell}</TableCell>;
                         })}
                       </TableRow>
-                      {isExpanded[bodyId] && (
+                      {isExpanded[keyId] && (
                         <TableRow key={`${keyId}panel`} className={classes.expansionRow}>
                           <TableCell
                             colSpan={numCols}
