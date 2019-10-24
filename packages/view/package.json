@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/views",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "View plugins used by the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
@@ -58,10 +58,10 @@
   },
   "dependencies": {
     "@janelia-flyem/react-neuroglancer": "^1.1.4",
-    "@neuprint/colorbox": "^1.0.1",
-    "@neuprint/miniroibargraph": "^1.0.1",
-    "@neuprint/miniroiheatmap": "^1.0.1",
-    "@neuprint/support": "^1.0.1",
+    "@neuprint/colorbox": "^1.0.2",
+    "@neuprint/miniroibargraph": "^1.0.2",
+    "@neuprint/miniroiheatmap": "^1.0.2",
+    "@neuprint/support": "^1.0.2",
     "clone": "^2.1.2",
     "colormap": "^2.3.0",
     "cytoscape": "^3.3.3",
