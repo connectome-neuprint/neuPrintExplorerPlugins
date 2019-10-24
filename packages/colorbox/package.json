@@ -44,14 +44,14 @@
     "jest": "^23.6.0",
     "prettier": "^1.15.3",
     "prop-types": "^15.6.2",
-    "react": "^16.6.0",
-    "react-dom": "^16.3.3",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
     "react-test-renderer": "^16.7.0"
   },
   "peerDependencies": {
     "prop-types": "^15.6.2",
-    "react": "^16.6.0",
-    "react-dom": "^16.3.3"
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0"
   },
   "bugs": {
     "url": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/issues"
