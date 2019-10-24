@@ -83,7 +83,12 @@ class SimpleConnectionsView extends React.Component {
     const { query, actions, index } = this.props;
     const { visProps } = query;
     const newVisProps = Object.assign({}, visProps, { collapsed });
-    const queryCopy = clone(query);
+    // clone to a depth of 2. Anything less than that can result in an
+    // Uncaught TypeError: Illegal invocation
+    // It looks like the clone code works fine in development, but when
+    // transpiled for production it throws the above error, because it
+    // can't clone an HTMLElement.
+    const queryCopy = clone(query, undefined, 2);
     delete queryCopy.result;
     actions.updateQuery(index, Object.assign({}, queryCopy, { visProps: newVisProps }));
   };
