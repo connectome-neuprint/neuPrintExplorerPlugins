@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import clone from 'clone';
 
 import Typography from '@material-ui/core/Typography';
 import Table from '@material-ui/core/Table';
@@ -17,6 +18,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import TablePaginationActions from '@neuprint/support';
 import SimpleConnectionsTable from './visualization/SimpleConnectionsTable';
 import ColumnSelection from './shared/ColumnSelection';
+import CollapseButton from './SimpleConnections/CollapseButton';
 
 const styles = theme => ({
   root: {},
@@ -54,16 +56,18 @@ class SimpleConnectionsView extends React.Component {
     const { query, actions, index } = this.props;
     const { visProps } = query;
     const newVisProps = Object.assign({}, visProps, { page });
-
-    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
+    const queryCopy = clone(query);
+    delete queryCopy.result;
+    actions.updateQuery(index, Object.assign({}, queryCopy, { visProps: newVisProps }));
   };
 
   handleChangeRowsPerPage = event => {
     const { query, actions, index } = this.props;
     const { visProps } = query;
     const newVisProps = Object.assign({}, visProps, { rowsPerPage: event.target.value });
-
-    actions.updateQuery(index, Object.assign({}, query, { visProps: newVisProps }));
+    const queryCopy = clone(query);
+    delete queryCopy.result;
+    actions.updateQuery(index, Object.assign({}, queryCopy, { visProps: newVisProps }));
   };
 
   handleCellClick = action => () => {
@@ -75,11 +79,23 @@ class SimpleConnectionsView extends React.Component {
     actions.setColumnStatus(index, columnIndex, !visibleColumns.getIn([columnIndex, 'status']));
   };
 
+  handleCollapse = collapsed => {
+    const { query, actions, index } = this.props;
+    const { visProps } = query;
+    const newVisProps = Object.assign({}, visProps, { collapsed });
+    const queryCopy = clone(query);
+    delete queryCopy.result;
+    actions.updateQuery(index, Object.assign({}, queryCopy, { visProps: newVisProps }));
+  };
+
   renderSingle() {
     const { query, classes, visibleColumns } = this.props;
     const row = query.result.data[0];
+    const { visProps = {} } = query;
+    const { collapsed = false } = visProps;
     return (
       <div className={classes.root}>
+        <CollapseButton checked={collapsed} callback={this.handleCollapse} />
         <Typography className={classes.expansionText}>{row.name}</Typography>
         <ColumnSelection
           columns={visibleColumns}
@@ -109,7 +125,7 @@ class SimpleConnectionsView extends React.Component {
     const { query, classes, visibleColumns } = this.props;
     const { visProps = {} } = query;
     let { rowsPerPage = 5 } = visProps;
-    const { paginate = true, page = 0, paginateExpansion = false } = visProps;
+    const { paginate = true, page = 0, paginateExpansion = false, collapsed = false } = visProps;
 
     // if there is only one result, then we don't need pagination or the expansion panels.
     if (query.result.data.length === 1) {
@@ -129,6 +145,7 @@ class SimpleConnectionsView extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.scroll}>
+        <CollapseButton checked={collapsed} callback={this.handleCollapse} />
           <Table>
             <TableBody>
               {query.result.data

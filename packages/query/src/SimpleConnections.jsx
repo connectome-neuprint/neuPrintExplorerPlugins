@@ -145,6 +145,10 @@ export class SimpleConnections extends React.Component {
     const tables = [];
     const inputs = query.pm.find_inputs;
 
+    const { visProps = {}} = query;
+
+    const combinedByType = visProps.collapsed;
+
     let currentTable = [];
     let lastBody = -1;
     let lastName = '';
@@ -155,7 +159,8 @@ export class SimpleConnections extends React.Component {
       actions,
       submit,
       inputs,
-      includeWeightHP
+      includeWeightHP,
+      combinedByType
     );
 
     data.forEach((row) => {

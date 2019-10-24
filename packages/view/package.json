@@ -62,6 +62,7 @@
     "@neuprint/miniroibargraph": "^1.0.1",
     "@neuprint/miniroiheatmap": "^1.0.1",
     "@neuprint/support": "^1.0.1",
+    "clone": "^2.1.2",
     "colormap": "^2.3.0",
     "cytoscape": "^3.3.3",
     "cytoscape-klay": "^3.1.2",

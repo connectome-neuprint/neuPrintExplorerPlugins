@@ -333,7 +333,7 @@ export function createSimpleConnectionsResult(
   submit,
   isInputs,
   includeWeightHP = false,
-  combinedByType = true
+  combinedByType = false
 ) {
   let columnNames;
 
