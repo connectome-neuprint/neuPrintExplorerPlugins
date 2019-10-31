@@ -238,7 +238,7 @@ export class FindNeurons extends React.Component {
           const postQuery = createSimpleConnectionQueryObject({
             dataSet: query.ds,
             isPost: true,
-            queryId: bodyId,
+            queryId: bodyId
           });
           converted[indexOf.post] = {
             value: totalPost,
