@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Icon from '@material-ui/core/Icon';
+import Modal from '@material-ui/core/Modal';
 import SelectAndCopyText from '../shared/SelectAndCopyText';
+import SunburstLoader from '../shared/SunburstLoader';
 
 const styles = theme => ({
   icon: {
@@ -13,6 +15,17 @@ const styles = theme => ({
   container: {
     display: 'flex',
     flexDirection: 'row'
+  },
+  paper: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80%',
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing.unit * 4,
+    outline: 'none'
   }
 });
 
@@ -30,6 +43,7 @@ function showSkeleton(id, dataset, actions) {
 
 function BodyId(props) {
   const { children, dataSet, actions, classes } = props;
+  const [modal, setModal] = useState(false);
   return (
     <div>
       <div className={classes.container}>
@@ -41,7 +55,15 @@ function BodyId(props) {
         >
           visibility
         </Icon>
+        <Icon className={classes.icon} onClick={() => setModal(!modal)} fontSize="inherit">
+          donut_small
+        </Icon>
       </div>
+      <Modal open={modal} onClose={() => setModal(false)}>
+        <div className={classes.paper}>
+          <SunburstLoader bodyId={children} dataSet={dataSet} />
+        </div>
+      </Modal>
     </div>
   );
 }
