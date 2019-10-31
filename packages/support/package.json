@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/support",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Support methods used by plugins for the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
@@ -56,7 +56,7 @@
   },
   "gitHead": "7e8a8d98fc5f55d001b8cc2707aee629396f7654",
   "dependencies": {
-    "@neuprint/colorbox": "^1.0.2",
+    "@neuprint/colorbox": "^1.0.3",
     "colormap": "^2.3.1"
   }
 }
