@@ -22,6 +22,8 @@ const styles = theme => ({
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: '80%',
+    height: '85%',
+    display:'block',
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     padding: theme.spacing.unit * 4,
