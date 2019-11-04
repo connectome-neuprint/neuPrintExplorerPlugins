@@ -41,7 +41,7 @@ class Skeleton extends React.Component {
   static processResults(query) {
     return {
       debug: 'No cypher query for this plugin',
-      title: `Skeleton viewer for ${query.pm.dataSet}`,
+      title: `Skeleton viewer for ${query.pm.dataset}`,
     };
   };
 
