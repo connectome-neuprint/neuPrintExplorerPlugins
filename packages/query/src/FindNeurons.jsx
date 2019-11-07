@@ -72,6 +72,7 @@ export class FindNeurons extends React.Component {
       name: pluginName,
       displayName: 'Find neurons',
       abbr: pluginAbbrev,
+      category: 'top-level',
       description: 'Find neurons that have inputs or outputs in ROIs',
       visType: 'SimpleTable'
     };
