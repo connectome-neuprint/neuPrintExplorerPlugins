@@ -74,7 +74,7 @@
     "@neuprint/colorbox": "^1.0.3",
     "@neuprint/miniroibargraph": "^1.0.3",
     "@neuprint/miniroiheatmap": "^1.0.3",
-    "@neuprint/react-sunburst": "^1.0.1",
+    "@neuprint/react-sunburst": "^1.0.2",
     "@neuprint/support": "^1.0.3",
     "codemirror": "^5.48.4",
     "colormap": "^2.3.0",
