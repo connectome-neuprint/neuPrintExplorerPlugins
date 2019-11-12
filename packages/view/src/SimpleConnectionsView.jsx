@@ -100,12 +100,12 @@ class SimpleConnectionsView extends React.Component {
     const { collapsed = false } = visProps;
     return (
       <div className={classes.root}>
-        <CollapseButton checked={collapsed} callback={this.handleCollapse} />
         <Typography className={classes.expansionText}>{row.name}</Typography>
         <ColumnSelection
           columns={visibleColumns}
           onChange={columnIndex => this.handleColumnChange(columnIndex)}
         />
+        <CollapseButton checked={collapsed} callback={this.handleCollapse} />
         <div className={classes.scroll}>
           <Table>
             <TableBody>
@@ -150,6 +150,10 @@ class SimpleConnectionsView extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.scroll}>
+        <ColumnSelection
+          columns={visibleColumns}
+          onChange={columnIndex => this.handleColumnChange(columnIndex)}
+        />
         <CollapseButton checked={collapsed} callback={this.handleCollapse} />
           <Table>
             <TableBody>
