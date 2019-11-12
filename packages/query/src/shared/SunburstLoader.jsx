@@ -100,7 +100,7 @@ class SunburstLoader extends React.Component {
 }
 
 SunburstLoader.propTypes = {
-  bodyId: PropTypes.object.isRequired,
+  bodyId: PropTypes.number.isRequired,
   dataSet: PropTypes.string.isRequired
 };
 
