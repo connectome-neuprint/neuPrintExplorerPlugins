@@ -40,7 +40,7 @@ export class ShortestPath extends React.Component {
       displayName: 'Shortest paths',
       abbr: pluginAbbrev,
       description: 'Find all neurons along the shortest paths between two neurons.',
-      disabled: true,
+      disabled: false,
       visType: 'Graph'
     };
   }
@@ -153,7 +153,7 @@ export class ShortestPath extends React.Component {
     this.state = {
       bodyId1: '',
       bodyId2: '',
-      minWeight: 0
+      minWeight: 10
     };
   }
 
