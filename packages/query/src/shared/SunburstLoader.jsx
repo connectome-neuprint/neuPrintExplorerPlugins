@@ -17,7 +17,7 @@ class SunburstLoader extends React.Component {
     this.fetchSuperROIs();
     // fetch information about inputs/outputs
     const { bodyId, dataSet } = this.props;
-    const cypher = `MATCH (n :Neuron {bodyId: ${bodyId}})<-[:From]-(cs :ConnectionSet)-[:To]->(m) MATCH (n)-[x :ConnectsTo]->(m) RETURN m.bodyId, m.type, x.weight, cs.roiInfo, m.status, 'output' as direction UNION MATCH (n :Neuron {bodyId: ${bodyId}})<-[:To]-(cs :ConnectionSet)-[:From]->(m) MATCH (n)<-[x :ConnectsTo]-(m) RETURN m.bodyId, m.type, x.weight, cs.roiInfo, m.status, 'input' as direction`;
+    const cypher = `MATCH (n :Neuron {bodyId: ${bodyId}})-[x :ConnectsTo]->(m) RETURN m.bodyId, m.type, x.weight, x.roiInfo, m.status, 'output' as direction UNION MATCH (n :Neuron {bodyId: ${bodyId}})<-[x :ConnectsTo]-(m) RETURN m.bodyId, m.type, x.weight, x.roiInfo, m.status, 'input' as direction`;
 
     const parameters = {
       cypher,
