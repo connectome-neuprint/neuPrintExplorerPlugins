@@ -100,7 +100,7 @@ class SunburstLoader extends React.Component {
         const topLevel = data.children[dirPosition];
 
         const rois = JSON.parse(roisJSON);
-        // TODO: need to obtain the super ROI list from global state?
+        // filter to show only super ROIs
         Object.entries(rois).filter(entry => superROIs.includes(entry[0])).forEach(([roiLabel, roiData]) => {
           let roiLevel = topLevel.children.find(el => el.name === roiLabel);
           if (!roiLevel) {
