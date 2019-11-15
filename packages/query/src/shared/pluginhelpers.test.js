@@ -99,7 +99,7 @@ describe('createSimpleConnectionsResult', () => {
 });
 
 describe('computeSimilarity', () => {
-  it('should compute similarity between input and output roi vectors', () => {
+  it('should compute similarity between input and output brain region vectors', () => {
     const inputVector = [0, 0.4, 0.6, 0, 1, 0]; // order : outputs, inputs
     const queriedVector = [0, 0.4, 0, 1, 0, 0];
     const { inputScore, outputScore, totalScore } = computeSimilarity(inputVector, queriedVector);

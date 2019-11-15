@@ -112,10 +112,10 @@ function processSimilarResults(query, apiResponse, actions, submit) {
   columns[indexOf.status] = 'status';
   columns[indexOf.pre] = 'pre';
   columns[indexOf.post] = 'post';
-  columns[indexOf.roiBarGraph] = 'roi breakdown (mouseover for details)';
+  columns[indexOf.roiBarGraph] = 'brain region breakdown (mouseover for details)';
   columns[indexOf.roiHeatMap] = (
     <div>
-      roi heatmap (mouseover for details) <ColorLegend />
+      brain region heatmap (mouseover for details) <ColorLegend />
     </div>
   );
   columns[indexOf.subLevelRoiHeatMap] = 'sub-level roi heatmap';
@@ -225,7 +225,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
     columns[indexOf.totalSimScore] = 'total similarity score';
     columns[indexOf.inputSimScore] = 'input similarity score';
     columns[indexOf.outputSimScore] = 'output similarity score';
-    columns[indexOf.subLevelSimScore] = 'sub-level roi similarity score';
+    columns[indexOf.subLevelSimScore] = 'sub-level brain region similarity score';
 
     apiResponse.data.forEach((row, index) => {
       const roiInfo = row[6];
@@ -391,7 +391,7 @@ export class FindSimilarNeurons extends React.Component {
       displayName: 'Find similar neurons',
       abbr: pluginAbbrev,
       description:
-        'Find neurons that are similar to a neuron of interest in terms of their input and output locations (ROIs).',
+        'Find neurons that are similar to a neuron of interest in terms of their input and output locations (Brain Regions).',
       visType: 'SimpleTable'
     };
   }
@@ -408,13 +408,13 @@ export class FindSimilarNeurons extends React.Component {
         { name: 'status', status: true },
         { name: 'pre', status: true },
         { name: 'post', status: true },
-        { name: 'roi breakdown', status: true },
-        { name: 'roi heatmap', status: true },
-        { name: 'sub-level roi heatmap', status: true },
+        { name: 'brain region breakdown', status: true },
+        { name: 'brain region heatmap', status: true },
+        { name: 'sub-level brain region heatmap', status: true },
         { name: 'total similarity score', status: true },
         { name: 'input similarity score', status: true },
         { name: 'output similarity score', status: true },
-        { name: 'sub-level roi similarity score', status: true }
+        { name: 'sub-level brain region similarity score', status: true }
       );
     } else {
       columnIds.push({ name: 'cluster name', status: true });
@@ -520,7 +520,7 @@ export class FindSimilarNeurons extends React.Component {
     const parameters = {
       dataset: dataSet,
       rois,
-      emptyDataErrorMessage: `No neurons located in all selected rois: ${rois}`
+      emptyDataErrorMessage: `No neurons located in all selected brain regions: ${rois}`
     };
 
     const query = {
@@ -607,7 +607,7 @@ export class FindSimilarNeurons extends React.Component {
           className={classes.button}
           disabled={!(roiValues.length > 0)}
         >
-          Explore By ROI
+          Explore By Brain Region
         </Button>
         <Divider />
         <Button

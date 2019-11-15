@@ -41,7 +41,7 @@ export class SynapsesForConnection extends React.Component {
   }
 
   static getColumnHeaders() {
-    const columnIds = ['type', 'location', 'confidence', 'rois'];
+    const columnIds = ['type', 'location', 'confidence', 'brain region'];
     return columnIds.map(column => ({name: column, status: true}));
   }
 
@@ -100,7 +100,7 @@ export class SynapsesForConnection extends React.Component {
       columns[indexOf.type] = 'type';
       columns[indexOf.location] = 'location';
       columns[indexOf.confidence] = 'confidence';
-      columns[indexOf.rois] = 'rois';
+      columns[indexOf.rois] = 'brain region';
 
       return {
         columns,
@@ -111,7 +111,7 @@ export class SynapsesForConnection extends React.Component {
     }
 
     actions.pluginResponseError(
-      `No synapses between ${bodyId1} and ${bodyId2} in specified rois (${rois})`
+      `No synapses between ${bodyId1} and ${bodyId2} in specified brain regions (${rois})`
     );
     return {
       columns: [],
@@ -200,7 +200,7 @@ export class SynapsesForConnection extends React.Component {
             onChange={this.addBodyId2}
           />
         </FormControl>
-        <InputLabel htmlFor="select-multiple-chip">ROIs</InputLabel>
+        <InputLabel htmlFor="select-multiple-chip">Brain Regions</InputLabel>
         <Select
           className={classes.select}
           isMulti

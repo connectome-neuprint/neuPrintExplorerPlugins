@@ -73,7 +73,7 @@ export class FindNeurons extends React.Component {
       displayName: 'Find neurons',
       abbr: pluginAbbrev,
       category: 'top-level',
-      description: 'Find neurons that have inputs or outputs in ROIs',
+      description: 'Find neurons that have inputs or outputs in selected brain regions',
       visType: 'SimpleTable'
     };
   }
@@ -163,8 +163,8 @@ export class FindNeurons extends React.Component {
     }
     columnIds.push(
       { name: '#voxels', status: false },
-      { name: 'roi breakdown', status: true },
-      { name: 'roi heatmap', status: false }
+      { name: 'brain region breakdown', status: true },
+      { name: 'brain region heatmap', status: false }
     );
     return columnIds;
   }
@@ -279,7 +279,7 @@ export class FindNeurons extends React.Component {
         roi heatmap <ColorLegend />
       </div>
     );
-    columns[indexOf.roiBarGraph] = 'roi breakdown';
+    columns[indexOf.roiBarGraph] = 'brain region breakdown';
     if (rois.length > 0) {
       rois.forEach(roi => {
         columns[indexOf[`${roi}Post`]] = `${roi} #post`;
@@ -441,7 +441,7 @@ export class FindNeurons extends React.Component {
             </Typography>
           )}
         </FormControl>
-        <InputLabel htmlFor="select-multiple-chip">Input ROIs</InputLabel>
+        <InputLabel htmlFor="select-multiple-chip">Input Brain Regions</InputLabel>
         <Select
           className={classes.select}
           isMulti
@@ -450,7 +450,7 @@ export class FindNeurons extends React.Component {
           options={inputOptions}
           closeMenuOnSelect={false}
         />
-        <InputLabel htmlFor="select-multiple-chip">Output ROIs</InputLabel>
+        <InputLabel htmlFor="select-multiple-chip">Output Brain Regions</InputLabel>
         <Select
           className={classes.select}
           isMulti

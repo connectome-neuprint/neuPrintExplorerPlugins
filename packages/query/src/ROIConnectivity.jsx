@@ -32,7 +32,7 @@ class ROIConnectivity extends React.Component {
   static get details() {
     return {
       name: pluginName,
-      displayName: 'ROI Connectivity',
+      displayName: 'Brain Region Connectivity',
       abbr: pluginAbbrev,
       description: 'Extract connectivity matrix for a dataset',
       visType: 'HeatMapTable'
@@ -185,7 +185,7 @@ class ROIConnectivity extends React.Component {
 
     return (
       <div>
-        <InputLabel htmlFor="select-multiple-chip">ROIs (optional)</InputLabel>
+        <InputLabel htmlFor="select-multiple-chip">Brain Regions (optional)</InputLabel>
         <Select
           className={classes.select}
           isMulti
@@ -206,7 +206,7 @@ class ROIConnectivity extends React.Component {
         <br />
         <Typography style={{ fontWeight: 'bold' }}>Description</Typography>
         <Typography variant="body2">
-          Within each cell of the matrix, the top number represents connections from ROI Y to ROI X
+          Within each cell of the matrix, the top number represents connections from brain region Y to brain region X
           defined as the number of synapses from neurons that have inputs in Y and outputs in X. The
           number represents the number of outputs from these neurons in X weighted by the proportion
           of inputs that are in Y. The bottom number is the number of neurons with at least one

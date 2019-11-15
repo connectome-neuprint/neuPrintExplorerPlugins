@@ -153,7 +153,7 @@ class Distribution extends React.Component {
     return (
       <form>
         <FormControl className={classes.selects}>
-          <InputLabel htmlFor="roi">ROI</InputLabel>
+          <InputLabel htmlFor="roi">Brain Region</InputLabel>
           <Select
             value={roi}
             onChange={this.setROI}

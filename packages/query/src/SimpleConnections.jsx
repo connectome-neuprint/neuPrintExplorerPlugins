@@ -64,8 +64,8 @@ export class SimpleConnections extends React.Component {
       { name: '#post (inputs)', status: true },
       { name: '#pre (outputs)', status: true },
       { name: '#voxels', status: false },
-      { name: 'roi heatmap', status: false },
-      { name: 'roi breakdown', status: true }
+      { name: 'brain region heatmap', status: false },
+      { name: 'brain region breakdown', status: true }
     ];
     return columnIds;
   }

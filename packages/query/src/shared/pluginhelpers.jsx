@@ -515,10 +515,10 @@ export function createSimpleConnectionsResult(
   columns[indexOf.size] = '#voxels';
   columns[indexOf.roiHeatMap] = (
     <div>
-      roi heatmap <ColorLegend />
+      brain region heatmap <ColorLegend />
     </div>
   );
-  columns[indexOf.roiBarGraph] = 'roi breakdown';
+  columns[indexOf.roiBarGraph] = 'brain region breakdown';
   /* eslint-enable prefer-destructuring */
 
   return {

@@ -12,7 +12,7 @@ const pluginName = 'Completeness';
 const pluginAbbrev = 'co';
 
 
-const columnHeaders = ['ROI', '%presyn', 'total presyn', '%postsyn', 'total postsyn'];
+const columnHeaders = ['Brain Region', '%presyn', 'total presyn', '%postsyn', 'total postsyn'];
 
 class Completeness extends React.Component {
   static get details() {
@@ -22,7 +22,7 @@ class Completeness extends React.Component {
       abbr: pluginAbbrev,
       category: 'recon',
       description:
-        'Determines the reconstruction completeness of each ROI with respect to the neuron filters',
+        'Determines the reconstruction completeness of each brain region with respect to the neuron filters',
       visType: 'SimpleTable'
     };
   }
@@ -56,7 +56,7 @@ class Completeness extends React.Component {
   }
 
   static processDownload(response) {
-    const headers = ['ROI', '%presyn', 'total presyn', '%postsyn', 'total postsyn'].join(',');
+    const headers = ['Brain Region', '%presyn', 'total presyn', '%postsyn', 'total postsyn'].join(',');
     const data = response.result.data
       .map(
         row =>

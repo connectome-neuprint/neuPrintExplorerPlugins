@@ -30,10 +30,10 @@ class ROIsIntersectingNeurons extends React.Component {
   static get details() {
     return {
       name: pluginName,
-      displayName: 'ROIs in Neuron',
+      displayName: 'Brain Regions in Neuron',
       abbr: pluginAbbrev,
       description:
-        'Find ROIs that intersect a given neuron(s).  A putative name is given based on top two ROI inputs and outputs',
+        'Find brain regions that intersect a given neuron(s).  A putative name is given based on top two brain region inputs and outputs',
       visType: 'CollapsibleTable'
     };
   }
@@ -45,7 +45,7 @@ class ROIsIntersectingNeurons extends React.Component {
   }
 
   static processResults(query, apiResponse) {
-    const columnNames = ['ROI name', 'inputs', 'outputs'];
+    const columnNames = ['brain region name', 'inputs', 'outputs'];
     const tables = [];
 
     apiResponse.data.forEach(row => {
@@ -99,7 +99,7 @@ class ROIsIntersectingNeurons extends React.Component {
     return {
       data: tables,
       debug: apiResponse.debug,
-      title: 'ROIs intersecting neurons'
+      title: 'Brain regions intersecting neurons'
     };
   }
 
