@@ -396,9 +396,10 @@ export class FindNeurons extends React.Component {
     });
   };
 
-  toggleSuper = (event) => {
-    this.setState({useSuper: !event.target.checked});
-  }
+  toggleSuper = event => {
+    // TODO: check to see if ROIs are valid. Remove if they are no longer valid.
+    this.setState({ useSuper: !event.target.checked, inputROIs: [], outputROIs: [] });
+  };
 
   // use this function to generate the form that will accept and
   // validate the variables for your Neo4j query.
@@ -412,7 +413,13 @@ export class FindNeurons extends React.Component {
       actions,
       neoServerSettings
     } = this.props;
-    const { useSuper, neuronInstance = '', inputROIs = [], outputROIs = [], regexMatch } = this.state;
+    const {
+      useSuper,
+      neuronInstance = '',
+      inputROIs = [],
+      outputROIs = [],
+      regexMatch
+    } = this.state;
 
     // decide to use super ROIs (default) or all ROIs
     const selectedROIs = useSuper ? superROIs : availableROIs;
@@ -478,9 +485,7 @@ export class FindNeurons extends React.Component {
         />
         <FormControl className={classes.formControl}>
           <FormControlLabel
-            control={
-              <Switch checked={!useSuper} onChange={this.toggleSuper} color="primary" />
-            }
+            control={<Switch checked={!useSuper} onChange={this.toggleSuper} color="primary" />}
             label={
               <Typography variant="subtitle1" style={{ display: 'inline-flex' }}>
                 Allow all brain regions
