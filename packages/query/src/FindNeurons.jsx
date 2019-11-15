@@ -7,6 +7,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 
 import { ColorLegend } from '@neuprint/miniroiheatmap';
@@ -306,7 +308,8 @@ export class FindNeurons extends React.Component {
       neuronInstance: '',
       inputROIs: [],
       outputROIs: [],
-      regexMatch: false
+      regexMatch: false,
+      useSuper: true
     };
   }
 
@@ -393,13 +396,27 @@ export class FindNeurons extends React.Component {
     });
   };
 
+  toggleSuper = (event) => {
+    this.setState({useSuper: !event.target.checked});
+  }
+
   // use this function to generate the form that will accept and
   // validate the variables for your Neo4j query.
   render() {
-    const { classes, isQuerying, availableROIs, dataSet, actions, neoServerSettings } = this.props;
-    const { neuronInstance = '', inputROIs = [], outputROIs = [], regexMatch } = this.state;
+    const {
+      classes,
+      isQuerying,
+      availableROIs,
+      superROIs,
+      dataSet,
+      actions,
+      neoServerSettings
+    } = this.props;
+    const { useSuper, neuronInstance = '', inputROIs = [], outputROIs = [], regexMatch } = this.state;
 
-    const inputOptions = availableROIs.map(name => ({
+    // decide to use super ROIs (default) or all ROIs
+    const selectedROIs = useSuper ? superROIs : availableROIs;
+    const inputOptions = selectedROIs.map(name => ({
       label: name,
       value: name
     }));
@@ -409,7 +426,7 @@ export class FindNeurons extends React.Component {
       value: roi
     }));
 
-    const outputOptions = availableROIs.map(name => ({
+    const outputOptions = selectedROIs.map(name => ({
       label: name,
       value: name
     }));
@@ -459,6 +476,19 @@ export class FindNeurons extends React.Component {
           options={outputOptions}
           closeMenuOnSelect={false}
         />
+        <FormControl className={classes.formControl}>
+          <FormControlLabel
+            control={
+              <Switch checked={!useSuper} onChange={this.toggleSuper} color="primary" />
+            }
+            label={
+              <Typography variant="subtitle1" style={{ display: 'inline-flex' }}>
+                Allow all brain regions
+              </Typography>
+            }
+          />
+        </FormControl>
+
         <NeuronFilter
           callback={this.loadNeuronFilters}
           datasetstr={dataSet}
@@ -483,6 +513,7 @@ export class FindNeurons extends React.Component {
 FindNeurons.propTypes = {
   actions: PropTypes.object.isRequired,
   availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
+  superROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
   dataSet: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
   submit: PropTypes.func.isRequired,
