@@ -54,7 +54,7 @@
     "redux": "^3.7.2"
   },
   "dependencies": {
-    "@janelia-flyem/react-neuroglancer": "^1.1.4",
+    "@janelia-flyem/react-neuroglancer": "^1.2.0",
     "@neuprint/colorbox": "^1.0.3",
     "@neuprint/miniroibargraph": "^1.0.3",
     "@neuprint/miniroiheatmap": "^1.0.3",
