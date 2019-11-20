@@ -73,7 +73,7 @@ class NeuroGlancerView extends React.Component {
   addLayers(dataSet) {
     const { layers } = this.state;
     // TODO: fetch the layer information and store it in the state.
-    const neuroglancerLayerQuery = `MATCH (n:Meta) WITH apoc.convert.fromJsonMap(n.neuroglancerInfo) as nInfo, n.uuid AS uuid RETURN nInfo, uuid`;
+    const neuroglancerLayerQuery = `MATCH (n:Meta) WITH apoc.convert.fromJsonList(n.neuroglancerMeta) as nInfo RETURN nInfo`;
     // fetch swc data
     return fetch('/api/custom/custom', {
       headers: {
@@ -93,24 +93,16 @@ class NeuroGlancerView extends React.Component {
           throw result.error;
         }
 
-        const [nInfo, primaryUUID] = result.data[0];
+        const [nInfo] = result.data[0];
         let updated = layers;
 
-        Object.values(nInfo).forEach(entry => {
-          const { host, uuid, dataType: dataInstance } = entry;
-          const layerName =
-            dataInstance === 'segmentation' ? dataSet : `${dataSet}-${dataInstance}`;
-          const dataType = dataInstance === 'segmentation' ? 'segmentation' : 'image';
-          const expectedUUID = uuid === 'see meta node' ? primaryUUID : uuid;
+        nInfo.forEach(entry => {
+          const { dataType, dataInstance } = entry;
+          const layerName = dataType === 'segmentation' ? dataSet : `${dataSet}-${dataInstance}`;
+          const modified = Object.assign({}, entry, { name: layerName});
           updated = updated.set(
             layerName,
-            Immutable.Map({
-              host,
-              uuid: expectedUUID,
-              dataInstance,
-              dataType,
-              dataSet: layerName
-            })
+            Immutable.Map(modified)
           );
         });
 
@@ -121,6 +113,9 @@ class NeuroGlancerView extends React.Component {
 
   render() {
     const { layers, neurons, coordinates, loadingError } = this.state;
+    const { user } = this.props;
+
+    const userName = user.get('userInfo',{}).Email;
 
     if (loadingError) {
       return <div>{loadingError}</div>;
@@ -145,11 +140,31 @@ class NeuroGlancerView extends React.Component {
       // loop over layers and add them to the viewerState
       layers.forEach(layer => {
         // add segmentation && grayscale layers
-        viewerState.layers[layer.get('dataSet')] = {
-          source: `dvid://${layer.get('host')}/${layer.get('uuid')}/${layer.get('dataInstance')}`,
+        let source = `dvid://${layer.get('host')}/${layer.get('uuid')}/${layer.get('dataInstance')}`;
+
+        if (layer.get('dataType') === 'annotation' && layer.get('dataInstance') !== 'synapses') {
+          source += `?user=${userName}&usertag=true`;
+        }
+
+        const layerInfo = {
+          source,
           type: layer.get('dataType'),
           segments: []
         };
+
+        if (layer.get('linkedSegmentationLayer')) {
+          layerInfo.linkedSegmentationLayer = 'hemibrain';
+        }
+
+        if (layer.get('tool')) {
+          layerInfo.tool = layer.get('tool');
+          viewerState.selectedLayer = {
+            layer: layer.get('name'),
+            visible: true
+          };
+        }
+
+        viewerState.layers[layer.get('name')] = layerInfo;
       });
       // loop over the neurons and add them to the layers
       neurons.forEach(neuron => {
@@ -172,7 +187,8 @@ class NeuroGlancerView extends React.Component {
 }
 
 NeuroGlancerView.propTypes = {
-  query: PropTypes.object.isRequired
+  query: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired
 };
 
 export default NeuroGlancerView;
