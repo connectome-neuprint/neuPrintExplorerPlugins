@@ -118,7 +118,7 @@ class NeuroGlancerView extends React.Component {
     const userName = user.get('userInfo',{}).Email;
 
     if (loadingError) {
-      return <div>{loadingError}</div>;
+      return <div>{loadingError.message}</div>;
     }
 
     const viewerState = {
