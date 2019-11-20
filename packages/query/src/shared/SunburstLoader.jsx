@@ -99,6 +99,12 @@ class SunburstLoader extends React.Component {
         const dirPosition = (direction === 'input') ? 0 : 1;
         const topLevel = data.children[dirPosition];
 
+        // sometimes we get an empty string instead of JSON. Do nothing in those
+        // cases.
+        if (roisJSON === "") {
+          return;
+        }
+
         const rois = JSON.parse(roisJSON);
         // filter to show only super ROIs
         Object.entries(rois).filter(entry => superROIs.includes(entry[0])).forEach(([roiLabel, roiData]) => {
