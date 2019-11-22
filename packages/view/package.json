@@ -70,7 +70,7 @@
     "pouchdb": "^7.0.0",
     "randomcolor": "^0.5.4",
     "react-color": "^2.17.3",
-    "react-select": "^2.1.0"
+    "react-select": "^3.0.8"
   },
   "gitHead": "2c47ecdbb6f7f791040e94fe18e715bc59a68fa5"
 }

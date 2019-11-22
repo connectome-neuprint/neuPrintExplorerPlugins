@@ -369,12 +369,18 @@ export class FindNeurons extends React.Component {
   };
 
   handleChangeROIsIn = selected => {
-    const rois = selected.map(item => item.value);
+    let rois = [];
+    if (selected) {
+      rois = selected.map(item => item.value);
+    }
     this.setState({ inputROIs: rois });
   };
 
   handleChangeROIsOut = selected => {
-    const rois = selected.map(item => item.value);
+    let rois = [];
+    if (selected) {
+      rois = selected.map(item => item.value);
+    }
     this.setState({ outputROIs: rois });
   };
 
@@ -445,26 +451,12 @@ export class FindNeurons extends React.Component {
 
     return (
       <div>
-        <FormControl fullWidth className={classes.formControl}>
-          <NeuronHelp>
-            <NeuronInputField
-              onChange={this.addNeuronInstance}
-              value={neuronInstance}
-              handleSubmit={this.processRequest}
-            />
-          </NeuronHelp>
-          {regexMatch && (
-            <Typography color="error" className={classes.regexWarning}>
-              Warning!! This is a regular expression search and characters like &#39;&#40;&#39; must
-              be escaped. eg: to search for &#39;c(SFS)_R&#39; you would need to type
-              &#39;c\\(SFS\\)_R&#39; For more details on how to write regular expressions, please
-              see{' '}
-              <a href="https://www.regular-expressions.info/">
-                https://www.regular-expressions.info/
-              </a>
-            </Typography>
-          )}
-        </FormControl>
+        <NeuronInputField
+          onChange={this.addNeuronInstance}
+          value={neuronInstance}
+          dataSet={dataSet}
+          handleSubmit={this.processRequest}
+        />
         <InputLabel htmlFor="select-multiple-chip">Input Brain Regions</InputLabel>
         <Select
           className={classes.select}

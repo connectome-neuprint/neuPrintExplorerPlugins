@@ -329,7 +329,7 @@ export class RankedTable extends React.Component {
   };
 
   render() {
-    const { classes, isQuerying, isPublic } = this.props;
+    const { classes, isQuerying, isPublic, dataSet } = this.props;
     const { neuronSrc, preOrPost, useHighConfidence } = this.state;
     return (
       <div>
@@ -338,6 +338,7 @@ export class RankedTable extends React.Component {
             <NeuronInputField
               onChange={this.addNeuron}
               value={neuronSrc}
+              dataSet={dataSet}
               handleSubmit={this.processRequest}
             />
           </NeuronHelp>

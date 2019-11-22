@@ -1,15 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
+import AsyncCreatableSelect from 'react-select/async-creatable';
+import InputLabel from '@material-ui/core/InputLabel';
 import { withStyles } from '@material-ui/core/styles';
 
-const styles = () => ({
+const styles = theme => ({
   regexWarning: {
     fontSize: '0.9em'
+  },
+  select: {
+    fontFamily: theme.typography.fontFamily,
+    margin: '0.5em 0 1em 0'
   }
 });
-
 
 class NeuronInputField extends React.Component {
   constructor(props) {
@@ -19,16 +22,13 @@ class NeuronInputField extends React.Component {
     };
   }
 
-  handleChange = event => {
+  handleChange = selected => {
     const { onChange } = this.props;
-    const { value } = event.target;
-    // If the string contains a '(' show the special regex message.
-    let regexMatch = false;
-    if (value.match(`[\\(\\)]`)) {
-      regexMatch = true;
+    if (selected && selected.value) {
+      onChange(selected.value);
+    } else {
+      onChange(selected);
     }
-    this.setState({ regexMatch });
-    onChange(value);
   };
 
   handleKeyDown = event => {
@@ -40,28 +40,106 @@ class NeuronInputField extends React.Component {
     }
   };
 
+  fetchOptions = inputValue => {
+    const { dataSet } = this.props;
+
+    const convertedInput = parseInt(inputValue, 10);
+
+    let bodyId = -1;
+
+    if (!Number.isNaN(convertedInput)) {
+      bodyId = convertedInput;
+    }
+
+    // query neo4j
+    const cypherString = `MATCH (neuron :Neuron)
+    WHERE neuron.bodyId = ${bodyId}
+    OR toLower(neuron.type) CONTAINS toLower('${inputValue}')
+    OR toLower(neuron.instance) CONTAINS toLower('${inputValue}')
+    RETURN neuron.bodyId AS bodyid, neuron.type AS type, neuron.instance AS instance
+    ORDER BY neuron.instance`;
+
+    const body = JSON.stringify({
+      cypher: cypherString,
+      dataSet
+    });
+
+    const settings = {
+      headers: {
+        'content-type': 'application/json',
+        Accept: 'application/json'
+      },
+      body,
+      method: 'POST',
+      credentials: 'include'
+    };
+
+    const queryUrl = '/api/custom/custom';
+
+    return fetch(queryUrl, settings)
+      .then(result => result.json())
+      .then(resp => {
+        // sort the results in the data key. Need to split out instances, types
+        // and bodyids into separate categories then load them in different
+        // sections of the drop down.
+
+        const bodyIds = new Set();
+        const types = new Set();
+        const instances = new Set();
+
+        resp.data.forEach(item => {
+          if (item[0]) {
+            bodyIds.add(item[0].toString());
+          }
+          if (item[1]) {
+            types.add(item[1]);
+          }
+          if (item[2]) {
+            instances.add(item[2]);
+          }
+        });
+
+        const options = [];
+
+        if (types.size) {
+          options.push({
+            label: 'Types',
+            options: [...types].sort().slice(0,9).map(item => ({ value: item, label: item }))
+          });
+        }
+        if (instances.size) {
+          options.push({
+            label: 'Instances',
+            options: [...instances].sort().slice(0,9).map(item => ({ value: item, label: item }))
+          });
+        }
+        if (bodyIds.size) {
+          options.push({
+            label: 'Body Ids',
+            options: [...bodyIds].sort((a,b) => a - b).slice(0,9).map(item => ({ value: item, label: item }))
+          });
+        }
+
+        return options;
+      });
+  };
 
   render() {
     const { value, classes } = this.props;
-    const { regexMatch } = this.state;
+    const selectValue = value ? { label: value, value } : null;
     return (
       <React.Fragment>
-        <TextField
-          label="Neuron Instance, Type or BodyID (optional)"
-          multiline
-          rows={1}
-          fullWidth
-          value={value}
-          rowsMax={4}
-          className={classes.textField}
+        <InputLabel htmlFor="select-multiple-chip">
+          Neuron Instance, Type or BodyId (optional)
+        </InputLabel>
+        <AsyncCreatableSelect
+          className={classes.select}
+          placeholder="Type or Paste text for options"
+          value={selectValue}
+          isClearable
+          loadOptions={this.fetchOptions}
           onChange={this.handleChange}
-          onKeyDown={this.handleKeyDown}
         />
-        {regexMatch && (
-          <Typography color="error" className={classes.regexWarning}>
-            Warning!! This is a regular expression search and characters like &#39;&#40;&#39; must be escaped. eg: to search for &#39;c(SFS)_R&#39; you would need to type &#39;c\\(SFS\\)_R&#39; For more details on how to write regular expressions, please see <a href="https://www.regular-expressions.info/">https://www.regular-expressions.info/</a>
-            </Typography>
-        )}
       </React.Fragment>
     );
   }
@@ -71,6 +149,7 @@ NeuronInputField.propTypes = {
   classes: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func.isRequired,
   onChange: PropTypes.func,
+  dataSet: PropTypes.string.isRequired,
   value: PropTypes.string
 };
 
