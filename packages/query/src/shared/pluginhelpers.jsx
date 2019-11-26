@@ -71,15 +71,15 @@ function getRoiInfoObjectWithNoneCount(roiInfoObject, roiList, preTotal, postTot
  * @param {number} bodyId
  * @returns {Object}
  */
-export function createSimpleConnectionQueryObject({dataSet, isPost = false, queryId, queryName}) {
- const query = {
+export function createSimpleConnectionQueryObject({ dataSet, isPost = false, queryId, queryName }) {
+  const query = {
     dataSet, // <string> for the data set selected
     pluginCode: SimpleConnections.details.abbr,
     pluginName: SimpleConnections.details.name,
     visProps: { paginateExpansion: true },
     parameters: {
       dataset: dataSet,
-      find_inputs: isPost,
+      find_inputs: isPost
     }
   };
   if (queryId) {
@@ -241,7 +241,7 @@ function createConnectionDetailQueryObject(dataset, bodyIdA, bodyIdB, connection
 export function combineROIJSONStrings(original, added) {
   const originalObject = JSON.parse(original) || {};
   const addedObject = JSON.parse(added) || {};
-  const combined = {}// ??????
+  const combined = {}; // ??????
   // loop over all keys in both the original and the addition.
   // for each pre & post, combine the numbers
   Object.entries(originalObject).forEach(([key, value]) => {
@@ -305,11 +305,10 @@ function combineRowsByType(rows, shouldCombine) {
       combinedLookup[type][10] += row[10];
       combinedLookup[type][11] += row[11];
       combinedLookup[type][13] += row[13];
-
     }
     // What do we do with the JSON?
   });
-  return Object.values(combinedLookup).sort((a,b) => b[5] - a[5]);
+  return Object.values(combinedLookup).sort((a, b) => b[5] - a[5]);
 }
 
 /**
@@ -395,7 +394,7 @@ export function createSimpleConnectionsResult(
       connectionWeightHP
     ] = row;
     const hasSkeleton = true;
-    const roiInfoObject = JSON.parse(roiInfoObjectJSON) || {};
+    const roiInfoObject = roiInfoObjectJSON !== '' ? JSON.parse(roiInfoObjectJSON) : {};
 
     // make sure none is added to the rois list.
     roiList.push('none');
@@ -462,7 +461,7 @@ export function createSimpleConnectionsResult(
 
       const preQuery = createSimpleConnectionQueryObject({
         dataSet: dataset,
-        queryName: type,
+        queryName: type
       });
 
       if (preQuery) {
