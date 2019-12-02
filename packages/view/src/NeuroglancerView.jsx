@@ -36,7 +36,7 @@ class NeuroGlancerView extends React.Component {
   }
 
   addNeuron(id, dataSet) {
-    const coordinatesQuery = `WITH neuprint.getNeuronCentroid(${id}, "${dataSet}") AS centroid RETURN centroid `;
+    const coordinatesQuery = `MATCH (n :Segment {bodyId: ${id}})-[:Contains]->(:SynapseSet)-[:Contains]->(ss) RETURN ss.location.x, ss.location.y, ss.location.z limit 1`;
     return fetch('/api/custom/custom', {
       headers: {
         'content-type': 'application/json',
@@ -64,7 +64,7 @@ class NeuroGlancerView extends React.Component {
 
         this.setState({
           neurons: updated,
-          coordinates: Immutable.List(result.data[0][0])
+          coordinates: Immutable.List(result.data[0])
         });
       })
       .catch(error => this.setState({ loadingError: error }));
