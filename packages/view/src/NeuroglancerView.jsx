@@ -160,7 +160,7 @@ class NeuroGlancerView extends React.Component {
           layerInfo.tool = layer.get('tool');
           viewerState.selectedLayer = {
             layer: layer.get('name'),
-            visible: true
+            visible: false
           };
         }
 
