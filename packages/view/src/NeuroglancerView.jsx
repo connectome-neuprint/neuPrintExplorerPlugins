@@ -16,11 +16,11 @@ class NeuroGlancerView extends React.Component {
 
   componentDidMount() {
     const { query } = this.props;
-    if (query.pm.dataSet) {
+    if (query.pm.dataset) {
       if (query.pm.bodyIds) {
         const bodyIds = query.pm.bodyIds.toString().split(',');
-        this.addLayers(query.pm.dataSet);
-        this.addNeurons(bodyIds, query.pm.dataSet);
+        this.addLayers(query.pm.dataset);
+        this.addNeurons(bodyIds, query.pm.dataset);
       }
     }
   }
