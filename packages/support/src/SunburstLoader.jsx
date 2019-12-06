@@ -7,7 +7,6 @@ class SunburstLoader extends React.Component {
     super(props);
     this.state = {
       rawData: null,
-      data: {},
       superROIs: null
     };
   }
@@ -16,6 +15,20 @@ class SunburstLoader extends React.Component {
     // fetch information about super ROIs.
     this.fetchSuperROIs();
     // fetch information about inputs/outputs
+    this.fetchConnections();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { bodyId, dataSet } = this.props;
+    if (prevProps.bodyId !== bodyId || prevProps.dataSet !== dataSet) {
+      this.fetchConnections();
+    }
+    if (prevProps.dataSet !== dataSet) {
+      this.fetchSuperROIs();
+    }
+  }
+
+  fetchConnections() {
     const { bodyId, dataSet } = this.props;
     const cypher = `MATCH (n :Neuron {bodyId: ${bodyId}})-[x :ConnectsTo]->(m) RETURN m.bodyId, m.type, x.weight, x.roiInfo, m.status, 'output' as direction UNION MATCH (n :Neuron {bodyId: ${bodyId}})<-[x :ConnectsTo]-(m) RETURN m.bodyId, m.type, x.weight, x.roiInfo, m.status, 'input' as direction`;
 
