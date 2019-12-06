@@ -240,7 +240,7 @@ function createConnectionDetailQueryObject(dataset, bodyIdA, bodyIdB, connection
 
 export function combineROIJSONStrings(original, added) {
   const originalObject = JSON.parse(original) || {};
-  const addedObject = JSON.parse(added) || {};
+  const addedObject = added !== '' ? JSON.parse(added) : {};
   const combined = {}; // ??????
   // loop over all keys in both the original and the addition.
   // for each pre & post, combine the numbers
