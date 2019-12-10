@@ -6,6 +6,7 @@ const pluginList = [
   'HeatMapTable',
   'PartnerCompletenessView',
   'SimpleTable',
+  'CellTypeView',
   'Graph',
 ];
 

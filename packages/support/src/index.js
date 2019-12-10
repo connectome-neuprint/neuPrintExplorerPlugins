@@ -1,4 +1,6 @@
 export { default as TablePaginationActions } from "./TablePaginationActions";
+export { default as SunburstLoader } from "./SunburstLoader";
+export { default as SkeletonLoader } from "./SkeletonLoader";
 
 export function metaInfoError(error) {
   return {
