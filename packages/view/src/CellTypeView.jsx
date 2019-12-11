@@ -64,7 +64,8 @@ class CellTypeView extends React.Component {
 
     return (
       <div>
-        <p>Cell Type {exemplar['instance-name']} </p>
+        <p>Cell Type:{query.pm.cellType} </p>
+        <p>Instance: {exemplar['instance-name']} </p>
         <p>Neuron count: {Object.keys(query.result.data.neuroninfo).length}</p>
         <Select
           options={bodyIds}
@@ -76,6 +77,21 @@ class CellTypeView extends React.Component {
           {exemplar.reference && <Icon fontSize="inherit">done</Icon>}{' '}
         </p>
         <p>Inputs & Outputs summary</p>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell align="center">Inputs</TableCell>
+              <TableCell align="center">Outputs</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell align="center">{exemplar['input-size']}</TableCell>
+              <TableCell align="center">{exemplar['output-size']}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+
 
         <p>Skeleton viewer</p>
         <div style={{ width: '200px', height: '200px' }}>
