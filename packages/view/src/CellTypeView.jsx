@@ -14,7 +14,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
 import { SunburstLoader, SkeletonLoader } from '@neuprint/support';
-import CellTypeHeatMap from './visualization/CellTypeHeatMap';
+import CellTypeHeatMap from './CellTypeView/CellTypeHeatMap';
 import NeuronSelection from './CellTypeView/NeuronSelection';
 
 class CellTypeView extends React.Component {
