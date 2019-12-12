@@ -1,39 +1,47 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import Select from 'react-select';
-
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 import Grid from '@material-ui/core/Grid';
+import InputLabel from '@material-ui/core/InputLabel';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 
 import { SunburstLoader, SkeletonLoader } from '@neuprint/support';
 import CellTypeHeatMap from './visualization/CellTypeHeatMap';
+import NeuronSelection from './CellTypeView/NeuronSelection';
 
 class CellTypeView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      exemplarId: null
+      exemplarId: null,
+      graphicTab: 0
     };
   }
 
   componentDidMount() {
     const { query } = this.props;
     const { result } = query;
-    this.setState({ exemplarId: result.data['centroid-neuron'] });
+    this.setState({ exemplarId: parseInt(result.data['centroid-neuron'], 10) });
   }
 
   handleExemplarChange = selected => {
-    this.setState({ exemplarId: selected.value });
+    this.setState({ exemplarId: parseInt(selected.value, 10) });
+  };
+
+  handleGraphicChange = (event, selected) => {
+    this.setState({ graphicTab: selected });
   };
 
   render() {
-    const { exemplarId } = this.state;
+    const { exemplarId, graphicTab } = this.state;
     const { query } = this.props;
 
     if (!exemplarId) {
@@ -41,29 +49,23 @@ class CellTypeView extends React.Component {
     }
 
     const exemplar = query.result.data.neuroninfo[exemplarId] || {};
-    const bodyIds = Object.keys(query.result.data.neuroninfo).map(item => ({
-      value: item,
-      label: item
-    }));
     const neuronCount = Object.keys(query.result.data.neuroninfo).length;
 
     return (
       <div>
-        <p>Cell Type:{query.pm.cellType} </p>
+        <Typography variant="h4" gutterBottom>
+          Cell Type: {query.pm.cellType}
+        </Typography>
         <p>Neuron count: {neuronCount}</p>
 
         <Grid container spacing={24}>
           <Grid item xs={6}>
-            <Select
-              options={bodyIds}
+            <InputLabel htmlFor="exemplarSelect">Select an example instance.</InputLabel>
+            <NeuronSelection
+              neuronInfo={query.result.data.neuroninfo}
+              exemplarId={exemplarId}
               onChange={this.handleExemplarChange}
-              value={{ value: exemplarId, label: exemplarId }}
             />
-            <p>Instance: {exemplar['instance-name']} </p>
-            <p>
-              Reference warning: Is this a reference sequence? trusted?{' '}
-              {exemplar.reference && <Icon fontSize="inherit">done</Icon>}{' '}
-            </p>
             <p>Inputs & Outputs summary</p>
             <Table>
               <TableHead>
@@ -81,21 +83,25 @@ class CellTypeView extends React.Component {
             </Table>
           </Grid>
           <Grid item xs={6}>
-            <p>Skeleton viewer</p>
-            <SkeletonLoader bodyIds={[parseInt(exemplarId, 10)]} dataSet={query.pm.dataset} />
-          </Grid>
-          <Grid item xs={6} />
-          <Grid item xs={6}>
-            <p>Sunburst Plot</p>
-            <div style={{ width: '200px', height: '200px' }}>
+            <Tabs
+              value={graphicTab}
+              onChange={this.handleGraphicChange}
+              indicatorColor="primary"
+              textColor="primary"
+              variant="fullWidth"
+            >
+              <Tab label="Skeleton" />
+              <Tab label="Sunburst" />
+            </Tabs>
+            {graphicTab === 0 && (
+              <SkeletonLoader bodyIds={[parseInt(exemplarId, 10)]} dataSet={query.pm.dataset} />
+            )}
+            {graphicTab === 1 && (
               <SunburstLoader bodyId={parseInt(exemplarId, 10)} dataSet={query.pm.dataset} />
-            </div>
+            )}
           </Grid>
           <Grid item xs={6}>
-            <p>
-              Top inputs/outputs ({query.result.data['neuron-inputs'][exemplarId].data.length}) for{' '}
-              {exemplarId}
-            </p>
+            <Typography variant="h6">Top inputs/outputs for {exemplarId}</Typography>
             <Table>
               <TableHead>
                 <TableRow>
@@ -157,7 +163,7 @@ class CellTypeView extends React.Component {
           <Grid item xs={6}>
             {neuronCount > 1 && (
               <React.Fragment>
-                <p>Missing inputs/outputs</p>
+                <Typography variant="h6">Missing inputs/outputs</Typography>
                 <Table>
                   <TableHead>
                     <TableRow>
@@ -182,7 +188,6 @@ class CellTypeView extends React.Component {
                     })}
                   </TableBody>
                 </Table>
-
                 <Table>
                   <TableHead>
                     <TableRow>

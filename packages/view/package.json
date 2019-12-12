@@ -60,6 +60,7 @@
     "@neuprint/miniroiheatmap": "^1.0.3",
     "@neuprint/react-heatmap": "^0.3.0",
     "@neuprint/support": "^1.0.3",
+    "chroma-js": "^2.1.0",
     "clone": "^2.1.2",
     "colormap": "^2.3.0",
     "cytoscape": "^3.3.3",
