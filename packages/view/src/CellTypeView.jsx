@@ -219,8 +219,16 @@ class CellTypeView extends React.Component {
 
         {neuronCount > 1 && (
           <React.Fragment>
-            <p>Common inputs/outputs</p>
-            <CellTypeHeatMap data={query.result.data['common-inputs']} />
+            <p>Common inputs</p>
+            <CellTypeHeatMap
+              data={query.result.data['common-inputs']}
+              median={query.result.data['common-inputs-med']}
+            />
+            <p>Common outputs</p>
+            <CellTypeHeatMap
+              data={query.result.data['common-outputs']}
+              median={query.result.data['common-outputs-med']}
+            />
           </React.Fragment>
         )}
       </div>
