@@ -1,6 +1,8 @@
 export { default as TablePaginationActions } from "./TablePaginationActions";
 export { default as SunburstLoader } from "./SunburstLoader";
+export { default as SunburstFormatter } from "./SunburstFormatter";
 export { default as SkeletonLoader } from "./SkeletonLoader";
+export { default as SkeletonFormatter } from "./SkeletonFormatter";
 
 export function metaInfoError(error) {
   return {
