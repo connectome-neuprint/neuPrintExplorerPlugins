@@ -1,5 +1,5 @@
 /*
- * Query to find autapses in the volume.
+ * Query to view a cell type summary card.
  */
 import React from 'react';
 import PropTypes from 'prop-types';
