@@ -41,7 +41,7 @@ class Neuroglancer extends React.Component {
   static processResults(query) {
     return {
       debug: 'No cypher query for this plugin',
-      title: `Neuroglancer viewer for ${query.pm.dataSet}`,
+      title: `Neuroglancer viewer for ${query.pm.dataset}`,
     };
   };
 
