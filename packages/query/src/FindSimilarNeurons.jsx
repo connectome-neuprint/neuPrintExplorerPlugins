@@ -433,10 +433,10 @@ export class FindSimilarNeurons extends React.Component {
           this.setState({ errorMessage: '' });
           this.submitROIQuery(resp.data);
         }
+      })
+      .catch(error => {
+        this.setState({ errorMessage: 'Unknown error' });
       });
-    /*.catch(error => {
-        this.setState({ errorMessage: 'Error: body ' + bodyId + ' not found' });
-      })*/
   };
 
   addNeuronBodyId = event => {

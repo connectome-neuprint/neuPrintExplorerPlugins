@@ -27,6 +27,9 @@ const styles = () => ({
     margin: 4,
     display: 'block'
   },
+  badCypher: {
+    fontSize: '0.9em'
+  },
   formControl: {}
 });
 
@@ -71,7 +74,8 @@ export class CustomQuery extends React.Component {
     super(props);
 
     this.state = {
-      textValue: ''
+      textValue: '',
+      errorMessage: ''
     };
   }
 
@@ -91,6 +95,67 @@ export class CustomQuery extends React.Component {
     submit(query);
   };
 
+  // check if query has correct syntax by running a debug 'explain query'
+  validateRequest = () => {
+    const { dataSet } = this.props;
+    const { textValue = '' } = this.state;
+
+    // make sure user is not running an explain query already
+    let cypher = textValue.trim();
+    let items = cypher.split(/\s+/);
+    if (items.length > 0) {
+      if (items[0].toLowerCase() === 'profile' || items[0].toLowerCase() === 'explain') {
+        this.processRequest();
+        return;
+      }
+    }
+
+    const parameters = {
+      cypher: 'EXPLAIN ' + textValue,
+      dataset: dataSet
+    };
+
+    const queryUrl = '/api/custom/custom';
+    const querySettings = {
+      headers: {
+        'content-type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify(parameters),
+      credentials: 'include',
+      method: 'POST'
+    };
+
+    fetch(queryUrl, querySettings)
+      .then(result => result.json())
+      .then(resp => {
+        if (resp.error) {
+          // remove "EXPLAIN" for debugging
+          let message = resp.error.replace('EXPLAIN ', '');
+          let colstr = message.match(/column \d+/g);
+          let col_arr = colstr[0].split(' ');
+          message = message.replace(
+            colstr,
+            col_arr[0] + ' ' + (parseInt(col_arr[1]) - 8).toString()
+          );
+          let offstr = message.match(/offset: \d+/g);
+          let off_arr = offstr[0].split(' ');
+          message = message.replace(
+            offstr,
+            off_arr[0] + ' ' + (parseInt(off_arr[1]) - 8).toString()
+          );
+
+          this.setState({ errorMessage: message });
+        } else {
+          this.setState({ errorMessage: '' });
+          this.processRequest();
+        }
+      })
+      .catch(error => {
+        this.setState({ errorMessage: 'some error occurred.' });
+      });
+  };
+
   handleChange = event => {
     this.setState({ textValue: event.target.value });
   };
@@ -99,13 +164,13 @@ export class CustomQuery extends React.Component {
     // submit request if user presses enter
     if (event.shiftKey && event.keyCode === 13) {
       event.preventDefault();
-      this.processRequest();
+      this.validateRequest();
     }
   };
 
   render() {
     const { classes, isQuerying } = this.props;
-    const { textValue = '' } = this.state;
+    const { errorMessage, textValue = '' } = this.state;
     return (
       <FormControl fullWidth className={classes.formControl}>
         <Typography>Custom Cypher Query</Typography>
@@ -115,7 +180,7 @@ export class CustomQuery extends React.Component {
           options={{
             lineWrapping: true,
             lineNumbers: true,
-            smartIndent: false,
+            smartIndent: false
           }}
           onBeforeChange={(editor, data, value) => {
             this.setState({ textValue: value });
@@ -126,12 +191,17 @@ export class CustomQuery extends React.Component {
         <Button
           variant="contained"
           className={classes.button}
-          onClick={this.processRequest}
+          onClick={this.validateRequest}
           color="primary"
           disabled={isQuerying}
         >
           Submit
         </Button>
+        {errorMessage !== '' && (
+          <Typography color="error" className={classes.badCypher}>
+            {errorMessage}
+          </Typography>
+        )}
       </FormControl>
     );
   }
