@@ -9,7 +9,6 @@ function CellTypeHeatMap(props) {
   data.data.forEach((row, i) => {
     row.forEach((column, j) => {
       const value = Math.max(0, Math.abs(column - median.data[j]) - Math.sqrt(median.data[j]));
-      console.log(value);
       heatMapData.push({
         column: data.columns[j],
         row: data.index[i],
