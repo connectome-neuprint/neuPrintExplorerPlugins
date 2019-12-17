@@ -8,9 +8,15 @@ function CellTypeHeatMap(props) {
 
   data.data.forEach((row, i) => {
     row.forEach((column, j) => {
-      const value = Math.max(0, Math.abs(column - median.data[j]) - Math.sqrt(median.data[j]));
+      // set the initial value to null if the data supplied for the column is 0 before
+      // the manipulation has been run over it. This will show it as grey in the heatmap,
+      // to indicate that it has no value.
+      let value = null;
+      if (column !== 0) {
+        value = Math.max(0, Math.abs(column - median.data[j]) - Math.sqrt(median.data[j]));
+      }
       heatMapData.push({
-        column: data.columns[j],
+        column: `${data.columns[j]} (${j})`,
         row: data.index[i],
         value,
       });
@@ -19,14 +25,21 @@ function CellTypeHeatMap(props) {
 
   median.data.forEach((column, i) => {
     heatMapData.unshift({
-      column: median.index[i],
+      // can't just use the value at the index as the column header as there are multiple
+      // columns with the same name. Current fix is to add the column index to make sure
+      // they are all unique.
+      column: `${median.index[i]} (${i})`,
       row: 'median',
-      value: column
+      value: 0,
+      label: `${column[0]}`,
+      // force the labels to show. This column only has value if the label numbers
+      // are shown, because all the values are set to zero.
+      forceLabel: true
     });
   });
 
   const heatMapYLabels = ['median',...data.index];
-  const heatMapXLabels = data.columns;
+  const heatMapXLabels = data.columns.map((column, i) => `${column} (${i})`);
   const heatMapHeight = data.index.length * 15 + 150;
   const heatMapWidth = data.columns.length * 15 + 150;
 
