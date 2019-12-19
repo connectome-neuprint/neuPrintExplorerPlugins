@@ -82,13 +82,13 @@ class NeuronInputField extends React.Component {
 
         resp.data.forEach(item => {
           if (item[0]) {
-            bodyIds.add(item[0].toString());
+            bodyIds.add([item[0].toString(), `${item[0]} - ${item[2] || item[1] || ''}`]);
           }
           if (item[1]) {
-            types.add(item[1]);
+            types.add([item[1], `${item[1]} - ${item[2] || item[0] || ''}`]);
           }
           if (item[2]) {
-            instances.add(item[2]);
+            instances.add([item[2], `${item[2]} - ${item[1] || item[0] || ''}`]);
           }
         });
 
@@ -97,19 +97,45 @@ class NeuronInputField extends React.Component {
         if (types.size) {
           options.push({
             label: 'Types',
-            options: [...types].sort().slice(0,9).map(item => ({ value: item, label: item }))
+            options: [...types]
+              .sort((a, b) => {
+                if (a[0] < b[0]) {
+                  return -1;
+                }
+                if (a[0] > b[0]) {
+                  return 1;
+                }
+                return 0;
+              })
+              .slice(0, 9)
+              .map(item => ({ value: item[0], label: item[1] }))
           });
         }
         if (instances.size) {
           options.push({
             label: 'Instances',
-            options: [...instances].sort().slice(0,9).map(item => ({ value: item, label: item }))
+            options: [...instances]
+              .sort((a, b) => {
+                if (a[0] < b[0]) {
+                  return -1;
+                }
+                if (a[0] > b[0]) {
+                  return 1;
+                }
+                return 0;
+              })
+
+              .slice(0, 9)
+              .map(item => ({ value: item[0], label: item[1] }))
           });
         }
         if (bodyIds.size) {
           options.push({
             label: 'Body Ids',
-            options: [...bodyIds].sort((a,b) => a - b).slice(0,9).map(item => ({ value: item, label: item }))
+            options: [...bodyIds]
+              .sort((a, b) => a[0] - b[0])
+              .slice(0, 9)
+              .map(item => ({ value: item[0], label: item[1] }))
           });
         }
 
