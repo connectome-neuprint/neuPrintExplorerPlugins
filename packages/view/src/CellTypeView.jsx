@@ -223,11 +223,13 @@ class CellTypeView extends React.Component {
             <CellTypeHeatMap
               data={query.result.data['common-inputs']}
               median={query.result.data['common-inputs-med']}
+              neuronInfo={query.result.data.neuroninfo}
             />
             <p>Common outputs</p>
             <CellTypeHeatMap
               data={query.result.data['common-outputs']}
               median={query.result.data['common-outputs-med']}
+              neuronInfo={query.result.data.neuroninfo}
             />
           </React.Fragment>
         )}

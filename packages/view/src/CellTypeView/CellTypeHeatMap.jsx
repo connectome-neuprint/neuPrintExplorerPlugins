@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import HeatMap from '@neuprint/react-heatmap';
 
 function CellTypeHeatMap(props) {
-  const { data, median } = props;
+  const { data, median, neuronInfo } = props;
   const heatMapData = [];
 
   data.data.forEach((row, i) => {
@@ -38,10 +38,17 @@ function CellTypeHeatMap(props) {
     });
   });
 
-  const heatMapYLabels = ['median',...data.index];
+  const colorAssignedLabels = data.index.map(label => {
+    if (!neuronInfo[label].reference) {
+      return [label, '#ef5350'];
+    }
+    return label;
+  });
+
+  const heatMapYLabels = ['median',...colorAssignedLabels];
   const heatMapXLabels = data.columns.map((column, i) => `${column} (${i})`);
-  const heatMapHeight = data.index.length * 15 + 150;
-  const heatMapWidth = data.columns.length * 15 + 150;
+  const heatMapHeight = data.index.length * 35 + 150;
+  const heatMapWidth = data.columns.length * 35 + 150;
 
   return (
     <HeatMap
@@ -51,13 +58,15 @@ function CellTypeHeatMap(props) {
       height={heatMapHeight}
       width={heatMapWidth}
       maxColor="#396a9f"
+      maxWidthOn={false}
     />
   );
 }
 
 CellTypeHeatMap.propTypes = {
   data: PropTypes.object.isRequired,
-  median: PropTypes.object.isRequired
+  median: PropTypes.object.isRequired,
+  neuronInfo: PropTypes.object.isRequired
 };
 
 export default CellTypeHeatMap;
