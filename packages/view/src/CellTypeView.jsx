@@ -52,7 +52,7 @@ class CellTypeView extends React.Component {
     const neuronCount = Object.keys(query.result.data.neuroninfo).length;
 
     return (
-      <div>
+      <div className="celltype">
         <Typography variant="h4" gutterBottom>
           Cell Type: {query.pm.cellType}
         </Typography>
