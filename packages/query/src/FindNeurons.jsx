@@ -13,6 +13,7 @@ import Typography from '@material-ui/core/Typography';
 
 import { ColorLegend } from '@neuprint/miniroiheatmap';
 import NeuronInputField from './shared/NeuronInputField';
+import AdvancedNeuronInput from './shared/AdvancedNeuronInput';
 import NeuronFilter from './shared/NeuronFilter';
 import {
   setColumnIndices,
@@ -307,8 +308,8 @@ export class FindNeurons extends React.Component {
       neuronInstance: '',
       inputROIs: [],
       outputROIs: [],
-      regexMatch: false,
-      useSuper: true
+      useSuper: true,
+      advancedSearch: false
     };
   }
 
@@ -324,7 +325,8 @@ export class FindNeurons extends React.Component {
       neuronInstance,
       neuronType,
       inputROIs,
-      outputROIs
+      outputROIs,
+      advancedSearch
     } = this.state;
 
     const parameters = {
@@ -333,8 +335,13 @@ export class FindNeurons extends React.Component {
       output_ROIs: outputROIs,
       statuses: statusFilters,
       all_segments: !limitNeurons,
-      enable_contains: true
     };
+
+    // if not using an advanced search then we want to query neo4j with
+    // the CONTAINS search and not a regex search.
+    if (!advancedSearch) {
+      parameters.enable_contains = true;
+    }
 
     if (neuronInstance !== '') {
       if (/^\d+$/.test(neuronInstance)) {
@@ -407,6 +414,10 @@ export class FindNeurons extends React.Component {
     this.setState({ useSuper: !event.target.checked, inputROIs: [], outputROIs: [] });
   };
 
+  toggleAdvanced = event => {
+    this.setState({ advancedSearch: event.target.checked, neuronInstance: '' });
+  };
+
   // use this function to generate the form that will accept and
   // validate the variables for your Neo4j query.
   render() {
@@ -424,7 +435,7 @@ export class FindNeurons extends React.Component {
       neuronInstance = '',
       inputROIs = [],
       outputROIs = [],
-      regexMatch
+      advancedSearch
     } = this.state;
 
     // decide to use super ROIs (default) or all ROIs
@@ -451,12 +462,21 @@ export class FindNeurons extends React.Component {
 
     return (
       <div>
-        <NeuronInputField
-          onChange={this.addNeuronInstance}
-          value={neuronInstance}
-          dataSet={dataSet}
-          handleSubmit={this.processRequest}
-        />
+        {advancedSearch ? (
+          <AdvancedNeuronInput
+            onChange={this.addNeuronInstance}
+            value={neuronInstance}
+            dataSet={dataSet}
+            handleSubmit={this.processRequest}
+          />
+        ) : (
+          <NeuronInputField
+            onChange={this.addNeuronInstance}
+            value={neuronInstance}
+            dataSet={dataSet}
+            handleSubmit={this.processRequest}
+          />
+        )}
         <InputLabel htmlFor="select-multiple-chip">Input Brain Regions</InputLabel>
         <Select
           className={classes.select}
@@ -485,6 +505,18 @@ export class FindNeurons extends React.Component {
             }
           />
         </FormControl>
+        <FormControl className={classes.formControl}>
+          <FormControlLabel
+            control={<Switch checked={advancedSearch} onChange={this.toggleAdvanced} color="primary" />}
+            label={
+              <Typography variant="subtitle1" style={{ display: 'inline-flex' }}>
+                Advanced input
+              </Typography>
+            }
+          />
+        </FormControl>
+
+
 
         <NeuronFilter
           callback={this.loadNeuronFilters}
