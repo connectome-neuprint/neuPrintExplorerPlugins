@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/support",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Support methods used by plugins for the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
@@ -57,8 +57,8 @@
   "gitHead": "7e8a8d98fc5f55d001b8cc2707aee629396f7654",
   "dependencies": {
     "@neuprint/colorbox": "^1.0.3",
-    "@neuprint/react-sunburst": "^1.0.2",
     "@neuprint/react-skeleton": "^0.0.1",
+    "@neuprint/react-sunburst": "^1.0.2",
     "colormap": "^2.3.1"
   }
 }
