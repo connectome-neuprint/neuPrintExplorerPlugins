@@ -6,8 +6,9 @@ import PropTypes from 'prop-types';
 
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
-import TextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/core/styles';
+
+import CellTypeInputField from './shared/CellTypeInputField';
 
 const pluginName = 'Cell Types';
 const pluginAbbrev = 'ct';
@@ -84,27 +85,21 @@ class CellType extends React.Component {
     submit(query);
   };
 
-  addCellType = event => {
-    this.setState({cellType: event.target.value});
+  addCellType = selected => {
+    this.setState({cellType: selected});
   }
 
   render() {
-    const { isQuerying, classes } = this.props;
+    const { isQuerying, classes, dataSet } = this.props;
     const { cellType } = this.state;
     return (
       <div>
         <FormControl fullWidth className={classes.formControl}>
-          <TextField
-            label="Cell Type"
-            multiline
-            fullWidth
-            rows={1}
-            value={cellType}
-            name="cellType"
-            rowsMax={4}
-            helperText=""
+          <CellTypeInputField
             onChange={this.addCellType}
-            onKeyDown={this.catchReturn}
+            value={cellType}
+            dataSet={dataSet}
+            handleSubmit={this.processRequest}
           />
         </FormControl>
         <Button
