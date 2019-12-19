@@ -309,7 +309,7 @@ export class FindNeurons extends React.Component {
       inputROIs: [],
       outputROIs: [],
       useSuper: true,
-      advancedSearch: false
+      advancedSearch: JSON.parse(localStorage.getItem('neuprint_advanced_search')) || false
     };
   }
 
@@ -415,6 +415,7 @@ export class FindNeurons extends React.Component {
   };
 
   toggleAdvanced = event => {
+    localStorage.setItem('neuprint_advanced_search', event.target.checked);
     this.setState({ advancedSearch: event.target.checked, neuronInstance: '' });
   };
 
@@ -515,9 +516,6 @@ export class FindNeurons extends React.Component {
             }
           />
         </FormControl>
-
-
-
         <NeuronFilter
           callback={this.loadNeuronFilters}
           datasetstr={dataSet}
