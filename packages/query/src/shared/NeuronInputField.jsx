@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import AsyncCreatableSelect from 'react-select/async-creatable';
+import AsyncSelect from 'react-select/async';
 import InputLabel from '@material-ui/core/InputLabel';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -15,13 +15,6 @@ const styles = theme => ({
 });
 
 class NeuronInputField extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      regexMatch: false
-    };
-  }
-
   handleChange = selected => {
     const { onChange } = this.props;
     if (selected && selected.value) {
@@ -132,7 +125,7 @@ class NeuronInputField extends React.Component {
         <InputLabel htmlFor="select-multiple-chip">
           Neuron Instance, Type or BodyId (optional)
         </InputLabel>
-        <AsyncCreatableSelect
+        <AsyncSelect
           className={classes.select}
           placeholder="Type or Paste text for options"
           value={selectValue}
