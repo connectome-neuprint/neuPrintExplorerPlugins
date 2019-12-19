@@ -10,9 +10,12 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 
 import NeuronInputField from './shared/NeuronInputField';
+import AdvancedNeuronInput from './shared/AdvancedNeuronInput';
 import { createSimpleConnectionsResult } from './shared/pluginhelpers';
 
 const styles = () => ({
@@ -51,7 +54,6 @@ export class SimpleConnections extends React.Component {
   }
 
   static getColumnHeaders() {
-
     const columnIds = [
       { name: 'expansion', status: true, hidden: true },
       { name: 'id', status: true },
@@ -68,7 +70,6 @@ export class SimpleConnections extends React.Component {
     ];
     return columnIds;
   }
-
 
   static processDownload(response) {
     const headers = [
@@ -91,20 +92,22 @@ export class SimpleConnections extends React.Component {
     const data = response.result.data
       .map(row => {
         const [
-          , // queryBodyName
-          , // queryBodyType
+          ,
+          ,
+          // queryBodyName
+          // queryBodyType
           targetBodyName,
           targetBodyType,
           targetBodyId,
-          connections,
-          , // queryBodyId
+          connections, // queryBodyId
+          ,
           traceStatus,
           roiCounts,
           voxels,
           outputs,
           inputs,
-          rois,
-          , // highConfConnections
+          rois, // highConfConnections
+          ,
         ] = row;
         const roiInfoObject = JSON.parse(roiCounts);
 
@@ -145,7 +148,7 @@ export class SimpleConnections extends React.Component {
     const tables = [];
     const inputs = query.pm.find_inputs;
 
-    const { visProps = {}} = query;
+    const { visProps = {} } = query;
 
     const combinedByType = visProps.collapsed;
 
@@ -163,7 +166,7 @@ export class SimpleConnections extends React.Component {
       combinedByType
     );
 
-    data.forEach((row) => {
+    data.forEach(row => {
       const neuron1Id = row[0];
       if (lastBody !== -1 && neuron1Id !== lastBody) {
         let tableName = `${lastName} id=(${String(lastBody)})`;
@@ -218,18 +221,21 @@ export class SimpleConnections extends React.Component {
     super(props);
     this.state = {
       neuronName: '',
-      preOrPost: 'post'
+      preOrPost: 'post',
+      advancedSearch: JSON.parse(localStorage.getItem('neuprint_advanced_search')) || false
     };
   }
 
   processRequest = () => {
     const { dataSet, actions, submit } = this.props;
-    const { neuronName, preOrPost } = this.state;
+    const { neuronName, preOrPost, advancedSearch } = this.state;
     if (neuronName !== '') {
       const parameters = {
         dataset: dataSet,
-        enable_contains: true
       };
+      if (!advancedSearch) {
+        parameters.enable_contains = true;
+      }
       if (/^\d+$/.test(neuronName)) {
         parameters.neuron_id = parseInt(neuronName, 10);
       } else {
@@ -263,6 +269,11 @@ export class SimpleConnections extends React.Component {
     this.setState({ preOrPost: event.target.value });
   };
 
+  toggleAdvanced = event => {
+    localStorage.setItem('neuprint_advanced_search', event.target.checked);
+    this.setState({ advancedSearch: event.target.checked, neuronName: '' });
+  };
+
   catchReturn = event => {
     // submit request if user presses enter
     if (event.keyCode === 13) {
@@ -273,17 +284,37 @@ export class SimpleConnections extends React.Component {
 
   render() {
     const { classes, isQuerying, dataSet } = this.props;
-    const { preOrPost, neuronName } = this.state;
+    const { preOrPost, neuronName, advancedSearch } = this.state;
     return (
       <div>
-        <FormControl className={classes.formControl}>
+        {advancedSearch ? (
+          <AdvancedNeuronInput
+            onChange={this.handleNeuronName}
+            value={neuronName}
+            dataSet={dataSet}
+            handleSubmit={this.processRequest}
+          />
+        ) : (
           <NeuronInputField
             onChange={this.handleNeuronName}
             value={neuronName}
             handleSubmit={this.processRequest}
             dataSet={dataSet}
           />
+        )}
+        <FormControl className={classes.formControl}>
+          <FormControlLabel
+            control={
+              <Switch checked={advancedSearch} onChange={this.toggleAdvanced} color="primary" />
+            }
+            label={
+              <Typography variant="subtitle1" style={{ display: 'inline-flex' }}>
+                Advanced input
+              </Typography>
+            }
+          />
         </FormControl>
+
         <FormControl className={classes.formControl}>
           <FormLabel component="legend">Neuron Direction</FormLabel>
           <RadioGroup
