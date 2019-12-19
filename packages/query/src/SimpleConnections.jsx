@@ -12,7 +12,6 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { withStyles } from '@material-ui/core/styles';
 
-import NeuronHelp from './shared/NeuronHelp';
 import NeuronInputField from './shared/NeuronInputField';
 import { createSimpleConnectionsResult } from './shared/pluginhelpers';
 
@@ -227,7 +226,10 @@ export class SimpleConnections extends React.Component {
     const { dataSet, actions, submit } = this.props;
     const { neuronName, preOrPost } = this.state;
     if (neuronName !== '') {
-      const parameters = { dataset: dataSet };
+      const parameters = {
+        dataset: dataSet,
+        enable_contains: true
+      };
       if (/^\d+$/.test(neuronName)) {
         parameters.neuron_id = parseInt(neuronName, 10);
       } else {
@@ -270,18 +272,17 @@ export class SimpleConnections extends React.Component {
   };
 
   render() {
-    const { classes, isQuerying } = this.props;
+    const { classes, isQuerying, dataSet } = this.props;
     const { preOrPost, neuronName } = this.state;
     return (
       <div>
         <FormControl className={classes.formControl}>
-          <NeuronHelp>
-            <NeuronInputField
-              onChange={this.handleNeuronName}
-              value={neuronName}
-              handleSubmit={this.processRequest}
-            />
-          </NeuronHelp>
+          <NeuronInputField
+            onChange={this.handleNeuronName}
+            value={neuronName}
+            handleSubmit={this.processRequest}
+            dataSet={dataSet}
+          />
         </FormControl>
         <FormControl className={classes.formControl}>
           <FormLabel component="legend">Neuron Direction</FormLabel>

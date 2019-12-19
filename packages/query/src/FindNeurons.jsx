@@ -12,7 +12,6 @@ import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 
 import { ColorLegend } from '@neuprint/miniroiheatmap';
-import NeuronHelp from './shared/NeuronHelp';
 import NeuronInputField from './shared/NeuronInputField';
 import NeuronFilter from './shared/NeuronFilter';
 import {
@@ -333,7 +332,8 @@ export class FindNeurons extends React.Component {
       input_ROIs: inputROIs,
       output_ROIs: outputROIs,
       statuses: statusFilters,
-      all_segments: !limitNeurons
+      all_segments: !limitNeurons,
+      enable_contains: true
     };
 
     if (neuronInstance !== '') {
