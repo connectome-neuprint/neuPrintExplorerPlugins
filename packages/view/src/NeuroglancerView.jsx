@@ -140,7 +140,8 @@ class NeuroGlancerView extends React.Component {
       // loop over layers and add them to the viewerState
       layers.forEach(layer => {
         // add segmentation && grayscale layers
-        let source = `dvid://${layer.get('host')}/${layer.get('uuid')}/${layer.get('dataInstance')}`;
+        const host = layer.get('host').replace(/\/+$/,"");
+        let source = `dvid://${host}/${layer.get('uuid')}/${layer.get('dataInstance')}`;
 
         if (layer.get('dataType') === 'annotation' && layer.get('dataInstance') !== 'synapses') {
           source += `?user=${userName}&usertag=true`;
