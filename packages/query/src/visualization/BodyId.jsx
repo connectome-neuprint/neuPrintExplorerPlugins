@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Icon from '@material-ui/core/Icon';
 import Modal from '@material-ui/core/Modal';
+import { SunburstLoader } from '@neuprint/support';
 import SelectAndCopyText from '../shared/SelectAndCopyText';
-import SunburstLoader from '../shared/SunburstLoader';
 
 const styles = theme => ({
   icon: {

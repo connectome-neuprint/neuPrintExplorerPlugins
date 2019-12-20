@@ -1,4 +1,5 @@
 export { default as Autapses } from './Autapses';
+export { default as CellType } from './CellType';
 export { default as CommonConnectivity } from './CommonConnectivity';
 export { default as Completeness } from './Completeness';
 export { default as CustomQuery } from './CustomQuery';
