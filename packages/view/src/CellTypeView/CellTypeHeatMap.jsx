@@ -26,8 +26,7 @@ function CellTypeHeatMap(props) {
       heatMapData.push({
         column: `${data.columns[j]} (${j})`,
         row: data.index[i],
-        value,
-        forceLabel: true
+        value
       });
     });
   });
