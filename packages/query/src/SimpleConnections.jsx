@@ -52,7 +52,6 @@ export class SimpleConnections extends React.Component {
   }
 
   static getColumnHeaders() {
-
     const columnIds = [
       { name: 'expansion', status: true, hidden: true },
       { name: 'id', status: true },
@@ -60,7 +59,8 @@ export class SimpleConnections extends React.Component {
       { name: 'instance', status: false },
       { name: 'status', status: true },
       { name: '#connections', status: true },
-      { name: '#connections (high confidence)', status: true },
+      { name: '#connections (high confidence)', status: false },
+      { name: 'expected connection range', status: false },
       { name: '#post (inputs)', status: true },
       { name: '#pre (outputs)', status: true },
       { name: '#voxels', status: false },
@@ -69,7 +69,6 @@ export class SimpleConnections extends React.Component {
     ];
     return columnIds;
   }
-
 
   static processDownload(response) {
     const headers = [
@@ -92,20 +91,22 @@ export class SimpleConnections extends React.Component {
     const data = response.result.data
       .map(row => {
         const [
-          , // queryBodyName
-          , // queryBodyType
+          ,
+          ,
+          // queryBodyName
+          // queryBodyType
           targetBodyName,
           targetBodyType,
           targetBodyId,
-          connections,
-          , // queryBodyId
+          connections, // queryBodyId
+          ,
           traceStatus,
           roiCounts,
           voxels,
           outputs,
           inputs,
-          rois,
-          , // highConfConnections
+          rois, // highConfConnections
+          ,
         ] = row;
         const roiInfoObject = JSON.parse(roiCounts);
 
@@ -146,7 +147,7 @@ export class SimpleConnections extends React.Component {
     const tables = [];
     const inputs = query.pm.find_inputs;
 
-    const { visProps = {}} = query;
+    const { visProps = {} } = query;
 
     const combinedByType = visProps.collapsed;
 
@@ -164,7 +165,7 @@ export class SimpleConnections extends React.Component {
       combinedByType
     );
 
-    data.forEach((row) => {
+    data.forEach(row => {
       const neuron1Id = row[0];
       if (lastBody !== -1 && neuron1Id !== lastBody) {
         let tableName = `${lastName} id=(${String(lastBody)})`;

@@ -345,6 +345,7 @@ export function createSimpleConnectionsResult(
       'status',
       'connectionWeight',
       'connectionWeightHP',
+      'expectedRange',
       'post',
       'pre',
       'size',
@@ -359,6 +360,7 @@ export function createSimpleConnectionsResult(
       'name',
       'status',
       'connectionWeight',
+      'expectedRange',
       'post',
       'pre',
       'size',
@@ -366,7 +368,6 @@ export function createSimpleConnectionsResult(
       'roiBarGraph'
     ];
   }
-
   const indexOf = setColumnIndices(columnNames);
 
   const combined = combineRowsByType(apiResponse.data, combinedByType);
@@ -375,6 +376,36 @@ export function createSimpleConnectionsResult(
   // data array.
   // TODO: Probably should have total for high confidence as well.
   const totalConnections = combined.reduce((acc, row) => acc + row[5], 0);
+
+  // get the orphan rate
+  let traced_conns = 0;
+  let total_conns = 0;
+
+  if (!isInputs) {
+    const data = combined.map(row => {
+      const [
+        ,
+        ,
+        name,
+        type,
+        bodyId,
+        connectionWeight,
+        bodyIdQueried,
+        status,
+        roiInfoObjectJSON,
+        size,
+        preTotal,
+        postTotal,
+        roiList,
+        connectionWeightHP
+      ] = row;
+
+      if (status === 'Traced') {
+        traced_conns += connectionWeight;
+      }
+      total_conns += connectionWeight;
+    });
+  }
 
   const data = combined.map(row => {
     const [
@@ -402,6 +433,21 @@ export function createSimpleConnectionsResult(
     const converted = [];
     if (includeWeightHP) {
       converted[indexOf.connectionWeightHP] = connectionWeightHP;
+    }
+
+    converted[indexOf.expectedRange] = '-';
+    if (!isInputs) {
+      if (status === 'Traced') {
+        let expstr = '?';
+        if (traced_conns > 0) {
+          let expval = Math.round(connectionWeight * (total_conns / traced_conns));
+          expstr = expval.toString();
+        }
+
+        converted[indexOf.expectedRange] = connectionWeight.toString() + ' - ' + expstr;
+      } else {
+        converted[indexOf.expectedRange] = '';
+      }
     }
 
     if (isInputs) {
@@ -504,11 +550,13 @@ export function createSimpleConnectionsResult(
   if (includeWeightHP) {
     columns[indexOf.connectionWeightHP] = '#connections (high-confidence)';
   }
+
   columns[indexOf.bodyId] = 'id';
   columns[indexOf.type] = 'type';
   columns[indexOf.name] = 'instance';
   columns[indexOf.status] = 'status';
   columns[indexOf.connectionWeight] = '#connections (% of total)';
+  columns[indexOf.expectedRange] = 'expected range';
   columns[indexOf.post] = '#post (inputs)';
   columns[indexOf.pre] = '#pre (outputs)';
   columns[indexOf.size] = '#voxels';
