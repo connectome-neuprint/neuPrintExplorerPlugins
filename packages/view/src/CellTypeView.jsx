@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import deepEqual from 'deep-equal';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -33,6 +34,18 @@ class CellTypeView extends React.Component {
     const { result } = query;
     this.setState({ exemplarId: parseInt(result.data['centroid-neuron'], 10) });
   }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const { query } = this.props;
+    if (deepEqual(nextProps.query.result, query.result) &&
+      deepEqual(nextState, this.state) &&
+      deepEqual(nextProps.query.visProps, query.visProps)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
 
   handleExemplarChange = selected => {
     this.setState({ exemplarId: parseInt(selected.value, 10) });
