@@ -13,12 +13,21 @@ function CellTypeHeatMap(props) {
       // to indicate that it has no value.
       let value = null;
       if (column !== 0) {
-        value = Math.max(0, Math.abs(column - median.data[j]) - Math.sqrt(median.data[j]));
+        const calculated =
+          Math.min(
+            2,
+            Number.parseFloat(
+              Math.max(0, Math.abs(column - median.data[j]) - Math.sqrt(median.data[j])) /
+                median.data[j]
+            ).toPrecision(2)
+          ) * 100;
+        value = calculated < 40 ? 0 : calculated;
       }
       heatMapData.push({
         column: `${data.columns[j]} (${j})`,
         row: data.index[i],
         value,
+        forceLabel: true
       });
     });
   });
@@ -45,7 +54,7 @@ function CellTypeHeatMap(props) {
     return label;
   });
 
-  const heatMapYLabels = ['median',...colorAssignedLabels];
+  const heatMapYLabels = ['median', ...colorAssignedLabels];
   const heatMapXLabels = data.columns.map((column, i) => `${column} (${i})`);
   const heatMapHeight = data.index.length * 35 + 150;
   const heatMapWidth = data.columns.length * 35 + 150;
