@@ -15,6 +15,8 @@ import Tab from '@material-ui/core/Tab';
 
 import { SunburstLoader, SkeletonLoader } from '@neuprint/support';
 import CellTypeHeatMap from './CellTypeView/CellTypeHeatMap';
+import Connections from './CellTypeView/Connections';
+import MissingConnections from './CellTypeView/MissingConnections';
 import NeuronSelection from './CellTypeView/NeuronSelection';
 
 class CellTypeView extends React.Component {
@@ -102,116 +104,23 @@ class CellTypeView extends React.Component {
           </Grid>
           <Grid item xs={6}>
             <Typography variant="h6">Top inputs/outputs for {exemplarId}</Typography>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Cell Type Inputs</TableCell>
-                  <TableCell align="right">Neuron Weight</TableCell>
-                  <TableCell align="right">Group Weight</TableCell>
-                  <TableCell align="right">Good Match</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {query.result.data['neuron-inputs'][exemplarId].data.map((row, i) => {
-                  const [cellType, neuronWeight, groupWeight, goodMatch] = row;
-                  const key = `${exemplarId}${row}${i}`;
-                  return (
-                    <TableRow key={key}>
-                      <TableCell component="th" scope="row">
-                        {cellType}
-                      </TableCell>
-                      <TableCell align="right">{neuronWeight}</TableCell>
-                      <TableCell align="right">{groupWeight}</TableCell>
-                      <TableCell align="right">
-                        {goodMatch && <Icon fontSize="inherit">done</Icon>}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Cell Type Outputs</TableCell>
-                  <TableCell align="right">Neuron Weight</TableCell>
-                  <TableCell align="right">Group Weight</TableCell>
-                  <TableCell align="right">Good Match</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {query.result.data['neuron-outputs'][exemplarId].data.map((row, i) => {
-                  const [cellType, neuronWeight, groupWeight, goodMatch] = row;
-                  const key = `${exemplarId}${row}${i}`;
-                  return (
-                    <TableRow key={key}>
-                      <TableCell component="th" scope="row">
-                        {cellType}
-                      </TableCell>
-                      <TableCell align="right">{neuronWeight}</TableCell>
-                      <TableCell align="right">{groupWeight}</TableCell>
-                      <TableCell align="right">
-                        {goodMatch && <Icon fontSize="inherit">done</Icon>}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            <Connections id={exemplarId} result={query.result.data['neuron-inputs']} title="Cell Type Inputs" />
+            <Connections id={exemplarId} result={query.result.data['neuron-outputs']} title="Cell Type Outputs" />
           </Grid>
           <Grid item xs={6}>
             {neuronCount > 1 && (
               <React.Fragment>
                 <Typography variant="h6">Missing inputs/outputs</Typography>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Missing Outputs</TableCell>
-                      <TableCell align="right">Neuron Weight</TableCell>
-                      <TableCell align="right">Group Weight</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {query.result.data['neuron-missed-outputs'][exemplarId].data.map((row, i) => {
-                      const [cellType, groupWeight, neuronWeight] = row;
-                      const key = `${exemplarId}${row}${i}`;
-                      return (
-                        <TableRow key={key}>
-                          <TableCell component="th" scope="row">
-                            {cellType}
-                          </TableCell>
-                          <TableCell align="right">{neuronWeight}</TableCell>
-                          <TableCell align="right">{groupWeight}</TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Missing Inputs</TableCell>
-                      <TableCell align="right">Neuron Weight</TableCell>
-                      <TableCell align="right">Group Weight</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {query.result.data['neuron-missed-inputs'][exemplarId].data.map((row, i) => {
-                      const [cellType, groupWeight, neuronWeight] = row;
-                      const key = `${exemplarId}${row}${i}`;
-                      return (
-                        <TableRow key={key}>
-                          <TableCell component="th" scope="row">
-                            {cellType}
-                          </TableCell>
-                          <TableCell align="right">{neuronWeight}</TableCell>
-                          <TableCell align="right">{groupWeight}</TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                <MissingConnections
+                  title="Missing Outputs"
+                  id={exemplarId}
+                  data={query.result.data['neuron-missed-outputs']}
+                />
+                <MissingConnections
+                  title="Missing Inputs"
+                  id={exemplarId}
+                  data={query.result.data['neuron-missed-inputs']}
+                />
               </React.Fragment>
             )}
           </Grid>
