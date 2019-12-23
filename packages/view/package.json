@@ -58,7 +58,7 @@
     "@neuprint/colorbox": "^1.0.3",
     "@neuprint/miniroibargraph": "^1.0.4",
     "@neuprint/miniroiheatmap": "^1.0.3",
-    "@neuprint/react-heatmap": "^0.4.1",
+    "@neuprint/react-heatmap": "^0.5.0",
     "@neuprint/support": "^1.1.0",
     "chroma-js": "^2.1.0",
     "clone": "^2.1.2",
