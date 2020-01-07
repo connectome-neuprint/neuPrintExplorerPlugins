@@ -181,6 +181,7 @@ class SimpleTable extends React.Component {
                     <TableRow hover key={key} style={rowStyle}>
                       {filteredRow.map((cell, i) => {
                         const cellKey = i;
+                        // do special formatting for objects that are passed in.
                         if (cell && typeof cell === 'object' && 'value' in cell) {
                           if ('action' in cell) {
                             return (
@@ -196,6 +197,12 @@ class SimpleTable extends React.Component {
                           }
                           return <TableCell key={cellKey}>{cell.value}</TableCell>;
                         }
+                        // need to format boolean values so that they print to the screen.
+                        // TODO: add a check or cross icon here instead?
+                        if (typeof cell === 'boolean') {
+                          return <TableCell key={cellKey}>{cell.toString()}</TableCell>;
+                        }
+
                         return <TableCell key={cellKey}>{cell}</TableCell>;
                       })}
                     </TableRow>
