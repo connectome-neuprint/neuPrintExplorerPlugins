@@ -14,6 +14,20 @@ const styles = theme => ({
   }
 });
 
+const formatOptionLabel = ({ label, additionalInfo }) => (
+  <div style={{ display: "flex" }}>
+    <div>{label}</div>
+    <div style={{ marginLeft: "10px", color: "#ccc" }}>
+    {additionalInfo}
+    </div>
+  </div>
+);
+
+formatOptionLabel.propTypes = {
+  label: PropTypes.string.isRequired,
+  additionalInfo: PropTypes.string.isRequired
+};
+
 class NeuronInputField extends React.Component {
   handleChange = selected => {
     const { onChange } = this.props;
@@ -86,14 +100,16 @@ class NeuronInputField extends React.Component {
         resp.data.forEach(item => {
           if (item[0]) {
             bodyIds.add(item[0].toString());
-            bodyIdLabels[item[0]] = `${item[0]} - ${item[2] || item[1] || ''}`;
+            bodyIdLabels[item[0]] = `${item[2] || item[1] || ''}`;
           }
           if (item[1]) {
-            types.add(item[1]);
+            if (item[1].toLowerCase().includes(inputValue.toLowerCase())) {
+              types.add(item[1]);
+            }
           }
           if (item[2]) {
             instances.add(item[2]);
-            instanceLabels[item[2]] = `${item[2]} - ${item[1] || item[0] || ''}`;
+            instanceLabels[item[2]] = `${item[1] || item[0] || ''}`;
           }
         });
 
@@ -114,7 +130,7 @@ class NeuronInputField extends React.Component {
             options: [...instances]
               .sort()
               .slice(0, 9)
-              .map(item => ({ value: item, label: instanceLabels[item] }))
+              .map(item => ({ value: item, label: item, additionalInfo: instanceLabels[item] }))
           });
         }
         if (bodyIds.size) {
@@ -123,7 +139,7 @@ class NeuronInputField extends React.Component {
             options: [...bodyIds]
               .sort((a, b) => a[0] - b[0])
               .slice(0, 9)
-              .map(item => ({ value: item, label: bodyIdLabels[item] }))
+              .map(item => ({ value: item, label: item, additionalInfo: bodyIdLabels[item] }))
           });
         }
 
@@ -141,6 +157,7 @@ class NeuronInputField extends React.Component {
         </InputLabel>
         <AsyncSelect
           className={classes.select}
+          formatOptionLabel={formatOptionLabel}
           placeholder="Type or Paste text for options"
           value={selectValue}
           isClearable
