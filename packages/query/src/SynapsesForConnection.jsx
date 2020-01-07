@@ -181,7 +181,6 @@ export class SynapsesForConnection extends React.Component {
         <FormControl className={classes.formControl}>
           <TextField
             label="Neuron ID A"
-            multiline
             fullWidth
             rows={1}
             value={bodyId1}
@@ -191,7 +190,6 @@ export class SynapsesForConnection extends React.Component {
           />
           <TextField
             label="Neuron ID B"
-            multiline
             fullWidth
             rows={1}
             value={bodyId2}
