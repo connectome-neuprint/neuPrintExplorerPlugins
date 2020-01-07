@@ -8,7 +8,6 @@ import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import { withStyles } from '@material-ui/core/styles';
 
-import NeuronHelp from './shared/NeuronHelp';
 import NeuronInputField from './shared/NeuronInputField';
 
 const styles = () => ({
@@ -145,18 +144,17 @@ class ROIsIntersectingNeurons extends React.Component {
   };
 
   render() {
-    const { classes, isQuerying } = this.props;
+    const { classes, isQuerying, dataSet } = this.props;
     const { neuronsrc } = this.state;
     return (
       <div>
         <FormControl className={classes.formControl}>
-          <NeuronHelp>
-            <NeuronInputField
-              onChange={this.handleClick}
-              value={neuronsrc}
-              handleSubmit={this.processRequest}
-            />
-          </NeuronHelp>
+          <NeuronInputField
+            dataSet={dataSet}
+            onChange={this.handleClick}
+            value={neuronsrc}
+            handleSubmit={this.processRequest}
+          />
         </FormControl>
         <Button
           color="primary"
