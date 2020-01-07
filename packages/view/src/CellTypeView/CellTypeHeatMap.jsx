@@ -13,15 +13,7 @@ function CellTypeHeatMap(props) {
       // to indicate that it has no value.
       let value = null;
       if (column !== 0) {
-        const calculated =
-          Math.min(
-            2,
-            Number.parseFloat(
-              Math.max(0, Math.abs(column - median.data[j]) - Math.sqrt(median.data[j])) /
-                median.data[j]
-            ).toPrecision(2)
-          ) * 100;
-        value = calculated < 40 ? 0 : calculated;
+        value = column;
       }
       heatMapData.push({
         column: `${data.columns[j]} (${j})`,
