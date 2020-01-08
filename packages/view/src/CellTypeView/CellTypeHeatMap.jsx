@@ -8,17 +8,10 @@ function CellTypeHeatMap(props) {
 
   data.data.forEach((row, i) => {
     row.forEach((column, j) => {
-      // set the initial value to null if the data supplied for the column is 0 before
-      // the manipulation has been run over it. This will show it as grey in the heatmap,
-      // to indicate that it has no value.
-      let value = null;
-      if (column !== 0) {
-        value = column;
-      }
       heatMapData.push({
         column: `${data.columns[j]} (${j})`,
         row: data.index[i],
-        value
+        value: column
       });
     });
   });
