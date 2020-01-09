@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
 
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
-import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
+import { RoiInfoTip } from '@neuprint/support';
 
 import NeuronInputField from './shared/NeuronInputField';
 
@@ -84,7 +84,7 @@ class ROIsIntersectingNeurons extends React.Component {
 
           /* eslint-enable prefer-destructuring */
 
-          return [<Tooltip title="roi full name" placement="right"><span>{roi}</span></Tooltip>, post, pre];
+          return [<RoiInfoTip>{roi}</RoiInfoTip>, post, pre];
         });
 
       const preTitle = largestPre.map(item => item[0]).join('');

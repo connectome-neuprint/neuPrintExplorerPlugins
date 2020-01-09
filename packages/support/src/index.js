@@ -3,6 +3,7 @@ export { default as SunburstLoader } from "./SunburstLoader";
 export { default as SunburstFormatter } from "./SunburstFormatter";
 export { default as SkeletonLoader } from "./SkeletonLoader";
 export { default as SkeletonFormatter } from "./SkeletonFormatter";
+export { default as RoiInfoTip } from "./RoiInfoTip";
 
 export function metaInfoError(error) {
   return {

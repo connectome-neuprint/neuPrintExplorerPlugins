@@ -52,7 +52,8 @@
     "@material-ui/icons": "^3.0.1",
     "prop-types": "^15.6.2",
     "react": "^16.11.0",
-    "react-dom": "^16.11.0"
+    "react-dom": "^16.11.0",
+    "react-redux": "^7.1.0"
   },
   "gitHead": "7e8a8d98fc5f55d001b8cc2707aee629396f7654",
   "dependencies": {
