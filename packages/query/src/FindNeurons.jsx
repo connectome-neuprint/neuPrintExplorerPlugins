@@ -15,6 +15,7 @@ import { ColorLegend } from '@neuprint/miniroiheatmap';
 import NeuronInputField from './shared/NeuronInputField';
 import AdvancedNeuronInput from './shared/AdvancedNeuronInput';
 import NeuronFilter from './shared/NeuronFilter';
+import BrainRegionInput from './shared/BrainRegionInput';
 import {
   setColumnIndices,
   createSimpleConnectionQueryObject,
@@ -427,6 +428,7 @@ export class FindNeurons extends React.Component {
       isQuerying,
       availableROIs,
       superROIs,
+      roiInfo,
       dataSet,
       actions,
       neoServerSettings
@@ -441,21 +443,10 @@ export class FindNeurons extends React.Component {
 
     // decide to use super ROIs (default) or all ROIs
     const selectedROIs = useSuper ? superROIs : availableROIs;
-    const inputOptions = selectedROIs.map(name => ({
-      label: name,
-      value: name
-    }));
-
     const inputValue = inputROIs.map(roi => ({
       label: roi,
       value: roi
     }));
-
-    const outputOptions = selectedROIs.map(name => ({
-      label: name,
-      value: name
-    }));
-
     const outputValue = outputROIs.map(roi => ({
       label: roi,
       value: roi
@@ -479,22 +470,18 @@ export class FindNeurons extends React.Component {
           />
         )}
         <InputLabel htmlFor="select-multiple-chip">Input Brain Regions</InputLabel>
-        <Select
-          className={classes.select}
-          isMulti
+        <BrainRegionInput
+          rois={selectedROIs}
           value={inputValue}
+          roiInfo={roiInfo}
           onChange={this.handleChangeROIsIn}
-          options={inputOptions}
-          closeMenuOnSelect={false}
         />
         <InputLabel htmlFor="select-multiple-chip">Output Brain Regions</InputLabel>
-        <Select
-          className={classes.select}
-          isMulti
+        <BrainRegionInput
+          rois={selectedROIs}
           value={outputValue}
+          roiInfo={roiInfo}
           onChange={this.handleChangeROIsOut}
-          options={outputOptions}
-          closeMenuOnSelect={false}
         />
         <FormControl className={classes.formControl}>
           <FormControlLabel
@@ -541,11 +528,16 @@ FindNeurons.propTypes = {
   actions: PropTypes.object.isRequired,
   availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
   superROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
+  roiInfo: PropTypes.object,
   dataSet: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
   submit: PropTypes.func.isRequired,
   isQuerying: PropTypes.bool.isRequired,
   neoServerSettings: PropTypes.object.isRequired
+};
+
+FindNeurons.defaultProps = {
+  roiInfo: {},
 };
 
 export default withStyles(styles)(FindNeurons);
