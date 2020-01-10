@@ -39,16 +39,16 @@ export class SavedSearch extends React.Component {
     };
   }
 
-  static processResults(query, apiResponse, actions, submitFunc, isPublic, originalPlugin) {
+  static processResults({ query, apiResponse, actions, submitFunc, isPublic, originalPlugin }) {
     const title = `${apiResponse.name} - ${dateFns.format(new Date(apiResponse.timestamp), 'MM/DD/YYYY H:mm' )}`;
 
-    const intermediateResults = originalPlugin.processResults(
+    const intermediateResults = originalPlugin.processResults({
       query,
-      JSON.parse(apiResponse.data).result,
+      apiResponse: JSON.parse(apiResponse.data).result,
       actions,
       submitFunc,
       isPublic
-    );
+    });
     intermediateResults.title = title;
     return intermediateResults;
   }

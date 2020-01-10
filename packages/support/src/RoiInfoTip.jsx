@@ -1,16 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useSelector } from "react-redux";
 import Tooltip from '@material-ui/core/Tooltip';
 
 export default function RoiInfoTip(props) {
-  const { roi } = props;
-  const roiInfo = useSelector(state => state.neo4jsettings.get('roiInfo'));
+  const { roi, roiLookup } = props;
 
   let fullName = '';
 
-  if (roiInfo && roiInfo[roi]) {
-    fullName = roiInfo[roi].description;
+  if (roiLookup[roi]) {
+    fullName = roiLookup[roi].description;
   }
 
   return(
@@ -20,4 +18,5 @@ export default function RoiInfoTip(props) {
 
 RoiInfoTip.propTypes = {
   roi: PropTypes.string.isRequired,
+  roiLookup: PropTypes.object.isRequired,
 };

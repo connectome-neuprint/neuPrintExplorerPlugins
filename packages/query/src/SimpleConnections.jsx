@@ -138,7 +138,7 @@ export class SimpleConnections extends React.Component {
     return [headers, data].join('\n');
   }
 
-  static processResults(query, apiResponse, actions, submit, isPublic) {
+  static processResults({ query, apiResponse, actions, submit, isPublic }) {
     // settings for whether or not the application is in public mode
     let includeWeightHP;
     if (isPublic) {

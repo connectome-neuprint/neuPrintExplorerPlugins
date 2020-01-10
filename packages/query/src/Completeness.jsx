@@ -37,7 +37,7 @@ class Completeness extends React.Component {
     };
   }
 
-  static processResults(query, apiResponse) {
+  static processResults({ query, apiResponse }) {
     const { pm: parameters } = query;
     const data = apiResponse.data.map(row => [
       row[0], // roiname

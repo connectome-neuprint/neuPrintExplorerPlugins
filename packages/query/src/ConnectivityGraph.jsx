@@ -39,7 +39,7 @@ class ConnectivityGraph extends React.Component {
     };
   }
 
-  static processResults(query, apiResponse) {
+  static processResults({ query, apiResponse }) {
     const { includeAutapses, minWeight, bodyIds } = query.pm;
 
     let maxObsWeight;

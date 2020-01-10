@@ -46,7 +46,7 @@ class CellType extends React.Component {
     };
   }
 
-  static processResults(query, apiResponse) {
+  static processResults({ query, apiResponse }) {
     return {
       data: apiResponse,
       debug: "This plugin doesn't use cypher",

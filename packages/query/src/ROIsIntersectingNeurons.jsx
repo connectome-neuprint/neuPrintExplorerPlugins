@@ -45,7 +45,7 @@ class ROIsIntersectingNeurons extends React.Component {
     };
   }
 
-  static processResults(query, apiResponse) {
+  static processResults({ apiResponse, roiLookup }) {
     const columnNames = ['brain region name', 'inputs', 'outputs'];
     const tables = [];
 
@@ -84,7 +84,7 @@ class ROIsIntersectingNeurons extends React.Component {
 
           /* eslint-enable prefer-destructuring */
 
-          return [<RoiInfoTip>{roi}</RoiInfoTip>, post, pre];
+          return [<RoiInfoTip roi={roi} roiLookup={roiLookup} />, post, pre];
         });
 
       const preTitle = largestPre.map(item => item[0]).join('');

@@ -51,7 +51,7 @@ export class CustomQuery extends React.Component {
     return {};
   }
 
-  static processResults(query, apiResponse) {
+  static processResults({ apiResponse }) {
     if (apiResponse.data) {
       const data = apiResponse.data.map(row =>
         row.map(item => (typeof item === 'object' ? JSON.stringify(item) : item))

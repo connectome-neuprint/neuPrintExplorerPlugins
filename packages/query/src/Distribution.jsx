@@ -85,7 +85,7 @@ class Distribution extends React.Component {
     return columnIds.map(column => ({name: column, status: true}));
   }
 
-  static processResults(query, apiResponse) {
+  static processResults({ query, apiResponse }) {
     const data = processData(apiResponse.data);
     const { pm: parameters } = query;
 

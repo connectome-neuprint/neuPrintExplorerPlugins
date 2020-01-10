@@ -174,7 +174,7 @@ export class FindNeurons extends React.Component {
   // this function will parse the results from the query to the
   // Neo4j server and place them in the correct format for the
   // visualization plugin.
-  static processResults(query, apiResponse, actions, submit) {
+  static processResults({ query, apiResponse, actions, submit }) {
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = query.pm;
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
 

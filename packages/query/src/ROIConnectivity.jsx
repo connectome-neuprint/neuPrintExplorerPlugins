@@ -47,7 +47,7 @@ class ROIConnectivity extends React.Component {
     };
   }
 
-  static processResults(query, apiResponse, actions, submit) {
+  static processResults({ query, apiResponse, submit }) {
     const { squareSize } = query.visProps;
     const { pm: parameters } = query;
     const { rois } = parameters;

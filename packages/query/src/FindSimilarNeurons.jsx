@@ -262,7 +262,7 @@ export class FindSimilarNeurons extends React.Component {
     return {};
   }
 
-  static processResults(query, apiResponse, actions, submit) {
+  static processResults({ query, apiResponse, actions, submit}) {
     const { pm: parameters } = query;
     return processSimilarResults(query, apiResponse, actions, submit);
   }

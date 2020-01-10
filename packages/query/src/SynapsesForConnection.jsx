@@ -65,7 +65,7 @@ export class SynapsesForConnection extends React.Component {
     };
   }
 
-  static processResults(query, apiResponse, actions) {
+  static processResults({ query, apiResponse, actions }) {
     const { pm: parameters = {} } = query;
     const { bodyId1 = '', bodyId2 = '', rois = [] } = parameters;
     const indexOf = setColumnIndices(['type', 'location', 'confidence', 'rois']);

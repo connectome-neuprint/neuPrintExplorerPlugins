@@ -53,7 +53,7 @@ export class ShortestPath extends React.Component {
     };
   }
 
-  static processResults(query, apiResponse, actions) {
+  static processResults({ query, apiResponse, actions }) {
     if (apiResponse.data.length === 0) {
       actions.pluginResponseError('No path found.');
       return {

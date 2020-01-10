@@ -151,7 +151,7 @@ class CommonConnectivity extends React.Component {
     return [columnHeaders, data.join('\n')].join('\n');
   }
 
-  static processResults(query, apiResponse, actions) {
+  static processResults({ query, apiResponse, actions }) {
     const { pm: parameters } = query;
 
     const queryKey = parameters.find_inputs ? 'input' : 'output';

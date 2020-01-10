@@ -56,7 +56,7 @@ class NeuronMeta extends React.Component {
     };
   }
 
-  static processResults(query, apiResponse, actions, submit) {
+  static processResults({ query, apiResponse, submit }) {
     if (query.pm.key_name) {
       return processMetaValues(query, apiResponse);
     }
