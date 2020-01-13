@@ -334,14 +334,12 @@ export class RankedTable extends React.Component {
     return (
       <div>
         <FormControl className={classes.formControl}>
-          <NeuronHelp>
             <NeuronInputField
               onChange={this.addNeuron}
               value={neuronSrc}
               dataSet={dataSet}
               handleSubmit={this.processRequest}
             />
-          </NeuronHelp>
         </FormControl>
         <FormControl component="fieldset" required className={classes.formControl}>
           <RadioGroup
