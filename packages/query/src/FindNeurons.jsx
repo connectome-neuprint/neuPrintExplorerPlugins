@@ -175,7 +175,7 @@ export class FindNeurons extends React.Component {
   // this function will parse the results from the query to the
   // Neo4j server and place them in the correct format for the
   // visualization plugin.
-  static processResults({ query, apiResponse, actions, submit }) {
+  static processResults({ query, apiResponse, actions, submitFunc }) {
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = query.pm;
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
 
@@ -246,7 +246,7 @@ export class FindNeurons extends React.Component {
           });
           converted[indexOf.post] = {
             value: totalPost,
-            action: () => submit(postQuery)
+            action: () => submitFunc(postQuery)
           };
 
           const preQuery = createSimpleConnectionQueryObject({
@@ -255,7 +255,7 @@ export class FindNeurons extends React.Component {
           });
           converted[indexOf.pre] = {
             value: totalPre,
-            action: () => submit(preQuery)
+            action: () => submitFunc(preQuery)
           };
 
           if (rois.length > 0) {

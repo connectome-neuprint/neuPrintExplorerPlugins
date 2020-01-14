@@ -47,7 +47,7 @@ class ROIConnectivity extends React.Component {
     };
   }
 
-  static processResults({ query, apiResponse, submit }) {
+  static processResults({ query, apiResponse, submitFunc }) {
     const { squareSize } = query.visProps;
     const { pm: parameters } = query;
     const { rois } = parameters;
@@ -105,7 +105,7 @@ class ROIConnectivity extends React.Component {
             <button
               type="button"
               className="heatmapbutton"
-              onClick={() => submit(neuronsQuery)}
+              onClick={() => submitFunc(neuronsQuery)}
             >
               <ColorBox
                 margin={0}
