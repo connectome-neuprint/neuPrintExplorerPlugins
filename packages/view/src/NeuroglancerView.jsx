@@ -141,10 +141,15 @@ class NeuroGlancerView extends React.Component {
       layers.forEach(layer => {
         // add segmentation && grayscale layers
         const host = layer.get('host').replace(/\/+$/,"");
-        let source = `dvid://${host}/${layer.get('uuid')}/${layer.get('dataInstance')}`;
+        let source = layer.get('source',null);
 
-        if (layer.get('dataType') === 'annotation' && layer.get('dataInstance') !== 'synapses') {
-          source += `?user=${userName}&usertag=true`;
+
+        if (!source) {
+          source = `dvid://${host}/${layer.get('uuid')}/${layer.get('dataInstance')}`;
+
+          if (layer.get('dataType') === 'annotation' && layer.get('dataInstance') !== 'synapses') {
+            source += `?user=${userName}&usertag=true`;
+          }
         }
 
         const layerInfo = {
@@ -154,15 +159,15 @@ class NeuroGlancerView extends React.Component {
         };
 
         if (layer.get('linkedSegmentationLayer')) {
-          layerInfo.linkedSegmentationLayer = 'hemibrain';
+          [layerInfo.linkedSegmentationLayer] = layer.get('name').split('-');
+        };
+
+        if (layer.get('visible')) {
+          layerInfo.visible = layer.get('visible');
         }
 
         if (layer.get('tool')) {
           layerInfo.tool = layer.get('tool');
-          viewerState.selectedLayer = {
-            layer: layer.get('name'),
-            visible: false
-          };
         }
 
         viewerState.layers[layer.get('name')] = layerInfo;
