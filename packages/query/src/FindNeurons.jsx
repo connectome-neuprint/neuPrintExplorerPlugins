@@ -317,7 +317,7 @@ export class FindNeurons extends React.Component {
   // use this method to cleanup your form data, perform validation
   // and generate the query object.
   processRequest = () => {
-    const { dataSet, submit } = this.props;
+    const { dataSet, submit, actions } = this.props;
     const {
       statusFilters,
       limitNeurons,
@@ -342,6 +342,12 @@ export class FindNeurons extends React.Component {
     // the CONTAINS search and not a regex search.
     if (!advancedSearch) {
       parameters.enable_contains = true;
+    }
+
+    // don't allow submission if there are no filters set.
+    if (neuronInstance === '' && inputROIs.length === 0 && outputROIs.length === 0) {
+      actions.formError('Please apply at least one of the filters in the form.');
+      return;
     }
 
     if (neuronInstance !== '') {
