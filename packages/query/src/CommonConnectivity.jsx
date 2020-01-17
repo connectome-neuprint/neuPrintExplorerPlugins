@@ -260,7 +260,6 @@ class CommonConnectivity extends React.Component {
 
   loadNeuronFilters = params => {
     this.setState({
-      limitNeurons: params.limitNeurons,
       statusFilters: params.statusFilters,
       preThreshold: parseInt(params.preThreshold, 10),
       postThreshold: parseInt(params.postThreshold, 10)

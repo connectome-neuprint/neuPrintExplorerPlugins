@@ -8,8 +8,6 @@ import merge from 'deepmerge';
 import { withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -164,18 +162,6 @@ class NeuronFilter extends React.Component {
       });
   };
 
-  toggleNeuron = () => {
-    const { qsParams } = this.state;
-    const { callback, actions } = this.props;
-    const val = !qsParams.limitNeurons;
-
-    const newparams = Object.assign({}, qsParams, { limitNeurons: val });
-
-    callback(newparams);
-    actions.setQueryString({ NFilter: { limitNeurons: val } });
-    this.setState({ qsParams: newparams });
-  };
-
   handleStatus = selected => {
     const { qsParams } = this.state;
     const { callback, actions } = this.props;
@@ -210,7 +196,6 @@ class NeuronFilter extends React.Component {
   render() {
     const { classes } = this.props;
     const { qsParams, statuses, statusDefinitions } = this.state;
-    const checkboxStatus = qsParams.limitNeurons;
 
     const statusOptions = statuses.map(name => ({
       label: name,
@@ -230,25 +215,6 @@ class NeuronFilter extends React.Component {
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.nopad}>
             <FormControl className={classes.formControl}>
-              <FormControl className={classes.formControl}>
-                <FormControlLabel
-                  control={
-                    <Switch checked={checkboxStatus} onChange={this.toggleNeuron} color="primary" />
-                  }
-                  label={
-                    <Typography variant="subtitle1" style={{ display: 'inline-flex' }}>
-                      Limit to neurons
-                      <Tooltip
-                        id="tooltip-icon"
-                        title="Limit to neurons (bodies with >=2 t-bars, >=10 psds, name, soma, or status)"
-                        placement="right"
-                      >
-                        <div className={classes.tooltip}>?</div>
-                      </Tooltip>
-                    </Typography>
-                  }
-                />
-              </FormControl>
               <TextField
                 label="minimum # pre (optional)"
                 type="number"

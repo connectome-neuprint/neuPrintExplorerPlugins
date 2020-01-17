@@ -1,7 +1,6 @@
 /* eslint-disable prefer-destructuring */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
 
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -409,7 +408,6 @@ export class FindNeurons extends React.Component {
 
   loadNeuronFilters = params => {
     this.setState({
-      limitNeurons: params.limitNeurons,
       statusFilters: params.statusFilters,
       preThreshold: parseInt(params.preThreshold, 10),
       postThreshold: parseInt(params.postThreshold, 10)
