@@ -11,7 +11,6 @@ import NeuronFilter from './shared/NeuronFilter';
 const pluginName = 'Completeness';
 const pluginAbbrev = 'co';
 
-
 const columnHeaders = ['Brain Region', '%presyn', 'total presyn', '%postsyn', 'total postsyn'];
 
 class Completeness extends React.Component {
@@ -22,13 +21,13 @@ class Completeness extends React.Component {
       abbr: pluginAbbrev,
       category: 'recon',
       description:
-        'Determines the reconstruction completeness of each brain region with respect to the neuron filters',
+        'Determines the percentage of pre-synaptice and post-synpatic sites for each brain region that are in the filter list.  The percentage of Traced neurons will provide a metric for the completeness of a brain region',
       visType: 'SimpleTable'
     };
   }
 
   static getColumnHeaders() {
-    return columnHeaders.map(column => ({name: column, status: true}));
+    return columnHeaders.map(column => ({ name: column, status: true }));
   }
 
   static fetchParameters() {
@@ -56,7 +55,9 @@ class Completeness extends React.Component {
   }
 
   static processDownload(response) {
-    const headers = ['Brain Region', '%presyn', 'total presyn', '%postsyn', 'total postsyn'].join(',');
+    const headers = ['Brain Region', '%presyn', 'total presyn', '%postsyn', 'total postsyn'].join(
+      ','
+    );
     const data = response.result.data
       .map(
         row =>
