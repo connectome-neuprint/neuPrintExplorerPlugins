@@ -148,18 +148,28 @@ class NeuroGlancerView extends React.Component {
           source = `dvid://${host}/${layer.get('uuid')}/${layer.get('dataInstance')}`;
 
           if (layer.get('dataType') === 'annotation' && layer.get('dataInstance') !== 'synapses') {
-            source += `?user=${userName}&usertag=true`;
+            source += `?usertag=true&auth=${host}/api/server/token`;
           }
         }
 
         const layerInfo = {
-          source,
+          source: {
+            url: source
+          },
           type: layer.get('dataType'),
+          tab: "source",
           segments: []
         };
 
         if (layer.get('linkedSegmentationLayer')) {
-          [layerInfo.linkedSegmentationLayer] = layer.get('name').split('-');
+          layerInfo.linkedSegmentationLayer = {
+            "pre_synaptic_cell": layer.get('name').split('-')[0],
+            "post_synaptic_cell": layer.get('name').split('-')[0]
+          };
+          layerInfo.filterBySegmentation = [
+            "post_synaptic_cell",
+            "pre_synaptic_cell"
+          ];
         };
 
         if (layer.get('visible')) {
@@ -168,6 +178,14 @@ class NeuroGlancerView extends React.Component {
 
         if (layer.get('tool')) {
           layerInfo.tool = layer.get('tool');
+        }
+
+        if (layer.get('name', '') === "hemibrain-public_annotations") {
+          layerInfo.annotationColor = '#ff0000';
+          layerInfo.shader = "#uicontrol vec3 falseSplitColor color(default=\"brown\")\n#uicontrol vec3 falseMergeColor color(default=\"purple\")\n#uicontrol vec3 checkedColor color(default=\"green\")\n#uicontrol vec3 borderColor color(default=\"black\")\n\n#uicontrol float radius slider(min=3, max=20, step=1, default=10)\n#uicontrol float opacity slider(min=0, max=1, step=0.1, default=1)  \n\nvoid main() {\n  setPointMarkerSize(radius);\n  float finalOpacity = PROJECTION_VIEW ? opacity * 0.2 : opacity;\n\n  setPointMarkerBorderColor(vec4(borderColor, finalOpacity));\n  if (prop_rendering_attribute() == 1) {\n    setColor(vec4(checkedColor, finalOpacity));\n  } else if (prop_rendering_attribute() == 2) {    \n    setColor(vec4(falseSplitColor, finalOpacity));\n  } else if (prop_rendering_attribute() == 3)  {\n    setColor(vec4(falseMergeColor, finalOpacity));\n  } else {\n set Color(vec4(1, 0, 0, finalOpacity));\n  }\n}";
+        } else if (layer.get('name', '') === "hemibrain-synapses") {
+          layerInfo.shader = "#uicontrol vec3 preColor color(default=\"yellow\")\n#uicontrol vec3 postColor color(default=\"gray\")\n#uicontrol float preConfidence slider(min=0, max=1, default=0)\n#uicontrol float postConfidence slider(min=0, max=1, default=0)\n#uicontrol float sliceViewOpacity slider(min=0, max=1, default=0.5)\n#uicontrol float projectionViewOpacity slider(min=0, max=1, default=0.3)\n\nvoid main() {\n  float opacity = PROJECTION_VIEW ? projectionViewOpacity : sliceViewOpacity;\n  setColor(vec4(defaultColor(), opacity));\n  setEndpointMarkerColor(\n    vec4(preColor, opacity),\n    vec4(postColor, opacity));\n  setEndpointMarkerBorderColor(\n    vec4(0, 0, 0, opacity),\n    vec4(0, 0, 0,     opacity)\n  );\n\n  setEndpointMarkerSize(5.0, 5.0);\n  setLineWidth(2.0);\n  if (prop_pre_synaptic_confidence()< preConfidence ||\n  prop_post_synaptic_confidence()< postConfidence) discard;\n}\n"
+
         }
 
         viewerState.layers[layer.get('name')] = layerInfo;
