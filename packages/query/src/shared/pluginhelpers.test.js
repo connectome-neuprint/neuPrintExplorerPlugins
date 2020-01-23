@@ -1,4 +1,9 @@
-import { createSimpleConnectionsResult, computeSimilarity, combineROIJSONStrings } from './pluginhelpers';
+import {
+  createSimpleConnectionsResult,
+  computeSimilarity,
+  combineROIJSONStrings,
+  getRoiInfoObjectWithNoneCount
+} from './pluginhelpers';
 
 const { actions, submit } = global;
 
@@ -79,9 +84,9 @@ describe('createSimpleConnectionsResult', () => {
     );
     const { columns, data, debug } = result;
     expect(debug).toEqual(apiResponse.debug);
-    expect(columns.length).toBe(12);
+    expect(columns.length).toBe(13);
     expect(data.length).toBe(3);
-    expect(data[0].length).toBe(13);
+    expect(data[0].length).toBe(14);
 
     const resultPublic = createSimpleConnectionsResult(
       'test',
@@ -92,9 +97,9 @@ describe('createSimpleConnectionsResult', () => {
       false // testing public version
     );
     expect(resultPublic.debug).toEqual(apiResponse.debug);
-    expect(resultPublic.columns.length).toBe(11);
+    expect(resultPublic.columns.length).toBe(12);
     expect(resultPublic.data.length).toBe(3);
-    expect(resultPublic.data[0].length).toBe(12);
+    expect(resultPublic.data[0].length).toBe(13);
   });
 });
 
@@ -128,14 +133,81 @@ describe('combineROIJSONStrings', () => {
     const original = '{"a": {"pre": 2, "post": 3}}';
     const added = '{"a": {"pre": 3, "post": 3},"b": {"pre": 1, "post": 2}}';
     const expected = JSON.stringify({
-      "a":{
-        "pre":5,"post":6
+      a: {
+        pre: 5,
+        post: 6
       },
-      "b":{
-        "pre":1,"post":2
+      b: {
+        pre: 1,
+        post: 2
       }
     });
     const combined = combineROIJSONStrings(original, added);
     expect(combined).toEqual(expected);
   });
+});
+
+describe('getRoiInfoObjectWithNoneCount', () => {
+  it('should return an object with pre & post counts that add up to the supplied total', () => {
+    const roiList = [
+      'ME(R)',
+      'AME(R)',
+      'CRE(L)',
+      'SIP(L)',
+      "a'L(L)"
+    ];
+
+    const original = {
+      'SNP(L)': { post: 1 },
+      'SIP(L)': { post: 1 },
+      'MB(L)': { pre: 10, post: 12 },
+      "a'L(L)": { pre: 10, post: 12 },
+      INP: { pre: 8, post: 10 },
+      'CRE(L)': { pre: 8, post: 10 },
+      None: { pre: 1 }
+    };
+    const expected = {
+      'SNP(L)': { post: 1 },
+      'SIP(L)': { post: 1 },
+      'MB(L)': { pre: 10, post: 12 },
+      "a'L(L)": { pre: 10, post: 12 },
+      INP: { pre: 8, post: 10 },
+      'CRE(L)': { pre: 8, post: 10 },
+      None: { pre: 1, post: 0 }
+    };
+    const noInput = getRoiInfoObjectWithNoneCount();
+    expect(noInput).toBe(null);
+    const computed = getRoiInfoObjectWithNoneCount(original, roiList, 19, 23);
+    expect(computed).toEqual(expected);
+  });
+  it('should return an object with None added if needed and not supplied', () => {
+    const roiList = [
+      'ME(R)',
+      'AME(R)',
+      'CRE(L)',
+      'SIP(L)',
+      "a'L(L)"
+    ];
+
+    const original = {
+      'SNP(L)': { post: 1 },
+      'SIP(L)': { post: 1 },
+      'MB(L)': { pre: 10, post: 12 },
+      "a'L(L)": { pre: 10, post: 12 },
+      INP: { pre: 8, post: 10 },
+      'CRE(L)': { pre: 8, post: 10 }
+    };
+    const expected = {
+      'SNP(L)': { post: 1 },
+      'SIP(L)': { post: 1 },
+      'MB(L)': { pre: 10, post: 12 },
+      "a'L(L)": { pre: 10, post: 12 },
+      INP: { pre: 8, post: 10 },
+      'CRE(L)': { pre: 8, post: 10 },
+      None: { pre: 1, post: 0 }
+    };
+    const computed = getRoiInfoObjectWithNoneCount(original, roiList, 19, 23);
+    expect(computed).toEqual(expected);
+  });
+
 });

@@ -70,7 +70,7 @@ export function getCSRoiInfoObjectWithNoneCount(roiInfoObject, roiList, postTota
 
   // add this after the other rois have been summed.
   // records # pre and post that are not in rois
-  newRoiInfoObject.none = {
+  newRoiInfoObject.None = {
     post: postTotal - postInSuperRois
   };
 

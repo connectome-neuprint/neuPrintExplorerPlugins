@@ -227,7 +227,7 @@ export class FindNeurons extends React.Component {
         converted[indexOf.roiBarGraph] = '';
 
         // make sure none is added to the rois list.
-        roiList.push('none');
+        roiList.push('None');
         if (roiInfoObject) {
           const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
             roiInfoObject,

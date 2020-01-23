@@ -37,7 +37,10 @@ export function setColumnIndices(propertyNames) {
  * @param {number} postTotal
  * @returns {Object.<string,Object.<string,number>>}
  */
-function getRoiInfoObjectWithNoneCount(roiInfoObject, roiList, preTotal, postTotal) {
+export function getRoiInfoObjectWithNoneCount(roiInfoObject, roiList, preTotal, postTotal) {
+  if (!roiInfoObject) {
+    return null;
+  }
   // deep copy roi info object
   const newRoiInfoObject = JSON.parse(JSON.stringify(roiInfoObject));
 
@@ -47,14 +50,14 @@ function getRoiInfoObjectWithNoneCount(roiInfoObject, roiList, preTotal, postTot
   let preInSuperRois = 0;
   Object.keys(newRoiInfoObject).forEach(roi => {
     if (roiList.includes(roi)) {
-      preInSuperRois += roiInfoObject[roi].pre;
-      postInSuperRois += roiInfoObject[roi].post;
+      preInSuperRois += roiInfoObject[roi].pre || 0;
+      postInSuperRois += roiInfoObject[roi].post || 0;
     }
   });
 
   // add this after the other rois have been summed.
   // records # pre and post that are not in rois
-  newRoiInfoObject.none = {
+  newRoiInfoObject.None = {
     pre: preTotal - preInSuperRois,
     post: postTotal - postInSuperRois
   };
@@ -104,7 +107,7 @@ export function createSimpleConnectionQueryObject({ dataSet, isPost = false, que
  */
 export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, postTotal) {
   let roiInfoObjectWithNoneCount = roiInfoObject;
-  if (!Object.keys(roiInfoObject).includes('none')) {
+  if (!Object.keys(roiInfoObject).includes('None')) {
     roiInfoObjectWithNoneCount = getRoiInfoObjectWithNoneCount(
       roiInfoObject,
       roiList,
@@ -113,8 +116,8 @@ export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, 
     );
   }
 
-  if (!roiList.includes('none')) {
-    roiList.push('none');
+  if (!roiList.includes('None')) {
+    roiList.push('None');
   }
 
   const heatMap = (
@@ -428,7 +431,7 @@ export function createSimpleConnectionsResult(
     const roiInfoObject = roiInfoObjectJSON !== '' ? JSON.parse(roiInfoObjectJSON) : {};
 
     // make sure none is added to the rois list.
-    roiList.push('none');
+    roiList.push('None');
 
     const converted = [];
     if (includeWeightHP) {
