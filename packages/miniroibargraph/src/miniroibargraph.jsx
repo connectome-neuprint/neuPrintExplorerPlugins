@@ -14,53 +14,91 @@ const colorArray = [
   '#bab0ac'
 ];
 let usedColorIndex = 0;
+const pixelsPerPercentage = 4;
 const roiToColorMap = {};
 
 export function MiniROIBarGraph({ listOfRoisToUse, roiInfoObject, roiInfoObjectKey, sumOfValues }) {
   const type = roiInfoObjectKey;
   const total = Math.max(sumOfValues, 0.01);
+  let sumOfPercentages = 0;
 
-  return Object.keys(roiInfoObject).map(roi => {
-    if (
-      listOfRoisToUse.find(element => element === roi)
-    ) {
-      let color;
-      if (roiToColorMap[roi]) {
-        color = roiToColorMap[roi];
-      } else {
-        roiToColorMap[roi] = colorArray[usedColorIndex];
-        color = colorArray[usedColorIndex];
-        if (usedColorIndex < colorArray.length - 1) {
-          usedColorIndex += 1;
+  // to get a set of percentage that add up to 100% we need to do more than just round the
+  // values off. See https://stackoverflow.com/questions/13483430/how-to-make-rounded-percentages-add-up-to-100
+  // for more details.
+  const roiWithColors = Object.keys(roiInfoObject)
+    .map(roi => {
+      if (listOfRoisToUse.find(element => element === roi)) {
+        let color;
+        if (roiToColorMap[roi]) {
+          color = roiToColorMap[roi];
         } else {
-          usedColorIndex = 0;
+          roiToColorMap[roi] = colorArray[usedColorIndex];
+          color = colorArray[usedColorIndex];
+          if (usedColorIndex < colorArray.length - 1) {
+            usedColorIndex += 1;
+          } else {
+            usedColorIndex = 0;
+          }
         }
+        const percentage = (((roiInfoObject[roi][type] * 1.0) / total) * 100) || 0
+        const integer = Math.floor(percentage);
+        const decimal = Math.abs(percentage) - Math.floor(Math.abs(percentage));
+        sumOfPercentages += integer;
+        return [roi, integer, decimal, color];
       }
-      const percent = Math.round(((roiInfoObject[roi][type] * 1.0) / total) * 100);
+      return null;
+    })
+    .filter(item => item)
+    .sort((a, b) => b[2] - a[2]);
+
+  // loop over the results and add 1 to the values with the biggest remainder
+  // until the sum = 100%. Assumes that the array is order by the decimal portion
+  // due to the sorting of the roiWithColors array after the previous map operation.
+  if (100 - sumOfPercentages) {
+    for (let i = 0; i < 100 - sumOfPercentages; i += 1) {
+      roiWithColors[i][1] += 1;
+    }
+  }
+
+  const colors = roiWithColors
+    .sort((a, b) => {
+      if (a[0] < b[0]) {
+        return -1;
+      }
+      if (a[0] > b[0]) {
+        return 1;
+      }
+      return 0;
+    })
+    .map(roi => {
+      const [roiName, integer, , color] = roi;
+      // if percent turns out to be Nan, then we don't want to show it, so return nothing.
+      if (!integer) {
+        return null;
+      }
 
       let text = '';
-      if (percent > 30) {
-        text = `${roi} ${percent}%`;
-      } else if (percent > 10) {
-        text = `${percent}%`;
+      if (integer > 30) {
+        text = `${roiName} ${integer}%`;
+      } else if (integer > 10) {
+        text = `${integer}%`;
       }
 
       const textColor = pickTextColorBasedOnBgColorAdvanced(color, '#fff', '#000');
       return (
         <ColorBox
-          key={roi}
+          key={roiName}
           margin={0}
-          width={percent * 4}
+          width={integer * pixelsPerPercentage}
           height={20}
           backgroundColor={color}
           color={textColor}
-          title={`${roi} ${percent}%`}
+          title={`${roiName} ${integer}%`}
           text={text}
         />
       );
-    }
-    return null;
-  });
+    });
+  return colors;
 }
 
 export default ({ roiList, roiInfoObject, preTotal, postTotal }) => {
