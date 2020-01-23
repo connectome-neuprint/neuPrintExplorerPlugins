@@ -19,7 +19,24 @@ const roiToColorMap = {};
 
 export function MiniROIBarGraph({ listOfRoisToUse, roiInfoObject, roiInfoObjectKey, sumOfValues }) {
   const type = roiInfoObjectKey;
-  const total = Math.max(sumOfValues, 0.01);
+
+  // if the total is 0 then bail out early, since the
+
+  if (sumOfValues === 0) {
+    return (
+      <ColorBox
+        key="none"
+        margin={0}
+        width={100 * pixelsPerPercentage}
+        height={20}
+        backgroundColor="#eeeeee"
+        color="#cccccc"
+        title="0%"
+        text="0%"
+      />
+    );
+  }
+
   let sumOfPercentages = 0;
 
   // to get a set of percentage that add up to 100% we need to do more than just round the
@@ -40,7 +57,7 @@ export function MiniROIBarGraph({ listOfRoisToUse, roiInfoObject, roiInfoObjectK
             usedColorIndex = 0;
           }
         }
-        const percentage = (((roiInfoObject[roi][type] * 1.0) / total) * 100) || 0
+        const percentage = ((roiInfoObject[roi][type] * 1.0) / sumOfValues) * 100 || 0;
         const integer = Math.floor(percentage);
         const decimal = Math.abs(percentage) - Math.floor(Math.abs(percentage));
         sumOfPercentages += integer;
@@ -56,7 +73,25 @@ export function MiniROIBarGraph({ listOfRoisToUse, roiInfoObject, roiInfoObjectK
   // due to the sorting of the roiWithColors array after the previous map operation.
   if (100 - sumOfPercentages) {
     for (let i = 0; i < 100 - sumOfPercentages; i += 1) {
-      roiWithColors[i][1] += 1;
+      // check that 'i' is in the array. If it is out of range, then something went
+      // wrong with the data and we can't calculate an accurate percentage.
+      if (roiWithColors[i]) {
+        roiWithColors[i][1] += 1;
+      } else {
+        return (
+          <ColorBox
+            key="error"
+            margin={0}
+            width={100 * pixelsPerPercentage}
+            height={20}
+            backgroundColor="#00000"
+            color="#ff0000"
+            borderColor="#ff0000"
+            title="Error calculating %"
+            text="Error calculating %"
+          />
+        );
+      }
     }
   }
 
