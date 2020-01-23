@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/queries",
-  "version": "9.1.4",
+  "version": "9.1.5",
   "description": "Query plugins used by the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
@@ -71,10 +71,10 @@
     "react-select": "^2.1.0"
   },
   "dependencies": {
-    "@neuprint/colorbox": "^1.0.3",
-    "@neuprint/miniroibargraph": "^1.0.5",
-    "@neuprint/miniroiheatmap": "^1.0.3",
-    "@neuprint/support": "^1.2.0",
+    "@neuprint/colorbox": "^1.1.0",
+    "@neuprint/miniroibargraph": "^1.0.6",
+    "@neuprint/miniroiheatmap": "^1.0.4",
+    "@neuprint/support": "^1.2.1",
     "codemirror": "^5.48.4",
     "colormap": "^2.3.0",
     "date-fns": "^1.30.1",
