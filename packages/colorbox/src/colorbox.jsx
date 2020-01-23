@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function ColorBox({ margin, width, height, backgroundColor, title, text, color }) {
+function ColorBox({ margin, width, height, backgroundColor, borderColor, title, text, color }) {
   const styles = {
     margin: `${margin}px`,
     width: `${width}px`,
@@ -10,12 +10,19 @@ function ColorBox({ margin, width, height, backgroundColor, title, text, color }
     minHeight: `${height}px`,
     backgroundColor,
     color,
+    borderColor: backgroundColor,
+    borderWidth: '1px',
+    borderStyle: 'solid',
     overflow: 'visible',
     display: 'inline-flex',
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column'
   };
+
+  if (borderColor) {
+    styles.borderColor = borderColor;
+  }
 
   let displayText = text;
 
@@ -35,7 +42,8 @@ function ColorBox({ margin, width, height, backgroundColor, title, text, color }
 }
 
 ColorBox.defaultProps = {
-  color: '#000'
+  color: '#000',
+  borderColor: null
 };
 
 ColorBox.propTypes = {
@@ -43,6 +51,7 @@ ColorBox.propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   backgroundColor: PropTypes.string.isRequired,
+  borderColor: PropTypes.string,
   title: PropTypes.string.isRequired,
   color: PropTypes.string,
   text: PropTypes.oneOfType([PropTypes.object, PropTypes.string]).isRequired
