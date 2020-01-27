@@ -106,15 +106,17 @@ export function createSimpleConnectionQueryObject({ dataSet, isPost = false, que
  * @returns {Object.<string,JSX.Element>}
  */
 export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, postTotal) {
-  let roiInfoObjectWithNoneCount = roiInfoObject;
-  if (!Object.keys(roiInfoObject).includes('None')) {
-    roiInfoObjectWithNoneCount = getRoiInfoObjectWithNoneCount(
-      roiInfoObject,
-      roiList,
-      preTotal,
-      postTotal
-    );
-  }
+  // we used to only calculate the 'None' ROI when one wasn't present in the
+  // data returned from the server, eg:  if (!Object.keys(roiInfoObject).includes('None')).
+  // This condition was removed, because the server was returning a value for None that didn't
+  // match what we were expecting. Now we calculate None for all returned values.
+  // WHAT A WASTE OF TIME!!!
+  const roiInfoObjectWithNoneCount = getRoiInfoObjectWithNoneCount(
+    roiInfoObject,
+    roiList,
+    preTotal,
+    postTotal
+  );
 
   if (!roiList.includes('None')) {
     roiList.push('None');
