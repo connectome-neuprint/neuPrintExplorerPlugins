@@ -112,9 +112,11 @@ export function MiniROIBarGraph({ listOfRoisToUse, roiInfoObject, roiInfoObjectK
         return null;
       }
 
+      const name = (roiName === 'None')? 'Not Primary' : roiName;
+
       let text = '';
       if (integer > 30) {
-        text = `${roiName} ${integer}%`;
+        text = `${name} ${integer}%`;
       } else if (integer > 10) {
         text = `${integer}%`;
       }
@@ -128,7 +130,7 @@ export function MiniROIBarGraph({ listOfRoisToUse, roiInfoObject, roiInfoObjectK
           height={20}
           backgroundColor={color}
           color={textColor}
-          title={`${roiName} ${integer}%`}
+          title={`${name} ${integer}%`}
           text={text}
         />
       );

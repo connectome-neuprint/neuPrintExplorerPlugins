@@ -14,6 +14,7 @@ export function RoiHeatMap({ roiInfoObject, roiInfoObjectKey, sumOfValues, listO
   const total = Math.max(sumOfValues, 0.01);
 
   return listOfRoisToUse.map(roi => {
+    const name = roi === 'None' ? 'Not Primary' : roi;
     const percent = roiInfoObject[roi] ? ((roiInfoObject[roi][type] * 1.0) / total) * 100 : 0;
     return (
       <ColorBox
@@ -26,7 +27,7 @@ export function RoiHeatMap({ roiInfoObject, roiInfoObjectKey, sumOfValues, listO
             : viridisColorMap[0]
         }
         key={roi}
-        title={`${roi} ${Math.round(percent * 100) / 100}%`}
+        title={`${name} ${Math.round(percent * 100) / 100}%`}
         text=""
       />
     );
@@ -37,20 +38,23 @@ export function HeatMapLabels({ roiList }) {
   const styles = {
     margin: '0px',
     width: '10px',
-    height: '40px',
+    height: '50px',
     overflow: 'visible',
     display: 'inline-flex',
     flexDirection: 'row',
     whiteSpace: 'nowrap',
-    transform: 'rotate(-90deg) translateX(-40px)',
+    transform: 'rotate(-90deg) translateX(-50px)',
     transformOrigin: 'left top 0',
     fontSize: '10px'
   };
-  return roiList.map(roi => (
-    <div title={roi} style={styles} key={roi}>
-      {roi}
-    </div>
-  ));
+  return roiList.map(roi => {
+    const name = roi === 'None' ? 'Not Primary' : roi;
+    return (
+      <div title={name} style={styles} key={roi}>
+        {name}
+      </div>
+    );
+  });
 }
 
 export function ColorLegend() {
