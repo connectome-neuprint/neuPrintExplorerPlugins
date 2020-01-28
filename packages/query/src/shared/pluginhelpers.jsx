@@ -49,7 +49,10 @@ export function getRoiInfoObjectWithNoneCount(roiInfoObject, roiList, preTotal, 
   let postInSuperRois = 0;
   let preInSuperRois = 0;
   Object.keys(newRoiInfoObject).forEach(roi => {
-    if (roiList.includes(roi)) {
+    // count all super ROIs except for None, because if they are added to the inSuperRois
+    // total, they wont get added during the creation of the new None later in
+    // this function. That will throw of the percentage calculations later.
+    if (roiList.includes(roi) && roi !== 'None') {
       preInSuperRois += roiInfoObject[roi].pre || 0;
       postInSuperRois += roiInfoObject[roi].post || 0;
     }
