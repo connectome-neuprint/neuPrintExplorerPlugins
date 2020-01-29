@@ -168,7 +168,7 @@ export class SimpleConnections extends React.Component {
     );
 
     data.forEach(row => {
-      const neuron1Id = row[0];
+      const [neuron1Id] = row;
       if (lastBody !== -1 && neuron1Id !== lastBody) {
         let tableName = `${lastName} id=(${String(lastBody)})`;
         if (inputs === false) {

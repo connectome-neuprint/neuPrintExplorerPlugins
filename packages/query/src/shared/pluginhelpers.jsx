@@ -386,32 +386,17 @@ export function createSimpleConnectionsResult(
   const totalConnections = combined.reduce((acc, row) => acc + row[5], 0);
 
   // get the orphan rate
-  let traced_conns = 0;
-  let total_conns = 0;
+  let tracedConns = 0;
+  let totalConns = 0;
 
   if (!isInputs) {
-    const data = combined.map(row => {
-      const [
-        ,
-        ,
-        name,
-        type,
-        bodyId,
-        connectionWeight,
-        bodyIdQueried,
-        status,
-        roiInfoObjectJSON,
-        size,
-        preTotal,
-        postTotal,
-        roiList,
-        connectionWeightHP
-      ] = row;
+    combined.forEach(row => {
+      const [, , , , , connectionWeight, , status] = row;
 
       if (status === 'Traced') {
-        traced_conns += connectionWeight;
+        tracedConns += connectionWeight;
       }
-      total_conns += connectionWeight;
+      totalConns += connectionWeight;
     });
   }
 
@@ -447,12 +432,12 @@ export function createSimpleConnectionsResult(
     if (!isInputs) {
       if (status === 'Traced') {
         let expstr = '?';
-        if (traced_conns > 0) {
-          let expval = Math.round(connectionWeight * (total_conns / traced_conns));
+        if (tracedConns > 0) {
+          const expval = Math.round(connectionWeight * (totalConns / tracedConns));
           expstr = expval.toString();
         }
 
-        converted[indexOf.expectedRange] = connectionWeight.toString() + ' - ' + expstr;
+        converted[indexOf.expectedRange] = `${connectionWeight.toString()} - ${expstr}`;
       } else {
         converted[indexOf.expectedRange] = '';
       }
