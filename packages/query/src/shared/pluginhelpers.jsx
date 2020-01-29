@@ -402,7 +402,7 @@ export function createSimpleConnectionsResult(
 
   const data = combined.map(row => {
     const [
-      ,
+      queriedName,
       ,
       name,
       type,
@@ -535,6 +535,7 @@ export function createSimpleConnectionsResult(
     // put the queried id at the beginning of the column so that we can use
     // it for later filtering/sorting
     converted.unshift(bodyIdQueried);
+    converted.unshift(queriedName);
 
     return converted;
   });

@@ -168,9 +168,9 @@ export class SimpleConnections extends React.Component {
     );
 
     data.forEach(row => {
-      const [neuron1Id] = row;
+      const [neuron1Name, neuron1Id] = row;
       if (lastBody !== -1 && neuron1Id !== lastBody) {
-        let tableName = `${lastName} id=(${String(lastBody)})`;
+        let tableName = `${lastName||lastBody} id=(${String(lastBody)})`;
         if (inputs === false) {
           tableName = `${tableName} => ...`;
         } else {
@@ -186,14 +186,14 @@ export class SimpleConnections extends React.Component {
       }
       // change code here to use common code
       lastBody = neuron1Id;
-      [lastName] = row;
+      lastName = neuron1Name;
 
-      currentTable.push(row.slice(1));
+      currentTable.push(row.slice(2));
       //
     });
 
     if (lastBody !== -1) {
-      let tableName = `${lastName} id=(${String(lastBody)})`;
+      let tableName = `${lastName||lastBody} id=(${String(lastBody)})`;
       if (inputs === true) {
         tableName = `${tableName} <= ...`;
       } else {
