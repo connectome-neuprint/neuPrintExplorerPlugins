@@ -1,6 +1,6 @@
 /*
  * Query form to load skeleton view with provided ids.
-*/
+ */
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -17,7 +17,6 @@ const styles = theme => ({
     margin: theme.spacing.unit
   }
 });
-
 
 class Skeleton extends React.Component {
   static get details() {
@@ -41,7 +40,7 @@ class Skeleton extends React.Component {
   static processResults({ query }) {
     return {
       debug: 'No cypher query for this plugin',
-      title: `Skeleton viewer for ${query.pm.dataset}`,
+      title: `Skeleton viewer for ${query.pm.dataset}`
     };
   };
 
@@ -64,7 +63,7 @@ class Skeleton extends React.Component {
         dataset: dataSet,
         skip: true, // skip the data fetching in Requests.
         bodyIds
-      },
+      }
     };
     submit(query);
   };
@@ -82,7 +81,6 @@ class Skeleton extends React.Component {
       this.processRequest();
     }
   };
-
 
   render() {
     const { isQuerying, classes } = this.props;
@@ -103,7 +101,12 @@ class Skeleton extends React.Component {
             onKeyDown={this.catchReturn}
           />
         </FormControl>
-        <Button disabled={isQuerying} variant="contained" color="primary" onClick={this.processRequest}>
+        <Button
+          disabled={isQuerying}
+          variant="contained"
+          color="primary"
+          onClick={this.processRequest}
+        >
           Submit
         </Button>
       </div>
@@ -115,7 +118,7 @@ Skeleton.propTypes = {
   dataSet: PropTypes.string.isRequired,
   isQuerying: PropTypes.bool.isRequired,
   submit: PropTypes.func.isRequired,
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired
 };
 
 export default withStyles(styles, { withTheme: true })(Skeleton);
