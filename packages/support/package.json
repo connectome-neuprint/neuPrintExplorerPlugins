@@ -58,7 +58,7 @@
   "dependencies": {
     "@neuprint/colorbox": "^1.1.0",
     "@neuprint/react-skeleton": "^0.0.1",
-    "@neuprint/react-sunburst": "^1.0.2",
+    "@neuprint/react-sunburst": "^1.2.0",
     "colormap": "^2.3.1"
   }
 }

@@ -59,7 +59,7 @@ export default function SunburstFormatter(props) {
 
   const data = processRaw(bodyId, rawData, superROIs);
 
-  return <Sunburst data={data} colors={colors} />;
+  return <Sunburst data={data} colors={colors} preserveTopLevelOrder />;
 }
 
 SunburstFormatter.propTypes = {
