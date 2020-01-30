@@ -45,7 +45,6 @@ class Skeleton extends React.Component {
   }
 
   static download3DSeed = apiResponse => () => {
-    console.log(apiResponse);
     const jsonDownload = {
       dataset: apiResponse.ds,
       bodies: apiResponse.pm.bodyIds.split(','),
