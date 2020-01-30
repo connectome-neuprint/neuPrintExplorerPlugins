@@ -42,6 +42,28 @@ class Skeleton extends React.Component {
       debug: 'No cypher query for this plugin',
       title: `Skeleton viewer for ${query.pm.dataset}`
     };
+  }
+
+  static download3DSeed = apiResponse => () => {
+    console.log(apiResponse);
+    const jsonDownload = {
+      dataset: apiResponse.ds,
+      bodies: apiResponse.pm.bodyIds.split(','),
+      rois: apiResponse.pm.compartments.split(',')
+    };
+
+    const element = document.createElement('a');
+    const file = new Blob([JSON.stringify(jsonDownload)], { type: 'application/json' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'seed.json';
+    document.body.appendChild(element);
+    element.click();
+    setTimeout(() => {
+        document.body.removeChild(element);
+        URL.revokeObjectURL(file);
+    }, 100);
+
+
   };
 
   constructor(props) {
