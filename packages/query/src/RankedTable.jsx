@@ -16,10 +16,11 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
+import Switch from '@material-ui/core/Switch';
 
 import ColorBox from '@neuprint/colorbox';
-import NeuronHelp from './shared/NeuronHelp';
 import NeuronInputField from './shared/NeuronInputField';
+import AdvancedNeuronInput from './shared/AdvancedNeuronInput';
 import HPWeightSlider from './shared/HPWeightSlider';
 
 const squareSize = 100;
@@ -278,12 +279,13 @@ export class RankedTable extends React.Component {
     this.state = {
       neuronSrc: '',
       preOrPost: 'pre',
-      useHighConfidence: false
+      useHighConfidence: false,
+      advancedSearch: false
     };
   }
 
   processRequest = () => {
-    const { neuronSrc, preOrPost, useHighConfidence } = this.state;
+    const { neuronSrc, preOrPost, useHighConfidence, advancedSearch } = this.state;
     const { dataSet, actions, submit } = this.props;
     if (neuronSrc !== '') {
       const parameters = { dataset: dataSet };
@@ -292,6 +294,10 @@ export class RankedTable extends React.Component {
       } else {
         parameters.neuron_name = neuronSrc;
       }
+
+			if (!advancedSearch) {
+				parameters.enable_contains = true;
+			}
 
       if (preOrPost === 'pre') {
         parameters.find_inputs = false;
@@ -328,19 +334,45 @@ export class RankedTable extends React.Component {
     this.setState({ useHighConfidence: !useHighConfidence });
   };
 
+
+	toggleAdvanced = event => {
+		this.setState({ advancedSearch: event.target.checked, neuronSrc: '' });
+	};
+
+
   render() {
     const { classes, isQuerying, isPublic, dataSet } = this.props;
-    const { neuronSrc, preOrPost, useHighConfidence } = this.state;
+    const { neuronSrc, preOrPost, useHighConfidence, advancedSearch } = this.state;
     return (
       <div>
         <FormControl className={classes.formControl}>
-            <NeuronInputField
-              onChange={this.addNeuron}
-              value={neuronSrc}
-              dataSet={dataSet}
-              handleSubmit={this.processRequest}
-            />
+						{advancedSearch ? (
+							<AdvancedNeuronInput
+								onChange={this.addNeuron}
+								value={neuronSrc}
+								dataSet={dataSet}
+								handleSubmit={this.processRequest}
+							/>
+						) : (
+							<NeuronInputField
+								onChange={this.addNeuron}
+								value={neuronSrc}
+								dataSet={dataSet}
+								handleSubmit={this.processRequest}
+							/>
+						)}
+
         </FormControl>
+				<FormControl className={classes.formControl}>
+					<FormControlLabel
+						control={<Switch checked={advancedSearch} onChange={this.toggleAdvanced} color="primary" />}
+						label={
+							<Typography variant="subtitle1" style={{ display: 'inline-flex' }}>
+								Advanced input
+							</Typography>
+						}
+					/>
+				</FormControl>
         <FormControl component="fieldset" required className={classes.formControl}>
           <RadioGroup
             aria-label="preorpost"
