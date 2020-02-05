@@ -86,6 +86,11 @@ export class FindNeurons extends React.Component {
     };
   }
 
+  static clipboardCallback = apiResponse => (columns) => {
+    console.log(apiResponse.ds, columns);
+  }
+
+
   static processDownload(response) {
     const headers = ['id', 'instance', 'type', 'status', '#post(inputs)', '#pre(outputs)'];
 
