@@ -87,7 +87,25 @@ export class FindNeurons extends React.Component {
   }
 
   static clipboardCallback = apiResponse => (columns) => {
-    console.log(apiResponse.ds, columns);
+    const csv = apiResponse.result.data.map(row => {
+      const filteredRow = columns.map((column, index) => {
+        if (!column) {
+          return null;
+        }
+
+        if (row[index] && typeof row[index] === 'object') {
+          return row[index].sortBy || row[index].value
+        }
+
+        if (!row[index]) {
+          return '';
+        }
+
+        return row[index];
+      }).filter(item => item !== null).join(',')
+      return filteredRow;
+    }).join('\n');
+    return csv;
   }
 
 
