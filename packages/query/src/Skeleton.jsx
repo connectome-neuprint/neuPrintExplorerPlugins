@@ -45,11 +45,16 @@ class Skeleton extends React.Component {
   }
 
   static download3DSeed = apiResponse => () => {
+
     const jsonDownload = {
       dataset: apiResponse.ds,
-      bodies: apiResponse.pm.bodyIds.split(','),
-      rois: apiResponse.pm.compartments.split(',')
     };
+    if (apiResponse.pm.bodyIds) {
+      jsonDownload.bodies = apiResponse.pm.bodyIds.split(',');
+    }
+    if (apiResponse.pm.compartments) {
+      jsonDownload.rois = apiResponse.pm.compartments.split(',');
+    }
 
     const element = document.createElement('a');
     const file = new Blob([JSON.stringify(jsonDownload)], { type: 'application/json' });
