@@ -45,12 +45,11 @@ class Skeleton extends React.Component {
   }
 
   static download3DSeed = apiResponse => () => {
-
     const jsonDownload = {
-      dataset: apiResponse.ds,
+      dataset: apiResponse.ds
     };
     if (apiResponse.pm.bodyIds) {
-      jsonDownload.bodies = apiResponse.pm.bodyIds.split(',');
+      jsonDownload.bodies = apiResponse.pm.bodyIds.toString().split(',');
     }
     if (apiResponse.pm.compartments) {
       jsonDownload.rois = apiResponse.pm.compartments.split(',');
@@ -63,11 +62,9 @@ class Skeleton extends React.Component {
     document.body.appendChild(element);
     element.click();
     setTimeout(() => {
-        document.body.removeChild(element);
-        URL.revokeObjectURL(file);
+      document.body.removeChild(element);
+      URL.revokeObjectURL(file);
     }, 100);
-
-
   };
 
   constructor(props) {
