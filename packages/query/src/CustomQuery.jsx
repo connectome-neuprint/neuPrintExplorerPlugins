@@ -47,6 +47,24 @@ export class CustomQuery extends React.Component {
     };
   }
 
+  static clipboardCallback = apiResponse => (columns) => {
+    const csv = apiResponse.result.data.map(row => {
+      const filteredRow = columns.map((column, index) => {
+        if (!column) {
+          return null;
+        }
+
+        if (!row[index]) {
+          return '';
+        }
+
+        return row[index];
+      }).filter(item => item !== null).join(',')
+      return filteredRow;
+    }).join('\n');
+    return csv;
+  }
+
   static fetchParameters() {
     return {};
   }
