@@ -191,7 +191,11 @@ class NeuroGlancerView extends React.Component {
       });
       // loop over the neurons and add them to the layers
       neurons.forEach(neuron => {
-        viewerState.layers[neuron.get('dataSet')].segments.push(neuron.get('id'));
+        if (viewerState.layers[neuron.get('dataSet')]) {
+          viewerState.layers[neuron.get('dataSet')].segments.push(neuron.get('id'));
+        } else {
+          console.log(`Couldn't find neuroglancer layer ${neuron.get('dataSet')} to add neurons.`);
+        }
       });
 
       // set the x,y,z coordinates
