@@ -152,12 +152,6 @@ class ConnectivityGraph extends React.Component {
   render() {
     const { isQuerying, classes } = this.props;
     const {
-      /* inputIncludeFilters,
-      inputExcludeFilters,
-      outputIncludeFilters,
-      outputExcludeFilters,
-      connectionIncludeFilters,
-      connectionExcludeFilters, */
       includeAutapses,
       minWeight,
       bodyIds
@@ -180,83 +174,6 @@ class ConnectivityGraph extends React.Component {
             onKeyDown={this.catchReturn}
           />
         </FormControl>
-        {/* <FormControl component="fieldset" className={classes.formControl}>
-          <FormLabel component="legend">Input Filters</FormLabel>
-          <TextField
-            label="Include"
-            multiline
-            fullWidth
-            margin="dense"
-            rows={1}
-            value={inputIncludeFilters}
-            name="bodyIds"
-            rowsMax={4}
-            helperText="Separate IDs with commas."
-            variant="outlined"
-          />
-          <TextField
-            label="Exclude"
-            multiline
-            fullWidth
-            margin="dense"
-            rows={1}
-            value={inputExcludeFilters}
-            name="bodyIds"
-            rowsMax={4}
-            variant="outlined"
-          />
-        </FormControl>
-        <FormControl component="fieldset" className={classes.formControl}>
-          <FormLabel component="legend">Output Filters</FormLabel>
-          <TextField
-            label="Include"
-            multiline
-            fullWidth
-            margin="dense"
-            rows={1}
-            value={outputIncludeFilters}
-            name="bodyIds"
-            rowsMax={4}
-            variant="outlined"
-          />
-          <TextField
-            label="Exclude"
-            multiline
-            fullWidth
-            margin="dense"
-            rows={1}
-            value={outputExcludeFilters}
-            name="bodyIds"
-            rowsMax={4}
-            variant="outlined"
-          />
-        </FormControl>
-        <FormControl component="fieldset" className={classes.formControl}>
-          <FormLabel component="legend">Connection Filters</FormLabel>
-          <TextField
-            label="Include"
-            multiline
-            fullWidth
-            margin="dense"
-            rows={1}
-            value={connectionIncludeFilters}
-            name="bodyIds"
-            rowsMax={4}
-            variant="outlined"
-          />
-          <TextField
-            label="Exclude"
-            multiline
-            fullWidth
-            margin="dense"
-            rows={1}
-            value={connectionExcludeFilters}
-            name="bodyIds"
-            rowsMax={4}
-            variant="outlined"
-          />
-          <p>Pre + Post Synaptic Filters</p>
-        </FormControl> */}
         <FormControl className={classes.formControl}>
           <TextField
             label="minimum weight"
