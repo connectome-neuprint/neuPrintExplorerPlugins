@@ -85,7 +85,7 @@ class SimpleConnectionsTable extends React.Component {
     } else {
       newIsExpanded[key] = true;
       newExpansionPanels[key] = <div>loading...</div>;
-      fetch('/api/custom/custom', {
+      fetch('/api/custom/custom?np_explorer=simple_connections_roi', {
         headers: {
           'content-type': 'application/json',
           Accept: 'application/json'

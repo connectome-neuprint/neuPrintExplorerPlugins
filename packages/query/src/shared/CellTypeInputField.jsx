@@ -57,7 +57,7 @@ class CellTypeInputField extends React.Component {
       credentials: 'include'
     };
 
-    const queryUrl = '/api/custom/custom?from=cell_type_input';
+    const queryUrl = '/api/custom/custom?np_explorer=cell_type_input';
 
     return fetch(queryUrl, settings)
       .then(result => result.json())

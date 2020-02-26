@@ -81,7 +81,7 @@ class NeuronInputField extends React.Component {
       credentials: 'include'
     };
 
-    const queryUrl = '/api/custom/custom';
+    const queryUrl = '/api/custom/custom?np_explorer=neuron_input_field';
 
     return fetch(queryUrl, settings)
       .then(result => result.json())

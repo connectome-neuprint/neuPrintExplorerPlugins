@@ -37,7 +37,7 @@ class NeuroGlancerView extends React.Component {
 
   addNeuron(id, dataSet) {
     const coordinatesQuery = `MATCH (n :Segment {bodyId: ${id}})-[:Contains]->(:SynapseSet)-[:Contains]->(ss) RETURN ss.location.x, ss.location.y, ss.location.z limit 1`;
-    return fetch('/api/custom/custom', {
+    return fetch('/api/custom/custom?np_explorer=neuroglancer_neuron_coordinates', {
       headers: {
         'content-type': 'application/json',
         Accept: 'application/json'
@@ -75,7 +75,7 @@ class NeuroGlancerView extends React.Component {
     // TODO: fetch the layer information and store it in the state.
     const neuroglancerLayerQuery = `MATCH (n:Meta) WITH apoc.convert.fromJsonList(n.neuroglancerMeta) as nInfo RETURN nInfo`;
     // fetch swc data
-    return fetch('/api/custom/custom', {
+    return fetch('/api/custom/custom?np_explorer=neuroglancer_layer_info', {
       headers: {
         'content-type': 'application/json',
         Accept: 'application/json'

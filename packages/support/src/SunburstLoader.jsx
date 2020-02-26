@@ -37,7 +37,7 @@ class SunburstLoader extends React.Component {
       dataset: dataSet
     };
 
-    const queryUrl = '/api/custom/custom';
+    const queryUrl = '/api/custom/custom?np_explorer=sunburst_loader';
     const querySettings = {
       headers: {
         'content-type': 'application/json',
@@ -67,7 +67,7 @@ class SunburstLoader extends React.Component {
       dataset: dataSet
     };
 
-    const queryUrl = '/api/custom/custom';
+    const queryUrl = '/api/custom/custom?np_explorer=sunburst_loader_rois';
     const querySettings = {
       headers: {
         'content-type': 'application/json',

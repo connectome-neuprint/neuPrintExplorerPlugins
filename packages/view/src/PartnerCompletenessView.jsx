@@ -63,7 +63,7 @@ class PartnerCompletenessView extends React.Component {
       return;
     }
 
-    fetch('/api/custom/custom', {
+    fetch('/api/custom/custom?np_explorer=partner_completeness_status_defs', {
       headers: {
         'content-type': 'application/json'
       },

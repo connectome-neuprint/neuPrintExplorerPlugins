@@ -133,7 +133,7 @@ export class CustomQuery extends React.Component {
       dataset: dataSet
     };
 
-    const queryUrl = '/api/custom/custom';
+    const queryUrl = '/api/custom/custom?np_explorer=custom_query';
     const querySettings = {
       headers: {
         'content-type': 'application/json',

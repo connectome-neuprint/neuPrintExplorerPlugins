@@ -125,7 +125,7 @@ class NeuronFilter extends React.Component {
       return;
     }
 
-    fetch('/api/custom/custom', {
+    fetch('/api/custom/custom?np_explorer=neuron_filter_status', {
       headers: {
         'content-type': 'application/json'
       },

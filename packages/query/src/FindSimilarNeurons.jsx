@@ -413,7 +413,7 @@ export class FindSimilarNeurons extends React.Component {
       dataset: dataSet
     };
 
-    const queryUrl = '/api/custom/custom';
+    const queryUrl = '/api/custom/custom?np_explorer=find_similar_neurons';
     const querySettings = {
       headers: {
         'content-type': 'application/json',
