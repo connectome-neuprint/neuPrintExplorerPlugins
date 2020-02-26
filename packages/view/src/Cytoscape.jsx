@@ -23,6 +23,8 @@ class Cytoscape extends React.Component {
   }
 
   componentDidMount() {
+    // TODO: if saved node positions are found, then load them into the graph,
+    // so that it can be restored. https://github.com/connectome-neuprint/neuPrintExplorerPlugins/issues/29
     this.build();
   }
 
@@ -32,6 +34,8 @@ class Cytoscape extends React.Component {
   }
 
   componentWillUnmount() {
+    // TODO: save the current position of all the nodes, so that they can be reloaded
+    // if this graph is reloaded. https://github.com/connectome-neuprint/neuPrintExplorerPlugins/issues/29
     this.destroy();
   }
 
