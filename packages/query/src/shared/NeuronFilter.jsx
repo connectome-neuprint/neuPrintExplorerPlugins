@@ -19,12 +19,12 @@ import TextField from '@material-ui/core/TextField';
 
 const styles = theme => ({
   formControl: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing(1),
     minWidth: 250,
     maxWidth: 350
   },
   expandablePanel: {
-    margin: theme.spacing.unit
+    margin: theme.spacing(1)
   },
   nopad: {
     padding: 0
@@ -32,18 +32,18 @@ const styles = theme => ({
   select: {
     fontFamily: theme.typography.fontFamily,
     margin: 0,
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing(1)
   },
   textField: {
     maxWidth: 230,
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1)
   },
   tooltip: {
     color: 'red',
     verticalAlign: 'super',
     fontSize: '80%',
-    marginLeft: theme.spacing.unit / 2
+    marginLeft: theme.spacing(2)
   }
 });
 

@@ -8,7 +8,6 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
-import Icon from '@material-ui/core/Icon';
 import Grid from '@material-ui/core/Grid';
 import InputLabel from '@material-ui/core/InputLabel';
 import Tabs from '@material-ui/core/Tabs';
@@ -73,7 +72,7 @@ class CellTypeView extends React.Component {
         </Typography>
         <p>Neuron count: {neuronCount}</p>
 
-        <Grid container spacing={24}>
+        <Grid container spacing={4}>
           <Grid item xs={6}>
             <InputLabel htmlFor="exemplarSelect">Select an example instance.</InputLabel>
             <NeuronSelection

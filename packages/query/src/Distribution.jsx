@@ -8,18 +8,11 @@ import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import { withStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
-  selects: {
-    width: '100%',
-    margin: theme.spacing.unit
-  }
-});
+import BrainRegionInput from './shared/BrainRegionInput';
 
 const pluginName = 'Distribution';
 const pluginAbbrev = 'dn';
@@ -80,9 +73,9 @@ class Distribution extends React.Component {
 
     const typeHeader = parameters.is_pre ? 'Number of pre-synapses' : 'Number of post-synapses';
 
-    const columnIds = [ 'percentage', 'num segments', typeHeader ];
+    const columnIds = ['percentage', 'num segments', typeHeader];
 
-    return columnIds.map(column => ({name: column, status: true}));
+    return columnIds.map(column => ({ name: column, status: true }));
   }
 
   static processResults({ query, apiResponse }) {
@@ -113,7 +106,7 @@ class Distribution extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      roi: '',
+      roi: null,
       isPre: true
     };
   }
@@ -128,7 +121,7 @@ class Distribution extends React.Component {
       pluginCode: pluginAbbrev,
       parameters: {
         dataset: dataSet,
-        ROI: roi,
+        ROI: roi.value,
         is_pre: isPre
       }
     };
@@ -136,7 +129,7 @@ class Distribution extends React.Component {
   };
 
   setROI = event => {
-    this.setState({ roi: event.target.value });
+    this.setState({ roi: event });
   };
 
   setType = event => {
@@ -144,7 +137,7 @@ class Distribution extends React.Component {
   };
 
   render() {
-    const { isQuerying, classes, availableROIs } = this.props;
+    const { isQuerying, availableROIs } = this.props;
     const { roi, isPre } = this.state;
 
     const preValue = true;
@@ -152,23 +145,8 @@ class Distribution extends React.Component {
 
     return (
       <form>
-        <FormControl className={classes.selects}>
-          <InputLabel htmlFor="roi">Brain Region</InputLabel>
-          <Select
-            value={roi}
-            onChange={this.setROI}
-            inputProps={{
-              name: 'roi',
-              id: 'roi'
-            }}
-          >
-            {availableROIs.map(val => (
-              <MenuItem key={val} value={val}>
-                {val}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <InputLabel htmlFor="roi">Brain Region</InputLabel>
+        <BrainRegionInput rois={availableROIs} value={roi} roiInfo={{}} onChange={this.setROI} isMulti={false} />
         <RadioGroup
           aria-label="Type Of Connections"
           name="type"
@@ -201,11 +179,10 @@ class Distribution extends React.Component {
 }
 
 Distribution.propTypes = {
-  classes: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired,
   availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
   dataSet: PropTypes.string.isRequired,
   submit: PropTypes.func.isRequired
 };
 
-export default withStyles(styles)(Distribution);
+export default Distribution;

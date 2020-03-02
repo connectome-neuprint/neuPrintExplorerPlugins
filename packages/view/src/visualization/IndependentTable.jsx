@@ -24,7 +24,7 @@ const styles = theme => ({
     cursor: 'pointer'
   },
   scroll: {
-    marginTop: theme.spacing.unit * 1,
+    marginTop: theme.spacing(1),
     overflowY: 'auto',
     overflowX: 'auto'
   }
@@ -78,7 +78,7 @@ class IndependentTable extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.scroll}>
-          <Table padding="dense">
+          <Table size="small">
             <TableHead>
               <TableRow>
                 {columns.map((header, index) => {

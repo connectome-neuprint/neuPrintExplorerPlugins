@@ -5,20 +5,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import Button from '@material-ui/core/Button';
-import FormControl from '@material-ui/core/FormControl';
-import { withStyles } from '@material-ui/core/styles';
 import { RoiInfoTip } from '@neuprint/support';
 
 import NeuronInputField from './shared/NeuronInputField';
-
-
-const styles = () => ({
-  textField: {},
-  formControl: {
-    margin: '0.5em 0 1em 0',
-    width: '100%'
-  }
-});
 
 function byPostValues(a, b) {
   return b[1].post - a[1].post;
@@ -146,18 +135,16 @@ class ROIsIntersectingNeurons extends React.Component {
   };
 
   render() {
-    const { classes, isQuerying, dataSet } = this.props;
+    const { isQuerying, dataSet } = this.props;
     const { neuronsrc } = this.state;
     return (
       <div>
-        <FormControl className={classes.formControl}>
-          <NeuronInputField
-            dataSet={dataSet}
-            onChange={this.handleClick}
-            value={neuronsrc}
-            handleSubmit={this.processRequest}
-          />
-        </FormControl>
+        <NeuronInputField
+          dataSet={dataSet}
+          onChange={this.handleClick}
+          value={neuronsrc}
+          handleSubmit={this.processRequest}
+        />
         <Button
           color="primary"
           disabled={isQuerying}
@@ -173,10 +160,9 @@ class ROIsIntersectingNeurons extends React.Component {
 
 ROIsIntersectingNeurons.propTypes = {
   dataSet: PropTypes.string.isRequired,
-  classes: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired,
   actions: PropTypes.object.isRequired,
   submit: PropTypes.func.isRequired
 };
 
-export default withStyles(styles)(ROIsIntersectingNeurons);
+export default ROIsIntersectingNeurons;

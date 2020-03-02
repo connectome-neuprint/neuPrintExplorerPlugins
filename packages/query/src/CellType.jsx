@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
 import { withStyles } from '@material-ui/core/styles';
 
 import CellTypeInputField from './shared/CellTypeInputField';
@@ -17,9 +18,10 @@ const columnHeaders = ['id', 'instance', 'type', '#connections'];
 
 const styles = theme => ({
   formControl: {
-    margin: theme.spacing.unit
+    margin: theme.spacing(1)
   },
   button: {
+    zIndex: 0
   }
 });
 
@@ -36,7 +38,7 @@ class CellType extends React.Component {
   }
 
   static getColumnHeaders() {
-    return columnHeaders.map(column => ({name: column, status: true}));
+    return columnHeaders.map(column => ({ name: column, status: true }));
   }
 
   static fetchParameters(params) {
@@ -65,7 +67,7 @@ class CellType extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cellType: '',
+      cellType: ''
     };
   }
 
@@ -86,23 +88,23 @@ class CellType extends React.Component {
   };
 
   addCellType = selected => {
-    this.setState({cellType: selected});
-  }
+    this.setState({ cellType: selected });
+  };
 
   render() {
     const { isQuerying, classes, dataSet } = this.props;
     const { cellType } = this.state;
     return (
       <div>
-        <FormControl fullWidth className={classes.formControl}>
-          <CellTypeInputField
-            onChange={this.addCellType}
-            value={cellType}
-            dataSet={dataSet}
-            handleSubmit={this.processRequest}
-          />
-        </FormControl>
+        <InputLabel>Cell Type Name</InputLabel>
+        <CellTypeInputField
+          onChange={this.addCellType}
+          value={cellType}
+          dataSet={dataSet}
+          handleSubmit={this.processRequest}
+        />
         <Button
+          className={classes.button}
           variant="contained"
           color="primary"
           disabled={isQuerying}

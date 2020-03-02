@@ -19,7 +19,7 @@ const styles = theme => ({
     marginRight: 'auto'
   },
   formControl: {
-    margin: theme.spacing.unit
+    margin: theme.spacing(1)
   },
   button: {
     margin: 4,

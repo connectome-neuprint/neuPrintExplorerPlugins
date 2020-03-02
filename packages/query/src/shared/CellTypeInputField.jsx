@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import AsyncSelect from 'react-select/async';
-import InputLabel from '@material-ui/core/InputLabel';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -62,11 +61,10 @@ class CellTypeInputField extends React.Component {
     return fetch(queryUrl, settings)
       .then(result => result.json())
       .then(resp => {
-
         const types = new Set();
 
         resp.data.forEach(item => {
-            types.add(item[0]);
+          types.add(item[0]);
         });
 
         const options = [];
@@ -88,19 +86,16 @@ class CellTypeInputField extends React.Component {
     const { value, classes } = this.props;
     const selectValue = value ? { label: value, value } : null;
     return (
-      <React.Fragment>
-        <InputLabel htmlFor="select-multiple-chip">
-          Cell Type
-        </InputLabel>
-        <AsyncSelect
-          className={classes.select}
-          placeholder="Type or Paste text for options"
-          value={selectValue}
-          isClearable
-          loadOptions={this.fetchOptions}
-          onChange={this.handleChange}
-        />
-      </React.Fragment>
+      <AsyncSelect
+        name="cell_type_input"
+        className={classes.select}
+        classNamePrefix="asyncSelect"
+        placeholder="Type or Paste text for options"
+        value={selectValue}
+        isClearable
+        loadOptions={this.fetchOptions}
+        onChange={this.handleChange}
+      />
     );
   }
 }

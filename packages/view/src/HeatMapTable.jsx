@@ -8,7 +8,7 @@ import ColorBox from '@neuprint/colorbox';
 const styles = theme => ({
   scroll: {
     width: '100%',
-    paddingBottom: theme.spacing.unit,
+    paddingBottom: theme.spacing(1),
     overflowY: 'auto',
     overflowX: 'auto',
     maxHeight: '90vh'

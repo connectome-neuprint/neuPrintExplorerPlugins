@@ -295,9 +295,9 @@ export class RankedTable extends React.Component {
         parameters.neuron_name = neuronSrc;
       }
 
-			if (!advancedSearch) {
-				parameters.enable_contains = true;
-			}
+      if (!advancedSearch) {
+        parameters.enable_contains = true;
+      }
 
       if (preOrPost === 'pre') {
         parameters.find_inputs = false;
@@ -334,45 +334,42 @@ export class RankedTable extends React.Component {
     this.setState({ useHighConfidence: !useHighConfidence });
   };
 
-
-	toggleAdvanced = event => {
-		this.setState({ advancedSearch: event.target.checked, neuronSrc: '' });
-	};
-
+  toggleAdvanced = event => {
+    this.setState({ advancedSearch: event.target.checked, neuronSrc: '' });
+  };
 
   render() {
     const { classes, isQuerying, isPublic, dataSet } = this.props;
     const { neuronSrc, preOrPost, useHighConfidence, advancedSearch } = this.state;
     return (
       <div>
+        {advancedSearch ? (
+          <AdvancedNeuronInput
+            onChange={this.addNeuron}
+            value={neuronSrc}
+            dataSet={dataSet}
+            handleSubmit={this.processRequest}
+          />
+        ) : (
+          <NeuronInputField
+            onChange={this.addNeuron}
+            value={neuronSrc}
+            dataSet={dataSet}
+            handleSubmit={this.processRequest}
+          />
+        )}
         <FormControl className={classes.formControl}>
-						{advancedSearch ? (
-							<AdvancedNeuronInput
-								onChange={this.addNeuron}
-								value={neuronSrc}
-								dataSet={dataSet}
-								handleSubmit={this.processRequest}
-							/>
-						) : (
-							<NeuronInputField
-								onChange={this.addNeuron}
-								value={neuronSrc}
-								dataSet={dataSet}
-								handleSubmit={this.processRequest}
-							/>
-						)}
-
+          <FormControlLabel
+            control={
+              <Switch checked={advancedSearch} onChange={this.toggleAdvanced} color="primary" />
+            }
+            label={
+              <Typography variant="subtitle1" style={{ display: 'inline-flex' }}>
+                Advanced input
+              </Typography>
+            }
+          />
         </FormControl>
-				<FormControl className={classes.formControl}>
-					<FormControlLabel
-						control={<Switch checked={advancedSearch} onChange={this.toggleAdvanced} color="primary" />}
-						label={
-							<Typography variant="subtitle1" style={{ display: 'inline-flex' }}>
-								Advanced input
-							</Typography>
-						}
-					/>
-				</FormControl>
         <FormControl component="fieldset" required className={classes.formControl}>
           <RadioGroup
             aria-label="preorpost"

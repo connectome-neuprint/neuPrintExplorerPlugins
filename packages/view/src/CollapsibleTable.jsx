@@ -31,7 +31,7 @@ const styles = theme => ({
   },
   scroll: {
     width: '100%',
-    marginTop: theme.spacing.unit * 1,
+    marginTop: theme.spacing(1),
     overflowY: 'auto',
     overflowX: 'auto',
     height: '100%'

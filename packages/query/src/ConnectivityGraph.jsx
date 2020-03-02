@@ -15,8 +15,8 @@ const pluginAbbrev = 'cg';
 
 const styles = theme => ({
   formControl: {
-    marginBottom: theme.spacing.unit,
-    marginTop: theme.spacing.unit,
+    marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(1),
     maxWidth: 400,
     display: 'block'
   },

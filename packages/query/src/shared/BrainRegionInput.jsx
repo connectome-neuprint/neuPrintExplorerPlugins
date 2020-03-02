@@ -23,7 +23,7 @@ formatOptionLabel.propTypes = {
 };
 
 function BrainRegionInput(props) {
-  const { rois, roiInfo, onChange, value, classes } = props;
+  const { rois, roiInfo, onChange, value, classes, isMulti } = props;
 
   // transform rois into inputOptions.
   const inputOptions = rois.map(name => {
@@ -42,7 +42,7 @@ function BrainRegionInput(props) {
   return (
     <Select
       className={classes.select}
-      isMulti
+      isMulti={isMulti}
       value={value}
       onChange={onChange}
       formatOptionLabel={formatOptionLabel}
@@ -56,8 +56,18 @@ BrainRegionInput.propTypes = {
   rois: PropTypes.arrayOf(PropTypes.string).isRequired,
   roiInfo: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  value: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onChange: PropTypes.func.isRequired
+  value: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.object),
+    PropTypes.object
+  ]),
+  onChange: PropTypes.func.isRequired,
+  isMulti: PropTypes.bool
+};
+
+
+BrainRegionInput.defaultProps = {
+  isMulti: true,
+  value: null
 };
 
 export default withStyles(styles)(BrainRegionInput);

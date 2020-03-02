@@ -157,6 +157,7 @@ class NeuronInputField extends React.Component {
         </InputLabel>
         <AsyncSelect
           className={classes.select}
+          classNamePrefix="asyncSelect"
           formatOptionLabel={formatOptionLabel}
           placeholder="Type or Paste text for options"
           value={selectValue}

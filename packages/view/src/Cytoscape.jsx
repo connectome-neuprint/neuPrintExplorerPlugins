@@ -7,8 +7,8 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   download: {
     position: 'absolute',
-    right: theme.spacing.unit,
-    bottom: theme.spacing.unit,
+    right: theme.spacing(1),
+    bottom: theme.spacing(1),
     zIndex: 100
   },
   container: {

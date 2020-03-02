@@ -26,7 +26,7 @@ const styles = theme => ({
     cursor: 'pointer'
   },
   scroll: {
-    marginTop: theme.spacing.unit * 1,
+    marginTop: theme.spacing(1),
     overflowY: 'auto',
     overflowX: 'auto'
   }
@@ -101,13 +101,9 @@ class SimpleTable extends React.Component {
   render() {
     const { query, classes, visibleColumns } = this.props;
     const { visProps = {}, result } = query;
-    let { rowsPerPage = 5 } = visProps;
+    const { rowsPerPage = 5 } = visProps;
     const { paginate = true, page = 0, orderBy = '', order = 'asc' } = visProps;
 
-    // fit table to data
-    if (result.data.length < rowsPerPage || paginate === false) {
-      rowsPerPage = result.data.length;
-    }
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, result.data.length - page * rowsPerPage);
 
     const { highlightIndex } = result;
@@ -119,7 +115,6 @@ class SimpleTable extends React.Component {
       }
       return (
         <TableCell
-          padding="dense"
           key={headerKey}
           sortDirection={orderBy === index ? order : false}
         >
@@ -159,7 +154,7 @@ class SimpleTable extends React.Component {
             />
           ) : null}
 
-          <Table padding="dense">
+          <Table size="small">
             <TableHead>
               <TableRow>{filteredColumns}</TableRow>
             </TableHead>
@@ -186,7 +181,6 @@ class SimpleTable extends React.Component {
                           if ('action' in cell) {
                             return (
                               <TableCell
-                                padding="dense"
                                 className={classes.clickable}
                                 key={cellKey}
                                 onClick={this.handleCellClick(cell.action)}

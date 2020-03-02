@@ -4,24 +4,19 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
 
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
-import { round } from 'mathjs';
-import NeuronRoiHeatMap, { ColorLegend } from '@neuprint/miniroiheatmap';
+import { ColorLegend } from '@neuprint/miniroiheatmap';
 import {
   setColumnIndices,
   createSimpleConnectionQueryObject,
   generateRoiHeatMapAndBarGraph,
   getBodyIdForTable,
-  computeSimilarity,
-  getScore
 } from './shared/pluginhelpers';
 
 const styles = theme => ({
@@ -32,7 +27,7 @@ const styles = theme => ({
     marginRight: 'auto'
   },
   formControl: {
-    margin: theme.spacing.unit
+    margin: theme.spacing(1)
   },
   select: {
     fontFamily: theme.typography.fontFamily,
