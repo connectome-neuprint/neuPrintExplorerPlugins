@@ -20,31 +20,6 @@
     "url": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/issues"
   },
   "homepage": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins#readme",
-  "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.2.2",
-    "@babel/plugin-proposal-class-properties": "^7.2.3",
-    "@babel/polyfill": "^7.2.5",
-    "@babel/preset-env": "^7.2.3",
-    "@babel/preset-react": "^7.0.0",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^23.6.0",
-    "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.7.1",
-    "eslint": "^5.11.1",
-    "eslint-config-airbnb": "^17.1.0",
-    "eslint-config-prettier": "^3.3.0",
-    "eslint-config-react-app": "^3.0.6",
-    "eslint-plugin-flowtype": "^3.2.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jsx-a11y": "^6.1.2",
-    "eslint-plugin-react": "^7.12.2",
-    "jest": "^23.6.0",
-    "prettier": "^1.15.3",
-    "react-test-renderer": "^16.7.0",
-    "regenerator-runtime": "^0.13.1",
-    "sinon": "^7.2.2"
-  },
   "peerDependencies": {
     "@material-ui/core": "^4.9.4",
     "@material-ui/icons": "^4.9.1",
@@ -54,9 +29,13 @@
   },
   "gitHead": "7e8a8d98fc5f55d001b8cc2707aee629396f7654",
   "dependencies": {
-    "@neuprint/colorbox": "^1.1.0",
+    "@neuprint/colorbox": "file:../colorbox",
     "@neuprint/react-skeleton": "0.0.4",
     "@neuprint/react-sunburst": "^1.2.0",
     "colormap": "^2.3.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "rimraf": "^3.0.2"
   }
 }
