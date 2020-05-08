@@ -3,13 +3,21 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Icon from '@material-ui/core/Icon';
 import Modal from '@material-ui/core/Modal';
+import Tooltip from '@material-ui/core/Tooltip';
 import { SunburstLoader } from '@neuprint/support';
 import SelectAndCopyText from '../shared/SelectAndCopyText';
 
 const styles = theme => ({
   icon: {
     marginLeft: '3px',
+    marginTop: '3px',
     cursor: 'pointer',
+    color: theme.palette.primary.main
+  },
+  nblink: {
+    marginLeft: '3px',
+    textDecoration: 'none',
+    fontWeight: 'bold',
     color: theme.palette.primary.main
   },
   container: {
@@ -23,7 +31,7 @@ const styles = theme => ({
     transform: 'translate(-50%, -50%)',
     width: '80%',
     height: '85%',
-    display:'block',
+    display: 'block',
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     padding: theme.spacing(4),
@@ -46,20 +54,32 @@ function showSkeleton(id, dataset, actions) {
 function BodyId(props) {
   const { children, dataSet, actions, classes } = props;
   const [modal, setModal] = useState(false);
+  const neuronbridgeLink = `https://neuronbridge.janelia.org/search?q=${children}`;
   return (
     <div>
       <div className={classes.container}>
         <SelectAndCopyText text={children} actions={actions} />
-        <Icon
-          className={classes.icon}
-          onClick={() => showSkeleton(children, dataSet, actions)}
-          fontSize="inherit"
-        >
-          visibility
-        </Icon>
-        <Icon className={classes.icon} onClick={() => setModal(!modal)} fontSize="inherit">
-          donut_small
-        </Icon>
+        <Tooltip title="Skeleton View">
+          <Icon
+            className={classes.icon}
+            onClick={() => showSkeleton(children, dataSet, actions)}
+            fontSize="inherit"
+          >
+            visibility
+          </Icon>
+        </Tooltip>
+        <Tooltip title="Synapse Connectivity">
+          <Icon className={classes.icon} onClick={() => setModal(!modal)} fontSize="inherit">
+            donut_small
+          </Icon>
+        </Tooltip>
+        {/hemibrain/.test(dataSet) && (
+          <Tooltip title="NeuronBridge">
+            <a className={classes.nblink} href={neuronbridgeLink}>
+              NB
+            </a>
+          </Tooltip>
+        )}
       </div>
       <Modal open={modal} onClose={() => setModal(false)}>
         <div className={classes.paper}>
