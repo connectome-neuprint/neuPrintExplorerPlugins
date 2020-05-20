@@ -30,7 +30,7 @@ class SunburstLoader extends React.Component {
 
   fetchConnections() {
     const { bodyId, dataSet } = this.props;
-    const cypher = `MATCH (n :Neuron {bodyId: ${bodyId}})-[x :ConnectsTo]->(m) RETURN m.bodyId, m.type, x.weight, x.roiInfo, m.status, 'output' as direction UNION MATCH (n :Neuron {bodyId: ${bodyId}})<-[x :ConnectsTo]-(m) RETURN m.bodyId, m.type, x.weight, x.roiInfo, m.status, 'input' as direction`;
+    const cypher = `MATCH (n :Neuron {bodyId: ${bodyId}})-[x :ConnectsTo]->(m) RETURN m.bodyId, m.type, x.weight, x.roiInfo, m.status, 'downstream' as direction UNION MATCH (n :Neuron {bodyId: ${bodyId}})<-[x :ConnectsTo]-(m) RETURN m.bodyId, m.type, x.weight, x.roiInfo, m.status, 'upstream' as direction`;
 
     const parameters = {
       cypher,

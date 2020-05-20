@@ -7,10 +7,10 @@ function processRaw(bodyId, rawData, superROIs) {
     name: bodyId,
     children: [
       {
-        name: 'input',
+        name: 'upstream',
         children: []
       },
-      { name: 'output', children: [] }
+      { name: 'downstream', children: [] }
     ]
   };
 
@@ -19,7 +19,7 @@ function processRaw(bodyId, rawData, superROIs) {
     // check that the status is traced
     if (/(traced|leave)/i.test(status)) {
       // check if this is an input or an output
-      const dirPosition = direction === 'input' ? 0 : 1;
+      const dirPosition = direction === 'upstream' ? 0 : 1;
       const topLevel = data.children[dirPosition];
 
       // sometimes we get an empty string instead of JSON. Do nothing in those
@@ -59,16 +59,22 @@ export default function SunburstFormatter(props) {
 
   const data = processRaw(bodyId, rawData, superROIs);
 
-  return <Sunburst data={data} colors={colors} preserveTopLevelOrder />;
+  return (
+    <div style={{ 'text-align': 'center' }}>
+      <Sunburst data={data} colors={colors} preserveTopLevelOrder />
+      <p>Connections are filtered to only those between traced neurons</p>
+    </div>
+  );
 }
 
 SunburstFormatter.propTypes = {
   colors: PropTypes.arrayOf(PropTypes.string),
   rawData: PropTypes.arrayOf(PropTypes.array).isRequired,
   bodyId: PropTypes.number.isRequired,
-  superROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
+  superROIs: PropTypes.arrayOf(PropTypes.string).isRequired
 };
 
 SunburstFormatter.defaultProps = {
+  // colors: ['#e2b72f', '#396a9f']
   colors: ['#396a9f', '#e2b72f']
 };
