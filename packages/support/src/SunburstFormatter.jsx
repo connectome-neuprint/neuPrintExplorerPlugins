@@ -60,7 +60,7 @@ export default function SunburstFormatter(props) {
   const data = processRaw(bodyId, rawData, superROIs);
 
   return (
-    <div style={{ 'text-align': 'center' }}>
+    <div style={{ 'text-align': 'center' , 'width': '100%', 'height': '100%'}}>
       <Sunburst data={data} colors={colors} preserveTopLevelOrder />
       <p>Connections are filtered to only those between traced neurons</p>
     </div>
