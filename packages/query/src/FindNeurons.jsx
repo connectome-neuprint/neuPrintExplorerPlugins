@@ -86,28 +86,32 @@ export class FindNeurons extends React.Component {
     };
   }
 
-  static clipboardCallback = apiResponse => (columns) => {
-    const csv = apiResponse.result.data.map(row => {
-      const filteredRow = columns.map((column, index) => {
-        if (!column) {
-          return null;
-        }
+  static clipboardCallback = apiResponse => columns => {
+    const csv = apiResponse.result.data
+      .map(row => {
+        const filteredRow = columns
+          .map((column, index) => {
+            if (!column) {
+              return null;
+            }
 
-        if (row[index] && typeof row[index] === 'object') {
-          return row[index].sortBy || row[index].value
-        }
+            if (row[index] && typeof row[index] === 'object') {
+              return row[index].sortBy || row[index].value;
+            }
 
-        if (!row[index]) {
-          return '';
-        }
+            if (!row[index]) {
+              return '';
+            }
 
-        return row[index];
-      }).filter(item => item !== null).join(',')
-      return filteredRow;
-    }).join('\n');
+            return row[index];
+          })
+          .filter(item => item !== null)
+          .join(',');
+        return filteredRow;
+      })
+      .join('\n');
     return csv;
-  }
-
+  };
 
   static processDownload(response) {
     const headers = ['id', 'instance', 'type', 'status', '#post(inputs)', '#pre(outputs)'];
@@ -174,6 +178,7 @@ export class FindNeurons extends React.Component {
     const columnIds = [
       { name: 'id', status: true },
       { name: 'instance', status: false },
+      { name: 'synonyms', status: false },
       { name: 'type', status: true },
       { name: 'status', status: true },
       { name: '#post (inputs)', status: true },
@@ -202,7 +207,7 @@ export class FindNeurons extends React.Component {
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
 
     // assigns data properties to column indices for convenient access/modification
-    const columnIds = ['bodyId', 'instance', 'type', 'status', 'post', 'pre'];
+    const columnIds = ['bodyId', 'instance', 'synonyms', 'type', 'status', 'post', 'pre'];
     if (rois.length > 0) {
       rois.forEach(roi => {
         columnIds.push(`${roi}Post`);
@@ -248,6 +253,7 @@ export class FindNeurons extends React.Component {
         converted[indexOf.size] = row[5];
         converted[indexOf.roiHeatMap] = '';
         converted[indexOf.roiBarGraph] = '';
+        converted[indexOf.synonyms] = row[9];
 
         // make sure none is added to the rois list.
         roiList.push('None');
@@ -294,6 +300,7 @@ export class FindNeurons extends React.Component {
     const columns = [];
     columns[indexOf.bodyId] = 'id';
     columns[indexOf.instance] = 'instance';
+    columns[indexOf.synonyms] = 'synonyms';
     columns[indexOf.type] = 'type';
     columns[indexOf.status] = 'status';
     columns[indexOf.post] = '#post (inputs)';
@@ -357,7 +364,7 @@ export class FindNeurons extends React.Component {
       input_ROIs: inputROIs,
       output_ROIs: outputROIs,
       statuses: statusFilters,
-      all_segments: !limitNeurons,
+      all_segments: !limitNeurons
     };
 
     // if not using an advanced search then we want to query neo4j with
@@ -522,7 +529,9 @@ export class FindNeurons extends React.Component {
         </FormControl>
         <FormControl className={classes.formControl}>
           <FormControlLabel
-            control={<Switch checked={advancedSearch} onChange={this.toggleAdvanced} color="primary" />}
+            control={
+              <Switch checked={advancedSearch} onChange={this.toggleAdvanced} color="primary" />
+            }
             label={
               <Typography variant="subtitle1" style={{ display: 'inline-flex' }}>
                 Advanced input
@@ -564,7 +573,7 @@ FindNeurons.propTypes = {
 };
 
 FindNeurons.defaultProps = {
-  roiInfo: {},
+  roiInfo: {}
 };
 
 export default withStyles(styles)(FindNeurons);

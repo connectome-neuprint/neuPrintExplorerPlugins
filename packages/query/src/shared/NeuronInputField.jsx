@@ -15,11 +15,9 @@ const styles = theme => ({
 });
 
 const formatOptionLabel = ({ label, additionalInfo }) => (
-  <div style={{ display: "flex" }}>
+  <div style={{ display: 'flex' }}>
     <div>{label}</div>
-    <div style={{ marginLeft: "10px", color: "#ccc" }}>
-    {additionalInfo}
-    </div>
+    <div style={{ marginLeft: '10px', color: '#ccc' }}>{additionalInfo}</div>
   </div>
 );
 
@@ -63,7 +61,9 @@ class NeuronInputField extends React.Component {
     WHERE neuron.bodyId = ${bodyId}
     OR toLower(neuron.type) CONTAINS toLower('${inputValue}')
     OR toLower(neuron.instance) CONTAINS toLower('${inputValue}')
-    RETURN neuron.bodyId AS bodyid, neuron.type AS type, neuron.instance AS instance
+    OR toLower(neuron.synonyms) CONTAINS toLower('${inputValue}')
+    RETURN neuron.bodyId AS bodyid, neuron.type AS type,
+    neuron.instance AS instance, neuron.synonyms AS synonyms
     ORDER BY neuron.instance`;
 
     const body = JSON.stringify({
@@ -107,9 +107,10 @@ class NeuronInputField extends React.Component {
               types.add(item[1]);
             }
           }
+          // if this is an instance, then also show the type and synonyms (item[3])
           if (item[2]) {
             instances.add(item[2]);
-            instanceLabels[item[2]] = `${item[1] || item[0] || ''}`;
+            instanceLabels[item[2]] = `${item[1] || item[0] || ''} ${item[3]}`;
           }
         });
 

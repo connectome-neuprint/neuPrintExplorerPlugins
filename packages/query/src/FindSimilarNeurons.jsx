@@ -115,6 +115,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
   const basicColumns = [
     'bodyId',
     'instance',
+    'synonyms',
     'type',
     'cropped',
     'pre',
@@ -130,6 +131,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
 
   columns[indexOf.bodyId] = 'bodyId';
   columns[indexOf.instance] = 'instance';
+  columns[indexOf.synonyms] = 'synonyms';
   columns[indexOf.type] = 'type';
   columns[indexOf.cropped] = 'is cropped';
   columns[indexOf.pre] = 'pre';
@@ -145,6 +147,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
   const data = apiResponse.data.map((row) => {
     const bodyId = row[0];
     const instance = row[1];
+    const synonyms = row[7] || '';
     const type = row[2];
     const iscropped = row[3];
     const totalPre = row[4];
@@ -154,6 +157,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
     const converted = [];
     converted[indexOf.bodyId] = getBodyIdForTable(query.pm.dataset, bodyId, true, actions);
     converted[indexOf.instance] = instance;
+    converted[indexOf.synonyms] = synonyms;
     converted[indexOf.type] = type;
     converted[indexOf.cropped] = iscropped;
     const postQuery = createSimpleConnectionQueryObject({
@@ -231,6 +235,7 @@ export class FindSimilarNeurons extends React.Component {
     columnIds.push(
       { name: 'bodyId', status: true },
       { name: 'instance', status: true },
+      { name: 'synonyms', status: false },
       { name: 'type', status: true },
       { name: 'status', status: true },
       { name: 'pre', status: true },
@@ -357,7 +362,7 @@ export class FindSimilarNeurons extends React.Component {
       }
     }
 
-    const cypher = `MATCH (n :Neuron {status:"Traced"}) ${ROIwhere} RETURN n.bodyId, n.instance, n.type, n.cropped, n.pre, n.post, apoc.convert.fromJsonMap(n.roiInfo)`;
+    const cypher = `MATCH (n :Neuron {status:"Traced"}) ${ROIwhere} RETURN n.bodyId, n.instance, n.type, n.cropped, n.pre, n.post, apoc.convert.fromJsonMap(n.roiInfo), n.synonyms`;
 
     const query = {
       dataSet,
