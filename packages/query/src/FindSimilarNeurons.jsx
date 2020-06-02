@@ -16,7 +16,7 @@ import {
   setColumnIndices,
   createSimpleConnectionQueryObject,
   generateRoiHeatMapAndBarGraph,
-  getBodyIdForTable,
+  getBodyIdForTable
 } from './shared/pluginhelpers';
 
 const styles = theme => ({
@@ -49,22 +49,22 @@ const pluginName = 'FindSimilarNeurons';
 const pluginAbbrev = 'fsn';
 
 function createVector(roiMap, roiOrder) {
-  let numROIs = Object.keys(roiOrder).length;
-  let vector = new Array(numROIs * 2).fill(0);
+  const numROIs = Object.keys(roiOrder).length;
+  const vector = new Array(numROIs * 2).fill(0);
   for (let roi in roiMap) {
-    let roi_sym = roi.replace('(R)', '');
-    roi_sym = roi_sym.replace('(L)', '');
-    if (roi_sym !== roi) {
-      roi_sym += '-sym';
+    let roiSym = roi.replace('(R)', '');
+    roiSym = roiSym.replace('(L)', '');
+    if (roiSym !== roi) {
+      roiSym += '-sym';
     }
     // only add ROIs in the list
-    if (roi_sym in roiOrder) {
-      let prespot = roiOrder[roi_sym];
-      let postspot = roiOrder[roi_sym] + numROIs;
+    if (roiSym in roiOrder) {
+      const prespot = roiOrder[roiSym];
+      const postspot = roiOrder[roiSym] + numROIs;
 
       // hack to normalize pre to post by 5
       // TODO: get number of actual output connections
-      let preval = roiMap[roi].pre || 0;
+      const preval = roiMap[roi].pre || 0;
       vector[prespot] += preval * 5;
       vector[postspot] += roiMap[roi].post || 0;
     }
@@ -73,7 +73,7 @@ function createVector(roiMap, roiOrder) {
   // normalize data by apply sigmoid (should probably
   // base this on information from the calling function,
   // current threshold is a hack
-  for (let i = 0; i < vector.length; i++) {
+  for (let i = 0; i < vector.length; i+=1) {
     vector[i] = 1 / (1 + Math.exp(-((vector[i] - 150) / 40)));
   }
 
@@ -82,7 +82,7 @@ function createVector(roiMap, roiOrder) {
 
 function computeDistance(vec1, vec2) {
   let score = 0;
-  for (let i = 0; i < vec1.length; i++) {
+  for (let i = 0; i < vec1.length; i+=1) {
     score += Math.pow(vec1[i] - vec2[i], 2);
   }
   return score;
@@ -91,36 +91,26 @@ function computeDistance(vec1, vec2) {
 function processSimilarResults(query, apiResponse, actions, submit) {
   const { pm: parameters } = query;
 
-  // store processed data
-  let data;
-
-  // store the index of the queried body id
-  let queriedBodyIdIndex;
-
-  // store super-level rois
 
   // create vector array (to be used for inputs and outputs)
-  let roiOrder = {};
+  const roiOrder = {};
   let spot = 0;
-  for (let i = 0; i < parameters.superROIs.length; i++) {
-    let roi = parameters.superROIs[i];
-    let roi_sym = roi.replace('(R)', '');
-    roi_sym = roi_sym.replace('(L)', '');
-    if (roi_sym !== roi) {
-      roi_sym += '-sym';
+  for (let i = 0; i < parameters.superROIs.length; i+=1) {
+    const roi = parameters.superROIs[i];
+    let roiSym = roi.replace('(R)', '');
+    roiSym = roiSym.replace('(L)', '');
+    if (roiSym !== roi) {
+      roiSym += '-sym';
     }
-    if (!(roi_sym in roiOrder)) {
-      roiOrder[roi_sym] = spot;
-      spot++;
+    if (!(roiSym in roiOrder)) {
+      roiOrder[roiSym] = spot;
+      spot+=1;
     }
   }
-  roiOrder['None'] = spot;
+  roiOrder.None = spot;
 
   // create default array
-  let defaultVector = createVector(parameters.roiMapBase, roiOrder);
-
-  const shouldShowSimilarityScores = apiResponse.data.length > 1 && parameters.bodyId;
-  const singleResult = apiResponse.data.length === 1 && parameters.bodyId;
+  const defaultVector = createVector(parameters.roiMapBase, roiOrder);
 
   const basicColumns = [
     'bodyId',
@@ -135,7 +125,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
   // column instances
   const columns = [];
   // set basic columns
-  let indexOf = setColumnIndices([...basicColumns, 'totalSimScore']);
+  const indexOf = setColumnIndices([...basicColumns, 'totalSimScore']);
   columns[indexOf.totalSimScore] = 'total similarity score';
 
   columns[indexOf.bodyId] = 'bodyId';
@@ -152,7 +142,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
   );
   columns[indexOf.subLevelRoiHeatMap] = 'sub-level roi heatmap';
 
-  data = apiResponse.data.map((row, index) => {
+  const data = apiResponse.data.map((row) => {
     const bodyId = row[0];
     const instance = row[1];
     const type = row[2];
@@ -189,7 +179,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
     converted[indexOf.totalSimScore] = 0;
 
     // compute sim score from base
-    let currVector = createVector(roiInfoObject, roiOrder);
+    const currVector = createVector(roiInfoObject, roiOrder);
     converted[indexOf.totalSimScore] = computeDistance(defaultVector, currVector);
 
     if (roiInfoObject) {
@@ -213,7 +203,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
     return 0;
   });
 
-  let title = `Neurons similar to ${parameters.bodyId}`;
+  const title = `Neurons similar to ${parameters.bodyId}`;
 
   return {
     columns,
@@ -235,7 +225,7 @@ export class FindSimilarNeurons extends React.Component {
     };
   }
 
-  static getColumnHeaders(query) {
+  static getColumnHeaders() {
     const columnIds = [];
 
     columnIds.push(
@@ -253,12 +243,11 @@ export class FindSimilarNeurons extends React.Component {
     return columnIds;
   }
 
-  static fetchParameters(params) {
+  static fetchParameters() {
     return {};
   }
 
-  static processResults({ query, apiResponse, actions, submitFunc}) {
-    const { pm: parameters } = query;
+  static processResults({ query, apiResponse, actions, submitFunc }) {
     return processSimilarResults(query, apiResponse, actions, submitFunc);
   }
 
@@ -275,70 +264,66 @@ export class FindSimilarNeurons extends React.Component {
     const { dataSet, superROIs, submit } = this.props;
     const { bodyId } = this.state;
 
-    let superROIsSet = new Set(superROIs);
+    const superROIsSet = new Set(superROIs);
 
     let totalin = 0;
     let totalout = 0;
-    let roi2count_in = {};
-    let roi2count_out = {};
+    const roi2countIn = {};
+    const roi2countOut = {};
 
     // create symmetry table -- hard coded to only work with (L) (R) names
-    let key2roi = {};
-    for (let i = 0; i < superROIs.length; i++) {
-      let roi = superROIs[i];
-      let roi_sym = roi.replace('(R)', '');
-      roi_sym = roi_sym.replace('(L)', '');
-      if (roi !== roi_sym) {
-        roi_sym += '-sym';
+    const key2roi = {};
+    for (let i = 0; i < superROIs.length; i+=1) {
+      const roi = superROIs[i];
+      let roiSym = roi.replace('(R)', '');
+      roiSym = roiSym.replace('(L)', '');
+      if (roi !== roiSym) {
+        roiSym += '-sym';
       }
-      if (!(roi_sym in key2roi)) {
-        key2roi[roi_sym] = [];
+      if (!(roiSym in key2roi)) {
+        key2roi[roiSym] = [];
       }
-      key2roi[roi_sym].push(roi);
+      key2roi[roiSym].push(roi);
     }
 
-    let roiMap = roiInfo[0][0];
+    const roiMap = roiInfo[0][0];
     for (const roi in roiMap) {
       if (superROIsSet.has(roi)) {
-        let roi_sym = roi.replace('(R)', '');
-        roi_sym = roi_sym.replace('(L)', '');
-        if (roi !== roi_sym) {
-          roi_sym += '-sym';
+        let roiSym = roi.replace('(R)', '');
+        roiSym = roiSym.replace('(L)', '');
+        if (roi !== roiSym) {
+          roiSym += '-sym';
         }
 
-        if (!(roi_sym in roi2count_in)) {
-          roi2count_in[roi_sym] = 0;
+        if (!(roiSym in roi2countIn)) {
+          roi2countIn[roiSym] = 0;
         }
-        roi2count_in[roi_sym] += roiMap[roi].post || 0;
+        roi2countIn[roiSym] += roiMap[roi].post || 0;
         totalin += roiMap[roi].post || 0;
 
-        if (!(roi_sym in roi2count_out)) {
-          roi2count_out[roi_sym] = 0;
+        if (!(roiSym in roi2countOut)) {
+          roi2countOut[roiSym] = 0;
         }
-        roi2count_out[roi_sym] += roiMap[roi].pre || 0;
+        roi2countOut[roiSym] += roiMap[roi].pre || 0;
         totalout += roiMap[roi].pre || 0;
       }
     }
 
     // get the biggest rois to restrict the search
-    let rois_in = Object.keys(roi2count_in);
-    rois_in.sort(function(a, b) {
-      return roi2count_in[b] - roi2count_in[a];
-    });
+    const roisIn = Object.keys(roi2countIn);
+    roisIn.sort((a, b) => roi2countIn[b] - roi2countIn[a]);
 
-    let rois_out = Object.keys(roi2count_in);
-    rois_out.sort(function(a, b) {
-      return roi2count_out[b] - roi2count_out[a];
-    });
+    const roisOut = Object.keys(roi2countIn);
+    roisOut.sort((a, b) => roi2countOut[b] - roi2countOut[a]);
 
-    let bigrois = new Set();
+    const bigrois = new Set();
 
     let count = 0;
     // restrict to the biggest rois (to make the query faster and eliminate obvious no matches
     let thres = 0.7 * totalin;
-    for (let i = 0; i < rois_in.length; i++) {
-      count += roi2count_in[rois_in[i]];
-      bigrois.add(rois_in[i]);
+    for (let i = 0; i < roisIn.length; i += 1) {
+      count += roi2countIn[roisIn[i]];
+      bigrois.add(roisIn[i]);
       if (count >= thres) {
         break;
       }
@@ -346,9 +331,9 @@ export class FindSimilarNeurons extends React.Component {
     count = 0;
     // restrict to the biggest rois (to make the query faster and eliminate obvious no matches
     thres = 0.7 * totalout;
-    for (let i = 0; i < rois_out.length; i++) {
-      count += roi2count_out[rois_out[i]];
-      bigrois.add(rois_out[i]);
+    for (let i = 0; i < roisOut.length; i += 1) {
+      count += roi2countOut[roisOut[i]];
+      bigrois.add(roisOut[i]);
       if (count >= thres) {
         break;
       }
@@ -356,26 +341,23 @@ export class FindSimilarNeurons extends React.Component {
 
     let ROIwhere = '';
 
-    let bigroi_arr = Array.from(bigrois);
-    for (let i = 0; i < bigroi_arr.length; i++) {
-      let roi = bigroi_arr[i];
+    const bigroiArr = Array.from(bigrois);
+    for (let i = 0; i < bigroiArr.length; i+=1) {
+      const roi = bigroiArr[i];
       if (ROIwhere === '') {
         ROIwhere = 'WHERE ';
       } else {
         ROIwhere += ' AND ';
       }
 
-      if (key2roi[roi].length == 2) {
+      if (key2roi[roi].length === 2) {
         ROIwhere += '(n.`' + key2roi[roi][0] + '` OR n.`' + key2roi[roi][1] + '`)';
-      } else if (key2roi[roi].length == 1) {
+      } else if (key2roi[roi].length === 1) {
         ROIwhere += 'n.`' + key2roi[roi][0] + '`';
       }
     }
 
-    let cypher =
-      `MATCH (n :Neuron {status:"Traced"}) ` +
-      ROIwhere +
-      ` RETURN n.bodyId, n.instance, n.type, n.cropped, n.pre, n.post, apoc.convert.fromJsonMap(n.roiInfo)`;
+    const cypher = `MATCH (n :Neuron {status:"Traced"}) ${ROIwhere} RETURN n.bodyId, n.instance, n.type, n.cropped, n.pre, n.post, apoc.convert.fromJsonMap(n.roiInfo)`;
 
     const query = {
       dataSet,
@@ -384,8 +366,8 @@ export class FindSimilarNeurons extends React.Component {
       parameters: {
         cypherQuery: cypher,
         dataset: dataSet,
-        superROIs: superROIs,
-        bodyId: bodyId,
+        superROIs,
+        bodyId,
         roiMapBase: roiMap
       },
       visProps: {
@@ -422,14 +404,14 @@ export class FindSimilarNeurons extends React.Component {
     fetch(queryUrl, querySettings)
       .then(result => result.json())
       .then(resp => {
-        if (resp.data.length != 1) {
-          this.setState({ errorMessage: 'Error: body ' + bodyId + ' not found' });
+        if (resp.data.length !== 1) {
+          this.setState({ errorMessage: `Error: body ${bodyId} not found` });
         } else {
           this.setState({ errorMessage: '' });
           this.submitROIQuery(resp.data);
         }
       })
-      .catch(error => {
+      .catch(() => {
         this.setState({ errorMessage: 'Unknown error' });
       });
   };
@@ -447,7 +429,7 @@ export class FindSimilarNeurons extends React.Component {
   };
 
   render() {
-    const { classes, superROIs, isQuerying } = this.props;
+    const { classes, isQuerying } = this.props;
     const { bodyId, errorMessage } = this.state;
 
     return (
