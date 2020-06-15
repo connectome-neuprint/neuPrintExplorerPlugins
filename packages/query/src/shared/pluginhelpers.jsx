@@ -570,6 +570,10 @@ export function createSimpleConnectionsResult(
 }
 
 export function truncateString(str, n, useWordBoundary) {
+  if (typeof str !== 'string') {
+    return str;
+  }
+
   if (str.length <= n) {
     return str;
   }
