@@ -253,7 +253,7 @@ export class FindNeurons extends React.Component {
         converted[indexOf.size] = row[5];
         converted[indexOf.roiHeatMap] = '';
         converted[indexOf.roiBarGraph] = '';
-        converted[indexOf.notes] = row[9];
+        converted[indexOf.notes] = row[9] || '';
 
         // make sure none is added to the rois list.
         roiList.push('None');

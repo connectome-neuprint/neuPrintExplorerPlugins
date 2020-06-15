@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import AsyncSelect from 'react-select/async';
 import InputLabel from '@material-ui/core/InputLabel';
 import { withStyles } from '@material-ui/core/styles';
+import { truncateString } from './pluginhelpers';
 
 const styles = theme => ({
   regexWarning: {
@@ -110,7 +111,11 @@ class NeuronInputField extends React.Component {
           // if this is an instance, then also show the type and notes (item[3])
           if (item[2]) {
             instances.add(item[2]);
-            instanceLabels[item[2]] = `${item[1] || item[0] || ''} ${item[3] || ''}`;
+            instanceLabels[item[2]] = `${item[1] || item[0] || ''} ${truncateString(
+              item[3],
+              25,
+              true
+            ) || ''}`;
           }
         });
 

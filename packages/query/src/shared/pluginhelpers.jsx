@@ -569,6 +569,17 @@ export function createSimpleConnectionsResult(
   };
 }
 
+export function truncateString(str, n, useWordBoundary) {
+  if (str.length <= n) {
+    return str;
+  }
+  const subString = str.substr(0, n - 1); // the original check
+  if (useWordBoundary) {
+    return `${subString.substr(0, subString.lastIndexOf(' '))}...`;
+  }
+  return `${subString}&hellip;`;
+}
+
 export default {
   setColumnIndices,
   createSimpleConnectionQueryObject,
