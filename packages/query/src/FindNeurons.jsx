@@ -178,7 +178,7 @@ export class FindNeurons extends React.Component {
     const columnIds = [
       { name: 'id', status: true },
       { name: 'instance', status: false },
-      { name: 'synonyms', status: false },
+      { name: 'notes', status: false },
       { name: 'type', status: true },
       { name: 'status', status: true },
       { name: '#post (inputs)', status: true },
@@ -207,7 +207,7 @@ export class FindNeurons extends React.Component {
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
 
     // assigns data properties to column indices for convenient access/modification
-    const columnIds = ['bodyId', 'instance', 'synonyms', 'type', 'status', 'post', 'pre'];
+    const columnIds = ['bodyId', 'instance', 'notes', 'type', 'status', 'post', 'pre'];
     if (rois.length > 0) {
       rois.forEach(roi => {
         columnIds.push(`${roi}Post`);
@@ -253,7 +253,7 @@ export class FindNeurons extends React.Component {
         converted[indexOf.size] = row[5];
         converted[indexOf.roiHeatMap] = '';
         converted[indexOf.roiBarGraph] = '';
-        converted[indexOf.synonyms] = row[9];
+        converted[indexOf.notes] = row[9];
 
         // make sure none is added to the rois list.
         roiList.push('None');
@@ -300,7 +300,7 @@ export class FindNeurons extends React.Component {
     const columns = [];
     columns[indexOf.bodyId] = 'id';
     columns[indexOf.instance] = 'instance';
-    columns[indexOf.synonyms] = 'synonyms';
+    columns[indexOf.notes] = 'notes';
     columns[indexOf.type] = 'type';
     columns[indexOf.status] = 'status';
     columns[indexOf.post] = '#post (inputs)';
