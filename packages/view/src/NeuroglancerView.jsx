@@ -98,12 +98,12 @@ class NeuroGlancerView extends React.Component {
 
         nInfo.forEach(entry => {
           const { dataType, dataInstance } = entry;
-          const layerName = dataType === 'segmentation' ? dataSet : `${dataSet}-${dataInstance}`;
-          const modified = Object.assign({}, entry, { name: layerName});
-          updated = updated.set(
-            layerName,
-            Immutable.Map(modified)
-          );
+          const layerName =
+            dataType === 'segmentation' && dataInstance === 'segmentation'
+              ? dataSet
+              : `${dataSet}-${dataInstance}`;
+          const modified = Object.assign({}, entry, { name: layerName });
+          updated = updated.set(layerName, Immutable.Map(modified));
         });
 
         this.setState({ layers: updated });
@@ -137,9 +137,8 @@ class NeuroGlancerView extends React.Component {
       // loop over layers and add them to the viewerState
       layers.forEach(layer => {
         // add segmentation && grayscale layers
-        const host = layer.get('host').replace(/\/+$/,"");
-        let source = layer.get('source',null);
-
+        const host = layer.get('host').replace(/\/+$/, '');
+        let source = layer.get('source', null);
 
         if (!source) {
           source = `dvid://${host}/${layer.get('uuid')}/${layer.get('dataInstance')}`;
@@ -152,28 +151,28 @@ class NeuroGlancerView extends React.Component {
         const dataSetName = layer.get('name').split('-')[0];
 
         const layerInfo = {
-          source: {
-            url: source
-          },
           type: layer.get('dataType'),
-          tab: "source",
+          tab: 'source',
           segments: []
         };
 
+        if (typeof source === 'string') {
+          layerInfo.source = {
+            url: source
+          };
+        } else {
+          layerInfo.source = source;
+        }
+
         if (layer.get('linkedSegmentationLayer')) {
           layerInfo.linkedSegmentationLayer = {
-            "pre_synaptic_cell": dataSetName,
-            "post_synaptic_cell": dataSetName
+            pre_synaptic_cell: dataSetName,
+            post_synaptic_cell: dataSetName
           };
-          layerInfo.filterBySegmentation = [
-            "post_synaptic_cell",
-            "pre_synaptic_cell"
-          ];
-        };
-
-        if (layer.get('visible')) {
-          layerInfo.visible = layer.get('visible');
+          layerInfo.filterBySegmentation = ['post_synaptic_cell', 'pre_synaptic_cell'];
         }
+
+        layerInfo.visible = layer.get('visible', true);
 
         if (layer.get('tool')) {
           layerInfo.tool = layer.get('tool');
@@ -181,10 +180,11 @@ class NeuroGlancerView extends React.Component {
 
         if (layer.get('name', '') === `${dataSetName}-public_annotations`) {
           layerInfo.annotationColor = '#ff0000';
-          layerInfo.shader = "#uicontrol vec3 falseSplitColor color(default=\"#F08040\")\n#uicontrol vec3 falseMergeColor color(default=\"#F040F0\")\n#uicontrol vec3 checkedColor color(default=\"green\")\n#uicontrol vec3 borderColor color(default=\"black\")\n\n#uicontrol float radius slider(min=3, max=20, step=1, default=10)\n#uicontrol float opacity slider(min=0, max=1, step=0.1, default=1)  \n\nvoid main() {\n  setPointMarkerSize(radius);\n  float finalOpacity = PROJECTION_VIEW ? opacity * 0.2 : opacity;\n\n  setPointMarkerBorderColor(vec4(borderColor, finalOpacity));\n  if (prop_rendering_attribute() == 1) {\n    setColor(vec4(checkedColor, finalOpacity));\n  } else if (prop_rendering_attribute() == 2) {    \n    setColor(vec4(falseSplitColor, finalOpacity));\n  } else if (prop_rendering_attribute() == 3)  {\n    setColor(vec4(falseMergeColor, finalOpacity));\n  } else {\n setColor(vec4(1, 0, 0, finalOpacity));\n  }\n}";
+          layerInfo.shader =
+            '#uicontrol vec3 falseSplitColor color(default="#F08040")\n#uicontrol vec3 falseMergeColor color(default="#F040F0")\n#uicontrol vec3 checkedColor color(default="green")\n#uicontrol vec3 borderColor color(default="black")\n\n#uicontrol float radius slider(min=3, max=20, step=1, default=10)\n#uicontrol float opacity slider(min=0, max=1, step=0.1, default=1)  \n\nvoid main() {\n  setPointMarkerSize(radius);\n  float finalOpacity = PROJECTION_VIEW ? opacity * 0.2 : opacity;\n\n  setPointMarkerBorderColor(vec4(borderColor, finalOpacity));\n  if (prop_rendering_attribute() == 1) {\n    setColor(vec4(checkedColor, finalOpacity));\n  } else if (prop_rendering_attribute() == 2) {    \n    setColor(vec4(falseSplitColor, finalOpacity));\n  } else if (prop_rendering_attribute() == 3)  {\n    setColor(vec4(falseMergeColor, finalOpacity));\n  } else {\n setColor(vec4(1, 0, 0, finalOpacity));\n  }\n}';
         } else if (layer.get('name', '') === `${dataSetName}-synapses`) {
-          layerInfo.shader = "#uicontrol vec3 preColor color(default=\"yellow\")\n#uicontrol vec3 postColor color(default=\"gray\")\n#uicontrol float preConfidence slider(min=0, max=1, default=0)\n#uicontrol float postConfidence slider(min=0, max=1, default=0)\n#uicontrol float sliceViewOpacity slider(min=0, max=1, default=0.5)\n#uicontrol float projectionViewOpacity slider(min=0, max=1, default=0.3)\n\nvoid main() {\n  float opacity = PROJECTION_VIEW ? projectionViewOpacity : sliceViewOpacity;\n  setColor(vec4(defaultColor(), opacity));\n  setEndpointMarkerColor(\n    vec4(preColor, opacity),\n    vec4(postColor, opacity));\n  setEndpointMarkerBorderColor(\n    vec4(0, 0, 0, opacity),\n    vec4(0, 0, 0,     opacity)\n  );\n\n  setEndpointMarkerSize(5.0, 5.0);\n  setLineWidth(2.0);\n  if (prop_pre_synaptic_confidence()< preConfidence ||\n  prop_post_synaptic_confidence()< postConfidence) discard;\n}\n"
-
+          layerInfo.shader =
+            '#uicontrol vec3 preColor color(default="yellow")\n#uicontrol vec3 postColor color(default="gray")\n#uicontrol float preConfidence slider(min=0, max=1, default=0)\n#uicontrol float postConfidence slider(min=0, max=1, default=0)\n#uicontrol float sliceViewOpacity slider(min=0, max=1, default=0.5)\n#uicontrol float projectionViewOpacity slider(min=0, max=1, default=0.3)\n\nvoid main() {\n  float opacity = PROJECTION_VIEW ? projectionViewOpacity : sliceViewOpacity;\n  setColor(vec4(defaultColor(), opacity));\n  setEndpointMarkerColor(\n    vec4(preColor, opacity),\n    vec4(postColor, opacity));\n  setEndpointMarkerBorderColor(\n    vec4(0, 0, 0, opacity),\n    vec4(0, 0, 0,     opacity)\n  );\n\n  setEndpointMarkerSize(5.0, 5.0);\n  setLineWidth(2.0);\n  if (prop_pre_synaptic_confidence()< preConfidence ||\n  prop_post_synaptic_confidence()< postConfidence) discard;\n}\n';
         }
 
         viewerState.layers[layer.get('name')] = layerInfo;
@@ -214,7 +214,7 @@ class NeuroGlancerView extends React.Component {
 }
 
 NeuroGlancerView.propTypes = {
-  query: PropTypes.object.isRequired,
+  query: PropTypes.object.isRequired
 };
 
 export default NeuroGlancerView;
