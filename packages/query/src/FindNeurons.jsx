@@ -114,7 +114,7 @@ export class FindNeurons extends React.Component {
   };
 
   static processDownload(response) {
-    const headers = ['id', 'instance', 'type', 'status', '#post(inputs)', '#pre(outputs)'];
+    const headers = ['id', 'instance', 'notes','type', 'status', '#post(inputs)', '#pre(outputs)'];
 
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = response.params.pm;
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
@@ -148,6 +148,7 @@ export class FindNeurons extends React.Component {
         const converted = [
           bodyId,
           bodyName.replace(/[\n\r]/g, ''),
+          row[9],
           bodyType,
           row[3],
           totalPost,
@@ -167,8 +168,8 @@ export class FindNeurons extends React.Component {
         return converted;
       })
       .filter(row => row !== null)
-      .join('\n');
-    return [headers, data].join('\n');
+    data.unshift(headers);
+    return data;
   }
 
   static getColumnHeaders(query) {

@@ -55,16 +55,14 @@ class Completeness extends React.Component {
   }
 
   static processDownload(response) {
-    const headers = ['Brain Region', '%presyn', 'total presyn', '%postsyn', 'total postsyn'].join(
-      ','
-    );
+    const headers = ['Brain Region', '%presyn', 'total presyn', '%postsyn', 'total postsyn'];
     const data = response.result.data
       .map(
         row =>
-          `${row[0]},${(row[1] / row[3]) * 100},${row[3]},${(row[2] / row[4]) * 100},${row[4]}`
+          [row[0], ((row[1] / row[3]) * 100), row[3], ((row[2] / row[4]) * 100), row[4]]
       )
-      .join('\n');
-    return [headers, data].join('\n');
+    data.unshift(headers);
+    return data;
   }
 
   constructor(props) {

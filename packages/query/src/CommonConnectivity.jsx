@@ -148,7 +148,8 @@ class CommonConnectivity extends React.Component {
       data.push(singleRow);
     });
 
-    return [columnHeaders, data.join('\n')].join('\n');
+    data.unshift(columnHeaders);
+    return data;
   }
 
   static processResults({ query, apiResponse, actions }) {

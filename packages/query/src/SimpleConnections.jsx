@@ -47,31 +47,35 @@ export class SimpleConnections extends React.Component {
     };
   }
 
-  static clipboardCallback = apiResponse => (columns) => {
-    const csv = apiResponse.result.data.map(table => {
-      const rowsByTable = table.data.map(row => {
-        const filteredRow = columns.map((column, index) => {
-          if (!column) {
-            return null;
-          }
+  static clipboardCallback = apiResponse => columns => {
+    const csv = apiResponse.result.data
+      .map(table => {
+        const rowsByTable = table.data.map(row => {
+          const filteredRow = columns
+            .map((column, index) => {
+              if (!column) {
+                return null;
+              }
 
-          if (row[index] && typeof row[index] === 'object') {
-            return row[index].sortBy || row[index].value
-          }
+              if (row[index] && typeof row[index] === 'object') {
+                return row[index].sortBy || row[index].value;
+              }
 
-          if (!row[index]) {
-            return '';
-          }
+              if (!row[index]) {
+                return '';
+              }
 
-          return row[index];
-        }).filter(item => item !== null).join(',')
-        return filteredRow;
-      });
-      return rowsByTable.join('\n');
-    }).join('\n');
+              return row[index];
+            })
+            .filter(item => item !== null)
+            .join(',');
+          return filteredRow;
+        });
+        return rowsByTable.join('\n');
+      })
+      .join('\n');
     return csv;
-  }
-
+  };
 
   static fetchParameters() {
     return {
@@ -116,52 +120,51 @@ export class SimpleConnections extends React.Component {
       headers.push(`${roi} pre`);
     });
 
-    const data = response.result.data
-      .map(row => {
-        const [
-          ,
-          ,
-          // queryBodyName
-          // queryBodyType
-          targetBodyName,
-          targetBodyType,
-          targetBodyId,
-          connections, // queryBodyId
-          ,
-          traceStatus,
-          roiCounts,
-          voxels,
-          outputs,
-          inputs,
-          rois, // highConfConnections
-          ,
-        ] = row;
-        const roiInfoObject = JSON.parse(roiCounts);
+    const data = response.result.data.map(row => {
+      const [
+        ,
+        ,
+        // queryBodyName
+        // queryBodyType
+        targetBodyName,
+        targetBodyType,
+        targetBodyId,
+        connections, // queryBodyId
+        ,
+        traceStatus,
+        roiCounts,
+        voxels,
+        outputs,
+        inputs,
+        rois, // highConfConnections
+        ,
+      ] = row;
+      const roiInfoObject = JSON.parse(roiCounts);
 
-        const converted = [
-          targetBodyId,
-          targetBodyType,
-          targetBodyName,
-          traceStatus,
-          connections,
-          inputs,
-          outputs,
-          voxels
-        ];
-        // figure out roi counts.
-        if (rois.length > 0) {
-          rois.sort().forEach(roi => {
-            if (roiInfoObject[roi]) {
-              converted.push(roiInfoObject[roi].post);
-              converted.push(roiInfoObject[roi].pre);
-            }
-          });
-        }
+      const converted = [
+        targetBodyId,
+        targetBodyType,
+        targetBodyName,
+        traceStatus,
+        connections,
+        inputs,
+        outputs,
+        voxels
+      ];
+      // figure out roi counts.
+      if (rois.length > 0) {
+        rois.sort().forEach(roi => {
+          if (roiInfoObject[roi]) {
+            converted.push(roiInfoObject[roi].post);
+            converted.push(roiInfoObject[roi].pre);
+          }
+        });
+      }
 
-        return converted;
-      })
-      .join('\n');
-    return [headers, data].join('\n');
+      return converted;
+    });
+    data.unshift(headers);
+    return data;
   }
 
   static processResults({ query, apiResponse, actions, submitFunc, isPublic }) {
@@ -196,7 +199,7 @@ export class SimpleConnections extends React.Component {
     data.forEach(row => {
       const [neuron1Name, neuron1Id] = row;
       if (lastBody !== -1 && neuron1Id !== lastBody) {
-        let tableName = `${lastName||lastBody} id=(${String(lastBody)})`;
+        let tableName = `${lastName || lastBody} id=(${String(lastBody)})`;
         if (inputs === false) {
           tableName = `${tableName} => ...`;
         } else {
@@ -219,7 +222,7 @@ export class SimpleConnections extends React.Component {
     });
 
     if (lastBody !== -1) {
-      let tableName = `${lastName||lastBody} id=(${String(lastBody)})`;
+      let tableName = `${lastName || lastBody} id=(${String(lastBody)})`;
       if (inputs === true) {
         tableName = `${tableName} <= ...`;
       } else {
@@ -258,7 +261,7 @@ export class SimpleConnections extends React.Component {
     const { neuronName, preOrPost, advancedSearch } = this.state;
     if (neuronName !== '') {
       const parameters = {
-        dataset: dataSet,
+        dataset: dataSet
       };
       if (!advancedSearch) {
         parameters.enable_contains = true;

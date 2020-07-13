@@ -96,11 +96,10 @@ class Distribution extends React.Component {
     const typeHeader = response.params.pm.is_pre
       ? 'Number of pre-synapses'
       : 'Number of post-synapses';
-    const headers = ['percentage', 'num segments', typeHeader].join(',');
+    const headers = ['percentage', 'num segments', typeHeader];
     const data = processData(response.result.data)
-      .map(row => row.join(','))
-      .join('\n');
-    return [headers, data].join('\n');
+    data.unshift(headers);
+    return data;
   }
 
   constructor(props) {

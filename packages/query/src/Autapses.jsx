@@ -52,11 +52,10 @@ class Autapses extends React.Component {
   }
 
   static processDownload(response) {
-    const headers = columnHeaders.join(',');
     const data = response.result.data
-      .map(row => `${row[0]}, ${row[2]}, ${row[3]}, ${row[1]}`)
-      .join('\n');
-    return [headers, data].join('\n');
+      .map(row => [row[0], row[2], row[3], row[1]])
+    data.unshift(columnHeaders);
+    return data;
   }
 
   // creates query object and sends to callback
