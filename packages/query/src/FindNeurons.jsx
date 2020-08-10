@@ -19,6 +19,7 @@ import {
   setColumnIndices,
   createSimpleConnectionQueryObject,
   generateRoiHeatMapAndBarGraph,
+  generateMitoBarGraph,
   getBodyIdForTable
 } from './shared/pluginhelpers';
 
@@ -114,7 +115,7 @@ export class FindNeurons extends React.Component {
   };
 
   static processDownload(response) {
-    const headers = ['id', 'instance', 'notes','type', 'status', '#post(inputs)', '#pre(outputs)'];
+    const headers = ['id', 'instance', 'notes', 'type', 'status', '#post(inputs)', '#pre(outputs)'];
 
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = response.params.pm;
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
@@ -167,7 +168,7 @@ export class FindNeurons extends React.Component {
 
         return converted;
       })
-      .filter(row => row !== null)
+      .filter(row => row !== null);
     data.unshift(headers);
     return data;
   }
@@ -195,7 +196,9 @@ export class FindNeurons extends React.Component {
     columnIds.push(
       { name: '#voxels', status: false },
       { name: 'brain region breakdown', status: true },
-      { name: 'brain region heatmap', status: false }
+      { name: 'brain region heatmap', status: false },
+      { name: 'mitochondria', status: false },
+      { name: 'mitochondria by brain region', status: false }
     );
     return columnIds;
   }
@@ -215,7 +218,7 @@ export class FindNeurons extends React.Component {
         columnIds.push(`${roi}Pre`);
       });
     }
-    columnIds.push('size', 'roiBarGraph', 'roiHeatMap');
+    columnIds.push('size', 'roiBarGraph', 'roiHeatMap', 'mitoTotal', 'mitoByRegion');
 
     const indexOf = setColumnIndices(columnIds);
 
@@ -287,6 +290,15 @@ export class FindNeurons extends React.Component {
             action: () => submitFunc(preQuery)
           };
 
+          const mitoTotal = Object.values(roiInfoObject).reduce((i, info) => {
+            if (info.mitochondria) {
+              return info.mitochondria + i;
+            }
+            return i;
+          }, 0);
+          converted[indexOf.mitoTotal] = mitoTotal;
+          converted[indexOf.mitoByRegion] = generateMitoBarGraph(roiInfoObject, mitoTotal);
+
           if (rois.length > 0) {
             rois.forEach(roi => {
               converted[indexOf[`${roi}Post`]] = roiInfoObject[roi].post;
@@ -313,6 +325,9 @@ export class FindNeurons extends React.Component {
       </div>
     );
     columns[indexOf.roiBarGraph] = 'brain region breakdown';
+    columns[indexOf.mitoTotal] = '#mitochondria';
+    columns[indexOf.mitoByRegion] = 'mitochondria by brain region';
+
     if (rois.length > 0) {
       rois.forEach(roi => {
         columns[indexOf[`${roi}Post`]] = `${roi} #post`;

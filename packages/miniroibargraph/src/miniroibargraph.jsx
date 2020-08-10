@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { pickTextColorBasedOnBgColorAdvanced } from '@neuprint/support';
 import ColorBox from '@neuprint/colorbox';
 
@@ -11,11 +12,105 @@ const colorArray = [
   '#edc948',
   '#b07aa1',
   '#9c755f',
-  '#bab0ac'
+  '#bab0ac',
+  '#9a4fb7'
 ];
 let usedColorIndex = 0;
 const pixelsPerPercentage = 4;
 const roiToColorMap = {};
+
+export function MiniMitoBarGraph({ roiInfoObject, mitoTotal }) {
+  // loop over the entries and set rounded percentages
+  let integerTotal = 0;
+  const percentageList = Object.entries(roiInfoObject)
+    .map(([name, values], i) => {
+      if (values.mitochondria) {
+        const percentage = (parseInt(values.mitochondria, 10) / mitoTotal) * 100 || 0;
+        const integer = Math.floor(percentage);
+        const remainder = Math.abs(percentage) - Math.floor(Math.abs(percentage));
+        integerTotal += integer;
+
+        let color = '#ccc';
+
+        if (roiToColorMap[name]) {
+          color = roiToColorMap[name];
+        } else {
+          color = colorArray[i - (Math.floor(i/colorArray.length) * colorArray.length)];
+          roiToColorMap[name] = color;
+        }
+
+        return [name, integer, remainder, color];
+      }
+      return null;
+    })
+    .filter(item => item)
+    // sort by the remainder so that we add 1 to the correct entries in the next loop.
+    // this is important to make sure the values round up to 100%.
+    .sort((a, b) => b[2] - a[2]);
+
+  // do another loop make sure the values add up to 100%
+  if (100 - integerTotal) {
+    for (let i = 0; i < 100 - integerTotal; i += 1) {
+      percentageList[i][1] += 1;
+    }
+  }
+
+  // final loop assigns colors and converts it into a div.
+  const colorBlocks = percentageList
+    .filter(item => item[1] > 0)
+    // sort the rois alphabetically by name.
+    .sort((a, b) => {
+      if (a[0] > b[0]) {
+        return 1;
+      }
+      if (a[0] < b[0]) {
+        return -1;
+      }
+      return 0;
+    })
+    .map(roi => {
+      const [name, percentage, , color] = roi;
+      const boxstyle = {
+        textAlign: 'center',
+        overflow: 'hidden',
+        background: color,
+        width: `${percentage}%`,
+        color: pickTextColorBasedOnBgColorAdvanced(color, '#fff', '#000')
+      };
+
+      const title = `${name} ${percentage}%`;
+
+      let text = '';
+      if (percentage > 30) {
+        text = title;
+      } else if (percentage > 10) {
+        text = `${percentage}%`;
+      }
+
+      return (
+        <div key={name} style={boxstyle} title={title}>
+          {text}
+        </div>
+      );
+    });
+
+  const mitobarstyle = {
+    display: 'flex',
+    flexDirection: 'row',
+    margin: '5px',
+    border: '1px solid #ddd',
+    height: '20px',
+    width: '400px',
+    lineHeight: '1.43em'
+  };
+
+  return <div style={mitobarstyle}>{colorBlocks}</div>;
+}
+
+MiniMitoBarGraph.propTypes = {
+  roiInfoObject: PropTypes.object.isRequired,
+  mitoTotal: PropTypes.number.isRequired
+};
 
 export function MiniROIBarGraph({ listOfRoisToUse, roiInfoObject, roiInfoObjectKey, sumOfValues }) {
   const type = roiInfoObjectKey;
@@ -112,7 +207,7 @@ export function MiniROIBarGraph({ listOfRoisToUse, roiInfoObject, roiInfoObjectK
         return null;
       }
 
-      const name = (roiName === 'None')? 'Not Primary' : roiName;
+      const name = roiName === 'None' ? 'Not Primary' : roiName;
 
       let text = '';
       if (integer > 30) {
