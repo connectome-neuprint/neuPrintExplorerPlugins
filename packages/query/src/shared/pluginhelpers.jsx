@@ -147,7 +147,8 @@ export function generateRoiHeatMapAndBarGraph(roiInfoObject, roiList, preTotal, 
 }
 
 export function generateMitoBarGraph(roiInfoObject, mitoTotal) {
-  const barGraph = (
+
+   const barGraph = (
     <MiniMitoBarGraph roiInfoObject={roiInfoObject} mitoTotal={mitoTotal} />
   );
   return barGraph;

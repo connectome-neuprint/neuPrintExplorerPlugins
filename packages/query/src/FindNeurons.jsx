@@ -290,14 +290,21 @@ export class FindNeurons extends React.Component {
             action: () => submitFunc(preQuery)
           };
 
-          const mitoTotal = Object.values(roiInfoObject).reduce((i, info) => {
+          const filteredROIs = {};
+          Object.keys(roiInfoObject).forEach(roi => {
+            if (roiList.find(element => element === roi)) {
+              filteredROIs[roi] = roiInfoObject[roi];
+            }
+          });
+
+          const mitoTotal = Object.values(filteredROIs).reduce((i, info) => {
             if (info.mitochondria) {
               return info.mitochondria + i;
             }
             return i;
           }, 0);
           converted[indexOf.mitoTotal] = mitoTotal;
-          converted[indexOf.mitoByRegion] = generateMitoBarGraph(roiInfoObject, mitoTotal);
+          converted[indexOf.mitoByRegion] = generateMitoBarGraph(filteredROIs, mitoTotal);
 
           if (rois.length > 0) {
             rois.forEach(roi => {
