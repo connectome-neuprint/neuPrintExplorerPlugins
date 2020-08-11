@@ -20,6 +20,22 @@ const pixelsPerPercentage = 4;
 const roiToColorMap = {};
 
 export function MiniMitoBarGraph({ roiInfoObject, mitoTotal }) {
+
+  if (mitoTotal === 0) {
+    return (
+      <ColorBox
+        key="none"
+        margin={0}
+        width="100%"
+        height={20}
+        backgroundColor="#eeeeee"
+        color="#cccccc"
+        title="0%"
+        text="0%"
+      />
+    );
+  }
+
   // loop over the entries and set rounded percentages
   let integerTotal = 0;
   const percentageList = Object.entries(roiInfoObject)
@@ -100,8 +116,10 @@ export function MiniMitoBarGraph({ roiInfoObject, mitoTotal }) {
     margin: '5px',
     border: '1px solid #ddd',
     height: '20px',
-    width: '400px',
-    lineHeight: '1.43em'
+    width: '100%',
+    minWidth: '400px',
+    fontSize: '14px',
+    lineHeight: '19px'
   };
 
   return <div style={mitobarstyle}>{colorBlocks}</div>;
