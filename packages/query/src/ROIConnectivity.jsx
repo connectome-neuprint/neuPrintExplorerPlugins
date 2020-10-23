@@ -47,6 +47,42 @@ class ROIConnectivity extends React.Component {
     };
   }
 
+  static processDownload({ params, result}) {
+    const { rois } = params.pm;
+
+    let roiNames = result.roi_names;
+    if (rois) {
+      roiNames = result.roi_names.filter((roi) => rois.includes(roi));
+    }
+
+    // make data table
+    const data = [];
+
+    // set the titles for each column
+    data.push(['',...roiNames]);
+
+    roiNames.forEach(input => {
+      const row = [];
+      // set the row title
+      row.push(input);
+
+      // fill out the data blocks for each column
+      roiNames.forEach(output => {
+        const connectionName = `${input}=>${output}`;
+        const connectivityValue = result.weights[connectionName] ? result.weights[connectionName].weight : 0;
+        const connectivityCount = result.weights[connectionName] ? result.weights[connectionName].count : 0;
+
+        row.push(
+          [Math.round(connectivityValue, 0),
+          connectivityCount]
+        );
+      });
+      data.push(row);
+    });
+
+    return data;
+  }
+
   static processResults({ query, apiResponse, submitFunc }) {
     const { squareSize } = query.visProps;
     const { pm: parameters } = query;
