@@ -1,7 +1,7 @@
 import React from 'react';
 import * as math from 'mathjs';
 import NeuronRoiHeatMap, { ColorLegend } from '@neuprint/miniroiheatmap';
-import NeuronRoiBarGraph, { MiniMitoBarGraph } from '@neuprint/miniroibargraph';
+import NeuronRoiBarGraph, { MiniMitoBarGraph, MiniMitoByTypeBarGraph } from '@neuprint/miniroibargraph';
 import { SimpleConnections } from '../SimpleConnections';
 import BodyId from '../visualization/BodyId';
 
@@ -153,6 +153,15 @@ export function generateMitoBarGraph(roiInfoObject, mitoTotal) {
   );
   return barGraph;
 }
+
+export function generateMitoByTypeBarGraph(roiInfoObject, mitoTotal) {
+
+   const barGraph = (
+    <MiniMitoByTypeBarGraph roiInfoObject={roiInfoObject} mitoTotal={mitoTotal} />
+  );
+  return barGraph;
+}
+
 
 /**
  * Returns body id in preferred format for table view. Incorporates a view skeleton link.

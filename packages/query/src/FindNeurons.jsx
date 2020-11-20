@@ -20,6 +20,7 @@ import {
   createSimpleConnectionQueryObject,
   generateRoiHeatMapAndBarGraph,
   generateMitoBarGraph,
+  generateMitoByTypeBarGraph,
   getBodyIdForTable
 } from './shared/pluginhelpers';
 
@@ -198,7 +199,8 @@ export class FindNeurons extends React.Component {
       { name: 'brain region breakdown', status: true },
       { name: 'brain region heatmap', status: false },
       { name: 'mitochondria', status: false },
-      { name: 'mitochondria by brain region', status: false }
+      { name: 'mitochondria by brain region', status: false },
+      { name: 'top mitochondria by type', status: true }
     );
     return columnIds;
   }
@@ -218,7 +220,7 @@ export class FindNeurons extends React.Component {
         columnIds.push(`${roi}Pre`);
       });
     }
-    columnIds.push('size', 'roiBarGraph', 'roiHeatMap', 'mitoTotal', 'mitoByRegion');
+    columnIds.push('size', 'roiBarGraph', 'roiHeatMap', 'mitoTotal', 'mitoByRegion', 'mitoByType');
 
     const indexOf = setColumnIndices(columnIds);
 
@@ -298,13 +300,14 @@ export class FindNeurons extends React.Component {
           });
 
           const mitoTotal = Object.values(filteredROIs).reduce((i, info) => {
-            if (info.mitochondria) {
-              return info.mitochondria + i;
+            if (info.mito) {
+              return info.mito + i;
             }
             return i;
           }, 0);
           converted[indexOf.mitoTotal] = mitoTotal;
           converted[indexOf.mitoByRegion] = generateMitoBarGraph(filteredROIs, mitoTotal);
+          converted[indexOf.mitoByType] = generateMitoByTypeBarGraph(filteredROIs, mitoTotal);
 
           if (rois.length > 0) {
             rois.forEach(roi => {
@@ -334,6 +337,7 @@ export class FindNeurons extends React.Component {
     columns[indexOf.roiBarGraph] = 'brain region breakdown';
     columns[indexOf.mitoTotal] = '#mitochondria';
     columns[indexOf.mitoByRegion] = 'mitochondria by brain region';
+    columns[indexOf.mitoByType] = 'top mitochondria by type';
 
     if (rois.length > 0) {
       rois.forEach(roi => {

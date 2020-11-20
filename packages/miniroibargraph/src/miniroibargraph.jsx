@@ -19,8 +19,116 @@ let usedColorIndex = 0;
 const pixelsPerPercentage = 4;
 const roiToColorMap = {};
 
-export function MiniMitoBarGraph({ roiInfoObject, mitoTotal }) {
+const mitobarstyle = {
+  display: 'flex',
+  flexDirection: 'row',
+  margin: '5px',
+  border: '1px solid #ddd',
+  height: '20px',
+  width: '100%',
+  minWidth: '400px',
+  fontSize: '14px',
+  lineHeight: '19px'
+};
 
+function mitoTypeColorBlock({ name, count, total, color }) {
+  const percentage = (parseInt(count, 10) / total) * 100 || 0;
+  const boxstyle = {
+    textAlign: 'center',
+    overflow: 'hidden',
+    background: color,
+    width: `${percentage}%`,
+    color: pickTextColorBasedOnBgColorAdvanced(color, '#fff', '#000')
+  };
+
+  const title = `${name} (${count})`;
+
+  let text = '';
+  if (percentage > 30) {
+    text = title;
+  } else if (percentage > 10) {
+    text = count;
+  }
+
+  return (
+    <div key={name} style={boxstyle} title={title}>
+      {text}
+    </div>
+  );
+}
+
+mitoTypeColorBlock.propTypes = {
+  name: PropTypes.string.isRequired,
+  count: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
+  color: PropTypes.string.isRequired
+};
+
+export function MiniMitoByTypeBarGraph({ roiInfoObject, mitoTotal }) {
+  if (mitoTotal === 0) {
+    return (
+      <ColorBox
+        key="none"
+        margin={0}
+        width="100%"
+        height={20}
+        backgroundColor="#eeeeee"
+        color="#cccccc"
+        title="0%"
+        text="0%"
+      />
+    );
+  }
+  // pick the top three rois
+  // show break down of type 1,2 & 3 mitos
+  const mitoColors = ['#4e79a7', '#f28e2b', '#e15759'];
+  let topMitoCount = 0;
+  const top3ROIs = Object.entries(roiInfoObject)
+    .sort((a, b) => b[1].mito - a[1].mito)
+    .slice(0, 3)
+    .map(roi => {
+      const { mitotype1, mitotype2, mitotype3, mito } = roi[1];
+      topMitoCount = Math.max(mito, topMitoCount);
+      const mito1 = mitoTypeColorBlock({
+        name: 'type1',
+        count: mitotype1,
+        total: topMitoCount,
+        color: mitoColors[0]
+      });
+      const mito2 = mitoTypeColorBlock({
+        name: 'type2',
+        count: mitotype2,
+        total: topMitoCount,
+        color: mitoColors[1]
+      });
+      const mito3 = mitoTypeColorBlock({
+        name: 'type3',
+        count: mitotype3,
+        total: topMitoCount,
+        color: mitoColors[2]
+      });
+
+      return (
+        <div style={{display: 'flex'}}>
+          <div style={{width: '5em'}}>{roi[0]}</div>
+          <div style={mitobarstyle}>
+            {mito1}
+            {mito2}
+            {mito3}
+          </div>
+        </div>
+      );
+    });
+
+  return <div>{top3ROIs}</div>;
+}
+
+MiniMitoByTypeBarGraph.propTypes = {
+  roiInfoObject: PropTypes.object.isRequired,
+  mitoTotal: PropTypes.number.isRequired
+};
+
+export function MiniMitoBarGraph({ roiInfoObject, mitoTotal }) {
   if (mitoTotal === 0) {
     return (
       <ColorBox
@@ -40,8 +148,8 @@ export function MiniMitoBarGraph({ roiInfoObject, mitoTotal }) {
   let integerTotal = 0;
   const percentageList = Object.entries(roiInfoObject)
     .map(([name, values], i) => {
-      if (values.mitochondria) {
-        const percentage = (parseInt(values.mitochondria, 10) / mitoTotal) * 100 || 0;
+      if (values.mito) {
+        const percentage = (parseInt(values.mito, 10) / mitoTotal) * 100 || 0;
         const integer = Math.floor(percentage);
         const remainder = Math.abs(percentage) - Math.floor(Math.abs(percentage));
         integerTotal += integer;
@@ -51,7 +159,7 @@ export function MiniMitoBarGraph({ roiInfoObject, mitoTotal }) {
         if (roiToColorMap[name]) {
           color = roiToColorMap[name];
         } else {
-          color = colorArray[i - (Math.floor(i/colorArray.length) * colorArray.length)];
+          color = colorArray[i - Math.floor(i / colorArray.length) * colorArray.length];
           roiToColorMap[name] = color;
         }
 
@@ -109,18 +217,6 @@ export function MiniMitoBarGraph({ roiInfoObject, mitoTotal }) {
         </div>
       );
     });
-
-  const mitobarstyle = {
-    display: 'flex',
-    flexDirection: 'row',
-    margin: '5px',
-    border: '1px solid #ddd',
-    height: '20px',
-    width: '100%',
-    minWidth: '400px',
-    fontSize: '14px',
-    lineHeight: '19px'
-  };
 
   return <div style={mitobarstyle}>{colorBlocks}</div>;
 }
