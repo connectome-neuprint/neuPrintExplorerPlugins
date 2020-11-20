@@ -84,7 +84,11 @@ export function MiniMitoByTypeBarGraph({ roiInfoObject, mitoTotal }) {
   const mitoColors = ['#4e79a7', '#f28e2b', '#e15759'];
   let topMitoCount = 0;
   const top3ROIs = Object.entries(roiInfoObject)
+    // ignore rois that don't have a mito count since we don't want to see them
+    // and they sort higher than those with a count in a strange way.
+    .filter(roi => roi[1].mito && roi[1].mito > 0)
     .sort((a, b) => b[1].mito - a[1].mito)
+    // we only want to see the top three entries.
     .slice(0, 3)
     .map(roi => {
       const { mitotype1, mitotype2, mitotype3, mito } = roi[1];
@@ -109,8 +113,8 @@ export function MiniMitoByTypeBarGraph({ roiInfoObject, mitoTotal }) {
       });
 
       return (
-        <div style={{display: 'flex'}}>
-          <div style={{width: '5em'}}>{roi[0]}</div>
+        <div style={{ display: 'flex' }}>
+          <div style={{ width: '5em' }}>{roi[0]}</div>
           <div style={mitobarstyle}>
             {mito1}
             {mito2}
