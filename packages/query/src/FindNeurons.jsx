@@ -200,7 +200,7 @@ export class FindNeurons extends React.Component {
       { name: 'brain region heatmap', status: false },
       { name: 'mitochondria', status: false },
       { name: 'mitochondria by brain region', status: false },
-      { name: 'top mitochondria by type', status: true }
+      { name: 'top mitochondria by type', status: false }
     );
     return columnIds;
   }
