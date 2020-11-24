@@ -18,3 +18,4 @@ export { default as SynapsesForConnection } from './SynapsesForConnection';
 export { default as Skeleton } from './Skeleton';
 export { default as Neuroglancer } from './Neuroglancer';
 export { default as SavedSearch } from './SavedSearch';
+export { default as CellObjects } from './CellObjects';
