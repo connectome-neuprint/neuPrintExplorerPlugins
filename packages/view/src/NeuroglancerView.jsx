@@ -102,7 +102,7 @@ class NeuroGlancerView extends React.Component {
             dataType === 'segmentation' && dataInstance === 'segmentation'
               ? dataSet
               : `${dataSet}-${dataInstance}`;
-          const modified = Object.assign({}, entry, { name: layerName });
+          const modified = {...entry,  name: layerName };
           updated = updated.set(layerName, Immutable.Map(modified));
         });
 
@@ -194,6 +194,7 @@ class NeuroGlancerView extends React.Component {
         if (viewerState.layers[neuron.get('dataSet')]) {
           viewerState.layers[neuron.get('dataSet')].segments.push(neuron.get('id'));
         } else {
+          /* eslint-disable-next-line no-console */
           console.log(`Couldn't find neuroglancer layer ${neuron.get('dataSet')} to add neurons.`);
         }
       });

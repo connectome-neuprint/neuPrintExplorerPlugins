@@ -121,7 +121,7 @@ class CellTypeView extends React.Component {
           </Grid>
           <Grid item xs={6}>
             {neuronCount > 1 && (
-              <React.Fragment>
+              <>
                 <Typography variant="h6">Missing inputs/outputs</Typography>
                 <MissingConnections
                   title="Missing Outputs"
@@ -133,13 +133,13 @@ class CellTypeView extends React.Component {
                   id={exemplarId}
                   data={query.result.data['neuron-missed-inputs']}
                 />
-              </React.Fragment>
+              </>
             )}
           </Grid>
         </Grid>
 
         {neuronCount > 1 && (
-          <React.Fragment>
+          <>
             <p>Common inputs</p>
             <CellTypeHeatMap
               data={query.result.data['common-inputs']}
@@ -152,7 +152,7 @@ class CellTypeView extends React.Component {
               median={query.result.data['common-outputs-med']}
               neuronInfo={query.result.data.neuroninfo}
             />
-          </React.Fragment>
+          </>
         )}
       </div>
     );

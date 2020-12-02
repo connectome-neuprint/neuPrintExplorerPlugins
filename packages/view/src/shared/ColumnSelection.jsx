@@ -35,7 +35,7 @@ class ColumnSelection extends React.Component {
     const labelText = `Columns Visible ${columnsVisible} / ${columnTotal}`;
 
     return (
-      <React.Fragment>
+      <>
         <Chip
           style={{ margin: '0.5em 0.5em', float: 'left' }}
           label={labelText}
@@ -47,7 +47,7 @@ class ColumnSelection extends React.Component {
           onChange={onChange}
           onConfirm={this.handleClose}
         />
-      </React.Fragment>
+      </>
     );
   }
 }

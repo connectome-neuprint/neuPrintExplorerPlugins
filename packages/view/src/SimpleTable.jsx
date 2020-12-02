@@ -48,9 +48,9 @@ class SimpleTable extends React.Component {
   handleChangePage = (event, page) => {
     const { query, actions, index } = this.props;
     const { visProps = {} } = query;
-    const newVisProps = Object.assign({}, visProps, { page });
+    const newVisProps = {...visProps, page };
 
-    const updated = Object.assign({}, query, { visProps: newVisProps });
+    const updated = {...query, visProps: newVisProps };
     // TODO: we need to pass in the results data as a separate object from the
     // query. If we don't delete it here the URL explodes when we try to set it
     delete updated.result;
@@ -61,9 +61,9 @@ class SimpleTable extends React.Component {
   handleChangeRowsPerPage = event => {
     const { query, actions, index } = this.props;
     const { visProps = {} } = query;
-    const newVisProps = Object.assign({}, visProps, { rowsPerPage: event.target.value });
+    const newVisProps = {...visProps, rowsPerPage: event.target.value };
 
-    const updated = Object.assign({}, query, { visProps: newVisProps });
+    const updated = {...query, visProps: newVisProps };
     // TODO: we need to pass in the results data as a separate object from the
     // query. If we don't delete it here the URL explodes when we try to set it
     delete updated.result;
@@ -83,9 +83,9 @@ class SimpleTable extends React.Component {
     const newOrderBy = property;
     const newOrder = orderBy === property && order === 'desc' ? 'asc' : 'desc';
 
-    const newVisProps = Object.assign({}, visProps, { order: newOrder, orderBy: newOrderBy });
+    const newVisProps = {...visProps, order: newOrder, orderBy: newOrderBy };
 
-    const updated = Object.assign({}, query, { visProps: newVisProps });
+    const updated = {...query, visProps: newVisProps };
     // TODO: we need to pass in the results data as a separate object from the
     // query. If we don't delete it here the URL explodes when we try to set it
     delete updated.result;

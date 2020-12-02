@@ -76,7 +76,7 @@ class Cytoscape extends React.Component {
   render() {
     const { classes } = this.props;
     return (
-      <React.Fragment>
+      <>
         <div ref={this.cyRef} className={classes.container} />
         <Fab
           color="primary"
@@ -88,7 +88,7 @@ class Cytoscape extends React.Component {
         >
           <Icon style={{ fontSize: 18 }}>file_download</Icon>
         </Fab>
-      </React.Fragment>
+      </>
     );
   }
 }
