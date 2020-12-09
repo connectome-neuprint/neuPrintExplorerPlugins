@@ -16,7 +16,10 @@ Array [
         Object {
           "alignItems": "center",
           "backgroundColor": "#4e79a7",
-          "color": "#000",
+          "borderColor": "#4e79a7",
+          "borderStyle": "solid",
+          "borderWidth": "1px",
+          "color": "#fff",
           "display": "inline-flex",
           "flexDirection": "column",
           "height": "20px",
@@ -48,7 +51,10 @@ Array [
         Object {
           "alignItems": "center",
           "backgroundColor": "#4e79a7",
-          "color": "#000",
+          "borderColor": "#4e79a7",
+          "borderStyle": "solid",
+          "borderWidth": "1px",
+          "color": "#fff",
           "display": "inline-flex",
           "flexDirection": "column",
           "height": "20px",

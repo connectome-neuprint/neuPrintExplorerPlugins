@@ -171,7 +171,7 @@ export class RankedTable extends React.Component {
 
         // truncate name if necessary
         let displayName = neuron2 || body2;
-        if (displayName.length > 20) {
+        if (displayName && displayName.length > 20) {
           displayName = `${displayName.substring(0, 17)}...`;
         }
 

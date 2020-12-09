@@ -17,10 +17,10 @@ Array [
           "display": "inline-flex",
           "flexDirection": "row",
           "fontSize": "10px",
-          "height": "40px",
+          "height": "50px",
           "margin": "0px",
           "overflow": "visible",
-          "transform": "rotate(-90deg) translateX(-40px)",
+          "transform": "rotate(-90deg) translateX(-50px)",
           "transformOrigin": "left top 0",
           "whiteSpace": "nowrap",
           "width": "10px",
@@ -36,10 +36,10 @@ Array [
           "display": "inline-flex",
           "flexDirection": "row",
           "fontSize": "10px",
-          "height": "40px",
+          "height": "50px",
           "margin": "0px",
           "overflow": "visible",
-          "transform": "rotate(-90deg) translateX(-40px)",
+          "transform": "rotate(-90deg) translateX(-50px)",
           "transformOrigin": "left top 0",
           "whiteSpace": "nowrap",
           "width": "10px",
@@ -55,10 +55,10 @@ Array [
           "display": "inline-flex",
           "flexDirection": "row",
           "fontSize": "10px",
-          "height": "40px",
+          "height": "50px",
           "margin": "0px",
           "overflow": "visible",
-          "transform": "rotate(-90deg) translateX(-40px)",
+          "transform": "rotate(-90deg) translateX(-50px)",
           "transformOrigin": "left top 0",
           "whiteSpace": "nowrap",
           "width": "10px",
@@ -83,7 +83,10 @@ Array [
         Object {
           "alignItems": "center",
           "backgroundColor": "#fde725",
-          "color": "#000",
+          "borderColor": "#fde725",
+          "borderStyle": "solid",
+          "borderWidth": "1px",
+          "color": "#fde725",
           "display": "inline-flex",
           "flexDirection": "column",
           "height": "20px",
@@ -97,14 +100,17 @@ Array [
       }
       title="ME 100%"
     >
-      
+      .
     </div>
     <div
       style={
         Object {
           "alignItems": "center",
           "backgroundColor": "#440154",
-          "color": "#000",
+          "borderColor": "#440154",
+          "borderStyle": "solid",
+          "borderWidth": "1px",
+          "color": "#440154",
           "display": "inline-flex",
           "flexDirection": "column",
           "height": "20px",
@@ -118,14 +124,17 @@ Array [
       }
       title="VES 0%"
     >
-      
+      .
     </div>
     <div
       style={
         Object {
           "alignItems": "center",
           "backgroundColor": "#440154",
-          "color": "#000",
+          "borderColor": "#440154",
+          "borderStyle": "solid",
+          "borderWidth": "1px",
+          "color": "#440154",
           "display": "inline-flex",
           "flexDirection": "column",
           "height": "20px",
@@ -139,7 +148,7 @@ Array [
       }
       title="dACA 0%"
     >
-      
+      .
     </div>
     inputs*
   </div>,
@@ -157,7 +166,10 @@ Array [
         Object {
           "alignItems": "center",
           "backgroundColor": "#fde725",
-          "color": "#000",
+          "borderColor": "#fde725",
+          "borderStyle": "solid",
+          "borderWidth": "1px",
+          "color": "#fde725",
           "display": "inline-flex",
           "flexDirection": "column",
           "height": "20px",
@@ -171,14 +183,17 @@ Array [
       }
       title="ME 100%"
     >
-      
+      .
     </div>
     <div
       style={
         Object {
           "alignItems": "center",
           "backgroundColor": "#440154",
-          "color": "#000",
+          "borderColor": "#440154",
+          "borderStyle": "solid",
+          "borderWidth": "1px",
+          "color": "#440154",
           "display": "inline-flex",
           "flexDirection": "column",
           "height": "20px",
@@ -192,14 +207,17 @@ Array [
       }
       title="VES 0%"
     >
-      
+      .
     </div>
     <div
       style={
         Object {
           "alignItems": "center",
           "backgroundColor": "#440154",
-          "color": "#000",
+          "borderColor": "#440154",
+          "borderStyle": "solid",
+          "borderWidth": "1px",
+          "color": "#440154",
           "display": "inline-flex",
           "flexDirection": "column",
           "height": "20px",
@@ -213,7 +231,7 @@ Array [
       }
       title="dACA 0%"
     >
-      
+      .
     </div>
     outputs*
   </div>,

@@ -133,8 +133,8 @@ class PartnerCompletenessView extends React.Component {
     // only allow numbers or blank line
     const val = parseInt(event.target.value, 10) || '';
     if (/^\d+$/.test(val) || val === '') {
-      const newVisProps = Object.assign({}, visProps, { filter: val });
-      const updated = Object.assign({}, query, { visProps: newVisProps });
+      const newVisProps = {...visProps, filter: val };
+      const updated = {...query, visProps: newVisProps };
       delete updated.result;
       actions.updateQuery(index, updated);
     }
@@ -145,8 +145,8 @@ class PartnerCompletenessView extends React.Component {
     const { visProps = {} } = query;
 
     const val = selected.map(item => item.value).join(',');
-    const newVisProps = Object.assign({}, visProps, { status: val });
-    const updated = Object.assign({}, query, { visProps: newVisProps });
+    const newVisProps = {...visProps, status: val };
+    const updated = {...query, visProps: newVisProps };
     delete updated.result;
     actions.updateQuery(index, updated);
   };

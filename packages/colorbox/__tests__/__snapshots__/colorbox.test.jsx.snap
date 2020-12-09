@@ -6,6 +6,9 @@ exports[`ColorBox uses correct color 1`] = `
     Object {
       "alignItems": "center",
       "backgroundColor": "#fff",
+      "borderColor": "#fff",
+      "borderStyle": "solid",
+      "borderWidth": "1px",
       "color": "#000",
       "display": "inline-flex",
       "flexDirection": "column",

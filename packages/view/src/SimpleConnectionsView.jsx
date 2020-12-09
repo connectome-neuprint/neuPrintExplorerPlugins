@@ -55,19 +55,19 @@ class SimpleConnectionsView extends React.Component {
   handleChangePage = (event, page) => {
     const { query, actions, index } = this.props;
     const { visProps } = query;
-    const newVisProps = Object.assign({}, visProps, { page });
+    const newVisProps = {...visProps, page };
     const queryCopy = clone(query);
     delete queryCopy.result;
-    actions.updateQuery(index, Object.assign({}, queryCopy, { visProps: newVisProps }));
+    actions.updateQuery(index, {...queryCopy, visProps: newVisProps });
   };
 
   handleChangeRowsPerPage = event => {
     const { query, actions, index } = this.props;
     const { visProps } = query;
-    const newVisProps = Object.assign({}, visProps, { rowsPerPage: event.target.value });
+    const newVisProps = {...visProps, rowsPerPage: event.target.value };
     const queryCopy = clone(query);
     delete queryCopy.result;
-    actions.updateQuery(index, Object.assign({}, queryCopy, { visProps: newVisProps }));
+    actions.updateQuery(index, {...queryCopy, visProps: newVisProps });
   };
 
   handleCellClick = action => () => {
@@ -82,7 +82,7 @@ class SimpleConnectionsView extends React.Component {
   handleCollapse = collapsed => {
     const { query, actions, index } = this.props;
     const { visProps } = query;
-    const newVisProps = Object.assign({}, visProps, { collapsed });
+    const newVisProps = {...visProps,  collapsed };
     // clone to a depth of 2. Anything less than that can result in an
     // Uncaught TypeError: Illegal invocation
     // It looks like the clone code works fine in development, but when
@@ -90,7 +90,7 @@ class SimpleConnectionsView extends React.Component {
     // can't clone an HTMLElement.
     const queryCopy = clone(query, undefined, 2);
     delete queryCopy.result;
-    actions.updateQuery(index, Object.assign({}, queryCopy, { visProps: newVisProps }));
+    actions.updateQuery(index, {...queryCopy, visProps: newVisProps });
   };
 
   renderSingle() {
