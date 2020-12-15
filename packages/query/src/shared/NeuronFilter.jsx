@@ -8,9 +8,9 @@ import merge from 'deepmerge';
 import { withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Typography from '@material-ui/core/Typography';
 import Select from 'react-select';
@@ -209,11 +209,11 @@ class NeuronFilter extends React.Component {
 
     return (
       <div className={classes.expandablePanel}>
-        <ExpansionPanel>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant="subtitle1">Optional neuron/segment filters</Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails className={classes.nopad}>
+          </AccordionSummary>
+          <AccordionDetails className={classes.nopad}>
             <FormControl className={classes.formControl}>
               <TextField
                 label="minimum # pre (optional)"
@@ -254,8 +254,8 @@ class NeuronFilter extends React.Component {
                 />
               </FormControl>
             </FormControl>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
+          </AccordionDetails>
+        </Accordion>
       </div>
     );
   }
