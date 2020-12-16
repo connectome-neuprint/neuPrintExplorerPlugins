@@ -12,7 +12,6 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import { getBodyIdForTable } from './shared/pluginhelpers';
 
 const styles = (theme) => ({
   textField: {
@@ -43,15 +42,17 @@ const styles = (theme) => ({
 const pluginName = 'CellObjects';
 const pluginAbbrev = 'cos';
 
-
 const filterOptions = [
-  { value: 'mito', label: 'Mitochondria' },
-  { value: 'preSyn', label: 'Presynaptic Site' },
-  { value: 'postSyn', label: 'Postsynaptic Site' },
+  { value: 'mitochondria', label: 'Mitochondria' },
+  { value: 'pre', label: 'Presynaptic Site' },
+  { value: 'post', label: 'Postsynaptic Site' },
 ];
 
-
-const columnHeaders = ['bodyId', 'type', 'status'];
+const columnHeaders = {
+  mitochondria: ['Location', 'Size', 'MitoType'],
+  pre: ['Location', 'Confidence'],
+  post: ['Location', 'Confidence'],
+};
 
 /* TODO: use a query like the one below to get the meta information that
  * we need to figure out what types of objects are in the database.
@@ -73,6 +74,18 @@ fetch('/api/custom/custom?np_explorer=meta', {
 
 */
 
+const pctFormatter = Intl.NumberFormat('en-US', {
+  style: 'percent',
+  maximumFractionDigits: 1,
+});
+
+function formatRow(type, data) {
+  if (type === 'mitochondria') {
+    return [data.location.coordinates.join(','), data.size, data.mitoType];
+  }
+  return [data.location.coordinates.join(','), pctFormatter.format(data.confidence)];
+}
+
 export class CellObjects extends React.Component {
   static get details() {
     return {
@@ -81,28 +94,27 @@ export class CellObjects extends React.Component {
       abbr: pluginAbbrev,
       category: 'top-level',
       description: 'Find Objects in a cell.',
-      visType: 'SimpleTable',
+      visType: 'ObjectsView',
     };
-  }
-
-  static getColumnHeaders() {
-    return columnHeaders.map((column) => ({ name: column, status: true }));
   }
 
   static fetchParameters() {
     return {};
   }
 
-  static processResults({ query, apiResponse, actions }) {
-    const data = apiResponse.data.map((row) => [
-      getBodyIdForTable(query.ds, row[0], true, actions),
-      row[1],
-      row[2],
-    ]);
+  static processResults({ query, apiResponse }) {
+    // data and headers are formatted and
+    // returned here, instead of parsing it in the view.
+    const recordsByType = apiResponse.data.reduce((acc, record) => {
+      const [, type, data] = record;
+      // format the data into columns according to the type.
+      const row = formatRow(type, data);
+      return { ...acc, [type]: [...(acc[type] || []), row] };
+    }, {});
 
     return {
       columns: columnHeaders,
-      data,
+      data: recordsByType,
       debug: apiResponse.debug,
       title: `Cell objects in body: ${query.pm.bodyId}`,
     };
@@ -114,14 +126,20 @@ export class CellObjects extends React.Component {
     this.state = {
       bodyId: '',
       errorMessage: '',
-      types: []
+      types: [],
     };
   }
 
   submitQuery = () => {
     const { dataSet, submit } = this.props;
-    const { bodyId } = this.state;
-    const cypher = `MATCH (n :Neuron {bodyId: ${bodyId}}) RETURN n.bodyId, n.instance, n.type`;
+    const { bodyId, types } = this.state;
+
+    let whereClause = '';
+    if (types && types.length > 0) {
+      const conditions = types.map((type) => `m.type = '${type}'`).join(' OR ');
+      whereClause = ` WHERE ${conditions} `;
+    }
+    const cypher = `MATCH(n :Cell {bodyId: ${bodyId}}) -[]-> () -[]-> (m:Element) ${whereClause} RETURN ID(m), m.type, m`;
 
     const query = {
       dataSet,
@@ -152,8 +170,11 @@ export class CellObjects extends React.Component {
     }
   };
 
-  handleChangeTypes = selected => {
-    const types = selected.map(item => item.value);
+  handleChangeTypes = (selected) => {
+    let types = [];
+    if (selected) {
+      types = selected.map((item) => item.value);
+    }
     this.setState({ types });
   };
 
@@ -161,16 +182,14 @@ export class CellObjects extends React.Component {
     const { classes, isQuerying } = this.props;
     const { bodyId, errorMessage, types } = this.state;
 
-    const typeValues = types.map(type => ({
+    const typeValues = types.map((type) => ({
       label: type,
-      value: type
+      value: type,
     }));
-
-
 
     return (
       <div>
-        <InputLabel htmlFor="select-multiple-chip">Object Types</InputLabel>
+        <InputLabel htmlFor="select-multiple-chip">Object Type Filter</InputLabel>
         <Select
           options={filterOptions}
           isMulti

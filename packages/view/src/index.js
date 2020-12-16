@@ -7,6 +7,7 @@ const pluginList = [
   'PartnerCompletenessView',
   'SimpleTable',
   'CellTypeView',
+  'ObjectsView',
   'Graph',
 ];
 
