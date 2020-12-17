@@ -92,7 +92,6 @@ export class CellObjects extends React.Component {
       name: pluginName,
       displayName: 'Objects in a cell',
       abbr: pluginAbbrev,
-      category: 'top-level',
       description: 'Find Objects in a cell.',
       visType: 'ObjectsView',
     };
