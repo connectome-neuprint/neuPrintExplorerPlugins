@@ -139,7 +139,7 @@ export class CellObjects extends React.Component {
       const conditions = types.map((type) => `m.type = '${type}'`).join(' OR ');
       whereClause = ` WHERE ${conditions} `;
     }
-    const cypher = `MATCH(n :Cell {bodyId: ${bodyId}}) -[]-> () -[]-> (m:Element) ${whereClause} RETURN ID(m), m.type, m`;
+    const cypher = `MATCH(n :Cell {bodyId: ${bodyId}}) -[x:Contains]-> () -[y:Contains]-> (m:Element) ${whereClause} RETURN DISTINCT ID(m), m.type, m`;
 
     const query = {
       dataSet,
