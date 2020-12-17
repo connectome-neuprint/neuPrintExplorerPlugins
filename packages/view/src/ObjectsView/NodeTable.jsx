@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import Table from '@material-ui/core/Table';
@@ -6,32 +6,50 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import TablePagination from '@material-ui/core/TablePagination';
 
 export default function NodeTable({ rows, columns }) {
-  // for each row, create a new table row
-  //   for each column create a new table cell and parse the column information out of the row
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [page, setPage] = useState(0);
 
   const columnHeaders = columns.map((column) => {
-    return <TableCell>{column}</TableCell>;
+    return <TableCell key={column}>{column}</TableCell>;
   });
 
-  const formattedRows = rows.map((row) => {
-    const cells = row.map((cell) => <TableCell>{cell}</TableCell>);
-    return <TableRow>{cells}</TableRow>;
-  });
+  const formattedRows = rows
+    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+    .map((row) => {
+      const cells = row.map((cell) => <TableCell key={cell}>{cell}</TableCell>);
+      return <TableRow key={`${row[0]}_${row[1]}`}>{cells}</TableRow>;
+    });
 
-  console.log({ rows, columns });
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  }
+
   return (
-    <Table>
-      <TableHead>
-        <TableRow>{columnHeaders}</TableRow>
-      </TableHead>
-      <TableBody>{formattedRows}</TableBody>
-    </Table>
+    <>
+      <TablePagination
+        component="div"
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onChangePage={handleChangePage}
+        onChangeRowsPerPage={(event) => setRowsPerPage(parseInt(event.target.value,10))}
+        rowsPerPageOptions={[5, 10, 25, 50, 100]}
+      />
+
+      <Table>
+        <TableHead>
+          <TableRow>{columnHeaders}</TableRow>
+        </TableHead>
+        <TableBody>{formattedRows}</TableBody>
+      </Table>
+    </>
   );
 }
 
 NodeTable.propTypes = {
-  rows: PropTypes.arrayOf(PropTypes.object).isRequired,
+  rows: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string]))).isRequired,
   columns: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
