@@ -1,15 +1,13 @@
 /*
- * Find objects in a cell given the body id.
+ * Find object and show parent and connections given coordinates.
  */
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
 
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
@@ -39,14 +37,8 @@ const styles = (theme) => ({
   },
 });
 
-const pluginName = 'CellObjects';
-const pluginAbbrev = 'cos';
-
-const filterOptions = [
-  { value: 'mitochondria', label: 'Mitochondria' },
-  { value: 'pre', label: 'Presynaptic Site' },
-  { value: 'post', label: 'Postsynaptic Site' },
-];
+const pluginName = 'FindObjects';
+const pluginAbbrev = 'fo';
 
 const columnHeaders = {
   mitochondria: ['Location', 'Size', 'MitoType'],
@@ -54,79 +46,25 @@ const columnHeaders = {
   post: ['Location', 'Confidence'],
 };
 
-/* TODO: use a query like the one below to get the meta information that
- * we need to figure out what types of objects are in the database.
-
-fetch('/api/custom/custom?np_explorer=meta', {
-  credentials: 'include',
-  body: JSON.stringify({ cypher: 'MATCH (n:Meta) RETURN n' }),
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  },
-})
-  .then((result) => result.json())
-  .then((resp) => {
-    console.log(resp);
-    console.log(JSON.parse(resp.data[0][0].objectProperties));
-  });
-
-*/
-
 const pctFormatter = Intl.NumberFormat('en-US', {
   style: 'percent',
   maximumFractionDigits: 1,
 });
 
-function formatRow({type, data, submitFunc, query}) {
-  // convert location to a clickable link
-  const [x, y, z] = data.location.coordinates;
-  const cypher = `MATCH (n :Element)-[x]-(m :Element) WHERE n.location = Point({x:${x} ,y:${y} ,z:${z}}) return ID(m), m.type, m, n, x`;
-  const objectQuery = {
-    dataSet: query.ds,
-    pluginCode: 'fo',
-    pluginName: 'FindObjects',
-    parameters: {
-      dataset: query.ds,
-      cypherQuery: cypher,
-      x,
-      y,
-      z
-    }
-  };
-
-  const handleLocationJump = () => {
-    submitFunc(objectQuery);
-  };
-
-  const locationLinkStyle = {
-    padding: 0,
-    margin: 0,
-    textDecoration: 'underline',
-    color: '#396a9f',
-  };
-
-  const locationLink = (
-    <Button onClick={handleLocationJump} style={locationLinkStyle}>
-      {data.location.coordinates.join(',')}
-    </Button>
-  );
-
-
+function formatRow(type, data) {
   if (type === 'mitochondria') {
-    return [locationLink, data.size, data.mitoType];
+    return [data.location.coordinates.join(','), data.size, data.mitoType];
   }
-  return [locationLink, pctFormatter.format(data.confidence)];
+  return [data.location.coordinates.join(','), pctFormatter.format(data.confidence)];
 }
 
-export class CellObjects extends React.Component {
+export class FindObjects extends React.Component {
   static get details() {
     return {
       name: pluginName,
-      displayName: 'Objects in a cell',
+      displayName: 'Find Objects',
       abbr: pluginAbbrev,
-      description: 'Find Objects in a cell.',
+      description: 'Find objects at a point',
       visType: 'ObjectsView',
     };
   }
@@ -135,21 +73,23 @@ export class CellObjects extends React.Component {
     return {};
   }
 
-  static processResults({ query, apiResponse, submitFunc }) {
+  static processResults({ query, apiResponse }) {
     // data and headers are formatted and
     // returned here, instead of parsing it in the view.
     const recordsByType = apiResponse.data.reduce((acc, record) => {
       const [, type, data] = record;
       // format the data into columns according to the type.
-      const row = formatRow({type, data, submitFunc, query});
+      const row = formatRow(type, data);
       return { ...acc, [type]: [...(acc[type] || []), row] };
     }, {});
+
+    const coords = `${query.pm.x}, ${query.pm.y}, ${query.pm.z}`;
 
     return {
       columns: columnHeaders,
       data: recordsByType,
       debug: apiResponse.debug,
-      title: `Cell objects in body: ${query.pm.bodyId}`,
+      title: `Object at ${coords}`,
     };
   }
 
@@ -157,22 +97,18 @@ export class CellObjects extends React.Component {
     super(props);
 
     this.state = {
-      bodyId: '',
+      x: undefined,
+      y: undefined,
+      z: undefined,
       errorMessage: '',
-      types: [],
     };
   }
 
   submitQuery = () => {
     const { dataSet, submit } = this.props;
-    const { bodyId, types } = this.state;
+    const { x, y, z } = this.state;
 
-    let whereClause = '';
-    if (types && types.length > 0) {
-      const conditions = types.map((type) => `m.type = '${type}'`).join(' OR ');
-      whereClause = ` WHERE ${conditions} `;
-    }
-    const cypher = `MATCH(n :Cell {bodyId: ${bodyId}}) -[x:Contains]-> () -[y:Contains]-> (m:Element) ${whereClause} RETURN DISTINCT ID(m), m.type, m`;
+    const cypher = `MATCH (n :Element)-[x]-(m :Element) WHERE n.location = Point({x:${x} ,y:${y} ,z:${z}}) return ID(m), m.type, m, n, x`;
 
     const query = {
       dataSet,
@@ -181,7 +117,9 @@ export class CellObjects extends React.Component {
       parameters: {
         cypherQuery: cypher,
         dataset: dataSet,
-        bodyId,
+        x,
+        y,
+        z,
       },
       visProps: {
         rowsPerPage: 25,
@@ -189,10 +127,6 @@ export class CellObjects extends React.Component {
     };
 
     submit(query);
-  };
-
-  addBodyId = (event) => {
-    this.setState({ bodyId: event.target.value });
   };
 
   catchReturn = (event) => {
@@ -213,32 +147,46 @@ export class CellObjects extends React.Component {
 
   render() {
     const { classes, isQuerying } = this.props;
-    const { bodyId, errorMessage, types } = this.state;
-
-    const typeValues = types.map((type) => ({
-      label: type,
-      value: type,
-    }));
+    const { x, y, z, errorMessage } = this.state;
 
     return (
       <div>
-        <InputLabel htmlFor="select-multiple-chip">Object Type Filter</InputLabel>
-        <Select
-          options={filterOptions}
-          isMulti
-          onChange={this.handleChangeTypes}
-          value={typeValues}
-        />
         <FormControl fullWidth className={classes.formControl}>
           <TextField
-            label="Body ID"
+            label="x"
             multiline
             fullWidth
             rows={1}
-            value={bodyId}
-            rowsMax={2}
+            value={x}
+            rowsMax={1}
             className={classes.textField}
-            onChange={this.addBodyId}
+            onChange={(event) => this.setState({x: event.target.value})}
+            onKeyDown={this.catchReturn}
+          />
+        </FormControl>
+        <FormControl fullWidth className={classes.formControl}>
+          <TextField
+            label="y"
+            multiline
+            fullWidth
+            rows={1}
+            value={y}
+            rowsMax={1}
+            className={classes.textField}
+            onChange={(event) => this.setState({y: event.target.value})}
+            onKeyDown={this.catchReturn}
+          />
+        </FormControl>
+        <FormControl fullWidth className={classes.formControl}>
+          <TextField
+            label="z"
+            multiline
+            fullWidth
+            rows={1}
+            value={z}
+            rowsMax={1}
+            className={classes.textField}
+            onChange={(event) => this.setState({z: event.target.value})}
             onKeyDown={this.catchReturn}
           />
         </FormControl>
@@ -247,7 +195,7 @@ export class CellObjects extends React.Component {
           color="primary"
           className={classes.button}
           onClick={this.submitQuery}
-          disabled={!(bodyId.length > 0) || isQuerying}
+          disabled={isQuerying}
         >
           Search By Body ID
         </Button>
@@ -261,11 +209,11 @@ export class CellObjects extends React.Component {
   }
 }
 
-CellObjects.propTypes = {
+FindObjects.propTypes = {
   submit: PropTypes.func.isRequired,
   dataSet: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired,
 };
 
-export default withStyles(styles, { withTheme: true })(CellObjects);
+export default withStyles(styles, { withTheme: true })(FindObjects);
