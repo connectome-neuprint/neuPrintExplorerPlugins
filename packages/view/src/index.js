@@ -8,6 +8,7 @@ const pluginList = [
   'SimpleTable',
   'CellTypeView',
   'ObjectsView',
+  'FindObjectsView',
   'Graph',
 ];
 

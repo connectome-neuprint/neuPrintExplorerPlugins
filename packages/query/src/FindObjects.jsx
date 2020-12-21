@@ -65,7 +65,7 @@ export class FindObjects extends React.Component {
       displayName: 'Find Objects',
       abbr: pluginAbbrev,
       description: 'Find objects at a point',
-      visType: 'ObjectsView',
+      visType: 'FindObjectsView',
     };
   }
 
@@ -83,11 +83,20 @@ export class FindObjects extends React.Component {
       return { ...acc, [type]: [...(acc[type] || []), row] };
     }, {});
 
+    let matchedObject = {};
+    if (apiResponse.data && apiResponse.data.length > 0) {
+      const [firstResult] = apiResponse.data;
+      [ , , , matchedObject] = firstResult;
+    }
+
     const coords = `${query.pm.x}, ${query.pm.y}, ${query.pm.z}`;
 
     return {
       columns: columnHeaders,
-      data: recordsByType,
+      data: {
+        matchedObject,
+        connections: recordsByType,
+      },
       debug: apiResponse.debug,
       title: `Object at ${coords}`,
     };
