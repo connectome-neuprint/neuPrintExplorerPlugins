@@ -137,14 +137,6 @@ export class FindObjects extends React.Component {
     }
   };
 
-  handleChangeTypes = (selected) => {
-    let types = [];
-    if (selected) {
-      types = selected.map((item) => item.value);
-    }
-    this.setState({ types });
-  };
-
   render() {
     const { classes, isQuerying } = this.props;
     const { x, y, z, errorMessage } = this.state;
@@ -197,7 +189,7 @@ export class FindObjects extends React.Component {
           onClick={this.submitQuery}
           disabled={isQuerying}
         >
-          Search By Body ID
+          Search By Coordinates
         </Button>
         {errorMessage !== '' && (
           <Typography color="error" className={classes.noBodyError}>
