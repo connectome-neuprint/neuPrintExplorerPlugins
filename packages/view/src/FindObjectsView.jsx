@@ -86,13 +86,12 @@ export default function FindObjectsView({ query }) {
 
   const handleParentClick = (bodyId) => {
     setSearchQueryString({
-      code: 'fn',
+      code: 'cos',
       ds: query.ds,
       pm: {
-        all_segments: false,
+        cypherQuery: `MATCH(n :Cell {bodyId: ${bodyId}}) -[x:Contains]-> () -[y:Contains]-> (m:Element) RETURN DISTINCT ID(m), m.type, m`,
         dataset: query.ds,
-        enable_contains: true,
-        neuron_id: bodyId,
+        bodyId,
       }
     });
     history.push({
