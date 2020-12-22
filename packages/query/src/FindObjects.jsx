@@ -51,11 +51,45 @@ const pctFormatter = Intl.NumberFormat('en-US', {
   maximumFractionDigits: 1,
 });
 
-function formatRow(type, data) {
+function formatRow({type, data, submitFunc, query}) {
+   // convert location to a clickable link
+  const [x, y, z] = data.location.coordinates;
+  const cypher = `MATCH (n :Element)-[x]-(m :Element) WHERE n.location = Point({x:${x} ,y:${y} ,z:${z}}) return ID(m), m.type, m, n, x`;
+  const objectQuery = {
+    dataSet: query.ds,
+    pluginCode: 'fo',
+    pluginName: 'FindObjects',
+    parameters: {
+      dataset: query.ds,
+      cypherQuery: cypher,
+      x,
+      y,
+      z
+    }
+  };
+
+  const handleLocationJump = () => {
+    submitFunc(objectQuery);
+  };
+
+  const locationLinkStyle = {
+    padding: 0,
+    margin: 0,
+    textDecoration: 'underline',
+    color: '#396a9f',
+  };
+
+  const locationLink = (
+    <Button onClick={handleLocationJump} style={locationLinkStyle}>
+      {data.location.coordinates.join(',')}
+    </Button>
+  );
+
+
   if (type === 'mitochondria') {
-    return [data.location.coordinates.join(','), data.size, data.mitoType];
+    return [locationLink, data.size, data.mitoType];
   }
-  return [data.location.coordinates.join(','), pctFormatter.format(data.confidence)];
+  return [locationLink, pctFormatter.format(data.confidence)];
 }
 
 export class FindObjects extends React.Component {
@@ -73,13 +107,13 @@ export class FindObjects extends React.Component {
     return {};
   }
 
-  static processResults({ query, apiResponse }) {
+  static processResults({ query, apiResponse, submitFunc }) {
     // data and headers are formatted and
     // returned here, instead of parsing it in the view.
     const recordsByType = apiResponse.data.reduce((acc, record) => {
       const [, type, data] = record;
       // format the data into columns according to the type.
-      const row = formatRow(type, data);
+      const row = formatRow({type, data, submitFunc, query});
       return { ...acc, [type]: [...(acc[type] || []), row] };
     }, {});
 
