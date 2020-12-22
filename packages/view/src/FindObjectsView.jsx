@@ -50,25 +50,28 @@ export default function FindObjectsView({ query }) {
 
   useEffect(() => {
     // load parent information from cypher here
-    const cypher = `MATCH (n:Element)-[]-(m:ElementSet)-[]-(o:Segment) WHERE n.location = Point({x:34086 ,y:28222 ,z:19660 }) return o, labels(o)`;
+    if (result.data.matchedObject) {
+      const [x, y, z] = result.data.matchedObject.location.coordinates;
+      const cypher = `MATCH (n:Element)-[x:Contains]-(m)-[y:Contains]-(o) WHERE n.location = Point({x:${x} ,y:${y} ,z:${z} }) return o, labels(o), labels(m)`;
 
-    const options = {
-      method: 'POST',
-      credentials: 'include',
-      body: JSON.stringify({
-        dataset: query.ds,
-        cypher,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    };
+      const options = {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({
+          dataset: query.ds,
+          cypher,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      };
 
-    fetch('/api/custom/custom?np_explorer=view_FindObjectsView', options).then(response => response.json())
-      .then(res => setParent(res))
-      .catch(err => console.log(err));
-  }, [query]);
+      fetch('/api/custom/custom?np_explorer=view_FindObjectsView', options).then(response => response.json())
+        .then(res => setParent(res))
+        .catch(err => console.log(err));
+    }
+  }, [result.data.matchedObject]);
 
   const handleChange = (event, newValue) => {
     setTabIndex(newValue);
@@ -104,6 +107,16 @@ export default function FindObjectsView({ query }) {
     tabContents.push(<NodeTable key={type} rows={connections[type]} columns={result.columns[type]} />);
   });
 
+  if (!result.data.matchedObject) {
+    return (
+      <div className={classes.root}>
+        <div className={classes.scroll}>
+          <Typography variant="h5">No Objects found</Typography>
+        </div>
+      </div>
+    )
+  }
+
   const matchedCoordinates = result.data.matchedObject.location.coordinates.join(', ');
 
   return (
@@ -123,11 +136,11 @@ export default function FindObjectsView({ query }) {
               <TableCell>{matchedCoordinates}</TableCell>
               <TableCell>{result.data.matchedObject.type}</TableCell>
               <TableCell>
-              { parent && parent.data ? (
+              { parent && parent.data && parent.data[0] ? (
                 <Typography>
                   <Button className={classes.clickable} onClick={() => handleParentClick(parent.data[0][0].bodyId)}>{parent.data[0][0].bodyId}</Button>
                 </Typography>
-              ) : ''}
+              ) : '-'}
 
               </TableCell>
             </TableRow>

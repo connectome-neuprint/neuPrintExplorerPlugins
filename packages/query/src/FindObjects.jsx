@@ -83,7 +83,7 @@ export class FindObjects extends React.Component {
       return { ...acc, [type]: [...(acc[type] || []), row] };
     }, {});
 
-    let matchedObject = {};
+    let matchedObject;
     if (apiResponse.data && apiResponse.data.length > 0) {
       const [firstResult] = apiResponse.data;
       [ , , , matchedObject] = firstResult;
