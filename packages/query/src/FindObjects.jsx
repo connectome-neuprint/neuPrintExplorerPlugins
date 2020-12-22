@@ -41,9 +41,9 @@ const pluginName = 'FindObjects';
 const pluginAbbrev = 'fo';
 
 const columnHeaders = {
-  mitochondria: ['Location', 'Size', 'MitoType'],
-  pre: ['Location', 'Confidence'],
-  post: ['Location', 'Confidence'],
+  mitochondria: ['Connection Type', 'Location', 'Size', 'MitoType'],
+  pre: ['Connection Type', 'Location', 'Confidence'],
+  post: ['Connection Type', 'Location', 'Confidence'],
 };
 
 const pctFormatter = Intl.NumberFormat('en-US', {
@@ -51,10 +51,10 @@ const pctFormatter = Intl.NumberFormat('en-US', {
   maximumFractionDigits: 1,
 });
 
-function formatRow({type, data, submitFunc, query}) {
+function formatRow({type, data, submitFunc, query, connectionType}) {
    // convert location to a clickable link
   const [x, y, z] = data.location.coordinates;
-  const cypher = `MATCH (n :Element)-[x]-(m :Element) WHERE n.location = Point({x:${x} ,y:${y} ,z:${z}}) return ID(m), m.type, m, n, x`;
+  const cypher = `MATCH (n :Element)-[x]-(m :Element) WHERE n.location = Point({x:${x} ,y:${y} ,z:${z}}) return ID(m), m.type, m, n, x, type(x)`;
   const objectQuery = {
     dataSet: query.ds,
     pluginCode: 'fo',
@@ -87,9 +87,9 @@ function formatRow({type, data, submitFunc, query}) {
 
 
   if (type === 'mitochondria') {
-    return [locationLink, data.size, data.mitoType];
+    return [connectionType, locationLink, data.size, data.mitoType];
   }
-  return [locationLink, pctFormatter.format(data.confidence)];
+  return [connectionType, locationLink, pctFormatter.format(data.confidence)];
 }
 
 export class FindObjects extends React.Component {
@@ -111,9 +111,9 @@ export class FindObjects extends React.Component {
     // data and headers are formatted and
     // returned here, instead of parsing it in the view.
     const recordsByType = apiResponse.data.reduce((acc, record) => {
-      const [, type, data] = record;
+      const [, type, data, , ,connectionType] = record;
       // format the data into columns according to the type.
-      const row = formatRow({type, data, submitFunc, query});
+      const row = formatRow({type, data, submitFunc, query, connectionType});
       return { ...acc, [type]: [...(acc[type] || []), row] };
     }, {});
 
@@ -151,7 +151,7 @@ export class FindObjects extends React.Component {
     const { dataSet, submit } = this.props;
     const { x, y, z } = this.state;
 
-    const cypher = `MATCH (n :Element)-[x]-(m :Element) WHERE n.location = Point({x:${x} ,y:${y} ,z:${z}}) return ID(m), m.type, m, n, x`;
+    const cypher = `MATCH (n :Element)-[x]-(m :Element) WHERE n.location = Point({x:${x} ,y:${y} ,z:${z}}) return ID(m), m.type, m, n, x, type(x)`;
 
     const query = {
       dataSet,

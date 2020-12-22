@@ -110,7 +110,7 @@ export default function FindObjectsView({ query }) {
     return (
       <div className={classes.root}>
         <div className={classes.scroll}>
-          <Typography variant="h5">No Objects found</Typography>
+          <Typography variant="h5">No Object Connections found</Typography>
         </div>
       </div>
     )
