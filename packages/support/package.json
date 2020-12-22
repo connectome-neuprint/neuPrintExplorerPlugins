@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/support",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Support methods used by plugins for the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
