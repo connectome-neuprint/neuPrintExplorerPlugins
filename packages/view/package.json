@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/views",
-  "version": "8.7.0",
+  "version": "8.7.1",
   "description": "View plugins used by the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
