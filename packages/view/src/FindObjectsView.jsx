@@ -52,7 +52,7 @@ export default function FindObjectsView({ query }) {
     // load parent information from cypher here
     if (result.data.matchedObject) {
       const [x, y, z] = result.data.matchedObject.location.coordinates;
-      const cypher = `MATCH (n:Element)-[x:Contains]-(m)-[y:Contains]-(o) WHERE n.location = Point({x:${x} ,y:${y} ,z:${z} }) return o, labels(o), labels(m)`;
+      const cypher = `MATCH (n:Element)-[x:Contains]-(m)-[y:Contains]-(o:Cell) WHERE n.location = Point({x:${x} ,y:${y} ,z:${z} }) return o, labels(o), labels(m)`;
 
       const options = {
         method: 'POST',
