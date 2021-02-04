@@ -568,8 +568,8 @@ export function createSimpleConnectionsResult(
   columns[indexOf.status] = 'status';
   columns[indexOf.connectionWeight] = '#connections (% of total)';
   columns[indexOf.expectedRange] = 'expected range';
-  columns[indexOf.post] = '#post (inputs)';
-  columns[indexOf.pre] = '#pre (outputs)';
+  columns[indexOf.post] = 'inputs (#post)';
+  columns[indexOf.pre] = 'outputs (#pre)';
   columns[indexOf.size] = '#voxels';
   columns[indexOf.roiHeatMap] = (
     <div>

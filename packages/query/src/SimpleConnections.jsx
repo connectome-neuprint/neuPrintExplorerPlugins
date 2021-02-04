@@ -93,8 +93,8 @@ export class SimpleConnections extends React.Component {
       { name: '#connections', status: true },
       { name: '#connections (high confidence)', status: false },
       { name: 'expected connection range', status: false },
-      { name: '#post (inputs)', status: true },
-      { name: '#pre (outputs)', status: true },
+      { name: 'inputs (#post)', status: true },
+      { name: 'outputs (#pre)', status: true },
       { name: '#voxels', status: false },
       { name: 'brain region heatmap', status: false },
       { name: 'brain region breakdown', status: true }
@@ -109,8 +109,8 @@ export class SimpleConnections extends React.Component {
       'instance',
       'status',
       '#connections',
-      '#post(inputs)',
-      '#pre(outputs)',
+      'inputs (#post)',
+      'outputs (#pre)',
       '#voxels'
     ];
 

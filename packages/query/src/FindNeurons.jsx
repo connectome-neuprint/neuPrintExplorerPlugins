@@ -116,7 +116,7 @@ export class FindNeurons extends React.Component {
   };
 
   static processDownload(response) {
-    const headers = ['id', 'instance', 'notes', 'type', 'status', '#post(inputs)', '#pre(outputs)'];
+    const headers = ['id', 'instance', 'notes', 'type', 'status', 'inputs (#post)', 'outputs (#pre)'];
 
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = response.params.pm;
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
@@ -184,8 +184,8 @@ export class FindNeurons extends React.Component {
       { name: 'notes', status: false },
       { name: 'type', status: true },
       { name: 'status', status: true },
-      { name: '#post (inputs)', status: true },
-      { name: '#pre (outputs)', status: true }
+      { name: 'inputs (#post)', status: true },
+      { name: 'outputs (#pre)', status: true }
     ];
 
     if (rois.length > 0) {
@@ -345,8 +345,8 @@ export class FindNeurons extends React.Component {
     columns[indexOf.notes] = 'notes';
     columns[indexOf.type] = 'type';
     columns[indexOf.status] = 'status';
-    columns[indexOf.post] = '#post (inputs)';
-    columns[indexOf.pre] = '#pre (outputs)';
+    columns[indexOf.post] = 'inputs (#post)';
+    columns[indexOf.pre] = 'outputs (#pre)';
     columns[indexOf.size] = '#voxels';
     columns[indexOf.roiHeatMap] = (
       <div>
