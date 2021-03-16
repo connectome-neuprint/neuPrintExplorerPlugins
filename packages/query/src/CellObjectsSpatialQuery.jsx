@@ -43,13 +43,13 @@ const pluginName = 'CellObjectsSpatial';
 const pluginAbbrev = 'csp';
 
 const filterOptions = [
-  { value: 'mitochondria', label: 'Mitochondria' },
+  { value: 'mitochondrion', label: 'Mitochondria' },
   { value: 'pre', label: 'Presynaptic Site' },
   { value: 'post', label: 'Postsynaptic Site' },
 ];
 
 const columnHeaders = {
-  mitochondria: ['Location', 'Size', 'MitoType'],
+  mitochondrion: ['Location', 'Size', 'MitoType'],
   pre: ['Location', 'Confidence'],
   post: ['Location', 'Confidence'],
 };
@@ -80,7 +80,7 @@ const pctFormatter = Intl.NumberFormat('en-US', {
 });
 
 function formatRow(type, data) {
-  if (type === 'mitochondria') {
+  if (type === 'mitochondrion') {
     return [data.location.coordinates.join(','), data.size, data.mitoType];
   }
   return [data.location.coordinates.join(','), pctFormatter.format(data.confidence)];
@@ -260,7 +260,7 @@ export class CellObjectsSpatialQuery extends React.Component {
           onClick={this.submitQuery}
           disabled={isQuerying}
         >
-          Search By Body ID
+          Search
         </Button>
         {errorMessage !== '' && (
           <Typography color="error" className={classes.noBodyError}>

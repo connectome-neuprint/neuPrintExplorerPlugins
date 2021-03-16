@@ -41,7 +41,7 @@ const pluginName = 'FindObjects';
 const pluginAbbrev = 'fo';
 
 const columnHeaders = {
-  mitochondria: ['Connection Type', 'Location', 'Size', 'MitoType'],
+  mitochondrion: ['Connection Type', 'Location', 'Size', 'MitoType'],
   pre: ['Connection Type', 'Location', 'Confidence'],
   post: ['Connection Type', 'Location', 'Confidence'],
 };
@@ -86,7 +86,7 @@ function formatRow({type, data, submitFunc, query, connectionType}) {
   );
 
 
-  if (type === 'mitochondria') {
+  if (type === 'mitochondrion') {
     return [connectionType, locationLink, data.size, data.mitoType];
   }
   return [connectionType, locationLink, pctFormatter.format(data.confidence)];

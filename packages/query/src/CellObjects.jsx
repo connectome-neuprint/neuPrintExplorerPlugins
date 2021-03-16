@@ -43,13 +43,13 @@ const pluginName = 'CellObjects';
 const pluginAbbrev = 'cos';
 
 const filterOptions = [
-  { value: 'mitochondria', label: 'Mitochondria' },
+  { value: 'mitochondrion', label: 'Mitochondria' },
   { value: 'pre', label: 'Presynaptic Site' },
   { value: 'post', label: 'Postsynaptic Site' },
 ];
 
 const columnHeaders = {
-  mitochondria: ['Location', 'Size', 'MitoType'],
+  mitochondrion: ['Location', 'Size', 'MitoType'],
   pre: ['Location', 'Confidence'],
   post: ['Location', 'Confidence'],
 };
@@ -114,7 +114,7 @@ function formatRow({type, data, submitFunc, query}) {
   );
 
 
-  if (type === 'mitochondria') {
+  if (type === 'mitochondrion') {
     return [locationLink, data.size, data.mitoType];
   }
   return [locationLink, pctFormatter.format(data.confidence)];

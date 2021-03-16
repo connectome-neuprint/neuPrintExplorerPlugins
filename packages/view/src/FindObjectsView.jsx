@@ -80,7 +80,7 @@ export default function FindObjectsView({ query }) {
   const tabs = [];
   const tabContents = [];
 
-  const objectTypes = ['mitochondria', 'pre', 'post'];
+  const objectTypes = ['mitochondrion', 'pre', 'post'];
 
   const { connections } = result.data;
 
@@ -101,6 +101,7 @@ export default function FindObjectsView({ query }) {
   }
 
   objectTypes.filter(type => connections[type]).forEach(type => {
+    const label = type === 'mitochondrion' ? 'mitochondria' : type;
     /* eslint-disable-next-line react/jsx-props-no-spreading  */
     tabs.push(<Tab key={type} label={type} {...a11yProps(0)} />);
     tabContents.push(<NodeTable key={type} rows={connections[type]} columns={result.columns[type]} />);

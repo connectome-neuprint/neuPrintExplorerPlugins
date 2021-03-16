@@ -41,11 +41,12 @@ export default function ObjectsView({ query }) {
   const tabs = [];
   const tabContents = [];
 
-  const objectTypes = ['mitochondria', 'pre', 'post'];
+  const objectTypes = ['mitochondrion', 'pre', 'post'];
 
   objectTypes.filter(type => result.data[type]).forEach(type => {
+    const label = type === 'mitochondrion' ? 'mitochondria' : type;
     /* eslint-disable-next-line react/jsx-props-no-spreading  */
-    tabs.push(<Tab key={type} label={type} {...a11yProps(0)} />);
+    tabs.push(<Tab key={type} label={label} {...a11yProps(0)} />);
     tabContents.push(<NodeTable key={type} rows={result.data[type]} columns={result.columns[type]} />);
   });
 

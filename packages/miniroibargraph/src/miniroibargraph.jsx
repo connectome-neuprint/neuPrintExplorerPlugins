@@ -94,19 +94,19 @@ export function MiniMitoByTypeBarGraph({ roiInfoObject, mitoTotal }) {
       const { mitotype1, mitotype2, mitotype3, mito } = roi[1];
       topMitoCount = Math.max(mito, topMitoCount);
       const mito1 = mitoTypeColorBlock({
-        name: 'type1',
+        name: 'dark',
         count: mitotype1,
         total: topMitoCount,
         color: mitoColors[0]
       });
       const mito2 = mitoTypeColorBlock({
-        name: 'type2',
+        name: 'light',
         count: mitotype2,
         total: topMitoCount,
         color: mitoColors[1]
       });
       const mito3 = mitoTypeColorBlock({
-        name: 'type3',
+        name: 'medium',
         count: mitotype3,
         total: topMitoCount,
         color: mitoColors[2]
