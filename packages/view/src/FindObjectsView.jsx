@@ -103,7 +103,7 @@ export default function FindObjectsView({ query }) {
   objectTypes.filter(type => connections[type]).forEach(type => {
     const label = type === 'mitochondrion' ? 'mitochondria' : type;
     /* eslint-disable-next-line react/jsx-props-no-spreading  */
-    tabs.push(<Tab key={type} label={type} {...a11yProps(0)} />);
+    tabs.push(<Tab key={type} label={label} {...a11yProps(0)} />);
     tabContents.push(<NodeTable key={type} rows={connections[type]} columns={result.columns[type]} />);
   });
 
