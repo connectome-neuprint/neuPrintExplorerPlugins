@@ -80,7 +80,7 @@ export function MiniMitoByTypeBarGraph({ roiInfoObject, mitoTotal }) {
     );
   }
   // pick the top three rois
-  // show break down of type 1,2 & 3 mitos
+  // show break down of dark, medium, and light mitos
   const mitoColors = ['#4e79a7', '#f28e2b', '#e15759'];
   let topMitoCount = 0;
   const top3ROIs = Object.entries(roiInfoObject)
@@ -91,23 +91,23 @@ export function MiniMitoByTypeBarGraph({ roiInfoObject, mitoTotal }) {
     // we only want to see the top three entries.
     .slice(0, 3)
     .map(roi => {
-      const { mitotype1, mitotype2, mitotype3, mito } = roi[1];
+      const { dark, light, medium, mito } = roi[1];
       topMitoCount = Math.max(mito, topMitoCount);
-      const mito1 = mitoTypeColorBlock({
+      const darkBlock = mitoTypeColorBlock({
         name: 'dark',
-        count: mitotype1,
+        count: dark,
         total: topMitoCount,
         color: mitoColors[0]
       });
-      const mito2 = mitoTypeColorBlock({
+      const lightBlock = mitoTypeColorBlock({
         name: 'light',
-        count: mitotype2,
+        count: light,
         total: topMitoCount,
         color: mitoColors[1]
       });
-      const mito3 = mitoTypeColorBlock({
+      const mediumBlock = mitoTypeColorBlock({
         name: 'medium',
-        count: mitotype3,
+        count: medium,
         total: topMitoCount,
         color: mitoColors[2]
       });
@@ -116,9 +116,9 @@ export function MiniMitoByTypeBarGraph({ roiInfoObject, mitoTotal }) {
         <div style={{ display: 'flex' }}>
           <div style={{ width: '5em' }}>{roi[0]}</div>
           <div style={mitobarstyle}>
-            {mito1}
-            {mito2}
-            {mito3}
+            {darkBlock}
+            {mediumBlock}
+            {lightBlock}
           </div>
         </div>
       );
