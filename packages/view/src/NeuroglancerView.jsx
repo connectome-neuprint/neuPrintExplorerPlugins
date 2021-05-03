@@ -205,7 +205,7 @@ class NeuroGlancerView extends React.Component {
       // neuroglancer interface will remove them from the component state.
       return (
         <Suspense fallback={<div>Loading...</div>}>
-          <Neuroglancer perspectiveZoom={80} viewerState={viewerState} />
+          <Neuroglancer perspectiveZoom={80} viewerState={viewerState} brainMapsClientId="NOT_A_VALID_ID" />
         </Suspense>
       );
     }
