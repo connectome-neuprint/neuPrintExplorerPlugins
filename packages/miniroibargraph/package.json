@@ -28,6 +28,7 @@
     "url": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/issues"
   },
   "peerDependencies": {
+    "core-js": "^3.6.5",
     "prop-types": "^15.6.2",
     "react": "^16.11.0",
     "react-dom": "^16.11.0"
