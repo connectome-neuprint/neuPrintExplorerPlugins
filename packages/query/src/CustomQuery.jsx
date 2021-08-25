@@ -97,6 +97,20 @@ export class CustomQuery extends React.Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    // if there is some cypher from an existing result, then we
+    // can pre-populate the query box with that cypher.
+    const { cypherFromOpenTab } = this.props;
+    const { textValue } = this.state;
+    // if there is no cypher in the query box,
+    // then we are free to replace it.
+    if (textValue === '') {
+      if (prevProps.cypherFromOpenTab !== cypherFromOpenTab) {
+        this.setState({ textValue: cypherFromOpenTab});
+      }
+    }
+  }
+
   processRequest = () => {
     const { dataSet, submit } = this.props;
     const { textValue = '' } = this.state;
@@ -229,7 +243,8 @@ CustomQuery.propTypes = {
   classes: PropTypes.object.isRequired,
   dataSet: PropTypes.string.isRequired,
   submit: PropTypes.func.isRequired,
-  isQuerying: PropTypes.bool.isRequired
+  isQuerying: PropTypes.bool.isRequired,
+  cypherFromOpenTab: PropTypes.string.isRequired
 };
 
 export default withStyles(styles)(CustomQuery);
