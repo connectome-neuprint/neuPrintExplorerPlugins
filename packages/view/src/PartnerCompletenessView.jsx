@@ -155,7 +155,7 @@ class PartnerCompletenessView extends React.Component {
     const { query, neoServer } = this.props;
     const { pm: params, result } = query;
 
-    this.queryStatusDefinitions(neoServer, params.dataSet);
+    this.queryStatusDefinitions(neoServer, params.dataset);
 
     const allStatus = new Set();
     const inputData = [];
