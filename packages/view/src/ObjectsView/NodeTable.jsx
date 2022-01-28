@@ -34,8 +34,8 @@ export default function NodeTable({ rows, columns }) {
         count={rows.length}
         rowsPerPage={rowsPerPage}
         page={page}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={(event) => setRowsPerPage(parseInt(event.target.value,10))}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value,10))}
         rowsPerPageOptions={[5, 10, 25, 50, 100]}
       />
 

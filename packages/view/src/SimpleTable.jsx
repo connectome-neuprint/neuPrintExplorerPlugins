@@ -147,8 +147,8 @@ class SimpleTable extends React.Component {
               count={result.data.length}
               rowsPerPage={rowsPerPage}
               page={page}
-              onChangePage={this.handleChangePage}
-              onChangeRowsPerPage={this.handleChangeRowsPerPage}
+              onPageChange={this.handleChangePage}
+              onRowsPerPageChange={this.handleChangeRowsPerPage}
               rowsPerPageOptions={[5, 10, 25, 50, 100]}
               ActionsComponent={TablePaginationActions}
             />

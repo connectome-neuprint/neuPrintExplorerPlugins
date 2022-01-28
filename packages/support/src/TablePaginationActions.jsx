@@ -18,23 +18,23 @@ const styles = theme => ({
 
 class TablePaginationActions extends React.Component {
   handleFirstPageButtonClick = event => {
-    const { onChangePage } = this.props;
-    onChangePage(event, 0);
+    const { onPageChange } = this.props;
+    onPageChange(event, 0);
   };
 
   handleBackButtonClick = event => {
-    const { onChangePage, page } = this.props;
-    onChangePage(event, page - 1);
+    const { onPageChange, page } = this.props;
+    onPageChange(event, page - 1);
   };
 
   handleNextButtonClick = event => {
-    const { onChangePage, page } = this.props;
-    onChangePage(event, page + 1);
+    const { onPageChange, page } = this.props;
+    onPageChange(event, page + 1);
   };
 
   handleLastPageButtonClick = event => {
-    const { onChangePage, count, rowsPerPage } = this.props;
-    onChangePage(
+    const { onPageChange, count, rowsPerPage } = this.props;
+    onPageChange(
       event,
       Math.max(0, Math.ceil(count / rowsPerPage) - 1)
     );
@@ -81,7 +81,7 @@ class TablePaginationActions extends React.Component {
 TablePaginationActions.propTypes = {
   classes: PropTypes.object.isRequired,
   count: PropTypes.number.isRequired,
-  onChangePage: PropTypes.func.isRequired,
+  onPageChange: PropTypes.func.isRequired,
   page: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
   theme: PropTypes.object.isRequired

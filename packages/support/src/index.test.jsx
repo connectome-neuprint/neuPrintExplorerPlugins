@@ -38,7 +38,7 @@ test('metaInfoError returns correct redux object', () => {
 });
 
 test('TablePaginationActions shows next link disabled', () => {
-  const raw = <TablePaginationActions count={50} onChangePage={doNothing} rowsPerPage={5} page={10} />;
+  const raw = <TablePaginationActions count={50} onPageChange={doNothing} rowsPerPage={5} page={10} />;
   const component = renderer.create(raw);
   const tree = component.toJSON();
   expect(tree).toMatchSnapshot();
