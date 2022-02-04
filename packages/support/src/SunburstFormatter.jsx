@@ -17,7 +17,7 @@ function processRaw(bodyId, rawData, superROIs) {
   rawData.forEach(row => {
     const [, type = 'none', , roisJSON, status, direction] = row;
     // check that the status is traced
-    if (/(traced|leave)/i.test(status)) {
+    if (/(traced|anchor|leave)/i.test(status)) {
       // check if this is an input or an output
       const dirPosition = direction === 'upstream' ? 0 : 1;
       const topLevel = data.children[dirPosition];
