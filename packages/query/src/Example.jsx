@@ -79,7 +79,7 @@ class Example extends React.Component {
   //
   // apiResponse - the response from the api server. This will contain the
   // data payload and any error messages that may have occurred.
-  static processResults({ query, apiResponse }) {
+  static processResults({ apiResponse }) {
     // check the response to see if you have any data.
     if (apiResponse.data) {
       // format the data here. In this case we are converting any objects returned

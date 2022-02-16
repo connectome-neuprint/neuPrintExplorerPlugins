@@ -6,9 +6,6 @@ const { actions, React, enzyme, renderer, submit } = global;
 let wrapper;
 let bodyIdButton;
 let bodyIdField;
-let roiButton;
-let roiSelect;
-let groupsButton;
 
 const neoServerSettings = {
   get: () => 'http://example.com'
