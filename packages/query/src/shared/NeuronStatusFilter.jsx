@@ -1,5 +1,5 @@
 /*
- * Form to provide filters based on neuron properties.
+ * Form to provide filters based on neuron status.
  */
 
 import React from 'react';
@@ -8,14 +8,8 @@ import merge from 'deepmerge';
 import { withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Typography from '@material-ui/core/Typography';
 import Select from 'react-select';
 import Tooltip from '@material-ui/core/Tooltip';
-import TextField from '@material-ui/core/TextField';
 
 const styles = theme => ({
   formControl: {
@@ -47,13 +41,13 @@ const styles = theme => ({
   }
 });
 
-class NeuronFilter extends React.Component {
+class NeuronStatusFilter extends React.Component {
   constructor(props) {
     super(props);
 
     const initParams = {
       limitNeurons: true,
-      statusFilters: [],
+      statusFilters: ['Traced'],
       preThreshold: '',
       postThreshold: ''
     };
@@ -81,7 +75,7 @@ class NeuronFilter extends React.Component {
       this.queryStatusDefinitions(nextProps.neoServer, nextProps.datasetstr);
       const { qsParams } = this.state;
       const statusFilters = [];
-      const newParams = Object.assign({}, qsParams, { statusFilters });
+      const newParams = {...qsParams, ...{ statusFilters }};
       actions.setQueryString({ NFilter: { statusFilters } });
       this.setState({ qsParams: newParams });
     }
@@ -166,30 +160,10 @@ class NeuronFilter extends React.Component {
     const { qsParams } = this.state;
     const { callback, actions } = this.props;
     const statusFilters = selected ? selected.map(item => item.value) : [];
-    const newParams = Object.assign({}, qsParams, { statusFilters });
+    const newParams = {...qsParams, ...{statusFilters}};
     // save back status selections
     callback(newParams);
     actions.setQueryString({ NFilter: { statusFilters } });
-    this.setState({ qsParams: newParams });
-  };
-
-  handlePreChange = event => {
-    const { qsParams } = this.state;
-    const { callback, actions } = this.props;
-    const preThreshold = event.target.value;
-    const newParams = Object.assign({}, qsParams, { preThreshold });
-    callback(newParams);
-    actions.setQueryString({ NFilter: { preThreshold } });
-    this.setState({ qsParams: newParams });
-  };
-
-  handlePostChange = event => {
-    const { qsParams } = this.state;
-    const { callback, actions } = this.props;
-    const postThreshold = event.target.value;
-    const newParams = Object.assign({}, qsParams, { postThreshold });
-    callback(newParams);
-    actions.setQueryString({ NFilter: { postThreshold } });
     this.setState({ qsParams: newParams });
   };
 
@@ -209,59 +183,31 @@ class NeuronFilter extends React.Component {
 
     return (
       <div className={classes.expandablePanel}>
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="subtitle1">Optional neuron/segment filters</Typography>
-          </AccordionSummary>
-          <AccordionDetails className={classes.nopad}>
-            <FormControl className={classes.formControl}>
-              <TextField
-                label="minimum # pre (optional)"
-                type="number"
-                variant="outlined"
-                margin="dense"
-                rows={1}
-                value={qsParams.preThreshold}
-                rowsMax={1}
-                className={classes.textField}
-                onChange={this.handlePreChange}
-              />
-              <TextField
-                label="minimum # post (optional)"
-                variant="outlined"
-                margin="dense"
-                type="number"
-                rows={1}
-                value={qsParams.postThreshold}
-                rowsMax={1}
-                className={classes.textField}
-                onChange={this.handlePostChange}
-              />
-              <FormControl className={classes.formControl}>
-                <FormLabel style={{ display: 'inline-flex' }}>
-                  Filter by status
-                  <Tooltip id="tooltip-icon" title={statusDefinitions || ''} placement="right">
-                    <div className={classes.tooltip}>?</div>
-                  </Tooltip>
-                </FormLabel>
-                <Select
-                  className={classes.select}
-                  isMulti
-                  value={statusValue}
-                  onChange={this.handleStatus}
-                  options={statusOptions}
-                  closeMenuOnSelect={false}
-                />
-              </FormControl>
-            </FormControl>
-          </AccordionDetails>
-        </Accordion>
+        <FormControl className={classes.formControl}>
+          <FormControl className={classes.formControl}>
+            <FormLabel style={{ display: 'inline-flex' }}>
+              Filter by status
+              <Tooltip id="tooltip-icon" title={statusDefinitions || ''} placement="right">
+                <div className={classes.tooltip}>?</div>
+              </Tooltip>
+            </FormLabel>
+            <Select
+              className={classes.select}
+              isMulti
+              value={statusValue}
+              onChange={this.handleStatus}
+              options={statusOptions}
+              closeMenuOnSelect={false}
+            />
+            <p>If a status is not chosen, "Traced" status will be used</p>
+          </FormControl>
+        </FormControl>
       </div>
     );
   }
 }
 
-NeuronFilter.propTypes = {
+NeuronStatusFilter.propTypes = {
   callback: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
@@ -269,4 +215,4 @@ NeuronFilter.propTypes = {
   neoServer: PropTypes.string.isRequired
 };
 
-export default withStyles(styles, { withTheme: true })(NeuronFilter);
+export default withStyles(styles, { withTheme: true })(NeuronStatusFilter);

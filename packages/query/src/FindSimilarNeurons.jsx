@@ -18,6 +18,7 @@ import {
   generateRoiHeatMapAndBarGraph,
   getBodyIdForTable
 } from './shared/pluginhelpers';
+import NeuronStatusFilter from "./shared/NeuronStatusFilter";
 
 const styles = theme => ({
   textField: {
@@ -261,13 +262,21 @@ export class FindSimilarNeurons extends React.Component {
 
     this.state = {
       bodyId: '',
+      statusFilters: ['Traced'],
       errorMessage: ''
     };
   }
 
+  loadNeuronFilters = params => {
+    this.setState({
+      statusFilters: params.statusFilters,
+    });
+  };
+
+
   submitROIQuery = roiInfo => {
     const { dataSet, superROIs, submit } = this.props;
-    const { bodyId } = this.state;
+    const { bodyId, statusFilters } = this.state;
 
     const superROIsSet = new Set(superROIs);
 
@@ -346,6 +355,10 @@ export class FindSimilarNeurons extends React.Component {
 
     let ROIwhere = '';
 
+    if (statusFilters && statusFilters.length > 0) {
+      ROIwhere = `WHERE n.status IN [${statusFilters.map(status => `"${status}"`).join(", ")}]`;
+    }
+
     const bigroiArr = Array.from(bigrois);
     for (let i = 0; i < bigroiArr.length; i+=1) {
       const roi = bigroiArr[i];
@@ -362,7 +375,9 @@ export class FindSimilarNeurons extends React.Component {
       }
     }
 
-    const cypher = `MATCH (n :Neuron {status:"Traced"}) ${ROIwhere} RETURN n.bodyId, n.instance, n.type, n.cropped, n.pre, n.post, apoc.convert.fromJsonMap(n.roiInfo), n.notes`;
+    console.log({statusFilters});
+
+    const cypher = `MATCH (n :Neuron) ${ROIwhere} RETURN n.bodyId, n.instance, n.type, n.cropped, n.pre, n.post, apoc.convert.fromJsonMap(n.roiInfo), n.notes`;
 
     const query = {
       dataSet,
@@ -383,7 +398,7 @@ export class FindSimilarNeurons extends React.Component {
     submit(query);
   };
 
-  // processing intital request
+  // processing initial request
   processIDRequest = () => {
     const { dataSet } = this.props;
     const { bodyId } = this.state;
@@ -434,7 +449,7 @@ export class FindSimilarNeurons extends React.Component {
   };
 
   render() {
-    const { classes, isQuerying } = this.props;
+    const { classes, isQuerying, dataSet, actions, neoServerSettings } = this.props;
     const { bodyId, errorMessage } = this.state;
 
     return (
@@ -452,6 +467,13 @@ export class FindSimilarNeurons extends React.Component {
             onKeyDown={this.catchReturn}
           />
         </FormControl>
+        <NeuronStatusFilter
+          callback={this.loadNeuronFilters}
+          datasetstr={dataSet}
+          actions={actions}
+          neoServer={neoServerSettings.get('neoServer')}
+        />
+
         <Button
           variant="contained"
           color="primary"
@@ -473,9 +495,11 @@ export class FindSimilarNeurons extends React.Component {
 
 FindSimilarNeurons.propTypes = {
   submit: PropTypes.func.isRequired,
+  actions: PropTypes.object.isRequired,
   superROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
   dataSet: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
+  neoServerSettings: PropTypes.object.isRequired,
   isQuerying: PropTypes.bool.isRequired
 };
 
