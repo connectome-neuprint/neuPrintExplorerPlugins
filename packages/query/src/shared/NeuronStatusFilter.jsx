@@ -13,12 +13,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   formControl: {
-    margin: theme.spacing(1),
     minWidth: 250,
     maxWidth: 350
-  },
-  expandablePanel: {
-    margin: theme.spacing(1)
   },
   nopad: {
     padding: 0
@@ -182,7 +178,7 @@ class NeuronStatusFilter extends React.Component {
     }));
 
     return (
-      <div className={classes.expandablePanel}>
+      <div>
         <FormControl className={classes.formControl}>
           <FormControl className={classes.formControl}>
             <FormLabel style={{ display: 'inline-flex' }}>
@@ -199,7 +195,7 @@ class NeuronStatusFilter extends React.Component {
               options={statusOptions}
               closeMenuOnSelect={false}
             />
-            <p>If a status is not chosen, "Traced" status will be used</p>
+            <p>If a status is not chosen, &quot;Traced&quot; status will be used</p>
           </FormControl>
         </FormControl>
       </div>
