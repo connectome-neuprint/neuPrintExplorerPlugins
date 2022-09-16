@@ -356,7 +356,7 @@ export class FindSimilarNeurons extends React.Component {
       statusFilters: ['Traced'],
       errorMessage: '',
       algorithm: 'synapse',
-      nBlastMatches: true
+      nBlastMatches: false
     };
   }
 
