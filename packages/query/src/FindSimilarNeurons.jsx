@@ -624,7 +624,7 @@ export class FindSimilarNeurons extends React.Component {
           datasetstr={dataSet}
           actions={actions}
           neoServer={neoServerSettings.get('neoServer')}
-        />) : ""};
+        />) : ""}
 
         <Button
           variant="contained"
