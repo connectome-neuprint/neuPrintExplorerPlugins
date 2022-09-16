@@ -613,17 +613,18 @@ export class FindSimilarNeurons extends React.Component {
           className={classes.radioGroup}
           onChange={this.handleAlgorithmChange}
         >
-          <FormControlLabel value="synapse" control={<Radio color="primary" />} label="Synapse Distribution" />
           <FormControlLabel value="nblast" control={<Radio color="primary" />} label="NBLAST" />
+          <FormControlLabel value="synapse" control={<Radio color="primary" />} label="Synapse Distribution" />
         </RadioGroup>
           </>
         ): ""}
+        {algorithm === 'synapse' ? (
         <NeuronStatusFilter
           callback={this.loadNeuronFilters}
           datasetstr={dataSet}
           actions={actions}
           neoServer={neoServerSettings.get('neoServer')}
-        />
+        />) : ""};
 
         <Button
           variant="contained"
