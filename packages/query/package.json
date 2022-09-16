@@ -1,6 +1,6 @@
 {
   "name": "@neuprint/queries",
-  "version": "11.2.2",
+  "version": "11.2.3",
   "description": "Query plugins used by the neuPrintExplorer website",
   "main": "build/index.js",
   "scripts": {
