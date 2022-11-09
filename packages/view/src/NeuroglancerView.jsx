@@ -127,7 +127,7 @@ class NeuroGlancerView extends React.Component {
     viewerState.navigation.pose.position.voxelCoordinates = coordinates.toJS();
     return (
       <Suspense fallback={<div>Loading...</div>}>
-        <Neuroglancer perspectiveZoom={80} viewerState={viewerState} brainMapsClientId="NOT_A_VALID_ID" />
+        <Neuroglancer perspectiveZoom={80} viewerState={viewerState} brainMapsClientId="NOT_A_VALID_ID" ngServer="https://clio-ng.janelia.org" />
       </Suspense>
     );
   }
