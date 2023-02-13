@@ -10,6 +10,7 @@ const pluginList = [
   'ObjectsView',
   'FindObjectsView',
   'Graph',
+  'MotifView',
 ];
 
 pluginList.forEach(pluginName => {

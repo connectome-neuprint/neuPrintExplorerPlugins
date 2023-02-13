@@ -21,3 +21,4 @@ export { default as SavedSearch } from './SavedSearch';
 export { default as CellObjects } from './CellObjects';
 export { default as CellObjectsSpatialQuery } from './CellObjectsSpatialQuery';
 export { default as FindObjects } from './FindObjects';
+export { default as Motif } from './Motif';
