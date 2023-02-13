@@ -47,7 +47,7 @@ class PartnerCompleteness extends React.Component {
 
   static processResults({ query, apiResponse, actions }) {
     const data = apiResponse.data.map(row => [
-      getBodyIdForTable(query.ds, row[0], true, actions), // bodyId
+      getBodyIdForTable(query.ds, row[0], actions), // bodyId
       row[1], // instance
       row[2], // type
       row[3], // isinput

@@ -37,7 +37,7 @@ class Autapses extends React.Component {
 
   static processResults({ query, apiResponse, actions }) {
     const data = apiResponse.data.map(row => [
-      getBodyIdForTable(query.ds, row[0], true, actions),
+      getBodyIdForTable(query.ds, row[0], actions),
       row[2],
       row[3],
       row[1]

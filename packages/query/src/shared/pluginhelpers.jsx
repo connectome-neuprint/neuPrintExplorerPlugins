@@ -169,11 +169,13 @@ export function generateMitoByTypeBarGraph(roiInfoObject, mitoTotal) {
  * @export
  * @param {string} dataset
  * @param {number} bodyId
- * @param {boolean} hasSkeleton
  * @param {Object} actions
+ * @param {Object} options
+ * @param {string} options.color
+ * @param {boolean} options.skeleton
  * @returns {Object}
  */
-export function getBodyIdForTable(dataset, bodyId, hasSkeleton, actions) {
+export function getBodyIdForTable(dataset, bodyId, actions, options) {
   // don't create the link if the bodyid is not a number.
   if (bodyId === '-') {
     return bodyId;
@@ -181,7 +183,7 @@ export function getBodyIdForTable(dataset, bodyId, hasSkeleton, actions) {
 
   return {
     value: (
-      <BodyId dataSet={dataset} actions={actions}>
+      <BodyId dataSet={dataset} actions={actions} options={options}>
         {bodyId}
       </BodyId>
     ),
@@ -434,7 +436,6 @@ export function createSimpleConnectionsResult(
       roiList,
       connectionWeightHP
     ] = row;
-    const hasSkeleton = true;
     const roiInfoObject = roiInfoObjectJSON !== '' ? JSON.parse(roiInfoObjectJSON) : {};
 
     // make sure none is added to the rois list.
@@ -480,7 +481,7 @@ export function createSimpleConnectionsResult(
 
     const connectionPercentage = ((connectionWeight * 100) / totalConnections).toFixed(2);
 
-    converted[indexOf.bodyId] = getBodyIdForTable(dataset, bodyId, hasSkeleton, actions);
+    converted[indexOf.bodyId] = getBodyIdForTable(dataset, bodyId, actions);
     converted[indexOf.name] = name;
     converted[indexOf.type] = type;
     converted[indexOf.status] = status;

@@ -135,7 +135,7 @@ function processNblastResults(query, apiResponse, actions, submit) {
 
 
     return [
-      getBodyIdForTable(query.pm.dataset, bodyId, true, actions),
+      getBodyIdForTable(query.pm.dataset, bodyId, actions),
       row[1], // instance
       row[2], // type
       row[3], // nblast score

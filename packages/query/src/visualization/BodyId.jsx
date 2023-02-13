@@ -46,28 +46,29 @@ const styles = theme => ({
  * @param {string} dataset
  * @param {Object} actions
  */
-function showSkeleton(id, dataset, actions) {
+function showSkeleton(id, dataset, actions, color) {
   actions.neuroglancerAddandOpen(id, dataset);
-  actions.skeletonAddandOpen(id, dataset);
+  actions.skeletonAddandOpen(id, dataset, null, color);
 }
 
 function BodyId(props) {
-  const { children, dataSet, actions, classes } = props;
+  const { children, dataSet, actions, classes, options } = props;
   const [modal, setModal] = useState(false);
   const neuronbridgeLink = `https://neuronbridge.janelia.org/search?q=${children}`;
   return (
     <div>
       <div className={classes.container}>
         <SelectAndCopyText text={children} actions={actions} />
+        {options.skeleton ? (
         <Tooltip title="Skeleton View">
           <Icon
             className={classes.icon}
-            onClick={() => showSkeleton(children, dataSet, actions)}
+            onClick={() => showSkeleton(children, dataSet, actions, options.color)}
             fontSize="inherit"
           >
             visibility
           </Icon>
-        </Tooltip>
+        </Tooltip>) : ""}
         <Tooltip title="Synapse Connectivity">
           <Icon className={classes.icon} onClick={() => setModal(!modal)} fontSize="inherit">
             donut_small
@@ -94,7 +95,15 @@ BodyId.propTypes = {
   children: PropTypes.number.isRequired,
   dataSet: PropTypes.string.isRequired,
   actions: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  options: PropTypes.object
+};
+
+BodyId.defaultProps = {
+  options: {
+    color: null,
+    skeleton: true
+  },
 };
 
 export default withStyles(styles)(BodyId);

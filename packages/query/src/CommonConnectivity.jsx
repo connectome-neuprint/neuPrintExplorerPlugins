@@ -206,7 +206,7 @@ class CommonConnectivity extends React.Component {
     const data = [];
     Object.keys(groupedByInputOrOutputId).forEach(inputOrOutput => {
       const singleRow = [
-        getBodyIdForTable(query.ds, parseInt(inputOrOutput, 10), true, actions),
+        getBodyIdForTable(query.ds, parseInt(inputOrOutput, 10), actions),
         groupedByInputOrOutputId[inputOrOutput].name,
         groupedByInputOrOutputId[inputOrOutput].type
       ];
