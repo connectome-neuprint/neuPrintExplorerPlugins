@@ -54,12 +54,12 @@ function MotifTable({ motif, headers }) {
           </IconButton>{" "}
           {motif.motifId}{" "}
 					<Tooltip title="Skeleton View">
-						<Icon
+						<IconButton aria-label="show skeleton view" size="small"
 							onClick={motif.skeletonViewLink}
 							fontSize="inherit"
 						>
-							visibility
-						</Icon>
+							<Icon>visibility</Icon>
+						</IconButton>
 					</Tooltip>
         </TableCell>
         <TableCell />
