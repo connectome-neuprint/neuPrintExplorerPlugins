@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import PouchDB from 'pouchdb';
 import { withStyles } from '@material-ui/core/styles';
-import { Sketch, NEURON_COLORS } from '@vimo-public/vimo-sketches';
+import { NEURON_COLORS } from '@vimo-public/vimo-sketches';
+import Vimo from "./Vimo";
 import { getBodyIdForTable } from './shared/pluginhelpers';
 
 const styles = () => ({
@@ -99,7 +100,7 @@ export class Motif extends React.Component {
     this.state = {};
   }
 
-  processRequest = (data) => {
+  processRequest = (cypher) => {
     const { dataSet, submit } = this.props;
     const query = {
       dataSet, // <string> for the data set selected
@@ -109,7 +110,7 @@ export class Motif extends React.Component {
         rowsPerPage: 25,
       },
       parameters: {
-        cypherQuery: data,
+        cypherQuery: cypher,
         dataset: dataSet,
       },
     };
@@ -117,20 +118,23 @@ export class Motif extends React.Component {
   };
 
   render() {
-    const { dataSet, isQuerying, token } = this.props;
+    const { dataSet, isQuerying, token, vimoServer } = this.props;
     // const dataServer = window.location.origin;
     const dataServer = 'https://neuprint.janelia.org';
     const dataVersion = dataSet;
-    const vimoServer = 'https://vimo-server-bmcp5imp6q-ue.a.run.app';
+    // const vimoServer = 'https://vimo-server-bmcp5imp6q-uk.a.run.app';
+    // const vimoServer = 'http://localhost:4242';
     return (
-      <Sketch
-        data_server={dataServer}
-        data_version={dataVersion}
+		<>
+      <Vimo
+        dataServer={dataServer}
+        dataVersion={dataVersion}
         token={token}
         isQuerying={isQuerying}
         processRequest={this.processRequest}
-        vimo_server={vimoServer}
+        vimoServer={vimoServer}
       />
+			</>
     );
   }
 }
@@ -140,6 +144,7 @@ Motif.propTypes = {
   dataSet: PropTypes.string.isRequired,
   submit: PropTypes.func.isRequired,
   token: PropTypes.string.isRequired,
+	vimoServer: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(Motif);
