@@ -43,7 +43,7 @@ function hexToRgbA(hex, opacity = 1) {
 
 
 function MotifTable({ motif, headers }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   return (
     <>
@@ -87,9 +87,9 @@ function MotifTable({ motif, headers }) {
                     >
                       {node.cells.map((cell) => {
                         if (cell && typeof cell === 'object' && 'value' in cell) {
-                          return <TableCell>{cell.value}</TableCell>;
+                          return <TableCell key={cell}>{cell.value}</TableCell>;
                         }
-                        return <TableCell>{cell}</TableCell>;
+                        return <TableCell key={cell} >{cell}</TableCell>;
                       })}
                     </TableRow>
                   ))}
