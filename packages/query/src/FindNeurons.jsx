@@ -70,6 +70,31 @@ function findMinSortValue(row, inputROIs, outputROIs) {
   return Math.min(...counts);
 }
 
+function fetchDataSetColumns(dataset) {
+   fetch('/api/custom/custom?np_explorer=column_request', {
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        dataset,
+        cypher: `MATCH (n:Meta) RETURN n.neuronColumns, n.neuronColumnsVisible`
+      }),
+      method: 'POST',
+      credentials: 'include'
+    })
+    .then(result => {
+        if (result.ok) {
+          return result.json();
+        }
+        throw new Error(
+          'Unable to fetch column headers, try reloading the page. If this error persists, please contact support.'
+        );
+      })
+    .then(resp => {
+      console.log(resp);
+    });
+}
+
 function neuronConditionCypher(neuronName, neuronId, useContains) {
   const regstr = useContains ? " CONTAINS " : "=~"
 
@@ -234,6 +259,16 @@ export class FindNeurons extends React.Component {
   static getColumnHeaders(query) {
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = query.pm;
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
+
+    // look for neuronColumns and neuronColumns visible in the
+    // dataset Meta
+    // if present, add the columns to the returned array.
+    // Probably need to merge the columns from the Meta data
+    // as they don't cover everything that we want to display.
+
+    const dataSetColumns = fetchDataSetColumns(query.ds)
+    console.log(dataSetColumns);
+
 
     const columnIds = [
       { name: 'id', status: true },
