@@ -257,7 +257,8 @@ export class FindNeurons extends React.Component {
       { name: 'brain region heatmap', status: false },
       { name: 'mitochondria', status: false },
       { name: 'mitochondria by brain region', status: false },
-      { name: 'top mitochondria by type', status: false }
+      { name: 'top mitochondria by type', status: false },
+      { name: 'class', status: false }
     );
     return columnIds;
   }
@@ -277,7 +278,7 @@ export class FindNeurons extends React.Component {
         columnIds.push(`${roi}Pre`);
       });
     }
-    columnIds.push('size', 'roiBarGraph', 'roiHeatMap', 'mitoTotal', 'mitoByRegion', 'mitoByType');
+    columnIds.push('size', 'roiBarGraph', 'roiHeatMap', 'mitoTotal', 'mitoByRegion', 'mitoByType', 'class');
 
     const indexOf = setColumnIndices(columnIds);
 
@@ -317,6 +318,7 @@ export class FindNeurons extends React.Component {
         converted[indexOf.roiHeatMap] = '';
         converted[indexOf.roiBarGraph] = '';
         converted[indexOf.notes] = row[9] || '';
+        converted[indexOf.class] = row[10] || '';
 
         // make sure none is added to the rois list.
         roiList.push('None');
@@ -414,6 +416,7 @@ export class FindNeurons extends React.Component {
     columns[indexOf.mitoTotal] = '#mitochondria';
     columns[indexOf.mitoByRegion] = 'mitochondria by brain region';
     columns[indexOf.mitoByType] = 'top mitochondria by type';
+    columns[indexOf.class] = 'class';
 
     if (rois.length > 0) {
       rois.forEach(roi => {
