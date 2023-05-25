@@ -161,7 +161,7 @@ export class FindNeurons extends React.Component {
 
     const hasConditions = conditions.length > 0 ? 'WHERE' : '';
 
-    const cypherQuery = `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (neuron :${neuronSegment}) ${hasConditions} ${conditions} RETURN neuron.bodyId AS bodyid, neuron.instance AS bodyname, neuron.type AS bodytype, neuron.status AS neuronStatus, neuron.roiInfo AS roiInfo, neuron.size AS size, neuron.pre AS npre, neuron.post AS npost, rois, neuron.notes as notes, neuron.class as class ORDER BY neuron.bodyId`;
+    const cypherQuery = `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (neuron :${neuronSegment}) ${hasConditions} ${conditions} RETURN neuron.bodyId AS bodyid, neuron.instance AS bodyname, neuron.type AS bodytype, neuron.status AS neuronStatus, neuron.roiInfo AS roiInfo, neuron.size AS size, neuron.pre AS npre, neuron.post AS npost, rois, neuron.notes as notes, neuron.class as class, neuron.group as group ORDER BY neuron.bodyId`;
 
     return {
       cypherQuery,
@@ -293,7 +293,9 @@ export class FindNeurons extends React.Component {
       { name: 'mitochondria', status: false },
       { name: 'mitochondria by brain region', status: false },
       { name: 'top mitochondria by type', status: false },
-      { name: 'class', status: false }
+      { name: 'class', status: false },
+      { name: 'group', status: false },
+
     );
     return columnIds;
   }
@@ -313,7 +315,7 @@ export class FindNeurons extends React.Component {
         columnIds.push(`${roi}Pre`);
       });
     }
-    columnIds.push('size', 'roiBarGraph', 'roiHeatMap', 'mitoTotal', 'mitoByRegion', 'mitoByType', 'class');
+    columnIds.push('size', 'roiBarGraph', 'roiHeatMap', 'mitoTotal', 'mitoByRegion', 'mitoByType', 'class', 'group');
 
     const indexOf = setColumnIndices(columnIds);
 
@@ -354,6 +356,7 @@ export class FindNeurons extends React.Component {
         converted[indexOf.roiBarGraph] = '';
         converted[indexOf.notes] = row[9] || '';
         converted[indexOf.class] = row[10] || '';
+        converted[indexOf.group] = row[11] || '';
 
         // make sure none is added to the rois list.
         roiList.push('None');
@@ -452,6 +455,7 @@ export class FindNeurons extends React.Component {
     columns[indexOf.mitoByRegion] = 'mitochondria by brain region';
     columns[indexOf.mitoByType] = 'top mitochondria by type';
     columns[indexOf.class] = 'class';
+    columns[indexOf.group] = 'group';
 
     if (rois.length > 0) {
       rois.forEach(roi => {
