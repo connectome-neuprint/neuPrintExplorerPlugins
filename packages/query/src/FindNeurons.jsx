@@ -70,6 +70,44 @@ function findMinSortValue(row, inputROIs, outputROIs) {
   return Math.min(...counts);
 }
 
+function neuronConditionCypher(neuronName, neuronId, useContains) {
+  const regstr = useContains ? " CONTAINS " : "=~"
+
+  if (neuronName && neuronName !== "") {
+    return `(neuron.type${regstr}"${neuronName}" OR neuron.instance${regstr}"${neuronName}")`;
+  }
+
+  if (neuronId) {
+    return `neuron.bodyId = ${neuronId}`;
+  }
+
+  return "";
+}
+
+function roiCypher(inputROIs=[], outputROIs=[]) {
+  const rois = [...inputROIs, ...outputROIs];
+  if (rois.length === 0) {
+    return '';
+  }
+  return `${rois.map(roi => `(neuron.\`${roi}\` = true)`).join(' AND ')}`;
+}
+
+function statusCypher(statuses=[]) {
+  if (statuses.length === 0) {
+    return '';
+  }
+
+  return `(${statuses.map(status => `neuron.status = "${status}"`).join(' OR ')})`;
+}
+
+function thresholdCypher(type, value) {
+  if (Number.isInteger(value) && value > 0) {
+    return `(neuron.${type} >= ${value})`;
+  }
+  return '';
+}
+
+
 export class FindNeurons extends React.Component {
   static get details() {
     return {
@@ -82,9 +120,28 @@ export class FindNeurons extends React.Component {
     };
   }
 
-  static fetchParameters() {
+  static fetchParameters(params) {
+    // replacing the caned cypher query in neuprintHTTP with a custom query that we
+    // can modify in the client, as it takes less development effort to release a new
+    // client without having to release a new server as well.
+    const neuronSegment = params.all_segments ? 'Segment' : 'Neuron';
+
+    const conditions = [
+      neuronConditionCypher(params.neuron_name, params.neuron_id, params.enable_contains),
+      thresholdCypher('pre', params.pre_threshold),
+      thresholdCypher('post', params.post_threshold),
+      statusCypher(params.statuses),
+      roiCypher(params.input_ROIs, params.output_ROIs)
+    ].filter(condition => condition !== '').join(' AND ');;
+
+    const hasConditions = conditions.length > 0 ? 'WHERE' : '';
+
+    const cypherQuery = `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (neuron :${neuronSegment}) ${hasConditions} ${conditions} RETURN neuron.bodyId AS bodyid, neuron.instance AS bodyname, neuron.type AS bodytype, neuron.status AS neuronStatus, neuron.roiInfo AS roiInfo, neuron.size AS size, neuron.pre AS npre, neuron.post AS npost, rois, neuron.notes as notes, neuron.class as class ORDER BY neuron.bodyId`;
+
     return {
-      queryString: '/npexplorer/findneurons'
+      cypherQuery,
+      queryString: '/custom/custom?np_explorer=find_neurons'
+      // queryString: '/npexplorer/findneurons'
     };
   }
 
