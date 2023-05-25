@@ -77,17 +77,19 @@ An example of this can be seen in the example test file at:
 
 Setup the plugins to rebuild when modified
 
-    % lerna bootstrap
-    % lerna exec npm link
-    % lerna link
-    % lerna exec --parallel -- npm run dev
+    % npx lerna run build
+    % npx lerna bootstrap
+    % sudo npx lerna exec npm link
+    % npx lerna link
+    % npx :w
+    % npx lerna exec --parallel -- npm run dev
 
 Make your changes.
 
 To test the new plugins in your local copy of neuPrintExplorer:
 
     % cd neuPrintExplorer
-    % npm link @neuprint/queries @neuprint/views @neuprint/support
+    % npm install --force mathjs cytoscape chroma-js react-codemirror2 colormap @vimo-public/vimo-sketches && npm link --force @neuprint/views @neuprint/support @neuprint/queries @neuprint/miniroibargraph @neuprint/miniroiheatmap @neuprint/colorbox @neuprint/react-skeleton @neuprint/react-sunburst @neuprint/sunburst @neuprint/heatmap @neuprint/react-heatmap
 
 
 Once you are happy that your plugin is working as intended, you can issue a
