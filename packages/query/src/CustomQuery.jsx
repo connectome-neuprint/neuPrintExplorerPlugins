@@ -165,16 +165,16 @@ export class CustomQuery extends React.Component {
           // remove "EXPLAIN" for debugging
           let message = resp.error.replace('EXPLAIN ', '');
           const colstr = message.match(/column \d+/g);
-          const col_arr = colstr[0].split(' ');
+          const colArr = colstr[0].split(' ');
           message = message.replace(
             colstr,
-            col_arr[0] + ' ' + (parseInt(col_arr[1]) - 8).toString()
+            colArr[0] + ' ' + (parseInt(colArr[1], 10) - 8).toString()
           );
           const offstr = message.match(/offset: \d+/g);
-          const off_arr = offstr[0].split(' ');
+          const offArr = offstr[0].split(' ');
           message = message.replace(
             offstr,
-            off_arr[0] + ' ' + (parseInt(off_arr[1]) - 8).toString()
+            offArr[0] + ' ' + (parseInt(offArr[1], 10) - 8).toString()
           );
 
           this.setState({ errorMessage: message });
