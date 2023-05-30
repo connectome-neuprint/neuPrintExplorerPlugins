@@ -288,15 +288,30 @@ export class FindNeurons extends React.Component {
       });
     }
     columnIds.push(
-      { name: '#voxels', status: false },
-      { name: 'brain region breakdown', status: true },
-      { name: 'brain region heatmap', status: false },
-      { name: 'mitochondria', status: false },
-      { name: 'mitochondria by brain region', status: false },
-      { name: 'top mitochondria by type', status: false },
-      { name: 'class', status: false },
-      { name: 'group', status: false },
-
+      { name: '#voxels', id: "size", status: false },
+      { name: 'brain region breakdown', id: "roiBarGraph", status: true },
+      { name: 'brain region heatmap', id: "roiHeatMap", status: false },
+      { name: 'mitochondria', id: "mitoTotal", status: false },
+      { name: 'mitochondria by brain region', id: "mitoByRegion", status: false },
+      { name: 'top mitochondria by type', id: "mitoByType", status: false },
+      { name: 'class', id: "class", status: false },
+      { name: 'entry nerve', id: "entryNerve", status: false },
+      { name: 'exit nerve', id: "exitNerve", status: false },
+      { name: 'group', id: "group", status: false },
+      { name: 'hemilineage', id: "hemilineage", status: false },
+      { name: 'long tract', id: "longTract", status: false },
+      { name: 'predicted nt', id: "predictedNt", status: false },
+      { name: 'subclass', id: "subclass", status: false },
+      { name: 'synonyms', id: "synonyms", status: false },
+      { name: 'systematic type', id: "systematicType", status: false },
+      { name: 'origin', id: "origin", status: false },
+      { name: 'target', id: "target", status: false },
+      { name: 'soma neuromere', id: "somaNeuromere", status: false },
+      { name: 'soma side', id: "somaSide", status: false },
+      { name: 'birth time', id: "birthtime", status: false },
+      { name: 'serial', id: "serial", status: false },
+      { name: 'serial motif', id: "serialMotif", status: false },
+      { name: 'modality', id: "modality", status: false },
     );
     return columnIds;
   }
