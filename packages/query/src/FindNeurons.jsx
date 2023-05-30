@@ -161,7 +161,8 @@ export class FindNeurons extends React.Component {
 
     const hasConditions = conditions.length > 0 ? 'WHERE' : '';
 
-    const cypherQuery = `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (neuron :${neuronSegment}) ${hasConditions} ${conditions} RETURN neuron.bodyId AS bodyid, neuron.instance AS bodyname, neuron.type AS bodytype, neuron.status AS neuronStatus, neuron.roiInfo AS roiInfo, neuron.size AS size, neuron.pre AS npre, neuron.post AS npost, rois, neuron.notes as notes, neuron.class as class, neuron.group as group ORDER BY neuron.bodyId`;
+    // const cypherQuery = `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (neuron :${neuronSegment}) ${hasConditions} ${conditions} RETURN neuron.bodyId AS bodyid, neuron.instance AS bodyname, neuron.type AS bodytype, neuron.status AS neuronStatus, neuron.roiInfo AS roiInfo, neuron.size AS size, neuron.pre AS npre, neuron.post AS npost, rois, neuron.notes as notes, neuron.class as class, neuron.group as group, neuron.hemilineage as hemilineage ORDER BY neuron.bodyId`;
+    const cypherQuery = `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (neuron :${neuronSegment}) ${hasConditions} ${conditions} RETURN neuron, rois ORDER BY neuron.bodyId`;
 
     return {
       cypherQuery,
@@ -271,19 +272,19 @@ export class FindNeurons extends React.Component {
 
 
     const columnIds = [
-      { name: 'id', status: true },
-      { name: 'instance', status: false },
-      { name: 'notes', status: false },
-      { name: 'type', status: true },
-      { name: 'status', status: true },
-      { name: 'inputs (#post)', status: true },
-      { name: 'outputs (#pre)', status: true }
+      { name: 'id', id: "bodyId", status: true},
+      { name: 'instance', id: "instance", status: false },
+      { name: 'notes', id: "notes", status: false },
+      { name: 'type', id: "type", status: true },
+      { name: 'status', id: "status", status: true },
+      { name: 'inputs (#post)', id: "post", status: true },
+      { name: 'outputs (#pre)', id: "pre", status: true }
     ];
 
     if (rois.length > 0) {
       rois.forEach(roi => {
-        columnIds.push({ name: `${roi} #post`, status: true });
-        columnIds.push({ name: `${roi} #pre`, status: true });
+        columnIds.push({ name: `${roi} #post`, id: `roiPost${roi}`, status: true });
+        columnIds.push({ name: `${roi} #pre`, id: `roiPre${roi}`, status: true });
       });
     }
     columnIds.push(
@@ -305,164 +306,140 @@ export class FindNeurons extends React.Component {
   // visualization plugin.
   static processResults({ query, apiResponse, actions, submitFunc }) {
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = query.pm;
-    const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
 
-    // assigns data properties to column indices for convenient access/modification
-    const columnIds = ['bodyId', 'instance', 'notes', 'type', 'status', 'post', 'pre'];
-    if (rois.length > 0) {
-      rois.forEach(roi => {
-        columnIds.push(`${roi}Post`);
-        columnIds.push(`${roi}Pre`);
+    const colHeaders = this.getColumnHeaders(query);
+
+    const data = apiResponse.data.map(row => {
+      // if we get everything back as a JSON object, then we should be able to sort
+      // and modify the response based on the colHeaders array
+
+      const entry = row[0];
+      const roiList = row[1];
+      // make sure none is added to the rois list.
+      roiList.push('None');
+      const roiInfoObject = JSON.parse(entry.roiInfo);
+      // for each row check to see if the row should be rejected
+      if (rejectRowCheck('post', roiInfoObject, inputROIs)) {
+        return null;
+      }
+      if (rejectRowCheck('pre', roiInfoObject, outputROIs)) {
+        return null;
+      }
+
+      const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
+        roiInfoObject,
+        roiList,
+        entry.pre,
+        entry.post
+      );
+
+      const filteredROIs = {};
+      Object.keys(roiInfoObject).forEach(roi => {
+        if (roiList.find(element => element === roi)) {
+          filteredROIs[roi] = roiInfoObject[roi];
+        }
       });
-    }
-    columnIds.push('size', 'roiBarGraph', 'roiHeatMap', 'mitoTotal', 'mitoByRegion', 'mitoByType', 'class', 'group');
-
-    const indexOf = setColumnIndices(columnIds);
-
-    const data = apiResponse.data
-      // sort based on inputs and outputs selected.
-      .sort((b, a) => {
-        // determine the columns we need
-        const aValue = findMinSortValue(a, inputROIs, outputROIs);
-        const bValue = findMinSortValue(b, inputROIs, outputROIs);
-        // return the result
-        return aValue - bValue;
-      })
-      .map(row => {
-        const hasSkeleton = row[8];
-        const bodyId = row[0];
-        const roiList = row[8];
-        const totalPre = row[6];
-        const totalPost = row[7];
-        const roiInfoObject = JSON.parse(row[4]);
-
-        // filter out the rows that don't have the selected inputs or outputs.
-        if (rejectRowCheck('post', roiInfoObject, inputROIs)) {
-          return null;
+      const mitoTotal = Object.values(filteredROIs).reduce((i, info) => {
+        if (info.mito) {
+          return info.mito + i;
         }
-        if (rejectRowCheck('pre', roiInfoObject, outputROIs)) {
-          return null;
+          return i;
+        }, 0);
+
+
+      const converted = [];
+      // loop over the colHeaders and look for the id/key in the JSON.
+      colHeaders.forEach(header => {
+        let colValue = entry[header.id] || '';
+        // for certain headers we need to modify the returned results
+        if (header.id === 'bodyId') {
+          colValue = getBodyIdForTable(query.ds, entry[header.id], roiList, actions);
         }
-
-        const converted = [];
-        converted[indexOf.bodyId] = getBodyIdForTable(query.ds, bodyId, hasSkeleton, actions);
-        converted[indexOf.instance] = row[1];
-        converted[indexOf.type] = row[2];
-        converted[indexOf.status] = row[3];
-        converted[indexOf.post] = '-'; // empty unless roiInfoObject present
-        converted[indexOf.pre] = '-';
-        converted[indexOf.size] = row[5];
-        converted[indexOf.roiHeatMap] = '';
-        converted[indexOf.roiBarGraph] = '';
-        converted[indexOf.notes] = row[9] || '';
-        converted[indexOf.class] = row[10] || '';
-        converted[indexOf.group] = row[11] || '';
-
-        // make sure none is added to the rois list.
-        roiList.push('None');
-        if (roiInfoObject) {
-          const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
-            roiInfoObject,
-            roiList,
-            totalPre,
-            totalPost
-          );
-          converted[indexOf.roiHeatMap] = heatMap;
-          converted[indexOf.roiBarGraph] = barGraph;
-
+        if (header.id === 'post') {
           const postQuery = createSimpleConnectionQueryObject({
             dataSet: query.ds,
             isPost: true,
-            queryId: bodyId
+            queryId: entry.bodyId
           });
-          converted[indexOf.post] = {
-            value: totalPost,
+          colValue = {
+            value: entry.post,
             action: () => submitFunc(postQuery)
           };
-
+        }
+        if (header.id === 'pre') {
           const preQuery = createSimpleConnectionQueryObject({
             dataSet: query.ds,
-            queryId: bodyId
+            queryId: entry.bodyId
           });
-          converted[indexOf.pre] = {
-            value: totalPre,
+          colValue = {
+            value: entry.pre,
             action: () => submitFunc(preQuery)
           };
-
-          const filteredROIs = {};
-          Object.keys(roiInfoObject).forEach(roi => {
-            if (roiList.find(element => element === roi)) {
-              filteredROIs[roi] = roiInfoObject[roi];
-            }
-          });
-
-
-          const mitoTotal = Object.values(filteredROIs).reduce((i, info) => {
-            if (info.mito) {
-              return info.mito + i;
-            }
-            return i;
-          }, 0);
-
+        }
+        if (header.id === 'roiHeatMap') {
+          colValue = heatMap;
+        }
+        if (header.id === 'roiBarGraph') {
+          colValue = barGraph;
+        }
+        if (header.id === 'mitoTotal') {
           // TODO: this query object should be generated by the CellObjects plugin, so that
           // we aren't duplicating code here.
-          const cypher = `MATCH(n :Cell {bodyId: ${bodyId}}) -[]-> () -[]-> (m:Element) WHERE m.type="mitochondrion" RETURN ID(m), m.type, m`;
+          const cypher = `MATCH(n :Cell {bodyId: ${entry.bodyId}}) -[]-> () -[]-> (m:Element) WHERE m.type="mitochondrion" RETURN ID(m), m.type, m`;
           const mitoQuery = {
             dataSet: query.ds,
             pluginCode: 'cos',
             pluginName: 'CellObjects',
             parameters: {
               dataset: query.ds,
-              bodyId,
+              bodyId: entry.bodyId,
               cypherQuery: cypher
             }
           };
-
-          converted[indexOf.mitoTotal] = {
+          colValue = {
             value: mitoTotal,
             action: () => submitFunc(mitoQuery)
           };
-          converted[indexOf.mitoByRegion] = generateMitoBarGraph(filteredROIs, mitoTotal);
-          converted[indexOf.mitoByType] = generateMitoByTypeBarGraph(filteredROIs, mitoTotal);
-
-          if (rois.length > 0) {
-            rois.forEach(roi => {
-              converted[indexOf[`${roi}Post`]] = roiInfoObject[roi].post;
-              converted[indexOf[`${roi}Pre`]] = roiInfoObject[roi].pre;
-            });
+        }
+        if (header.id === 'mitoByType') {
+          colValue = generateMitoByTypeBarGraph(filteredROIs, mitoTotal);
+        }
+        if (header.id === 'mitoByRegion') {
+          colValue = generateMitoBarGraph(filteredROIs, mitoTotal);
+        }
+        const postMatch = header.id.match(/^roiPost(.*)$/);
+        if (postMatch) {
+          colValue = '0';
+          if (roiInfoObject[postMatch[1]]) {
+            colValue = roiInfoObject[postMatch[1]].post || '0';
+          }
+        }
+        const preMatch = header.id.match(/^roiPre(.*)$/);
+        if (preMatch) {
+          colValue = '0';
+          if (roiInfoObject[preMatch[1]]) {
+            colValue = roiInfoObject[preMatch[1]].pre || '0';
           }
         }
 
-        return converted;
-      })
-      .filter(row => row !== null);
-    const columns = [];
-    columns[indexOf.bodyId] = 'id';
-    columns[indexOf.instance] = 'instance';
-    columns[indexOf.notes] = 'notes';
-    columns[indexOf.type] = 'type';
-    columns[indexOf.status] = 'status';
-    columns[indexOf.post] = 'inputs (#post)';
-    columns[indexOf.pre] = 'outputs (#pre)';
-    columns[indexOf.size] = '#voxels';
-    columns[indexOf.roiHeatMap] = (
-      <div>
-        roi heatmap <ColorLegend />
-      </div>
-    );
-    columns[indexOf.roiBarGraph] = 'brain region breakdown';
-    columns[indexOf.mitoTotal] = '#mitochondria';
-    columns[indexOf.mitoByRegion] = 'mitochondria by brain region';
-    columns[indexOf.mitoByType] = 'top mitochondria by type';
-    columns[indexOf.class] = 'class';
-    columns[indexOf.group] = 'group';
-
-    if (rois.length > 0) {
-      rois.forEach(roi => {
-        columns[indexOf[`${roi}Post`]] = `${roi} #post`;
-        columns[indexOf[`${roi}Pre`]] = `${roi} #pre`;
+        converted.push(colValue);
       });
-    }
+      return converted;
+    })
+    .filter(row => row !== null);
+
+    // replace headers that need to have JSX and not just text.
+    const columns = colHeaders.map(header => {
+      if (header.id === 'roiHeatMap') {
+        return (
+          <div>
+            roi heatmap <ColorLegend />
+          </div>
+        );
+      }
+      return header.name;
+    });
+
 
     return {
       columns,
