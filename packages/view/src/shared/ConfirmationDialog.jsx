@@ -22,6 +22,27 @@ class ConfirmationDialog extends React.Component {
     onChange(index);
   };
 
+  handleSelectAll = () => {
+    const { columns, onChange } = this.props;
+    columns.forEach((column, index) => {
+      if (column.hidden || column.status === true) {
+        return;
+      }
+      onChange(index);
+    });
+  }
+
+  handleSelectNone = () => {
+    const { columns, onChange } = this.props;
+    columns.forEach((column, index) => {
+      if (column.hidden || column.status === false) {
+        return;
+      }
+      onChange(index);
+    });
+  }
+
+
   render() {
     const { open, columns } = this.props;
 
@@ -56,6 +77,12 @@ class ConfirmationDialog extends React.Component {
       >
         <DialogTitle id="confirmation-dialog-title">Column Selection</DialogTitle>
         <DialogContent>
+          <Button onClick={this.handleSelectAll} color="primary">
+            Select All
+          </Button>
+          <Button onClick={this.handleSelectNone} color="primary">
+            Clear All
+          </Button>
           <List>{options}</List>
         </DialogContent>
         <DialogActions>
