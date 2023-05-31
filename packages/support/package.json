@@ -21,8 +21,8 @@
   },
   "homepage": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins#readme",
   "peerDependencies": {
-    "@material-ui/core": "^4.9.4",
-    "@material-ui/icons": "^4.9.1",
+    "@material-ui/core": "^4.12.3",
+    "@material-ui/icons": "^4.11.2",
     "core-js": "^3.6.5",
     "prop-types": "^15.6.2",
     "react": "^16.11.0",
