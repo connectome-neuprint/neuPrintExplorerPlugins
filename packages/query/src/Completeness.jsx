@@ -6,6 +6,11 @@ import PropTypes from 'prop-types';
 
 import Button from '@material-ui/core/Button';
 
+import NeuronFilterNew, {
+  convertToCypher,
+  thresholdCypher,
+  statusCypher
+} from './shared/NeuronFilterNew';
 import NeuronFilter from './shared/NeuronFilter';
 
 const pluginName = 'Completeness';
@@ -30,9 +35,25 @@ class Completeness extends React.Component {
     return columnHeaders.map(column => ({ name: column, status: true }));
   }
 
-  static fetchParameters() {
+
+  static fetchParameters(params) {
+    const filters = params.filters ? Object.entries(params.filters).map(([filterName, value]) => {
+      return convertToCypher(filterName, Array.isArray(value) ? value : [value])
+    }) : [];
+
+    const conditions = [
+      thresholdCypher('pre', params.pre),
+      thresholdCypher('post', params.post),
+      statusCypher(params.statuses),
+      ...filters
+    ].filter(condition => condition !== '').join(' AND ');
+
+    const hasConditions = conditions.length > 0 ? 'WHERE' : '';
+
+    const cypherQuery = `MATCH (neuron:Neuron) ${hasConditions} ${conditions} WITH apoc.convert.fromJsonMap(neuron.roiInfo) AS roiInfo WITH roiInfo AS roiInfo, keys(roiInfo) AS roiList UNWIND roiList AS roiName WITH roiName AS roiName, sum(roiInfo[roiName].pre) AS pre, sum(roiInfo[roiName].post) AS post MATCH (meta:Meta) WITH apoc.convert.fromJsonMap(meta.roiInfo) AS globInfo, roiName AS roiName, pre AS pre, post AS post RETURN roiName AS unlabelres, pre AS roipre, post AS roipost, globInfo[roiName].pre AS totalpre, globInfo[roiName].post AS totalpost ORDER BY roiName`;
     return {
-      queryString: '/npexplorer/completeness'
+      cypherQuery,
+      queryString: '/custom/custom?np_explorer=completeness'
     };
   }
 
@@ -71,22 +92,29 @@ class Completeness extends React.Component {
     this.state = {
       limitNeurons: true,
       statusFilters: [],
-      preThreshold: 0,
-      postThreshold: 0
+      filters: {},
+      pre: 0,
+      post: 0
     };
   }
 
   loadNeuronFilters = params => {
     this.setState({
-      statusFilters: params.statusFilters,
-      preThreshold: parseInt(params.preThreshold, 10),
-      postThreshold: parseInt(params.postThreshold, 10)
+      statusFilters: params.statusFilters || params.status,
+      pre: parseInt(params.pre, 10),
+      post: parseInt(params.post, 10)
+    });
+  };
+
+  loadNeuronFiltersNew = filters => {
+    this.setState({
+      filters
     });
   };
 
   processRequest = () => {
     const { dataSet, submit } = this.props;
-    const { limitNeurons, statusFilters, preThreshold, postThreshold } = this.state;
+    const { limitNeurons, statusFilters, pre, post, filters } = this.state;
 
     const parameters = {
       dataset: dataSet,
@@ -94,12 +122,16 @@ class Completeness extends React.Component {
       all_segments: !limitNeurons
     };
 
-    if (preThreshold > 0) {
-      parameters.pre_threshold = preThreshold;
+    if (Object.keys(filters).length > 0) {
+      parameters.filters = filters;
     }
 
-    if (postThreshold > 0) {
-      parameters.post_threshold = postThreshold;
+    if (pre > 0) {
+      parameters.pre = pre;
+    }
+
+    if (post > 0) {
+      parameters.post = post;
     }
 
     const query = {
@@ -115,12 +147,21 @@ class Completeness extends React.Component {
     const { isQuerying, dataSet, actions, neoServerSettings } = this.props;
     return (
       <div>
-        <NeuronFilter
+        {dataSet.match(/vnc/) ? (
+        <NeuronFilterNew
+          callback={this.loadNeuronFiltersNew}
+          datasetstr={dataSet}
+          actions={actions}
+          neoServer={neoServerSettings.get('neoServer')}
+        />
+        ) : (
+         <NeuronFilter
           callback={this.loadNeuronFilters}
           datasetstr={dataSet}
           actions={actions}
           neoServer={neoServerSettings.get('neoServer')}
         />
+        )}
         <Button
           disabled={isQuerying}
           color="primary"

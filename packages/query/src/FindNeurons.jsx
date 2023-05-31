@@ -13,11 +13,14 @@ import Typography from '@material-ui/core/Typography';
 import { ColorLegend } from '@neuprint/miniroiheatmap';
 import NeuronInputField from './shared/NeuronInputField';
 import AdvancedNeuronInput from './shared/AdvancedNeuronInput';
-import NeuronFilterNew, { convertToCypher } from './shared/NeuronFilterNew';
+import NeuronFilterNew, {
+  convertToCypher,
+  thresholdCypher,
+  statusCypher
+} from './shared/NeuronFilterNew';
 import NeuronFilter from './shared/NeuronFilter';
 import BrainRegionInput from './shared/BrainRegionInput';
 import {
-  setColumnIndices,
   createSimpleConnectionQueryObject,
   generateRoiHeatMapAndBarGraph,
   generateMitoBarGraph,
@@ -118,21 +121,6 @@ function roiCypher(inputROIs=[], outputROIs=[]) {
   return `${rois.map(roi => `(neuron.\`${roi}\` = true)`).join(' AND ')}`;
 }
 
-function statusCypher(statuses=[]) {
-  if (statuses.length === 0) {
-    return '';
-  }
-
-  return `(${statuses.map(status => `neuron.status = "${status}"`).join(' OR ')})`;
-}
-
-function thresholdCypher(type, value) {
-  if (Number.isInteger(value) && value > 0) {
-    return `(neuron.${type} >= ${value})`;
-  }
-  return '';
-}
-
 export class FindNeurons extends React.Component {
   static get details() {
     return {
@@ -164,7 +152,7 @@ export class FindNeurons extends React.Component {
       statusCypher(params.statuses),
       roiCypher(params.input_ROIs, params.output_ROIs),
       ...filters
-    ].filter(condition => condition !== '').join(' AND ');;
+    ].filter(condition => condition !== '').join(' AND ');
 
     const hasConditions = conditions.length > 0 ? 'WHERE' : '';
 

@@ -71,6 +71,21 @@ export function convertToCypher(type, values) {
   return '';
 }
 
+export function thresholdCypher(type, value) {
+  if (Number.isInteger(value) && value > 0) {
+    return `(neuron.${type} >= ${value})`;
+  }
+  return '';
+}
+
+export function statusCypher(statuses=[]) {
+  if (statuses.length === 0) {
+    return '';
+  }
+
+  return `(${statuses.map(status => `neuron.status = "${status}"`).join(' OR ')})`;
+}
+
 
 export default function NeuronFilterNew({ callback, actions, datasetstr, neoServer }) {
   const [filters, setFilters] = useState([]);
