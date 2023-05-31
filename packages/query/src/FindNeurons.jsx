@@ -13,6 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import { ColorLegend } from '@neuprint/miniroiheatmap';
 import NeuronInputField from './shared/NeuronInputField';
 import AdvancedNeuronInput from './shared/AdvancedNeuronInput';
+import NeuronFilterNew, { convertToCypher } from './shared/NeuronFilterNew';
 import NeuronFilter from './shared/NeuronFilter';
 import BrainRegionInput from './shared/BrainRegionInput';
 import {
@@ -132,7 +133,6 @@ function thresholdCypher(type, value) {
   return '';
 }
 
-
 export class FindNeurons extends React.Component {
   static get details() {
     return {
@@ -151,17 +151,23 @@ export class FindNeurons extends React.Component {
     // client without having to release a new server as well.
     const neuronSegment = params.all_segments ? 'Segment' : 'Neuron';
 
+    // foreach item in the filters, check if it is an array or a string. if it is
+    // a string, convert it to an array and then run it through the cypher
+    // conversion function
+    const filters = params.filters ? Object.entries(params.filters).map(([filterName, value]) => {
+      return convertToCypher(filterName, Array.isArray(value) ? value : [value])
+    }) : [];
     const conditions = [
       neuronConditionCypher(params.neuron_name, params.neuron_id, params.enable_contains),
-      thresholdCypher('pre', params.pre_threshold),
-      thresholdCypher('post', params.post_threshold),
+      thresholdCypher('pre', params.pre),
+      thresholdCypher('post', params.post),
       statusCypher(params.statuses),
-      roiCypher(params.input_ROIs, params.output_ROIs)
+      roiCypher(params.input_ROIs, params.output_ROIs),
+      ...filters
     ].filter(condition => condition !== '').join(' AND ');;
 
     const hasConditions = conditions.length > 0 ? 'WHERE' : '';
 
-    // const cypherQuery = `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (neuron :${neuronSegment}) ${hasConditions} ${conditions} RETURN neuron.bodyId AS bodyid, neuron.instance AS bodyname, neuron.type AS bodytype, neuron.status AS neuronStatus, neuron.roiInfo AS roiInfo, neuron.size AS size, neuron.pre AS npre, neuron.post AS npost, rois, neuron.notes as notes, neuron.class as class, neuron.group as group, neuron.hemilineage as hemilineage ORDER BY neuron.bodyId`;
     const cypherQuery = `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (neuron :${neuronSegment}) ${hasConditions} ${conditions} RETURN neuron, rois ORDER BY neuron.bodyId`;
 
     return {
@@ -470,11 +476,12 @@ export class FindNeurons extends React.Component {
     this.state = {
       limitNeurons: true,
       statusFilters: [],
-      preThreshold: 0,
-      postThreshold: 0,
+      pre: 0,
+      post: 0,
       neuronInstance: '',
       inputROIs: [],
       outputROIs: [],
+      filters: {},
       useSuper: true,
       advancedSearch: JSON.parse(localStorage.getItem('neuprint_advanced_search')) || false
     };
@@ -487,12 +494,13 @@ export class FindNeurons extends React.Component {
     const {
       statusFilters,
       limitNeurons,
-      preThreshold,
-      postThreshold,
+      pre,
+      post,
       neuronInstance,
       neuronType,
       inputROIs,
       outputROIs,
+      filters,
       advancedSearch
     } = this.state;
 
@@ -503,6 +511,18 @@ export class FindNeurons extends React.Component {
       statuses: statusFilters,
       all_segments: !limitNeurons
     };
+
+    if (pre > 0) {
+      parameters.pre = pre;
+    }
+
+    if (post > 0) {
+      parameters.post = post;
+    }
+
+    if (Object.keys(filters).length > 0) {
+      parameters.filters = filters;
+    }
 
     // if not using an advanced search then we want to query neo4j with
     // the CONTAINS search and not a regex search.
@@ -528,15 +548,7 @@ export class FindNeurons extends React.Component {
       parameters.neuron_type = neuronType;
     }
 
-    if (preThreshold > 0) {
-      parameters.pre_threshold = preThreshold;
-    }
-
-    if (postThreshold > 0) {
-      parameters.post_threshold = postThreshold;
-    }
-
-    const query = {
+        const query = {
       dataSet, // <string> for the data set selected
       plugin: pluginName, // <string> the name of this plugin.
       pluginCode: pluginAbbrev,
@@ -575,11 +587,19 @@ export class FindNeurons extends React.Component {
 
   loadNeuronFilters = params => {
     this.setState({
-      statusFilters: params.statusFilters,
-      preThreshold: parseInt(params.preThreshold, 10),
-      postThreshold: parseInt(params.postThreshold, 10)
+      statusFilters: params.statusFilters || params.status,
+      pre: parseInt(params.pre, 10),
+      post: parseInt(params.post, 10)
     });
   };
+
+  loadNeuronFiltersNew = filters => {
+    this.setState({
+      filters
+    });
+  };
+
+
 
   toggleSuper = event => {
     // TODO: check to see if ROIs are valid. Remove if they are no longer valid.
@@ -676,12 +696,23 @@ export class FindNeurons extends React.Component {
             }
           />
         </FormControl>
-        <NeuronFilter
+        {/* TODO: remove this check when the older datasets have been
+        modified to work with the new filter system */}
+        {dataSet.match(/vnc/) ? (
+        <NeuronFilterNew
+          callback={this.loadNeuronFiltersNew}
+          datasetstr={dataSet}
+          actions={actions}
+          neoServer={neoServerSettings.get('neoServer')}
+        />
+        ) : (
+         <NeuronFilter
           callback={this.loadNeuronFilters}
           datasetstr={dataSet}
           actions={actions}
           neoServer={neoServerSettings.get('neoServer')}
         />
+        )}
         <Button
           disabled={isQuerying}
           color="primary"
