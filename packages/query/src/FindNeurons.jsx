@@ -260,8 +260,8 @@ export class FindNeurons extends React.Component {
     // Probably need to merge the columns from the Meta data
     // as they don't cover everything that we want to display.
 
-    const dataSetColumns = fetchDataSetColumns(query.ds)
-    console.log(dataSetColumns);
+    // const dataSetColumns = fetchDataSetColumns(query.ds)
+    // console.log(dataSetColumns);
 
 
     const columnIds = [
@@ -462,7 +462,7 @@ export class FindNeurons extends React.Component {
     // set the default state for the query input.
     this.state = {
       limitNeurons: true,
-      statusFilters: [],
+      status: [],
       pre: 0,
       post: 0,
       neuronInstance: '',
@@ -479,7 +479,7 @@ export class FindNeurons extends React.Component {
   processRequest = () => {
     const { dataSet, submit, actions } = this.props;
     const {
-      statusFilters,
+      status,
       limitNeurons,
       pre,
       post,
@@ -495,7 +495,7 @@ export class FindNeurons extends React.Component {
       dataset: dataSet,
       input_ROIs: inputROIs,
       output_ROIs: outputROIs,
-      statuses: statusFilters,
+      statuses: status,
       all_segments: !limitNeurons
     };
 
@@ -574,7 +574,7 @@ export class FindNeurons extends React.Component {
 
   loadNeuronFilters = params => {
     this.setState({
-      statusFilters: params.statusFilters || params.status,
+      status: params.status,
       pre: parseInt(params.pre, 10),
       post: parseInt(params.post, 10)
     });

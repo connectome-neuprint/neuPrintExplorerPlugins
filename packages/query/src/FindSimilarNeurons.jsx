@@ -353,7 +353,7 @@ export class FindSimilarNeurons extends React.Component {
 
     this.state = {
       bodyId: '',
-      statusFilters: ['Traced'],
+      status: ['Traced'],
       errorMessage: '',
       algorithm: 'synapse',
       nBlastMatches: false
@@ -371,14 +371,14 @@ export class FindSimilarNeurons extends React.Component {
 
   loadNeuronFilters = params => {
     this.setState({
-      statusFilters: params.statusFilters,
+      status: params.status,
     });
   };
 
 
   submitROIQuery = roiInfo => {
     const { dataSet, superROIs, submit } = this.props;
-    const { bodyId, statusFilters, algorithm } = this.state;
+    const { bodyId, status, algorithm } = this.state;
 
     const superROIsSet = new Set(superROIs);
 
@@ -457,8 +457,8 @@ export class FindSimilarNeurons extends React.Component {
 
     let ROIwhere = '';
 
-    if (statusFilters && statusFilters.length > 0) {
-      ROIwhere = `WHERE n.status IN [${statusFilters.map(status => `"${status}"`).join(", ")}]`;
+    if (status && status.length > 0) {
+      ROIwhere = `WHERE n.status IN [${status.map(statusX => `"${statusX}"`).join(", ")}]`;
     }
 
     const bigroiArr = Array.from(bigrois);

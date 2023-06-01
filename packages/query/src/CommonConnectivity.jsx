@@ -234,7 +234,7 @@ class CommonConnectivity extends React.Component {
     super(props);
     this.state = {
       limitNeurons: true,
-      statusFilters: [],
+      status: [],
       pre: 0,
       post: 0,
       filters: {},
@@ -245,12 +245,12 @@ class CommonConnectivity extends React.Component {
 
   processRequest = () => {
     const { dataSet, submit, actions } = this.props;
-    const { limitNeurons, pre, post, statusFilters, filters } = this.state;
+    const { limitNeurons, pre, post, status, filters } = this.state;
     const { bodyIds, typeValue } = this.state;
 
     const parameters = {
       dataset: dataSet,
-      statuses: statusFilters,
+      statuses: status,
       find_inputs: typeValue !== 'output',
       neuron_ids: bodyIds === '' ? [] : bodyIds.split(',').map(Number),
       all_segments: !limitNeurons
@@ -294,7 +294,7 @@ class CommonConnectivity extends React.Component {
 
   loadNeuronFilters = params => {
     this.setState({
-      statusFilters: params.statusFilters,
+      status: params.status,
       pre: parseInt(params.pre, 10),
       post: parseInt(params.post, 10)
     });

@@ -90,7 +90,7 @@ class Completeness extends React.Component {
 
     this.state = {
       limitNeurons: true,
-      statusFilters: [],
+      status: [],
       filters: {},
       pre: 0,
       post: 0
@@ -99,7 +99,7 @@ class Completeness extends React.Component {
 
   loadNeuronFilters = params => {
     this.setState({
-      statusFilters: params.statusFilters || params.status,
+      status: params.status,
       pre: parseInt(params.pre, 10),
       post: parseInt(params.post, 10)
     });
@@ -113,11 +113,11 @@ class Completeness extends React.Component {
 
   processRequest = () => {
     const { dataSet, submit } = this.props;
-    const { limitNeurons, statusFilters, pre, post, filters } = this.state;
+    const { limitNeurons, status, pre, post, filters } = this.state;
 
     const parameters = {
       dataset: dataSet,
-      statuses: statusFilters,
+      statuses: status,
       all_segments: !limitNeurons
     };
 

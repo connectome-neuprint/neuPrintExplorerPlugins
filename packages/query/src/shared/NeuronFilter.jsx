@@ -51,9 +51,7 @@ class NeuronFilter extends React.Component {
     super(props);
 
     const initParams = {
-      limitNeurons: true,
-      statusFilters: [],
-      modalityFilters: [],
+      status: [],
       pre: '',
       post: ''
     };
@@ -78,9 +76,9 @@ class NeuronFilter extends React.Component {
     if (nextProps.neoServer !== neoServer || nextProps.datasetstr !== datasetstr) {
       this.queryStatuses(nextProps.neoServer, nextProps.datasetstr);
       const { qsParams } = this.state;
-      const statusFilters = [];
-      const newParams = {...qsParams, statusFilters};
-      actions.setQueryString({ NFilter: { statusFilters } });
+      const status = [];
+      const newParams = {...qsParams, status};
+      actions.setQueryString({ NFilter: { status } });
       this.setState({ qsParams: newParams });
     }
   }
@@ -147,7 +145,7 @@ class NeuronFilter extends React.Component {
       value: name
     }));
 
-    const statusValue = qsParams.statusFilters.map(roi => ({
+    const statusValue = qsParams.status.map(roi => ({
       label: roi,
       value: roi
     }));
@@ -190,7 +188,7 @@ class NeuronFilter extends React.Component {
                   className={classes.select}
                   isMulti
                   value={statusValue}
-                  onChange={(event) => this.handleChange(event, 'statusFilters')}
+                  onChange={(event) => this.handleChange(event, 'status')}
                   options={statusOptions}
                   closeMenuOnSelect={false}
                 />
