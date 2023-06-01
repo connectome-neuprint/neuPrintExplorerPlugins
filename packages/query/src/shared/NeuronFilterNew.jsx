@@ -10,6 +10,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
+import NeuronFilter from "./NeuronFilter";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -89,11 +90,13 @@ export function statusCypher(statuses=[]) {
 
 export default function NeuronFilterNew({ callback, actions, datasetstr, neoServer }) {
   const [filters, setFilters] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [qsParams, setQsParams] = useState({});
   const classes = useStyles();
 
   useEffect(() => {
     // load in the filters and options
+    setLoading(true);
     fetch('/api/custom/custom?np_explorer=neuron_filter_options', {
       headers: {
         'content-type': 'application/json',
@@ -115,14 +118,42 @@ export default function NeuronFilterNew({ callback, actions, datasetstr, neoServ
         return null;
       })
       .then((result) => {
-        setFilters(JSON.parse(result.data[0]));
+        if (result.data && result.data[0] && result.data[0][0] !== null) {
+          setFilters(JSON.parse(result.data[0]));
+        }
+        setLoading(false);
       })
       .catch((error) => {
+        setLoading(false);
         actions.metaInfoError(
           `Failed to load filter options. If this error persists, please contact support: ${error}`
         );
       });
   }, [datasetstr, neoServer, actions]);
+
+  if (loading) {
+    return (
+      <div className={classes.expandablePanel}>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="subtitle1">Optional neuron/segment filters</Typography>
+          </AccordionSummary>
+          <AccordionDetails className={classes.nopad}>
+            <p>Loading...</p>
+          </AccordionDetails>
+        </Accordion>
+      </div>
+    );
+  }
+
+  if (!loading && filters.length === 0) {
+    return (<NeuronFilter
+      callback={callback}
+      datasetstr={datasetstr}
+      actions={actions}
+      neoServer={neoServer}
+    />);
+  }
 
   function handleTextChange(event, paramType) {
     const { value } = event.target;

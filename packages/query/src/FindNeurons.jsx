@@ -18,7 +18,6 @@ import NeuronFilterNew, {
   thresholdCypher,
   statusCypher
 } from './shared/NeuronFilterNew';
-import NeuronFilter from './shared/NeuronFilter';
 import BrainRegionInput from './shared/BrainRegionInput';
 import {
   createSimpleConnectionQueryObject,
@@ -684,23 +683,12 @@ export class FindNeurons extends React.Component {
             }
           />
         </FormControl>
-        {/* TODO: remove this check when the older datasets have been
-        modified to work with the new filter system */}
-        {dataSet.match(/vnc/) ? (
         <NeuronFilterNew
           callback={this.loadNeuronFiltersNew}
           datasetstr={dataSet}
           actions={actions}
           neoServer={neoServerSettings.get('neoServer')}
         />
-        ) : (
-         <NeuronFilter
-          callback={this.loadNeuronFilters}
-          datasetstr={dataSet}
-          actions={actions}
-          neoServer={neoServerSettings.get('neoServer')}
-        />
-        )}
         <Button
           disabled={isQuerying}
           color="primary"

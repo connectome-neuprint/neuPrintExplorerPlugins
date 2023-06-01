@@ -17,7 +17,6 @@ import NeuronFilterNew, {
   thresholdCypher,
   statusCypher
 } from './shared/NeuronFilterNew';
-import NeuronFilter from './shared/NeuronFilter';
 import { getBodyIdForTable } from './shared/pluginhelpers';
 
 const styles = theme => ({
@@ -354,21 +353,12 @@ class CommonConnectivity extends React.Component {
           <FormControlLabel value="input" control={<Radio color="primary" />} label="Inputs" />
           <FormControlLabel value="output" control={<Radio color="primary" />} label="Outputs" />
         </RadioGroup>
-        {dataSet.match(/vnc/) ? (
         <NeuronFilterNew
           callback={this.loadNeuronFiltersNew}
           datasetstr={dataSet}
           actions={actions}
           neoServer={neoServerSettings.get('neoServer')}
         />
-        ) : (
-         <NeuronFilter
-          callback={this.loadNeuronFilters}
-          datasetstr={dataSet}
-          actions={actions}
-          neoServer={neoServerSettings.get('neoServer')}
-        />
-        )}
         <Button variant="contained" color="primary" onClick={this.processRequest}>
           Submit
         </Button>

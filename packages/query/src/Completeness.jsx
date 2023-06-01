@@ -11,7 +11,6 @@ import NeuronFilterNew, {
   thresholdCypher,
   statusCypher
 } from './shared/NeuronFilterNew';
-import NeuronFilter from './shared/NeuronFilter';
 
 const pluginName = 'Completeness';
 const pluginAbbrev = 'co';
@@ -147,21 +146,12 @@ class Completeness extends React.Component {
     const { isQuerying, dataSet, actions, neoServerSettings } = this.props;
     return (
       <div>
-        {dataSet.match(/vnc/) ? (
         <NeuronFilterNew
           callback={this.loadNeuronFiltersNew}
           datasetstr={dataSet}
           actions={actions}
           neoServer={neoServerSettings.get('neoServer')}
         />
-        ) : (
-         <NeuronFilter
-          callback={this.loadNeuronFilters}
-          datasetstr={dataSet}
-          actions={actions}
-          neoServer={neoServerSettings.get('neoServer')}
-        />
-        )}
         <Button
           disabled={isQuerying}
           color="primary"
