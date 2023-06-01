@@ -174,9 +174,10 @@ export default function NeuronFilterNew({ callback, actions, datasetstr, neoServ
 
   const filterInputs = filters
     .map((filter) => {
-      if (filter.id.match(/^(bodyId|type|instance)$/)) {
+      if (filter.id.match(/^(bodyId|type|instance)$/) || filter.choices === undefined) {
         return null;
       }
+
       if (!filter.choices) {
         return (
           <FormControl className={classes.formControl} key={filter.id}>
