@@ -518,7 +518,7 @@ export class FindNeurons extends React.Component {
     }
 
     // don't allow submission if there are no filters set.
-    if (neuronInstance === '' && inputROIs.length === 0 && outputROIs.length === 0) {
+    if (neuronInstance === '' && inputROIs.length === 0 && outputROIs.length === 0 && Object.keys(filters).length === 0) {
       actions.formError('Please apply at least one of the filters in the form.');
       return;
     }
