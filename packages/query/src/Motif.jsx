@@ -28,6 +28,7 @@ export class Motif extends React.Component {
       name: pluginName,
       displayName: 'Motif Query',
       abbr: pluginAbbrev,
+      experimental: true,
       description: 'Sketch interface to query the database for motifs',
       visType: 'MotifView',
     };
@@ -122,8 +123,6 @@ export class Motif extends React.Component {
     // const dataServer = window.location.origin;
     const dataServer = 'https://neuprint.janelia.org';
     const dataVersion = dataSet;
-    // const vimoServer = 'https://vimo-server-bmcp5imp6q-uk.a.run.app';
-    // const vimoServer = 'http://localhost:4242';
     return (
 		<>
       <Vimo
