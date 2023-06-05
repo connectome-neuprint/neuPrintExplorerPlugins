@@ -125,6 +125,7 @@ export class Motif extends React.Component {
     const dataVersion = dataSet;
     return (
 		<>
+      { vimoServer && vimoServer !== '' ? (
       <Vimo
         dataServer={dataServer}
         dataVersion={dataVersion}
@@ -132,8 +133,9 @@ export class Motif extends React.Component {
         isQuerying={isQuerying}
         processRequest={this.processRequest}
         vimoServer={vimoServer}
-      />
-			</>
+        />) : (<span>Loading...</span>
+      )}
+		</>
     );
   }
 }
