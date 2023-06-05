@@ -229,7 +229,7 @@ function processSimilarResults(query, apiResponse, actions, submit) {
     const roiInfoObject = row[6];
 
     const converted = [];
-    converted[indexOf.bodyId] = getBodyIdForTable(query.pm.dataset, bodyId, true, actions);
+    converted[indexOf.bodyId] = getBodyIdForTable(query.pm.dataset, bodyId, actions);
     converted[indexOf.instance] = instance;
     converted[indexOf.notes] = notes;
     converted[indexOf.type] = type;

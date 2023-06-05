@@ -63,7 +63,7 @@ export class Motif extends React.Component {
             cells: [
               apiResponse.columns[itemIndex],
               item.type || '-',
-              getBodyIdForTable(query.ds, item.bodyId, true, actions, {
+              getBodyIdForTable(query.ds, item.bodyId, actions, {
                 skeleton: false,
               }),
               item.status,

@@ -361,7 +361,7 @@ export class FindNeurons extends React.Component {
         let colValue = entry[header.id] || '';
         // for certain headers we need to modify the returned results
         if (header.id === 'bodyId') {
-          colValue = getBodyIdForTable(query.ds, entry[header.id], roiList, actions);
+          colValue = getBodyIdForTable(query.ds, entry[header.id], actions, {skeleton: true});
         }
         if (header.id === 'post') {
           const postQuery = createSimpleConnectionQueryObject({
