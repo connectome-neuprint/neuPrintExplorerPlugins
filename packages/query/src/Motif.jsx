@@ -28,7 +28,7 @@ export class Motif extends React.Component {
       name: pluginName,
       displayName: 'Motif Query',
       abbr: pluginAbbrev,
-      experimental: true,
+      experimental: false,
       description: 'Sketch interface to query the database for motifs',
       visType: 'MotifView',
     };
