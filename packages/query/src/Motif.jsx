@@ -135,7 +135,7 @@ export class Motif extends React.Component {
         vimoServer={vimoServer}
         />) : (<span>Loading...</span>
       )}
-      <b>This search is powered by the <a href="https://vcg.seas.harvard.edu/publications/vimo">VIMO</a> Server & motif sktech UI from the <a href="https://vcg.seas.harvard.edu/">Visual Computing Group at Harvard.</a></b>
+      <b>Powered by <a href="https://vcg.seas.harvard.edu/publications/vimo">VIMO</a>, developed by the <a href="https://vcg.seas.harvard.edu/">Visual Computing Group</a> at Harvard.</b>
 		</>
     );
   }
