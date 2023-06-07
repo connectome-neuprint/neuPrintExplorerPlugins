@@ -17,6 +17,7 @@ export default function Vimo({
     getMotifCount: ne.getMotifCount,
     getRelativeMotifCount: ne.getRelativeMotifCount,
     isQuerying,
+    displayMotifCount: dataVersion.match(/^hemibrain/),
   });
 
   useEffect(async () => {

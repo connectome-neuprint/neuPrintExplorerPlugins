@@ -40,7 +40,7 @@
     "@neuprint/miniroibargraph": "file:../miniroibargraph",
     "@neuprint/miniroiheatmap": "file:../miniroiheatmap",
     "@neuprint/support": "file:../support",
-    "@vimo-public/vimo-sketches": "^0.2.4",
+    "@vimo-public/vimo-sketches": "^0.2.6",
     "codemirror": "^5.48.4",
     "colormap": "^2.3.0",
     "date-fns": "^1.30.1",
