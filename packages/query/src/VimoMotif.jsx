@@ -22,13 +22,14 @@ const styles = () => ({
 const pluginName = 'MotifQuery';
 const pluginAbbrev = 'mq';
 
-export class Motif extends React.Component {
+export class VimoMotif extends React.Component {
   static get details() {
     return {
       name: pluginName,
       displayName: 'Motif Query',
       abbr: pluginAbbrev,
       experimental: false,
+      category: 'top-level',
       description: 'Sketch interface to query the database for motifs',
       visType: 'MotifView',
     };
@@ -141,7 +142,7 @@ export class Motif extends React.Component {
   }
 }
 
-Motif.propTypes = {
+VimoMotif.propTypes = {
   isQuerying: PropTypes.bool.isRequired,
   dataSet: PropTypes.string.isRequired,
   submit: PropTypes.func.isRequired,
@@ -149,4 +150,4 @@ Motif.propTypes = {
 	vimoServer: PropTypes.string.isRequired,
 };
 
-export default withStyles(styles)(Motif);
+export default withStyles(styles)(VimoMotif);
