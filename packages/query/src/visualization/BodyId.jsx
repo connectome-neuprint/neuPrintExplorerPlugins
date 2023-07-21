@@ -54,7 +54,7 @@ function showSkeleton(id, dataset, actions, color) {
 function BodyId(props) {
   const { children, dataSet, actions, classes, options={skeleton: true} } = props;
   const [modal, setModal] = useState(false);
-  const neuronbridgeLink = `https://neuronbridge.janelia.org/search?q=${children}`;
+  const neuronbridgeLink = `https://neuronbridge.janelia.org/search?q=${dataSet.replace(/:.*$/, '*')}:${children}`;
   return (
     <div>
       <div className={classes.container}>
@@ -74,7 +74,7 @@ function BodyId(props) {
             donut_small
           </Icon>
         </Tooltip>
-        {/hemibrain/.test(dataSet) && (
+        {/hemibrain|manc/.test(dataSet) && (
           <Tooltip title="NeuronBridge">
             <a className={classes.nblink} href={neuronbridgeLink}>
               NB
