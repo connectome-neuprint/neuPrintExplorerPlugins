@@ -58,14 +58,63 @@ class NeuronInputField extends React.Component {
     }
 
     // query neo4j
-    const cypherString = `MATCH (neuron :Neuron)
+    /* const cypherString = `MATCH (neuron :Neuron)
     WHERE neuron.bodyId = ${bodyId}
     OR toLower(neuron.type) CONTAINS toLower('${inputValue}')
     OR toLower(neuron.instance) CONTAINS toLower('${inputValue}')
     OR toLower(neuron.notes) CONTAINS toLower('${inputValue}')
     RETURN neuron.bodyId AS bodyid, neuron.type AS type,
     neuron.instance AS instance, neuron.notes AS notes
-    ORDER BY neuron.instance`;
+    ORDER BY neuron.instance`; */
+
+    const cypherString = `WITH
+    toLower('${inputValue}') as q,
+    ${bodyId} as user_body
+MATCH (n :Neuron)
+WHERE
+    n.bodyId = user_body
+    OR toLower(n.type) CONTAINS q
+    OR toLower(n.instance) CONTAINS q
+    OR toLower(n.notes) CONTAINS q
+WITH n,
+    // Assign a match score according to where the match occurs within the properties.
+    CASE WHEN
+        n.bodyId = user_body
+        THEN 0
+    ELSE CASE WHEN
+            // Exact match
+            toLower(n.type) = q
+            OR toLower(n.instance) = q
+        THEN 1
+    ELSE CASE WHEN
+            // Parenthesized exact match
+            toLower(n.type) = '(${inputValue.toLowerCase()})'
+            OR toLower(n.instance) =~ '(${inputValue.toLowerCase()}).*'
+        THEN 2
+    ELSE CASE WHEN
+            // Exact prefix
+            toLower(n.type) =~ '(^${inputValue.toLowerCase()}.*)'
+            OR toLower(n.instance) =~ '(^${inputValue.toLowerCase()}.*)'
+        THEN 3
+    ELSE CASE WHEN
+            // Parenthesized exact prefix
+            toLower(n.type) =~ '(^\\(${inputValue.toLowerCase()}.*)'
+            OR toLower(n.instance) =~ '(^\\(${inputValue.toLowerCase()}.*)'
+        THEN 4
+    ELSE CASE WHEN
+            // Any match in type or instance
+            toLower(n.type) CONTAINS q
+            OR toLower(n.instance) CONTAINS q
+        THEN 5
+    // Lastly, matches in notes
+    ELSE 6
+    END END END END END END as priority
+RETURN
+    n.bodyId AS bodyid,
+    n.type AS type,
+    n.instance AS instance,
+    n.notes AS notes
+ORDER BY priority, n.type, n.instance`
 
     const body = JSON.stringify({
       cypher: cypherString,
@@ -125,8 +174,7 @@ class NeuronInputField extends React.Component {
           options.push({
             label: 'Types',
             options: [...types]
-              .sort()
-              .slice(0, 9)
+              .slice(0, 10)
               .map(item => ({ value: item, label: item }))
           });
         }
@@ -134,8 +182,7 @@ class NeuronInputField extends React.Component {
           options.push({
             label: 'Instances',
             options: [...instances]
-              .sort()
-              .slice(0, 9)
+              .slice(0, 10)
               .map(item => ({ value: item, label: item, additionalInfo: instanceLabels[item] }))
           });
         }
@@ -143,8 +190,7 @@ class NeuronInputField extends React.Component {
           options.push({
             label: 'Body Ids',
             options: [...bodyIds]
-              .sort((a, b) => a[0] - b[0])
-              .slice(0, 9)
+              .slice(0, 10)
               .map(item => ({ value: item, label: item, additionalInfo: bodyIdLabels[item] }))
           });
         }
