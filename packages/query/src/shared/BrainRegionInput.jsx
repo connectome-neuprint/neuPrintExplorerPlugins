@@ -1,7 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
+import Select, { components } from 'react-select';
 import { withStyles } from '@material-ui/core/styles';
+
+function CustomInput(props) {
+  return <components.Input {...props} onPaste={props.selectProps.onPaste} />
+}
+
 
 const styles = theme => ({
   select: {
@@ -39,12 +44,47 @@ function BrainRegionInput(props) {
     };
   });
 
+  const handleChange = (selectedOptions) => {
+    onChange(selectedOptions);
+  };
+
+  const handlePaste = (event) => {
+    const paste = (event.clipboardData || window.clipboardData).getData('text');
+    const pastedItems = paste.split(/[\n,]/).map(item => item.trim()).filter(t => `${t}`.length > 0);
+
+    // remove quotes around the string.
+    const unquotedItems = pastedItems.map(item => item.replace(/^"(.*)"$/, '$1'));
+
+    // check if the string matches an existing ROI
+    const filteredItems = unquotedItems.filter(item => rois.includes(item))
+
+    const filteredOptions = filteredItems.map(name => {
+      let additionalInfo = '';
+      if (roiInfo[name]) {
+        additionalInfo = roiInfo[name].description;
+      }
+
+      return {
+        label: name,
+        value: name,
+        additionalInfo
+      };
+
+    });
+
+    event.preventDefault();
+
+    onChange(filteredOptions);
+  };
+
   return (
     <Select
+      components={{ Input: CustomInput }}
       className={classes.select}
       isMulti={isMulti}
       value={value}
-      onChange={onChange}
+      onChange={handleChange}
+      onPaste={handlePaste}
       formatOptionLabel={formatOptionLabel}
       options={inputOptions}
       closeMenuOnSelect={false}
