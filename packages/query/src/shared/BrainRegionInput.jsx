@@ -52,8 +52,10 @@ function BrainRegionInput(props) {
     const paste = (event.clipboardData || window.clipboardData).getData('text');
     const pastedItems = paste.split(/[\n,]/).map(item => item.trim()).filter(t => `${t}`.length > 0);
 
-    // remove quotes around the string.
-    const unquotedItems = pastedItems.map(item => item.replace(/^"(.*)"$/, '$1'));
+    // remove double or single quotes around the string.
+    const unquotedItems = pastedItems
+      .map(item => item.replace(/^"(.*)"$/, '$1'))
+      .map(item => item.replace(/^'(.*)'$/, '$1'));
 
     // check if the string matches an existing ROI
     const filteredItems = unquotedItems.filter(item => rois.includes(item))
