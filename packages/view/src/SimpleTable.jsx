@@ -104,6 +104,10 @@ class SimpleTable extends React.Component {
     const { rowsPerPage = 5 } = visProps;
     const { paginate = true, page = 0, orderBy = '', order = 'asc' } = visProps;
 
+    if (!result?.data) {
+      return (<p>result.data was not passed to the SimpleTable component</p>);
+    }
+
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, result.data.length - page * rowsPerPage);
 
     const { highlightIndex } = result;
