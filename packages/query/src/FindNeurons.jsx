@@ -74,7 +74,7 @@ function findMinSortValue(row, inputROIs, outputROIs) {
 }
 
 function neuronConditionCypher(neuronName, neuronId, useContains) {
-  const regstr = useContains ? " CONTAINS " : "=~"
+  const regstr = useContains ? "=" : "=~"
 
   if (neuronName && neuronName !== "") {
     return `(neuron.type${regstr}"${neuronName}" OR neuron.instance${regstr}"${neuronName}")`;
