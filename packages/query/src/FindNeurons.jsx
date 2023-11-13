@@ -232,14 +232,12 @@ export class FindNeurons extends React.Component {
     const columnIds = [
       { name: 'id', id: "bodyId", status: true},
       { name: 'instance', id: "instance", status: false },
-      { name: 'notes', id: "notes", status: false },
       { name: 'type', id: "type", status: true },
+      { name: 'predicted nt', id: "predictedNt", status: false },
       { name: 'status', id: "status", status: true },
       { name: 'inputs (#post)', id: "post", status: true },
       { name: 'outputs (#pre)', id: "pre", status: true }
     ];
-
-
 
     if (rois.length > 0) {
       rois.forEach(roi => {
@@ -255,12 +253,17 @@ export class FindNeurons extends React.Component {
       { name: 'mitochondria by brain region', id: "mitoByRegion", status: false },
       { name: 'top mitochondria by type', id: "mitoByType", status: false },
       { name: 'class', id: "class", status: false },
-      { name: 'entry nerve', id: "entryNerve", status: false },
-      { name: 'exit nerve', id: "exitNerve", status: false },
       { name: 'group', id: "group", status: false },
+      /* The below attributes are being removed from the default list and need
+      to be applied to individual datasets. This can be done by setting the
+      n.neuronColumns meta information to add new columns or override the
+      ones that are listed here. Eg, for some datasets, you might want to
+      turn off one of the columns by default.
+       */
+      /* { name: 'entry nerve', id: "entryNerve", status: false },
+      { name: 'exit nerve', id: "exitNerve", status: false },
       { name: 'hemilineage', id: "hemilineage", status: false },
       { name: 'long tract', id: "longTract", status: false },
-      { name: 'predicted nt', id: "predictedNt", status: false },
       { name: 'subclass', id: "subclass", status: false },
       { name: 'synonyms', id: "synonyms", status: false },
       { name: 'systematic type', id: "systematicType", status: false },
@@ -272,6 +275,7 @@ export class FindNeurons extends React.Component {
       { name: 'serial', id: "serial", status: false },
       { name: 'serial motif', id: "serialMotif", status: false },
       { name: 'modality', id: "modality", status: false },
+      { name: 'notes', id: "notes", status: false }, */
     );
 
     // look for neuronColumns and neuronColumns visible in the
