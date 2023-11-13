@@ -1,6 +1,7 @@
 /* eslint-disable prefer-destructuring */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -347,6 +348,32 @@ export class FindNeurons extends React.Component {
         // for certain headers we need to modify the returned results
         if (header.id === 'bodyId') {
           colValue = getBodyIdForTable(query.ds, entry[header.id], actions, {skeleton: true});
+        }
+        // if this is a type column, then check to see if there is a JSON string
+        // If there is a JSON string with a value and an href attribute, then convert
+        // it into a link on the page.
+        if (header.id === 'type') {
+          try {
+            const parsedType = JSON.parse(row[0].type);
+            if (!parsedType?.href) {
+              throw Error('href missing for type');
+            }
+            if (!parsedType?.label) {
+              throw Error('label missing for type');
+            }
+            const link = /^http/.test(parsedType.href)
+              ? (<a href={parsedType.href}>{parsedType.label}</a>)
+              : (<Link to={parsedType.href}>{parsedType.label}</Link>);
+
+
+            colValue = {
+              value: link,
+              sortBy: parsedType.label,
+            };
+          } catch (error) {
+            console.log(error);
+            colValue = row[0].type;
+          }
         }
         if (header.id === 'post') {
           const postQuery = createSimpleConnectionQueryObject({
