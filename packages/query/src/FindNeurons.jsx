@@ -78,7 +78,7 @@ function neuronConditionCypher(neuronName, neuronId, useContains) {
   const regstr = useContains ? "=" : "=~"
 
   if (neuronName && neuronName !== "") {
-    return `(neuron.type${regstr}"${neuronName}" OR neuron.instance${regstr}"${neuronName}")`;
+    return `(toLower(neuron.type) ${regstr} "${neuronName.toLowerCase()}" OR toLower(neuron.instance) ${regstr} "${neuronName.toLowerCase()}")`;
   }
 
   if (neuronId) {
@@ -371,7 +371,6 @@ export class FindNeurons extends React.Component {
               sortBy: parsedType.label,
             };
           } catch (error) {
-            console.log(error);
             colValue = row[0].type;
           }
         }
