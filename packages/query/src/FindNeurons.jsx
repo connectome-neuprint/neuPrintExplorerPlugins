@@ -28,6 +28,8 @@ import {
   getBodyIdForTable
 } from './shared/pluginhelpers';
 
+import ColumnSelectModal from "./ColumnSelectModal";
+
 const styles = theme => ({
   select: {
     fontFamily: theme.typography.fontFamily,
@@ -598,6 +600,9 @@ export class FindNeurons extends React.Component {
   };
 
 
+  enableAllROIs = event => {
+    this.setState({ useSuper: false, inputROIs: [], outputROIs: [] });
+  };
 
   toggleSuper = event => {
     // TODO: check to see if ROIs are valid. Remove if they are no longer valid.
@@ -672,6 +677,9 @@ export class FindNeurons extends React.Component {
           roiInfo={roiInfo}
           onChange={this.handleChangeROIsOut}
         />
+        {dataSet === 'optic-lobe' ? (
+          <ColumnSelectModal callback={this.enableAllROIs} />
+        ) : null}
         <FormControl className={classes.formControl}>
           <FormControlLabel
             control={<Switch checked={!useSuper} onChange={this.toggleSuper} color="primary" />}
