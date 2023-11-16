@@ -120,9 +120,9 @@ class CellTypeView extends React.Component {
             <Connections id={exemplarId} result={query.result.data['neuron-outputs']} title="Cell Type Outputs" />
           </Grid>
           <Grid item xs={6}>
-            {neuronCount > 1 && (
+            <Typography variant="h6">Missing inputs/outputs</Typography>
+            {neuronCount > 1 ? (
               <>
-                <Typography variant="h6">Missing inputs/outputs</Typography>
                 <MissingConnections
                   title="Missing Outputs"
                   id={exemplarId}
@@ -134,26 +134,31 @@ class CellTypeView extends React.Component {
                   data={query.result.data['neuron-missed-inputs']}
                 />
               </>
-            )}
+            ) : (<p>Missing inputs/outputs are not calculated for a single neuron.</p>)}
           </Grid>
         </Grid>
 
-        {neuronCount > 1 && (
+        <Typography variant="h6">Common inputs</Typography>
+        {neuronCount > 1 ? (
           <>
-            <p>Common inputs</p>
             <CellTypeHeatMap
               data={query.result.data['common-inputs']}
               median={query.result.data['common-inputs-med']}
               neuronInfo={query.result.data.neuroninfo}
             />
-            <p>Common outputs</p>
+          </>
+        ) : (<p>Common inputs are not calculated for a single neuron.</p>)}
+        <Typography variant="h6">Common outputs</Typography>
+        {neuronCount > 1 ? (
+          <>
             <CellTypeHeatMap
               data={query.result.data['common-outputs']}
               median={query.result.data['common-outputs-med']}
               neuronInfo={query.result.data.neuroninfo}
             />
           </>
-        )}
+        ) : (<p>Common Outputs are not calculated for a single neuron.</p>)}
+
       </div>
     );
   }
