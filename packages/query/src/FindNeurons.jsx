@@ -58,7 +58,7 @@ function rejectRowCheck(type, roiInfo, roisToCheck) {
   // if roi is in any of the check locations then return false
   for (let i = 0; i < roisToCheck.length; i += 1) {
     const roi = roisToCheck[i];
-    if (roiInfo[roi][type] > 0) {
+    if (roiInfo[roi] && roiInfo[roi][type] && roiInfo[roi][type] > 0) {
       return false;
     }
   }
