@@ -185,13 +185,15 @@ export class FindNeurons extends React.Component {
 
     const data = response.result.data
       .map(row => {
-        const bodyId = row[0];
-        const totalPre = row[6];
-        const totalPost = row[7];
-        const voxelCount = row[5];
-        const roiInfoObject = JSON.parse(row[4]);
-        const bodyName = row[1] || '';
-        const bodyType = row[2] || '';
+        const entry = row[0];
+
+        const bodyId = entry.bodyId;
+        const totalPre = entry.pre;
+        const totalPost = entry.post;
+        const voxelCount = entry.size || 0;
+        const roiInfoObject = JSON.parse(entry.roiInfo);
+        const bodyName = entry.instance || '';
+        const bodyType = entry.type || '';
 
         // filter out the rows that don't have the selected inputs or outputs.
         if (rejectRowCheck('post', roiInfoObject, inputROIs)) {
@@ -206,7 +208,7 @@ export class FindNeurons extends React.Component {
           bodyName.replace(/[\n\r]/g, ''),
           row[9],
           bodyType,
-          row[3],
+          entry.status,
           totalPost,
           totalPre
         ];
