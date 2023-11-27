@@ -98,8 +98,8 @@ WITH n,
         THEN 3
     ELSE CASE WHEN
             // Parenthesized exact prefix
-            toLower(n.type) =~ '(^\\(${inputValue.toLowerCase()}.*)'
-            OR toLower(n.instance) =~ '(^\\(${inputValue.toLowerCase()}.*)'
+            toLower(n.type) =~ '(^\\\\(${inputValue.toLowerCase()}.*)'
+            OR toLower(n.instance) =~ '(^\\\\(${inputValue.toLowerCase()}.*)'
         THEN 4
     ELSE CASE WHEN
             // Any match in type or instance
