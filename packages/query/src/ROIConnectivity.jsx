@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
 
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -11,6 +10,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import { withStyles } from '@material-ui/core/styles';
 
 import ColorBox from '@neuprint/colorbox';
+
+import BrainRegionInput from './shared/BrainRegionInput';
+import ColumnSelectModal from "./ColumnSelectModal";
 
 const styles = theme => ({
   clickable: {
@@ -201,18 +203,16 @@ class ROIConnectivity extends React.Component {
   };
 
   handleChangeROIs = selected => {
-    const rois = selected.map(item => item.value);
+    let rois = [];
+    if (selected) {
+      rois = selected.map(item => item.value);
+    }
     this.setState({ rois });
   };
 
   render() {
-    const { isQuerying, availableROIs, classes } = this.props;
+    const { isQuerying, availableROIs, roiInfo } = this.props;
     const { rois } = this.state;
-
-    const roiOptions = availableROIs.map(name => ({
-      label: name,
-      value: name
-    }));
 
     const roiValue = rois.map(roi => ({
       label: roi,
@@ -222,24 +222,22 @@ class ROIConnectivity extends React.Component {
     return (
       <div>
         <InputLabel htmlFor="select-multiple-chip">Brain Regions (optional)</InputLabel>
-        <Select
-          className={classes.select}
-          isMulti
+        <BrainRegionInput
+          rois={availableROIs}
           value={roiValue}
+          roiInfo={roiInfo}
           onChange={this.handleChangeROIs}
-          options={roiOptions}
-          closeMenuOnSelect={false}
         />
+
         <Button
           variant="contained"
           color="primary"
+          style={{'margin-bottom': '2em'}}
           disabled={isQuerying}
           onClick={this.processRequest}
         >
           Submit
         </Button>
-        <br />
-        <br />
         <Typography style={{ fontWeight: 'bold' }}>Description</Typography>
         <Typography variant="body2">
           Within each cell of the matrix, the top number represents connections from brain region Y to brain region X
@@ -257,9 +255,13 @@ class ROIConnectivity extends React.Component {
 ROIConnectivity.propTypes = {
   dataSet: PropTypes.string.isRequired,
   availableROIs: PropTypes.arrayOf(PropTypes.string).isRequired,
-  classes: PropTypes.object.isRequired,
+  roiInfo: PropTypes.object,
   isQuerying: PropTypes.bool.isRequired,
   submit: PropTypes.func.isRequired
+};
+
+ROIConnectivity.defaultProps = {
+  roiInfo: {}
 };
 
 export default withStyles(styles)(ROIConnectivity);
