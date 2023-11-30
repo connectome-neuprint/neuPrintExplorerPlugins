@@ -32,7 +32,7 @@
     "redux": "^3.7.2"
   },
   "dependencies": {
-    "@janelia-flyem/react-neuroglancer": "^2.3.4",
+    "@janelia-flyem/react-neuroglancer": "^2.4.12",
     "@neuprint/colorbox": "file:../colorbox",
     "@neuprint/miniroibargraph": "file:../miniroibargraph",
     "@neuprint/miniroiheatmap": "file:../miniroiheatmap",
