@@ -98,6 +98,52 @@ function roiCypher(inputROIs = [], outputROIs = []) {
   return `${rois.map((roi) => `(neuron.\`${roi}\` = true)`).join(' AND ')}`;
 }
 
+function orderColumns(arr) {
+  // Create a map for quick lookup of objects by their id
+  const map = arr.reduce((acc, obj) => {
+    acc[obj.id] = obj;
+    return acc;
+  }, {});
+
+  const result = [];
+  const tobePlaced = [];
+
+  // split the items to be placed into a separate array
+  arr.forEach((column) => {
+    if (column.after) {
+      tobePlaced.push(column);
+    } else {
+      result.push(column);
+    }
+  });
+
+  // sort the to be placed columns, so that any that reference another to be placed column
+  // are checked after the ones that don't reference a to be placed column. This makes sure
+  // that columns can find their preceding column when checked.
+  const orderedToBePlaced = tobePlaced.sort((a, b) => {
+    if (a.after === b.id) {
+      return 1; // a should come before b
+    }
+    if (b.after === a.id) {
+      return -1; // b should come before a
+    }
+    return 0; // maintain the original order
+  });
+
+  orderedToBePlaced.forEach((obj) => {
+    if (obj.after && map[obj.after]) {
+      const index = result.findIndex((item) => item.id === obj.after);
+      result.splice(index + 1, 0, obj); // Insert obj after the referenced object
+    } else {
+      console.warn(
+        `item ${obj.id} was not mapped since there was no column with an id of ${obj.after}`
+      );
+    }
+  });
+
+  return result;
+}
+
 export class FindNeurons extends React.Component {
   static get details() {
     return {
@@ -266,6 +312,8 @@ export class FindNeurons extends React.Component {
       { name: '#voxels', id: 'size', status: false },
       { name: 'brain region breakdown', id: 'roiBarGraph', status: true },
       { name: 'brain region heatmap', id: 'roiHeatMap', status: false },
+      // TODO: remove mitochondria to group from default list. These should be
+      // added on a per dataset basis.
       { name: 'mitochondria', id: 'mitoTotal', status: false },
       { name: 'mitochondria by brain region', id: 'mitoByRegion', status: false },
       { name: 'top mitochondria by type', id: 'mitoByType', status: false },
@@ -303,15 +351,24 @@ export class FindNeurons extends React.Component {
     // if present, add the columns to the returned array.
     // Probably need to merge the columns from the Meta data
     // as they don't cover everything that we want to display.
+    let mergedColumns = columnIds;
+
     if (defaultDatasetColumns && query.ds in defaultDatasetColumns) {
       const serverDefaultColumns = defaultDatasetColumns[query.ds];
-      const mergedColumns = columnIds.map(column => {
-        return serverDefaultColumns.find(test => test.id === column.id) || column
-      }).concat(serverDefaultColumns.filter(test =>  !columnIds.find( baseCol => baseCol.id === test.id)));
-      return mergedColumns;
+      mergedColumns = columnIds
+        .map((column) => {
+          return serverDefaultColumns.find((test) => test.id === column.id) || column;
+        })
+        .concat(
+          serverDefaultColumns.filter(
+            (test) => !columnIds.find((baseCol) => baseCol.id === test.id)
+          )
+        );
     }
 
-    return columnIds;
+    const orderedColumns = orderColumns(mergedColumns);
+
+    return orderedColumns;
   }
 
   // this function will parse the results from the query to the
