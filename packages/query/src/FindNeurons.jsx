@@ -379,152 +379,153 @@ export class FindNeurons extends React.Component {
 
     const colHeaders = this.getColumnHeaders(query, defaultColumns);
 
-    const data = apiResponse.data.map(row => {
-      // if we get everything back as a JSON object, then we should be able to sort
-      // and modify the response based on the colHeaders array
+    const data = apiResponse.data
+      .map((row) => {
+        // if we get everything back as a JSON object, then we should be able to sort
+        // and modify the response based on the colHeaders array
 
-      const entry = row[0];
-      const roiList = row[1];
-      // make sure none is added to the rois list.
-      roiList.push('None');
-      const roiInfoObject = JSON.parse(entry.roiInfo);
-      // for each row check to see if the row should be rejected
-      if (rejectRowCheck('post', roiInfoObject, inputROIs)) {
-        return null;
-      }
-      if (rejectRowCheck('pre', roiInfoObject, outputROIs)) {
-        return null;
-      }
-
-      const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
-        roiInfoObject,
-        roiList,
-        entry.pre,
-        entry.post
-      );
-
-      const filteredROIs = {};
-      Object.keys(roiInfoObject).forEach(roi => {
-        if (roiList.find(element => element === roi)) {
-          filteredROIs[roi] = roiInfoObject[roi];
+        const entry = row[0];
+        const roiList = row[1];
+        // make sure none is added to the rois list.
+        roiList.push('None');
+        const roiInfoObject = JSON.parse(entry.roiInfo);
+        // for each row check to see if the row should be rejected
+        if (rejectRowCheck('post', roiInfoObject, inputROIs)) {
+          return null;
         }
-      });
-      const mitoTotal = Object.values(filteredROIs).reduce((i, info) => {
-        if (info.mito) {
-          return info.mito + i;
+        if (rejectRowCheck('pre', roiInfoObject, outputROIs)) {
+          return null;
         }
+
+        const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
+          roiInfoObject,
+          roiList,
+          entry.pre,
+          entry.post
+        );
+
+        const filteredROIs = {};
+        Object.keys(roiInfoObject).forEach((roi) => {
+          if (roiList.find((element) => element === roi)) {
+            filteredROIs[roi] = roiInfoObject[roi];
+          }
+        });
+        const mitoTotal = Object.values(filteredROIs).reduce((i, info) => {
+          if (info.mito) {
+            return info.mito + i;
+          }
           return i;
         }, 0);
 
+        const converted = [];
+        // loop over the colHeaders and look for the id/key in the JSON.
+        colHeaders.forEach((header) => {
+          let colValue = entry[header.id] || '';
+          // for certain headers we need to modify the returned results
+          if (header.id === 'bodyId') {
+            colValue = getBodyIdForTable(query.ds, entry[header.id], actions, { skeleton: true });
+          }
+          // if this is a type column, then check to see if there is a JSON string
+          // If there is a JSON string with a value and an href attribute, then convert
+          // it into a link on the page.
+          if (header.id === 'type') {
+            try {
+              const parsedType = JSON.parse(row[0].type);
+              if (!parsedType?.href) {
+                throw Error('href missing for type');
+              }
+              if (!parsedType?.label) {
+                throw Error('label missing for type');
+              }
+              const link = /^http/.test(parsedType.href) ? (
+                <a href={parsedType.href}>{parsedType.label}</a>
+              ) : (
+                <Link to={parsedType.href}>{parsedType.label}</Link>
+              );
 
-      const converted = [];
-      // loop over the colHeaders and look for the id/key in the JSON.
-      colHeaders.forEach(header => {
-        let colValue = entry[header.id] || '';
-        // for certain headers we need to modify the returned results
-        if (header.id === 'bodyId') {
-          colValue = getBodyIdForTable(query.ds, entry[header.id], actions, {skeleton: true});
-        }
-        // if this is a type column, then check to see if there is a JSON string
-        // If there is a JSON string with a value and an href attribute, then convert
-        // it into a link on the page.
-        if (header.id === 'type') {
-          try {
-            const parsedType = JSON.parse(row[0].type);
-            if (!parsedType?.href) {
-              throw Error('href missing for type');
+              colValue = {
+                value: link,
+                sortBy: parsedType.label,
+              };
+            } catch (error) {
+              colValue = row[0].type;
             }
-            if (!parsedType?.label) {
-              throw Error('label missing for type');
-            }
-            const link = /^http/.test(parsedType.href)
-              ? (<a href={parsedType.href}>{parsedType.label}</a>)
-              : (<Link to={parsedType.href}>{parsedType.label}</Link>);
-
-
+          }
+          if (header.id === 'post') {
+            const postQuery = createSimpleConnectionQueryObject({
+              dataSet: query.ds,
+              isPost: true,
+              queryId: entry.bodyId,
+            });
             colValue = {
-              value: link,
-              sortBy: parsedType.label,
+              value: entry.post,
+              action: () => submitFunc(postQuery),
             };
-          } catch (error) {
-            colValue = row[0].type;
           }
-        }
-        if (header.id === 'post') {
-          const postQuery = createSimpleConnectionQueryObject({
-            dataSet: query.ds,
-            isPost: true,
-            queryId: entry.bodyId
-          });
-          colValue = {
-            value: entry.post,
-            action: () => submitFunc(postQuery)
-          };
-        }
-        if (header.id === 'pre') {
-          const preQuery = createSimpleConnectionQueryObject({
-            dataSet: query.ds,
-            queryId: entry.bodyId
-          });
-          colValue = {
-            value: entry.pre,
-            action: () => submitFunc(preQuery)
-          };
-        }
-        if (header.id === 'roiHeatMap') {
-          colValue = heatMap;
-        }
-        if (header.id === 'roiBarGraph') {
-          colValue = barGraph;
-        }
-        if (header.id === 'mitoTotal') {
-          // TODO: this query object should be generated by the CellObjects plugin, so that
-          // we aren't duplicating code here.
-          const cypher = `MATCH(n :Cell {bodyId: ${entry.bodyId}}) -[]-> () -[]-> (m:Element) WHERE m.type="mitochondrion" RETURN ID(m), m.type, m`;
-          const mitoQuery = {
-            dataSet: query.ds,
-            pluginCode: 'cos',
-            pluginName: 'CellObjects',
-            parameters: {
-              dataset: query.ds,
-              bodyId: entry.bodyId,
-              cypherQuery: cypher
+          if (header.id === 'pre') {
+            const preQuery = createSimpleConnectionQueryObject({
+              dataSet: query.ds,
+              queryId: entry.bodyId,
+            });
+            colValue = {
+              value: entry.pre,
+              action: () => submitFunc(preQuery),
+            };
+          }
+          if (header.id === 'roiHeatMap') {
+            colValue = heatMap;
+          }
+          if (header.id === 'roiBarGraph') {
+            colValue = barGraph;
+          }
+          if (header.id === 'mitoTotal') {
+            // TODO: this query object should be generated by the CellObjects plugin, so that
+            // we aren't duplicating code here.
+            const cypher = `MATCH(n :Cell {bodyId: ${entry.bodyId}}) -[]-> () -[]-> (m:Element) WHERE m.type="mitochondrion" RETURN ID(m), m.type, m`;
+            const mitoQuery = {
+              dataSet: query.ds,
+              pluginCode: 'cos',
+              pluginName: 'CellObjects',
+              parameters: {
+                dataset: query.ds,
+                bodyId: entry.bodyId,
+                cypherQuery: cypher,
+              },
+            };
+            colValue = {
+              value: mitoTotal,
+              action: () => submitFunc(mitoQuery),
+            };
+          }
+          if (header.id === 'mitoByType') {
+            colValue = generateMitoByTypeBarGraph(filteredROIs, mitoTotal);
+          }
+          if (header.id === 'mitoByRegion') {
+            colValue = generateMitoBarGraph(filteredROIs, mitoTotal);
+          }
+          const postMatch = header.id.match(/^roiPost(.*)$/);
+          if (postMatch) {
+            colValue = '0';
+            if (roiInfoObject[postMatch[1]]) {
+              colValue = roiInfoObject[postMatch[1]].post || '0';
             }
-          };
-          colValue = {
-            value: mitoTotal,
-            action: () => submitFunc(mitoQuery)
-          };
-        }
-        if (header.id === 'mitoByType') {
-          colValue = generateMitoByTypeBarGraph(filteredROIs, mitoTotal);
-        }
-        if (header.id === 'mitoByRegion') {
-          colValue = generateMitoBarGraph(filteredROIs, mitoTotal);
-        }
-        const postMatch = header.id.match(/^roiPost(.*)$/);
-        if (postMatch) {
-          colValue = '0';
-          if (roiInfoObject[postMatch[1]]) {
-            colValue = roiInfoObject[postMatch[1]].post || '0';
           }
-        }
-        const preMatch = header.id.match(/^roiPre(.*)$/);
-        if (preMatch) {
-          colValue = '0';
-          if (roiInfoObject[preMatch[1]]) {
-            colValue = roiInfoObject[preMatch[1]].pre || '0';
+          const preMatch = header.id.match(/^roiPre(.*)$/);
+          if (preMatch) {
+            colValue = '0';
+            if (roiInfoObject[preMatch[1]]) {
+              colValue = roiInfoObject[preMatch[1]].pre || '0';
+            }
           }
-        }
 
-        converted.push(colValue);
-      });
-      return converted;
-    })
-    .filter(row => row !== null);
+          converted.push(colValue);
+        });
+        return converted;
+      })
+      .filter((row) => row !== null);
 
     // replace headers that need to have JSX and not just text.
-    const columns = colHeaders.map(header => {
+    const columns = colHeaders.map((header) => {
       if (header.id === 'roiHeatMap') {
         return (
           <div>
