@@ -17,7 +17,7 @@ import AdvancedNeuronInput from './shared/AdvancedNeuronInput';
 import NeuronFilterNew, {
   convertToCypher,
   thresholdCypher,
-  statusCypher
+  statusCypher,
 } from './shared/NeuronFilterNew';
 import BrainRegionInput from './shared/BrainRegionInput';
 import {
@@ -25,25 +25,25 @@ import {
   generateRoiHeatMapAndBarGraph,
   generateMitoBarGraph,
   generateMitoByTypeBarGraph,
-  getBodyIdForTable
+  getBodyIdForTable,
 } from './shared/pluginhelpers';
 
-import ColumnSelectModal from "./ColumnSelectModal";
+import ColumnSelectModal from './ColumnSelectModal';
 
-const styles = theme => ({
+const styles = (theme) => ({
   select: {
     fontFamily: theme.typography.fontFamily,
-    margin: '0.5em 0 1em 0'
+    margin: '0.5em 0 1em 0',
   },
   clickable: {
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
   regexWarning: {
-    fontSize: '0.9em'
+    fontSize: '0.9em',
   },
   formControl: {
-    marginBottom: '1em'
-  }
+    marginBottom: '1em',
+  },
 });
 
 // this should match the name of the file this plugin is stored in.
@@ -69,17 +69,17 @@ function findMinSortValue(row, inputROIs, outputROIs) {
   const counts = [];
   const roiInfoObject = JSON.parse(row[4]);
   // get pre for all outputs
-  outputROIs.forEach(roi => counts.push(roiInfoObject[roi].pre));
+  outputROIs.forEach((roi) => counts.push(roiInfoObject[roi].pre));
   // get post for all inputs
-  inputROIs.forEach(roi => counts.push(roiInfoObject[roi].post));
+  inputROIs.forEach((roi) => counts.push(roiInfoObject[roi].post));
   // return min value
   return Math.min(...counts);
 }
 
 function neuronConditionCypher(neuronName, neuronId, useContains) {
-  const regstr = useContains ? "=" : "=~"
+  const regstr = useContains ? '=' : '=~';
 
-  if (neuronName && neuronName !== "") {
+  if (neuronName && neuronName !== '') {
     return `(toLower(neuron.type) ${regstr} "${neuronName.toLowerCase()}" OR toLower(neuron.instance) ${regstr} "${neuronName.toLowerCase()}")`;
   }
 
@@ -87,15 +87,15 @@ function neuronConditionCypher(neuronName, neuronId, useContains) {
     return `neuron.bodyId = ${neuronId}`;
   }
 
-  return "";
+  return '';
 }
 
-function roiCypher(inputROIs=[], outputROIs=[]) {
+function roiCypher(inputROIs = [], outputROIs = []) {
   const rois = [...inputROIs, ...outputROIs];
   if (rois.length === 0) {
     return '';
   }
-  return `${rois.map(roi => `(neuron.\`${roi}\` = true)`).join(' AND ')}`;
+  return `${rois.map((roi) => `(neuron.\`${roi}\` = true)`).join(' AND ')}`;
 }
 
 export class FindNeurons extends React.Component {
@@ -106,7 +106,7 @@ export class FindNeurons extends React.Component {
       abbr: pluginAbbrev,
       category: 'top-level',
       description: 'Find neurons that have inputs or outputs in selected brain regions',
-      visType: 'SimpleTable'
+      visType: 'SimpleTable',
     };
   }
 
@@ -119,17 +119,21 @@ export class FindNeurons extends React.Component {
     // foreach item in the filters, check if it is an array or a string. if it is
     // a string, convert it to an array and then run it through the cypher
     // conversion function
-    const filters = params.filters ? Object.entries(params.filters).map(([filterName, value]) => {
-      return convertToCypher(filterName, Array.isArray(value) ? value : [value])
-    }) : [];
+    const filters = params.filters
+      ? Object.entries(params.filters).map(([filterName, value]) => {
+          return convertToCypher(filterName, Array.isArray(value) ? value : [value]);
+        })
+      : [];
     const conditions = [
       neuronConditionCypher(params.neuron_name, params.neuron_id, params.enable_contains),
       thresholdCypher('pre', params.pre),
       thresholdCypher('post', params.post),
       statusCypher(params.statuses),
       roiCypher(params.input_ROIs, params.output_ROIs),
-      ...filters
-    ].filter(condition => condition !== '').join(' AND ');
+      ...filters,
+    ]
+      .filter((condition) => condition !== '')
+      .join(' AND ');
 
     const hasConditions = conditions.length > 0 ? 'WHERE' : '';
 
@@ -137,14 +141,14 @@ export class FindNeurons extends React.Component {
 
     return {
       cypherQuery,
-      queryString: '/custom/custom?np_explorer=find_neurons'
+      queryString: '/custom/custom?np_explorer=find_neurons',
       // queryString: '/npexplorer/findneurons'
     };
   }
 
-  static clipboardCallback = apiResponse => columns => {
+  static clipboardCallback = (apiResponse) => (columns) => {
     const csv = apiResponse.result.data
-      .map(row => {
+      .map((row) => {
         const filteredRow = columns
           .map((column, index) => {
             if (!column) {
@@ -161,7 +165,7 @@ export class FindNeurons extends React.Component {
 
             return row[index];
           })
-          .filter(item => item !== null)
+          .filter((item) => item !== null)
           .join(',');
         return filteredRow;
       })
@@ -170,12 +174,20 @@ export class FindNeurons extends React.Component {
   };
 
   static processDownload(response) {
-    const headers = ['id', 'instance', 'notes', 'type', 'status', 'inputs (#post)', 'outputs (#pre)'];
+    const headers = [
+      'id',
+      'instance',
+      'notes',
+      'type',
+      'status',
+      'inputs (#post)',
+      'outputs (#pre)',
+    ];
 
     const { input_ROIs: inputROIs = [], output_ROIs: outputROIs = [] } = response.params.pm;
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
     if (rois.length > 0) {
-      rois.forEach(roi => {
+      rois.forEach((roi) => {
         headers.push(`${roi} #post`);
         headers.push(`${roi} #pre`);
       });
@@ -184,7 +196,7 @@ export class FindNeurons extends React.Component {
     headers.push('#voxels');
 
     const data = response.result.data
-      .map(row => {
+      .map((row) => {
         const entry = row[0];
 
         const bodyId = entry.bodyId;
@@ -210,11 +222,11 @@ export class FindNeurons extends React.Component {
           bodyType,
           entry.status,
           totalPost,
-          totalPre
+          totalPre,
         ];
         // figure out roi counts.
         if (rois.length > 0) {
-          rois.forEach(roi => {
+          rois.forEach((roi) => {
             converted.push(roiInfoObject[roi].post);
             converted.push(roiInfoObject[roi].pre);
           });
@@ -225,7 +237,7 @@ export class FindNeurons extends React.Component {
 
         return converted;
       })
-      .filter(row => row !== null);
+      .filter((row) => row !== null);
     data.unshift(headers);
     return data;
   }
@@ -235,31 +247,34 @@ export class FindNeurons extends React.Component {
     const rois = inputROIs && outputROIs ? [...new Set(inputROIs.concat(outputROIs))] : [];
 
     const columnIds = [
-      { name: 'id', id: "bodyId", status: true},
-      { name: 'instance', id: "instance", status: false },
-      { name: 'type', id: "type", status: true },
-      { name: 'predicted nt', id: "predictedNt", status: false },
-      { name: 'status', id: "status", status: true },
-      { name: 'inputs (#post)', id: "post", status: true },
-      { name: 'outputs (#pre)', id: "pre", status: true }
+      { name: 'id', id: 'bodyId', status: true },
+      { name: 'instance', id: 'instance', status: false },
+      { name: 'type', id: 'type', status: true },
+      { name: 'predicted nt', id: 'predictedNt', status: false },
+      { name: 'status', id: 'status', status: true },
+      { name: 'inputs (#post)', id: 'post', status: true },
+      { name: 'outputs (#pre)', id: 'pre', status: true },
     ];
 
     if (rois.length > 0) {
-      rois.forEach(roi => {
+      rois.forEach((roi) => {
         columnIds.push({ name: `${roi} #post`, id: `roiPost${roi}`, status: true });
         columnIds.push({ name: `${roi} #pre`, id: `roiPre${roi}`, status: true });
       });
     }
     columnIds.push(
-      { name: '#voxels', id: "size", status: false },
-      { name: 'brain region breakdown', id: "roiBarGraph", status: true },
-      { name: 'brain region heatmap', id: "roiHeatMap", status: false },
-      { name: 'mitochondria', id: "mitoTotal", status: false },
-      { name: 'mitochondria by brain region', id: "mitoByRegion", status: false },
-      { name: 'top mitochondria by type', id: "mitoByType", status: false },
-      { name: 'class', id: "class", status: false },
-      { name: 'group', id: "group", status: false },
-      /* The below attributes are being removed from the default list and need
+      { name: '#voxels', id: 'size', status: false },
+      { name: 'brain region breakdown', id: 'roiBarGraph', status: true },
+      { name: 'brain region heatmap', id: 'roiHeatMap', status: false },
+      { name: 'mitochondria', id: 'mitoTotal', status: false },
+      { name: 'mitochondria by brain region', id: 'mitoByRegion', status: false },
+      { name: 'top mitochondria by type', id: 'mitoByType', status: false },
+      { name: 'class', id: 'class', status: false },
+      {
+        name: 'group',
+        id: 'group',
+        status: false,
+      } /* The below attributes are being removed from the default list and need
       to be applied to individual datasets. This can be done by setting the
       n.neuronColumns meta information to add new columns or override the
       ones that are listed here. Eg, for some datasets, you might want to
@@ -463,12 +478,11 @@ export class FindNeurons extends React.Component {
       return header.name;
     });
 
-
     return {
       columns,
       data,
       debug: apiResponse.debug,
-      title: `Neurons with inputs in [${inputROIs}] and outputs in [${outputROIs}]`
+      title: `Neurons with inputs in [${inputROIs}] and outputs in [${outputROIs}]`,
     };
   }
 
@@ -485,7 +499,7 @@ export class FindNeurons extends React.Component {
       outputROIs: [],
       filters: {},
       useSuper: true,
-      advancedSearch: JSON.parse(localStorage.getItem('neuprint_advanced_search')) || false
+      advancedSearch: JSON.parse(localStorage.getItem('neuprint_advanced_search')) || false,
     };
   }
 
@@ -503,7 +517,7 @@ export class FindNeurons extends React.Component {
       inputROIs,
       outputROIs,
       filters,
-      advancedSearch
+      advancedSearch,
     } = this.state;
 
     const parameters = {
@@ -511,7 +525,7 @@ export class FindNeurons extends React.Component {
       input_ROIs: inputROIs,
       output_ROIs: outputROIs,
       statuses: status,
-      all_segments: !limitNeurons
+      all_segments: !limitNeurons,
     };
 
     if (pre > 0) {
@@ -533,7 +547,12 @@ export class FindNeurons extends React.Component {
     }
 
     // don't allow submission if there are no filters set.
-    if (neuronInstance === '' && inputROIs.length === 0 && outputROIs.length === 0 && Object.keys(filters).length === 0) {
+    if (
+      neuronInstance === '' &&
+      inputROIs.length === 0 &&
+      outputROIs.length === 0 &&
+      Object.keys(filters).length === 0
+    ) {
       actions.formError('Please apply at least one of the filters in the form.');
       return;
     }
@@ -550,68 +569,67 @@ export class FindNeurons extends React.Component {
       parameters.neuron_type = neuronType;
     }
 
-        const query = {
+    const query = {
       dataSet, // <string> for the data set selected
       plugin: pluginName, // <string> the name of this plugin.
       pluginCode: pluginAbbrev,
       parameters,
       visProps: {
-        rowsPerPage: 25
-      }
+        rowsPerPage: 25,
+      },
     };
     submit(query);
   };
 
-  handleChangeROIsIn = selected => {
+  handleChangeROIsIn = (selected) => {
     let rois = [];
     if (selected) {
-      rois = selected.map(item => item.value);
+      rois = selected.map((item) => item.value);
     }
     this.setState({ inputROIs: rois });
   };
 
-  handleChangeROIsOut = selected => {
+  handleChangeROIsOut = (selected) => {
     let rois = [];
     if (selected) {
-      rois = selected.map(item => item.value);
+      rois = selected.map((item) => item.value);
     }
     this.setState({ outputROIs: rois });
   };
 
-  addNeuronInstance = neuronInstance => {
+  addNeuronInstance = (neuronInstance) => {
     this.setState({ neuronInstance });
   };
 
-  addNeuronType = event => {
+  addNeuronType = (event) => {
     const neuronType = event.target.value;
     this.setState({ neuronType });
   };
 
-  loadNeuronFilters = params => {
+  loadNeuronFilters = (params) => {
     this.setState({
       status: params.status,
       pre: parseInt(params.pre, 10),
-      post: parseInt(params.post, 10)
+      post: parseInt(params.post, 10),
     });
   };
 
-  loadNeuronFiltersNew = filters => {
+  loadNeuronFiltersNew = (filters) => {
     this.setState({
-      filters
+      filters,
     });
   };
 
-
-  enableAllROIs = event => {
+  enableAllROIs = (event) => {
     this.setState({ useSuper: false, inputROIs: [], outputROIs: [] });
   };
 
-  toggleSuper = event => {
+  toggleSuper = (event) => {
     // TODO: check to see if ROIs are valid. Remove if they are no longer valid.
     this.setState({ useSuper: !event.target.checked, inputROIs: [], outputROIs: [] });
   };
 
-  toggleAdvanced = event => {
+  toggleAdvanced = (event) => {
     localStorage.setItem('neuprint_advanced_search', event.target.checked);
     this.setState({ advancedSearch: event.target.checked, neuronInstance: '' });
   };
@@ -627,25 +645,25 @@ export class FindNeurons extends React.Component {
       roiInfo,
       dataSet,
       actions,
-      neoServerSettings
+      neoServerSettings,
     } = this.props;
     const {
       useSuper,
       neuronInstance = '',
       inputROIs = [],
       outputROIs = [],
-      advancedSearch
+      advancedSearch,
     } = this.state;
 
     // decide to use super ROIs (default) or all ROIs
     const selectedROIs = useSuper ? superROIs : availableROIs;
-    const inputValue = inputROIs.map(roi => ({
+    const inputValue = inputROIs.map((roi) => ({
       label: roi,
-      value: roi
+      value: roi,
     }));
-    const outputValue = outputROIs.map(roi => ({
+    const outputValue = outputROIs.map((roi) => ({
       label: roi,
-      value: roi
+      value: roi,
     }));
 
     return (
@@ -679,9 +697,7 @@ export class FindNeurons extends React.Component {
           roiInfo={roiInfo}
           onChange={this.handleChangeROIsOut}
         />
-        {dataSet === 'optic-lobe' ? (
-          <ColumnSelectModal callback={this.enableAllROIs} />
-        ) : null}
+        {dataSet === 'optic-lobe' ? <ColumnSelectModal callback={this.enableAllROIs} /> : null}
         <FormControl className={classes.formControl}>
           <FormControlLabel
             control={<Switch checked={!useSuper} onChange={this.toggleSuper} color="primary" />}
@@ -734,11 +750,11 @@ FindNeurons.propTypes = {
   classes: PropTypes.object.isRequired,
   submit: PropTypes.func.isRequired,
   isQuerying: PropTypes.bool.isRequired,
-  neoServerSettings: PropTypes.object.isRequired
+  neoServerSettings: PropTypes.object.isRequired,
 };
 
 FindNeurons.defaultProps = {
-  roiInfo: {}
+  roiInfo: {},
 };
 
 export default withStyles(styles)(FindNeurons);
