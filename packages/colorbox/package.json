@@ -26,8 +26,8 @@
   },
   "peerDependencies": {
     "prop-types": "^15.6.2",
-    "react": "^16.11.0",
-    "react-dom": "^16.11.0"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "bugs": {
     "url": "https://github.com/connectome-neuprint/neuPrintExplorerPlugins/issues"

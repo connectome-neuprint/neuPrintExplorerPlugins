@@ -25,8 +25,8 @@
     "@material-ui/icons": "^4.11.2",
     "core-js": "^3.6.5",
     "prop-types": "^15.6.2",
-    "react": "^16.11.0",
-    "react-dom": "^16.11.0"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "gitHead": "7e8a8d98fc5f55d001b8cc2707aee629396f7654",
   "dependencies": {
