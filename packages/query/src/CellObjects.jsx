@@ -153,6 +153,55 @@ export class CellObjects extends React.Component {
     };
   }
 
+  static processDownload(response) {
+    const headers = [
+      'location',
+      'type',
+      'size',
+      'mitoType',
+      'confidence (pre)',
+      'confidence (post)',
+    ];
+
+    const data = response.result.data
+      .map((row) => {
+        if (row[2].type === "mitochondrion") {
+          return [
+            row[2].location.coordinates.join(','),
+            row[2].type,
+            row[2].size,
+            row[2].mitoType
+          ];
+        }
+
+        if (row[2].type === "post") {
+          return [
+            row[2].location.coordinates.join(','),
+            row[2].type,
+            '',
+            '',
+            '',
+            row[2].confidence,
+          ];
+        }
+
+        // if (row[2].type === "pre") {
+        return [
+          row[2].location.coordinates.join(','),
+          row[2].type,
+          '',
+          '',
+          row[2].confidence,
+          '',
+        ];
+
+      })
+      .filter((row) => row !== null);
+    data.unshift(headers);
+    return data;
+  }
+
+
   constructor(props) {
     super(props);
 
