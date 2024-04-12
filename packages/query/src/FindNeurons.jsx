@@ -755,7 +755,8 @@ export class FindNeurons extends React.Component {
           roiInfo={roiInfo}
           onChange={this.handleChangeROIsOut}
         />
-        {dataSet === 'optic-lobe' ? <ColumnSelectModal callback={this.enableAllROIs} /> : null}
+          {/* temporarily disabled until the selection widget is ready for deployment */}
+          {/* dataSet === 'optic-lobe' ? <ColumnSelectModal callback={this.enableAllROIs} /> : null */}
         <FormControl className={classes.formControl}>
           <FormControlLabel
             control={<Switch checked={!useSuper} onChange={this.toggleSuper} color="primary" />}
