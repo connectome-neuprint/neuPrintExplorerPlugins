@@ -177,8 +177,9 @@ export default function NeuronFilterNew({ callback, actions, datasetstr, neoServ
       if (filter.id.match(/^(bodyId|type|instance)$/) || filter.choices === undefined) {
         return null;
       }
-
-      if (!filter.choices) {
+      // have to check here to make sure someone has provided a choices attribute
+      // and that it is an array.
+      if (!filter.choices || !Array.isArray(filter.choices)) {
         return (
           <FormControl className={classes.formControl} key={filter.id}>
             <FormLabel style={{ display: 'inline-flex' }}>{filter.name}</FormLabel>
