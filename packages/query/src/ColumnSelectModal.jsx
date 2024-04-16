@@ -60,7 +60,7 @@ export default function ColumnSelectModal({ callback }) {
             style={{ border: 'none' }}
             width="100%"
             height="100%"
-            src="/public/medulla_column_selector.html"
+            src="/public/column_selection_ui.html"
             title="Column selection"
           />
         </div>
