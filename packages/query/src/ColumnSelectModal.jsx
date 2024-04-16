@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
@@ -19,8 +19,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ColumnSelectModal({ callback }) {
+export default function ColumnSelectModal({ callback, dataset }) {
   const [open, setOpen] = useState(false);
+  const [disabled, setDisabled] = useState(true);
   const classes = useStyles();
 
   const handleOpen = () => {
@@ -30,9 +31,21 @@ export default function ColumnSelectModal({ callback }) {
     }
   };
 
+  const selectorSrc = `/public/roi_selectors/${dataset}/column_selection_ui.html`;
+
+  useEffect(() => {
+    // if the file at selectorSrc can be fetched, then activate the button
+    fetch(selectorSrc, {method: 'get'}).then(response => {
+      if (response.ok) {
+        setDisabled(false);
+      }
+    });
+  },[selectorSrc]);
+
+
   return (
     <div>
-      <Button color="primary" variant="outlined" onClick={handleOpen}>
+      <Button color="primary" variant="outlined" onClick={handleOpen} disabled={disabled}>
         Column Selection
       </Button>
       <Modal
@@ -60,7 +73,7 @@ export default function ColumnSelectModal({ callback }) {
             style={{ border: 'none' }}
             width="100%"
             height="100%"
-            src="/public/column_selection_ui.html"
+            src={selectorSrc}
             title="Column selection"
           />
         </div>
@@ -71,6 +84,7 @@ export default function ColumnSelectModal({ callback }) {
 
 ColumnSelectModal.propTypes = {
   callback: PropTypes.func,
+  dataset: PropTypes.string.isRequired
 };
 
 ColumnSelectModal.defaultProps = {
