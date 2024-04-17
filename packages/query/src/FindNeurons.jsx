@@ -9,11 +9,13 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
+import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 
 import { ColorLegend } from '@neuprint/miniroiheatmap';
 import NeuronInputField from './shared/NeuronInputField';
 import AdvancedNeuronInput from './shared/AdvancedNeuronInput';
+import BrainRegionPopover from './shared/BrainRegionPopover';
 import NeuronFilterNew, {
   convertToCypher,
   thresholdCypher,
@@ -43,6 +45,12 @@ const styles = (theme) => ({
   },
   formControl: {
     marginBottom: '1em',
+  },
+  fieldset: {
+    marginBottom: '1em',
+    border: '1px solid #ddd',
+    borderRadius: '5px',
+    color: 'rgba(0,0,0,0.54)',
   },
 });
 
@@ -170,6 +178,9 @@ export class FindNeurons extends React.Component {
           return convertToCypher(filterName, Array.isArray(value) ? value : [value]);
         })
       : [];
+
+    console.log(params.inputMatchAny, params.outputMatchAny);
+
     const conditions = [
       neuronConditionCypher(params.neuron_name, params.neuron_id, params.enable_contains),
       thresholdCypher('pre', params.pre),
@@ -554,7 +565,9 @@ export class FindNeurons extends React.Component {
       post: 0,
       neuronInstance: '',
       inputROIs: [],
+      inputMatchAny: false,
       outputROIs: [],
+      outputMatchAny: false,
       filters: {},
       useSuper: true,
       advancedSearch: JSON.parse(localStorage.getItem('neuprint_advanced_search')) || false,
@@ -573,7 +586,9 @@ export class FindNeurons extends React.Component {
       neuronInstance,
       neuronType,
       inputROIs,
+      inputMatchAny,
       outputROIs,
+      outputMatchAny,
       filters,
       advancedSearch,
     } = this.state;
@@ -581,7 +596,9 @@ export class FindNeurons extends React.Component {
     const parameters = {
       dataset: dataSet,
       input_ROIs: inputROIs,
+      inputMatchAny,
       output_ROIs: outputROIs,
+      outputMatchAny,
       statuses: status,
       all_segments: !limitNeurons,
     };
@@ -692,6 +709,14 @@ export class FindNeurons extends React.Component {
     this.setState({ advancedSearch: event.target.checked, neuronInstance: '' });
   };
 
+  handleChangeInputMatch = (event) => {
+    this.setState({ inputMatchAny: event.target.checked });
+  };
+
+  handleChangeOutputMatch = (event) => {
+    this.setState({ outputMatchAny: event.target.checked });
+  };
+
   // use this function to generate the form that will accept and
   // validate the variables for your Neo4j query.
   render() {
@@ -709,7 +734,9 @@ export class FindNeurons extends React.Component {
       useSuper,
       neuronInstance = '',
       inputROIs = [],
+      inputMatchAny,
       outputROIs = [],
+      outputMatchAny,
       advancedSearch,
     } = this.state;
 
@@ -741,21 +768,67 @@ export class FindNeurons extends React.Component {
             handleSubmit={this.processRequest}
           />
         )}
-        <InputLabel htmlFor="select-multiple-chip">Input Brain Regions</InputLabel>
-        <BrainRegionInput
-          rois={selectedROIs}
-          value={inputValue}
-          roiInfo={roiInfo}
-          onChange={this.handleChangeROIsIn}
-        />
-        <InputLabel htmlFor="select-multiple-chip">Output Brain Regions</InputLabel>
-        <BrainRegionInput
-          rois={selectedROIs}
-          value={outputValue}
-          roiInfo={roiInfo}
-          onChange={this.handleChangeROIsOut}
-        />
-          { dataSet.match(/optic-lobe/) ? <ColumnSelectModal dataset={dataSet} callback={this.enableAllROIs} /> : null }
+        <fieldset className={classes.fieldset}>
+          <InputLabel htmlFor="select-multiple-chip">Input Brain Regions</InputLabel>
+          <BrainRegionInput
+            rois={selectedROIs}
+            value={inputValue}
+            roiInfo={roiInfo}
+            onChange={this.handleChangeROIsIn}
+          />
+          <Grid container alignItems="center" spacing={1}>
+            <Grid item>
+              <Grid component="label" container alignItems="center" spacing={1}>
+                <Grid item>Match All</Grid>
+                <Grid item>
+                  <Switch
+                    checked={inputMatchAny}
+                    onChange={this.handleChangeInputMatch}
+                    name="checked"
+                    color="primary"
+                  />
+                </Grid>
+                <Grid item>Any</Grid>
+              </Grid>
+            </Grid>
+            <Grid item style={{ lineHeight: '0em' }}>
+              <BrainRegionPopover />
+            </Grid>
+          </Grid>
+        </fieldset>
+
+        <fieldset className={classes.fieldset}>
+          <InputLabel htmlFor="select-multiple-chip">Output Brain Regions</InputLabel>
+          <BrainRegionInput
+            rois={selectedROIs}
+            value={outputValue}
+            roiInfo={roiInfo}
+            onChange={this.handleChangeROIsOut}
+          />
+          <Grid container alignItems="center" spacing={1}>
+            <Grid item>
+              <Grid component="label" container alignItems="center" spacing={1}>
+                <Grid item>Match All</Grid>
+                <Grid item>
+                  <Switch
+                    checked={outputMatchAny}
+                    onChange={this.handleChangeOutputMatch}
+                    name="checked"
+                    color="primary"
+                  />
+                </Grid>
+                <Grid item>Any</Grid>
+              </Grid>
+            </Grid>
+            <Grid item style={{ lineHeight: '0em' }}>
+              <BrainRegionPopover />
+            </Grid>
+          </Grid>
+        </fieldset>
+
+        {dataSet.match(/optic-lobe/) ? (
+          <ColumnSelectModal dataset={dataSet} callback={this.enableAllROIs} />
+        ) : null}
         <FormControl className={classes.formControl}>
           <FormControlLabel
             control={<Switch checked={!useSuper} onChange={this.toggleSuper} color="primary" />}
