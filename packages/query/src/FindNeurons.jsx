@@ -95,18 +95,18 @@ function undirectedRoiCondition(rois = [], matchAny = false) {
   //
   // ...but that seems to have worse performance, presumably
   // because it fails to use the indexes on `ME(R)`, etc.
-  var op = (matchAny) ? 'OR' : 'AND';
+  const op = (matchAny) ? 'OR' : 'AND';
   return `(${rois.map((roi) => `neuron.\`${roi}\``).join(` ${op} `)})`;
 }
 
 function directedRoiCondition(rois, matchAny = false, isInput = false) {
-    if (rois.length === 0) {
-      return '';
+  if (rois && rois.length > 0) {
+      const roiList = (isInput) ? 'inputRois' : 'outputRois';
+      const synType = (isInput) ? 'post' : 'pre';
+      const predicate = (matchAny) ? 'any' : 'all';
+      return `${predicate}(roi in ${roiList} WHERE roi in keys(roiInfo) AND roiInfo[roi]['${synType}'] >= 1)`
     }
-    var roiList = (isInput) ? 'inputRois' : 'outputRois';
-    var synType = (isInput) ? 'post' : 'pre';
-    var predicate = (matchAny) ? 'any' : 'all';
-    return `${predicate}(roi in ${roiList} WHERE roi in keys(roiInfo) AND roiInfo[roi]['${synType}'] >= 1)`
+    return '';
   }
 
 function orderColumns(arr) {
@@ -197,19 +197,16 @@ export class FindNeurons extends React.Component {
       .filter((condition) => condition !== '')
       .join(' AND ');
 
-    var whereConditions = "";
-    if (conditions.length > 0) {
-        whereConditions = `WHERE ${conditions}`
-    }
+    const whereConditions = (conditions.length > 0) ? `WHERE ${conditions}` : "";
 
     // Place the directed conditions in a separate WITH clause so that we
     // only parse the roiInfo for the neurons that passed the above filters.
-    var directedRoiClause = "";
-    if (params.input_ROIs.length > 0 || params.output_ROIs.length > 0) {
-        var inputRois = `[${params.input_ROIs.map((roi) => `"${roi}"`)}]`
-        var inputRois = `[${params.output_ROIs.map((roi) => `"${roi}"`)}]`
+    let directedRoiClause = "";
+    if (params.input_ROIs || params.output_ROIs) {
+        const inputRois = params.input_ROIs ? `[${params.input_ROIs.map((roi) => `"${roi}"`)}]` : "[]";
+        const outputRois = params.output_ROIs ? `[${params.output_ROIs.map((roi) => `"${roi}"`)}]` : "[]";
 
-        var directedRoiConditions = [
+        const directedRoiConditions = [
             directedRoiCondition(params.input_ROIs, params.inputMatchAny, true),
             directedRoiCondition(params.output_ROIs, params.outputMatchAny, false)
         ]
@@ -218,7 +215,7 @@ export class FindNeurons extends React.Component {
 
         directedRoiClause = (
             `WITH ` +
-            `neuron, ` +
+            `neuron, rois, ` +
             `apoc.convert.fromJsonMap(neuron.roiInfo) as roiInfo, ` +
             `${inputRois} as inputRois, ` +
             `${outputRois} as outputRois ` +
@@ -227,17 +224,16 @@ export class FindNeurons extends React.Component {
     }
 
     const cypherQuery = (
-        `MATCH (neuron :${neuronSegment}) ` +
+        `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (neuron :${neuronSegment}) ` +
         `${whereConditions} ` +
         `${directedRoiClause} ` +
-        `RETURN neuron ` +
+        `RETURN neuron, rois ` +
         `ORDER BY neuron.bodyId`
     );
 
     return {
       cypherQuery,
       queryString: '/custom/custom?np_explorer=find_neurons',
-      // queryString: '/npexplorer/findneurons'
     };
   }
 
