@@ -58,21 +58,6 @@ const styles = (theme) => ({
 const pluginName = 'FindNeurons';
 const pluginAbbrev = 'fn';
 
-function rejectRowCheck(type, roiInfo, roisToCheck) {
-  // if no ROIs were selected to filter, then return
-  if (roisToCheck.length === 0) {
-    return false;
-  }
-  // if roi is in any of the check locations then return false
-  for (let i = 0; i < roisToCheck.length; i += 1) {
-    const roi = roisToCheck[i];
-    if (roiInfo[roi] && roiInfo[roi][type] && roiInfo[roi][type] > 0) {
-      return false;
-    }
-  }
-  return true;
-}
-
 function findMinSortValue(row, inputROIs, outputROIs) {
   const counts = [];
   const roiInfoObject = JSON.parse(row[4]);
@@ -98,13 +83,35 @@ function neuronConditionCypher(neuronName, neuronId, useContains) {
   return '';
 }
 
-function roiCypher(inputROIs = [], outputROIs = []) {
-  const rois = [...inputROIs, ...outputROIs];
+function undirectedRoiCondition(rois = [], matchAny = false) {
   if (rois.length === 0) {
-    return '';
+    return "";
   }
-  return `${rois.map((roi) => `(neuron.\`${roi}\` = true)`).join(' AND ')}`;
+  var op = (matchAny) ? 'OR' : 'AND';
+  // Instead of this:
+  //    WHERE (n.`ME(R)` AND n.`LO(R)`, ...),
+  //
+  // a more succinct expression would be this:
+  //    all(roi in ["ME(R)", "LO(R)", ...] WHERE n[roi])
+  //
+  // ...but that seems to have worse performance, presumably
+  // because it fails to use the indexes on `ME(R)`, etc.
+  return `(${rois.map((roi) => `neuron.\`${roi}\``).join(` ${op} `)})`;
 }
+
+function directedRoiCondition(rois, matchAny = false, isInput = false) {
+    if (rois.length === 0) {
+      return '';
+    }
+    var roiList = 'outputRois';
+    var synType = 'pre';
+    if (isInput) {
+        roiList = 'inputRois';
+        synType = 'post'
+    }
+    var predicate = (matchAny) ? 'any' : 'all';
+    return `${predicate}(roi in ${roiList} WHERE roi in keys(roiInfo) AND roiInfo[roi]['${synType}'] >= 1)`
+  }
 
 function orderColumns(arr) {
   // Create a map for quick lookup of objects by their id
@@ -179,22 +186,56 @@ export class FindNeurons extends React.Component {
         })
       : [];
 
-    console.log(params.inputMatchAny, params.outputMatchAny);
-
     const conditions = [
       neuronConditionCypher(params.neuron_name, params.neuron_id, params.enable_contains),
       thresholdCypher('pre', params.pre),
       thresholdCypher('post', params.post),
       statusCypher(params.statuses),
-      roiCypher(params.input_ROIs, params.output_ROIs),
+
+      // The undirected ROI filter is not necessary
+      undirectedRoiCondition(params.input_ROIs, params.inputMatchAny),
+      undirectedRoiCondition(params.output_ROIs, params.outputMatchAny),
       ...filters,
     ]
       .filter((condition) => condition !== '')
       .join(' AND ');
 
-    const hasConditions = conditions.length > 0 ? 'WHERE' : '';
+    var whereConditions = "";
+    if (conditions.length > 0) {
+        whereConditions = `WHERE ${conditions}`
+    }
 
-    const cypherQuery = `MATCH (m:Meta) WITH m.superLevelRois AS rois MATCH (neuron :${neuronSegment}) ${hasConditions} ${conditions} RETURN neuron, rois ORDER BY neuron.bodyId`;
+    // Place the directed conditions in a separate WITH clause so that we
+    // only parse the roiInfo for the neurons that passed the above filters.
+    var directedRoiClause = "";
+    if (params.input_ROIs.length > 0 || params.output_ROIs.length > 0) {
+        var inputRois = `[${params.input_ROIs.map((roi) => `"${roi}"`)}]`
+        var inputRois = `[${params.output_ROIs.map((roi) => `"${roi}"`)}]`
+
+        var directedRoiConditions = [
+            directedRoiCondition(params.input_ROIs, params.inputMatchAny, true),
+            directedRoiCondition(params.output_ROIs, params.outputMatchAny, false)
+        ]
+        .filter((condition) => condition !== '')
+        .join(' AND ');
+
+        directedRoiClause = (
+            `WITH ` +
+            `neuron, ` +
+            `apoc.convert.fromJsonMap(neuron.roiInfo) as roiInfo, ` +
+            `${inputRois} as inputRois, ` +
+            `${outputRois} as outputRois, ` +
+            `WHERE ${directedRoiConditions}`
+        )
+    }
+
+    const cypherQuery = (
+        `MATCH (neuron :${neuronSegment}) ` +
+        `${whereConditions} ` +
+        `${directedRoiClause} ` +
+        `RETURN neuron ` +
+        `ORDER BY neuron.bodyId`
+    );
 
     return {
       cypherQuery,
@@ -263,14 +304,6 @@ export class FindNeurons extends React.Component {
         const roiInfoObject = JSON.parse(entry.roiInfo);
         const bodyName = entry.instance || '';
         const bodyType = entry.type || '';
-
-        // filter out the rows that don't have the selected inputs or outputs.
-        if (rejectRowCheck('post', roiInfoObject, inputROIs)) {
-          return null;
-        }
-        if (rejectRowCheck('pre', roiInfoObject, outputROIs)) {
-          return null;
-        }
 
         const converted = [
           bodyId,
@@ -400,14 +433,6 @@ export class FindNeurons extends React.Component {
         // make sure none is added to the rois list.
         roiList.push('None');
         const roiInfoObject = JSON.parse(entry.roiInfo);
-        // for each row check to see if the row should be rejected
-        if (rejectRowCheck('post', roiInfoObject, inputROIs)) {
-          return null;
-        }
-        if (rejectRowCheck('pre', roiInfoObject, outputROIs)) {
-          return null;
-        }
-
         const { heatMap, barGraph } = generateRoiHeatMapAndBarGraph(
           roiInfoObject,
           roiList,
