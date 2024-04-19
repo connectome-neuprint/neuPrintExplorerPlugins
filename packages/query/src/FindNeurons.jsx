@@ -87,7 +87,6 @@ function undirectedRoiCondition(rois = [], matchAny = false) {
   if (rois.length === 0) {
     return "";
   }
-  var op = (matchAny) ? 'OR' : 'AND';
   // Instead of this:
   //    WHERE (n.`ME(R)` AND n.`LO(R)`, ...),
   //
@@ -96,6 +95,7 @@ function undirectedRoiCondition(rois = [], matchAny = false) {
   //
   // ...but that seems to have worse performance, presumably
   // because it fails to use the indexes on `ME(R)`, etc.
+  var op = (matchAny) ? 'OR' : 'AND';
   return `(${rois.map((roi) => `neuron.\`${roi}\``).join(` ${op} `)})`;
 }
 
@@ -103,12 +103,8 @@ function directedRoiCondition(rois, matchAny = false, isInput = false) {
     if (rois.length === 0) {
       return '';
     }
-    var roiList = 'outputRois';
-    var synType = 'pre';
-    if (isInput) {
-        roiList = 'inputRois';
-        synType = 'post'
-    }
+    var roiList = (isInput) ? 'inputRois' : 'outputRois';
+    var synType = (isInput) ? 'post' : 'pre';
     var predicate = (matchAny) ? 'any' : 'all';
     return `${predicate}(roi in ${roiList} WHERE roi in keys(roiInfo) AND roiInfo[roi]['${synType}'] >= 1)`
   }
@@ -192,7 +188,8 @@ export class FindNeurons extends React.Component {
       thresholdCypher('post', params.post),
       statusCypher(params.statuses),
 
-      // The undirected ROI filter is not necessary
+      // The undirected ROI filters are not necessary, but they improve performance by
+      // pre-filtering the data before the (expensive) directed filters are applied below.
       undirectedRoiCondition(params.input_ROIs, params.inputMatchAny),
       undirectedRoiCondition(params.output_ROIs, params.outputMatchAny),
       ...filters,
@@ -224,7 +221,7 @@ export class FindNeurons extends React.Component {
             `neuron, ` +
             `apoc.convert.fromJsonMap(neuron.roiInfo) as roiInfo, ` +
             `${inputRois} as inputRois, ` +
-            `${outputRois} as outputRois, ` +
+            `${outputRois} as outputRois ` +
             `WHERE ${directedRoiConditions}`
         )
     }
